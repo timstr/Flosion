@@ -28,7 +28,7 @@ namespace fui {
 		static bool init;
 		static sf::Font font;
 		if (!init){
-			font.loadFromFile("NIRMALA.TTF");
+			font.loadFromFile("fonts/JosefinSans-Bold.ttf");
 			init = true;
 		}
 		return font;

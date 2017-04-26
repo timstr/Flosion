@@ -39,8 +39,6 @@ namespace ui {
 
 		sf::RenderWindow renderwindow;
 
-		sf::Font font;
-
 		Window* dragging_window = nullptr;
 		Window* current_window = nullptr;
 		TextEntry* text_entry = nullptr;
@@ -91,7 +89,6 @@ namespace ui {
 
 		void performClick(sf::Mouse::Button button, sf::Vector2f);
 
-		friend sf::Font& getFont();
 		friend void startTransition(TransitionBase* trans);
 		friend void clearTransitions(Window* win);
 		friend void addKeyboardCommand(sf::Keyboard::Key, void (*)());
@@ -427,10 +424,6 @@ namespace ui {
 			text = sf::Text(str, font, charsize);
 			updateSize();
 		}
-		TextEntry(const std::string& str){
-			text = sf::Text(str, Context.font, 15);
-			updateSize();
-		}
 
 		void setText(const std::string& str){
 			text.setString(str);
@@ -635,10 +628,6 @@ namespace ui {
 		click_window = hitwin;
 	}
 
-	sf::Font& getFont(){
-		return Context.font;
-	}
-
 	void clearTransitions(Window* win){
 		for (int i = 0; i < Context.transitions.size(); i++){
 			if (Context.transitions[i]->belongsTo(win)){
@@ -696,8 +685,6 @@ namespace ui {
 		settings.antialiasingLevel = 8;
 
 		Context.renderwindow.create(sf::VideoMode(size.x, size.y), title, sf::Style::Default, settings);
-
-		Context.font.loadFromFile("seguisb.ttf");
 
 		Context.clock.restart();
 
