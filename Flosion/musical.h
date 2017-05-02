@@ -41,7 +41,7 @@ namespace musical {
 
 	struct SoundInput;
 	struct SingleInput;
-	template <class K, class T>
+	template <class K, class T, class P>
 	struct MultiInput;
 
 	struct SoundSource;
@@ -235,9 +235,9 @@ namespace musical {
 	// - look up StateType state with given parent (sound source) state and key
 	// - strict association to parent sound source for state parenthood relationships
 	//   and allocation/deallocation
-	template <class KeyType, class StateType>
+	template <class StateType, class KeyType, class ParentSoundSourceType = SoundSource>
 	struct MultiInput : SoundInput {
-		MultiInput(SoundSource* parent) : SoundInput(parent) {
+		MultiInput(ParentSoundSourceType* _parent) : SoundInput(_parent), parent(_parent) {
 			static_assert(std::is_base_of<MultiInputState<KeyType>, StateType>::value, "The StateType must derive from MultiInputState<KeyType>");
 		}
 		~MultiInput(){
@@ -248,7 +248,7 @@ namespace musical {
 		}
 
 		struct iterator {
-			iterator(const MultiInput<KeyType, StateType>& _multi_input, typename const std::set<KeyType>::iterator& _it, State* _parent_state)
+			iterator(const MultiInput<StateType, KeyType, ParentSoundSourceType>& _multi_input, typename const std::set<KeyType>::iterator& _it, State* _parent_state)
 				: it(_it), multi_input(_multi_input), parent_state(_parent_state) {
 
 			}
@@ -287,7 +287,7 @@ namespace musical {
 
 			private:
 			typename std::set<KeyType>::iterator it;
-			const MultiInput<KeyType, StateType>& multi_input;
+			const MultiInput<StateType, KeyType, ParentSoundSourceType>& multi_input;
 			State* parent_state;
 		};
 
@@ -461,6 +461,8 @@ namespace musical {
 			return *it;
 		}
 
+		const ParentSoundSourceType* parent;
+
 		private:
 
 		std::map<std::pair<KeyType, State*>, StateType*> state_map;
@@ -564,7 +566,7 @@ namespace musical {
 		friend struct SoundInput;
 		friend struct SingleInput;
 
-		template<typename K, typename S>
+		template<typename K, typename S, typename P>
 		friend struct MultiInput;
 
 		template <class T>
