@@ -242,6 +242,9 @@ namespace musical {
 		}
 		~MultiInput(){
 			setSource(nullptr);
+			while (keys.size() > 0){
+				removeKey(*keys.begin());
+			}
 		}
 
 		struct iterator {
