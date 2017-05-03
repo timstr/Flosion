@@ -88,7 +88,7 @@ namespace musical {
 			Sample buffer[CHUNK_SIZE];
 		};
 
-		struct SamplerInput : MultiInput<Note*, InputState> {
+		struct SamplerInput : MultiInput<InputState, Note*> {
 			SamplerInput(SoundSource* parent) : MultiInput(parent), frequency(this), amplitude(this) {
 
 			}

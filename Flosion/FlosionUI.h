@@ -10,3 +10,4 @@
 #include "wavegenUI.h"
 #include "timestretchUI.h"
 #include "samplerUI.h"
+#include "ensembleUI.h"

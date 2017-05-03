@@ -160,6 +160,8 @@
     <ClInclude Include="constantUI.h" />
     <ClInclude Include="dac.h" />
     <ClInclude Include="dacUI.h" />
+    <ClInclude Include="ensemble.h" />
+    <ClInclude Include="ensembleUI.h" />
     <ClInclude Include="filebrowser.h" />
     <ClInclude Include="FlosionUI.h" />
     <ClInclude Include="FlosionUICore.h" />

@@ -86,5 +86,11 @@
     <ClInclude Include="gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ensemble.h">
+      <Filter>Musical</Filter>
+    </ClInclude>
+    <ClInclude Include="ensembleUI.h">
+      <Filter>FlosionUI</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

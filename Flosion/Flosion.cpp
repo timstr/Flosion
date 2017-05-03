@@ -22,7 +22,7 @@ int main(){
 
 	fui::MasterContainer* container = new fui::MasterContainer();
 
-	std::vector<std::string> names = {"const", "+", "d0", "var", "slider", "usine", "usine", "dac", "dac", "audio", "wavegen", "square", "saw", "timestretch", "timestretch", "sampler", "+", "+", "-", "-", "*", "*", "/", "/", "approacher"};
+	std::vector<std::string> names = {"const", "+", "d0", "var", "slider", "usine", "usine", "dac", "dac", "audio", "wavegen", "square", "saw", "timestretch", "timestretch", "sampler", "+", "+", "-", "-", "*", "*", "/", "/", "approacher", "ensemble"};
 
 	for (const std::string& name : names){
 		fui::Object* obj = fui::Factory::createObject(name);

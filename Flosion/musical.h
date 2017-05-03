@@ -144,7 +144,7 @@ namespace musical {
 
 		template <typename ST>
 		friend class StateNumber;
-		template <class ST>
+		template <class ST, class S>
 		friend class MultiInputNumber;
 	};
 
@@ -237,7 +237,7 @@ namespace musical {
 	//   and allocation/deallocation
 	template <class StateType, class KeyType, class ParentSoundSourceType = SoundSource>
 	struct MultiInput : SoundInput {
-		MultiInput(ParentSoundSourceType* _parent) : SoundInput(_parent), parent(_parent) {
+		MultiInput(ParentSoundSourceType* _parent) : SoundInput(_parent), parentsoundsource(_parent) {
 			static_assert(std::is_base_of<MultiInputState<KeyType>, StateType>::value, "The StateType must derive from MultiInputState<KeyType>");
 		}
 		~MultiInput(){
@@ -311,7 +311,7 @@ namespace musical {
 				if (it == state_map.end()){
 					throw std::runtime_error("The provided key and state combination could not be found");
 				} else {
-					source->getNextChunk(buffer, it->second);
+					source->getNextChunk(buffer, it->second, this);
 				}
 			} else {
 				for (int i = 0; i < CHUNK_SIZE; i++){
@@ -461,7 +461,7 @@ namespace musical {
 			return *it;
 		}
 
-		const ParentSoundSourceType* parent;
+		ParentSoundSourceType* const parentsoundsource;
 
 		private:
 
@@ -877,15 +877,15 @@ namespace musical {
 	};
 
 	// to allow SoundProcessor classes to share the stateful data of their MultiInputs
-	template <class StateType>
+	template <class StateType, class SoundInputType = SoundInput>
 	struct MultiInputNumber : NumberSource {
-		MultiInputNumber(SoundInput* _owner) : NumberSource(_owner){
-			owner = _owner;
+		MultiInputNumber(SoundInputType* _owner) : NumberSource(_owner), parentmultiinput(_owner) {
+
 		}
 
 		double evaluate(State* state, int chunk_pos) override {
 			while (state){
-				if (state->owner == owner){
+				if (state->owner == parentmultiinput){
 #ifdef _DEBUG
 					if (StateType* s = dynamic_cast<StateType*>(state)){
 						return getValue(s, chunk_pos);
@@ -904,7 +904,7 @@ namespace musical {
 
 		virtual double getValue(StateType* state, int chunk_pos) = 0;
 
-		SoundInput* owner;
+		SoundInputType* const parentmultiinput;
 	};
 
 	//for use inside NumberSource classes
