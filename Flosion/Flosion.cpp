@@ -27,15 +27,12 @@ int main(){
 	for (const std::string& name : names){
 		fui::Object* obj = fui::Factory::createObject(name);
 		if (obj){
-			struct Data {
-				sf::Vector2f start = {rand() % 900, -200};
-				sf::Vector2f end = sf::Vector2f(rand() % 900, rand() % 600);
-			} data;
-			auto transfn = [](fui::Object* object, double x, Data data){
-				object->pos = data.start + (data.end - data.start) * (float)(0.5 - 0.5 * cos(x * PI));
-			};
-			auto trans = new ui::Transition<Data, fui::Object>(obj, 1000, transfn, {}, data);
-			ui::startTransition(trans);
+			sf::Vector2f start = sf::Vector2f(rand() % 900, -200);
+			sf::Vector2f end = sf::Vector2f(rand() % 900, rand() % 600);
+			obj->startTransition(1.0, [=](double x){
+				obj->pos = start + (end - start) * (float)(0.5 - 0.5 * cos(x * PI));
+			});
+
 			container->addObject(obj);
 		} else {
 			std::cout << "The object \"" << name << "\" couldn't be instantiated\n";

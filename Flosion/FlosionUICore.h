@@ -687,16 +687,13 @@ namespace fui {
 			if (wirehead->wire->safeToConnect(this)){
 				wirehead->wire->ConnectHeadTo(this);
 			} else {
-				struct Data {
-					sf::Vector2f start, end;
-				} data;
-				data.start = wirehead->pos;
+				sf::Vector2f start = wirehead->pos;
 				sf::Vector2f diff = wirehead->pos - wirehead->wire->tail->pos;
-				data.end = sf::Vector2f(sf::Vector2i(wirehead->pos - (diff * (float)(50 / hypot(diff.x, diff.y)))));
-				std::function<void(Window*,double,Data)> transfn = [](Window* win, double x, Data d){
-					win->pos = d.start + (d.end - d.start) * (float)sin(x * PI / 2);
-				};
-				ui::startTransition(new ui::Transition<Data>(wirehead, 250, transfn, {}, data));
+				sf::Vector2f end = sf::Vector2f(sf::Vector2i(wirehead->pos - (diff * (float)(50 / hypot(diff.x, diff.y)))));
+				
+				wirehead->startTransition(0.25, [=](double x){
+					wirehead->pos = start + (end - start) * (float)sin(x * PI / 2);
+				});
 			}
 		}
 	}
@@ -737,16 +734,13 @@ namespace fui {
 			if (wiretail->wire->safeToConnect(this)){
 				wiretail->wire->ConnectTailTo(this);
 			} else {
-				struct Data {
-					sf::Vector2f start, end;
-				} data;
-				data.start = wiretail->pos;
+				sf::Vector2f start = wiretail->pos;
 				sf::Vector2f diff = wiretail->pos - wiretail->wire->head->pos;
-				data.end = sf::Vector2f(sf::Vector2i(wiretail->pos - (diff * (float)(50 / hypot(diff.x, diff.y)))));
-				std::function<void(Window*,double,Data)> transfn = [](Window* win, double x, Data d){
-					win->pos = d.start + (d.end - d.start) * (float)sin(x * PI / 2);
-				};
-				ui::startTransition(new ui::Transition<Data>(wiretail, 250, transfn, {}, data));
+				sf::Vector2f end = sf::Vector2f(sf::Vector2i(wiretail->pos - (diff * (float)(50 / hypot(diff.x, diff.y)))));
+
+				wiretail->startTransition(0.25, [=](double x){
+					wiretail->pos = start + (end - start) * (float)sin(x * PI / 2);
+				});
 			}
 		}
 	}
