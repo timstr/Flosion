@@ -18,7 +18,7 @@
 // TODO: switch from SFML soundstream to PortAudio
 int main(){
 
-	ui::init({1000, 700}, "Oy Oy Oy Oh My Oy", 10);
+	ui::init({1000, 700}, "Oy Oy Oy Oh My Oy", 30);
 
 	fui::MasterContainer* container = new fui::MasterContainer();
 

@@ -21,13 +21,26 @@ namespace ui {
 
 	//represents all shared information used in the GUI
 	struct GUIContext {
+		void init(sf::Vector2f size, std::string title, double _render_delay);
+
 		void addTransition(const Transition& transition);
 		void applyTransitions();
 		void clearTransitions(Window* target);
 
-		private:
+		void addKeyboardCommand(sf::Keyboard::Key, void (*)());
+		void addKeyboardCommand(sf::Keyboard::Key, std::vector<sf::Keyboard::Key>, void (*)());
+		void setQuitHandler(bool (*handler)());
 
-		// TODO: put GUIContext in anonymous namespace, make few functions public and remove all these gosh darned friendships
+		void handleKeyPress(sf::Keyboard::Key key);
+		void handleMouseUp(sf::Mouse::Button button, sf::Vector2f pos);
+		void handleDrag();
+		void handleHover();
+		void handleQuit(bool force);
+
+		bool hasQuit();
+
+
+		long double getProgramTime();
 
 		// store target window on first click
 		// compare to hit window on second click
@@ -35,12 +48,23 @@ namespace ui {
 		// otherwise, perform single click on both
 		void performClick(sf::Mouse::Button button, sf::Vector2f);
 
+		sf::RenderWindow& getRenderWindow();
+		double getRenderDelay();
+
 		sf::Vector2f getMousePosition();
 
+		Window* getDraggingWindow();
+		void setDraggingWindow(Window* window, sf::Vector2f offset = sf::Vector2f(0, 0));
+
 		void focusTo(Window* window);
+		Window* getCurrentWindow();
+		TextEntry* getTextEntry();
+		void setTextEntry(TextEntry* textentry);
+
+		private:
 
 		bool quit = false;
-		int render_delay = 25;
+		double render_delay = 0.025;
 
 		sf::Vector2f drag_offset = sf::Vector2f();
 
@@ -62,20 +86,6 @@ namespace ui {
 		uint32_t click_timestamp;
 		sf::Mouse::Button click_button;
 		Window* click_window;
-
-		// TODO
-		friend void addKeyboardCommand(sf::Keyboard::Key, void (*)());
-		friend void addKeyboardCommand(sf::Keyboard::Key, std::vector<sf::Keyboard::Key>, void (*)());
-		friend void setQuitHandler(bool (*)());
-		friend long double getProgramTime();
-		friend sf::Vector2f getScreenSize();
-		friend sf::Vector2f getMousePos();
-		friend void init(sf::Vector2f, std::string, int);
-		friend void run();
-		friend class Window;
-		friend class TextEntry;
-		friend void quit(bool force);
-		friend Window* root();
 	};
 	// TODO: get rid of this, make necessary functions static
 	extern GUIContext Context;
@@ -220,7 +230,7 @@ namespace ui {
 
 	sf::Vector2f getMousePos();
 
-	void init(sf::Vector2f size = sf::Vector2f(500, 500), std::string title = "Behold", int render_delay = 25); //TODO: this might goof up, make bool?
+	void init(sf::Vector2f size = sf::Vector2f(500, 500), std::string title = "Behold", int target_fps = 30); //TODO: this might goof up, make bool?
 
 	void quit(bool force = false);
 
