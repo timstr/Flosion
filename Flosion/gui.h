@@ -20,75 +20,73 @@ namespace ui {
 	struct Transition;
 
 	//represents all shared information used in the GUI
-	struct GUIContext {
-		void init(sf::Vector2f size, std::string title, double _render_delay);
+	struct Context {
+		static void init(sf::Vector2f size, std::string title, double _render_delay);
 
-		void addTransition(const Transition& transition);
-		void applyTransitions();
-		void clearTransitions(Window* target);
+		static void addTransition(const Transition& transition);
+		static void applyTransitions();
+		static void clearTransitions(Window* target);
 
-		void addKeyboardCommand(sf::Keyboard::Key, void (*)());
-		void addKeyboardCommand(sf::Keyboard::Key, std::vector<sf::Keyboard::Key>, void (*)());
-		void setQuitHandler(bool (*handler)());
+		static void addKeyboardCommand(sf::Keyboard::Key, void (*)());
+		static void addKeyboardCommand(sf::Keyboard::Key, std::vector<sf::Keyboard::Key>, void (*)());
+		static void setQuitHandler(bool (*handler)());
 
-		void handleKeyPress(sf::Keyboard::Key key);
-		void handleMouseUp(sf::Mouse::Button button, sf::Vector2f pos);
-		void handleDrag();
-		void handleHover();
-		void handleQuit(bool force);
+		static void handleKeyPress(sf::Keyboard::Key key);
+		static void handleMouseUp(sf::Mouse::Button button, sf::Vector2f pos);
+		static void handleDrag();
+		static void handleHover();
+		static void handleQuit(bool force);
 
-		bool hasQuit();
+		static bool hasQuit();
 
 
-		long double getProgramTime();
+		static long double getProgramTime();
 
 		// store target window on first click
 		// compare to hit window on second click
 		// if match, perform double click
 		// otherwise, perform single click on both
-		void performClick(sf::Mouse::Button button, sf::Vector2f);
+		static void performClick(sf::Mouse::Button button, sf::Vector2f);
 
-		sf::RenderWindow& getRenderWindow();
-		double getRenderDelay();
+		static sf::RenderWindow& getRenderWindow();
+		static double getRenderDelay();
 
-		sf::Vector2f getMousePosition();
+		static sf::Vector2f getMousePosition();
 
-		Window* getDraggingWindow();
-		void setDraggingWindow(Window* window, sf::Vector2f offset = sf::Vector2f(0, 0));
+		static Window* getDraggingWindow();
+		static void setDraggingWindow(Window* window, sf::Vector2f offset = sf::Vector2f(0, 0));
 
-		void focusTo(Window* window);
-		Window* getCurrentWindow();
-		TextEntry* getTextEntry();
-		void setTextEntry(TextEntry* textentry);
+		static void focusTo(Window* window);
+		static Window* getCurrentWindow();
+		static TextEntry* getTextEntry();
+		static void setTextEntry(TextEntry* textentry);
 
 		private:
 
-		bool quit = false;
-		double render_delay = 0.025;
+		static bool quit;
+		static double render_delay;
 
-		sf::Vector2f drag_offset = sf::Vector2f();
+		static sf::Vector2f drag_offset;
 
-		sf::RenderWindow renderwindow;
+		static sf::RenderWindow renderwindow;
 
-		Window* dragging_window = nullptr;
-		Window* current_window = nullptr;
-		TextEntry* text_entry = nullptr;
+		static Window* dragging_window;
+		static Window* current_window;
+		static TextEntry* text_entry;
 
-		std::vector<Transition> transitions;
+		static std::vector<Transition> transitions;
 
-		sf::Clock clock;
+		static sf::Clock clock;
 
-		std::map<std::pair<sf::Keyboard::Key, std::vector<sf::Keyboard::Key>>, void (*)()> commands;
-		bool (*quit_handler)() = nullptr;
+		static std::map<std::pair<sf::Keyboard::Key, std::vector<sf::Keyboard::Key>>, void (*)()> commands;
+		static bool (*quit_handler)();
 
-		const int doubleclicktime = 250;
+		static const int doubleclicktime;
 
-		uint32_t click_timestamp;
-		sf::Mouse::Button click_button;
-		Window* click_window;
+		static uint32_t click_timestamp;
+		static sf::Mouse::Button click_button;
+		static Window* click_window;
 	};
-	// TODO: get rid of this, make necessary functions static
-	extern GUIContext Context;
 
 	struct Transition {
 		Transition(Window* _target, double _duration, const std::function<void(double)>& _transitionFn, const std::function<void()>& _onComplete = {});
@@ -163,7 +161,7 @@ namespace ui {
 		private:
 		Window* parent = nullptr;
 
-		friend class GUIContext;
+		friend struct Context;
 	};
 
 	struct Text : Window {
