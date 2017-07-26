@@ -19,74 +19,75 @@ namespace ui {
 	struct TextEntry;
 	struct Transition;
 
-	//represents all shared information used in the GUI
-	struct Context {
-		static void init(sf::Vector2f size, std::string title, double _render_delay);
+	namespace {
+		struct Context {
+			static void init(sf::Vector2f size, std::string title, double _render_delay);
 
-		static void addTransition(const Transition& transition);
-		static void applyTransitions();
-		static void clearTransitions(Window* target);
+			static void addTransition(const Transition& transition);
+			static void applyTransitions();
+			static void clearTransitions(Window* target);
 
-		static void addKeyboardCommand(sf::Keyboard::Key, void (*)());
-		static void addKeyboardCommand(sf::Keyboard::Key, std::vector<sf::Keyboard::Key>, void (*)());
-		static void setQuitHandler(bool (*handler)());
+			static void addKeyboardCommand(sf::Keyboard::Key, void (*)());
+			static void addKeyboardCommand(sf::Keyboard::Key, std::vector<sf::Keyboard::Key>, void (*)());
+			static void setQuitHandler(bool (*handler)());
 
-		static void handleKeyPress(sf::Keyboard::Key key);
-		static void handleMouseUp(sf::Mouse::Button button, sf::Vector2f pos);
-		static void handleDrag();
-		static void handleHover();
-		static void handleQuit(bool force);
+			static void handleKeyPress(sf::Keyboard::Key key);
+			static void handleMouseUp(sf::Mouse::Button button, sf::Vector2f pos);
+			static void handleDrag();
+			static void handleHover();
+			static void handleQuit(bool force);
 
-		static bool hasQuit();
+			static bool hasQuit();
 
 
-		static long double getProgramTime();
+			static long double getProgramTime();
 
-		// store target window on first click
-		// compare to hit window on second click
-		// if match, perform double click
-		// otherwise, perform single click on both
-		static void performClick(sf::Mouse::Button button, sf::Vector2f);
+			// store target window on first click
+			// compare to hit window on second click
+			// if match, perform double click
+			// otherwise, perform single click on both
+			static void performClick(sf::Mouse::Button button, sf::Vector2f);
 
-		static sf::RenderWindow& getRenderWindow();
-		static double getRenderDelay();
+			static sf::RenderWindow& getRenderWindow();
+			static double getRenderDelay();
 
-		static sf::Vector2f getMousePosition();
+			static sf::Vector2f getMousePosition();
 
-		static Window* getDraggingWindow();
-		static void setDraggingWindow(Window* window, sf::Vector2f offset = sf::Vector2f(0, 0));
+			static Window* getDraggingWindow();
+			static void setDraggingWindow(Window* window, sf::Vector2f offset = sf::Vector2f(0, 0));
 
-		static void focusTo(Window* window);
-		static Window* getCurrentWindow();
-		static TextEntry* getTextEntry();
-		static void setTextEntry(TextEntry* textentry);
+			static void focusTo(Window* window);
+			static Window* getCurrentWindow();
+			static TextEntry* getTextEntry();
+			static void setTextEntry(TextEntry* textentry);
 
-		private:
+			private:
 
-		static bool quit;
-		static double render_delay;
+			static bool quit;
+			static double render_delay;
 
-		static sf::Vector2f drag_offset;
+			static sf::Vector2f drag_offset;
 
-		static sf::RenderWindow renderwindow;
+			static sf::RenderWindow renderwindow;
 
-		static Window* dragging_window;
-		static Window* current_window;
-		static TextEntry* text_entry;
+			static Window* dragging_window;
+			static Window* current_window;
+			static TextEntry* text_entry;
 
-		static std::vector<Transition> transitions;
+			static std::vector<Transition> transitions;
 
-		static sf::Clock clock;
+			static sf::Clock clock;
 
-		static std::map<std::pair<sf::Keyboard::Key, std::vector<sf::Keyboard::Key>>, void (*)()> commands;
-		static bool (*quit_handler)();
+			static std::map<std::pair<sf::Keyboard::Key, std::vector<sf::Keyboard::Key>>, void (*)()> commands;
+			static bool (*quit_handler)();
 
-		static const int doubleclicktime;
+			static const int doubleclicktime;
 
-		static uint32_t click_timestamp;
-		static sf::Mouse::Button click_button;
-		static Window* click_window;
-	};
+			static uint32_t click_timestamp;
+			static sf::Mouse::Button click_button;
+			static Window* click_window;
+		};
+	}
 
 	struct Transition {
 		Transition(Window* _target, double _duration, const std::function<void(double)>& _transitionFn, const std::function<void()>& _onComplete = {});
