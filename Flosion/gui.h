@@ -17,9 +17,26 @@ namespace ui {
 	struct Window;
 	struct Text;
 	struct TextEntry;
-	struct Transition;
 
 	namespace {
+		
+		struct Transition {
+			Transition(Window* _target, double _duration, const std::function<void(double)>& _transitionFn, const std::function<void()>& _onComplete = {});
+
+			void apply();
+
+			bool complete() const;
+
+			const Window* target;
+
+			private:
+			std::function<void(double)> transitionFn;
+			std::function<void()> onComplete;
+			bool completed;
+			double duration;
+			long double timestamp;
+		};
+
 		struct Context {
 			static void init(sf::Vector2f size, std::string title, double _render_delay);
 
@@ -85,22 +102,7 @@ namespace ui {
 		};
 	}
 
-	struct Transition {
-		Transition(Window* _target, double _duration, const std::function<void(double)>& _transitionFn, const std::function<void()>& _onComplete = {});
 
-		void apply();
-
-		bool complete() const;
-
-		const Window* target;
-
-		private:
-		std::function<void(double)> transitionFn;
-		std::function<void()> onComplete;
-		bool completed;
-		double duration;
-		long double timestamp;
-	};
 
 	struct Window {
 		bool disabled = false;
