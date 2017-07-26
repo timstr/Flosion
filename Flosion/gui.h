@@ -32,30 +32,23 @@ namespace ui {
 			static void setQuitHandler(bool (*handler)());
 
 			static void handleKeyPress(sf::Keyboard::Key key);
+			static void handleMouseDown(sf::Mouse::Button button, sf::Vector2f);
 			static void handleMouseUp(sf::Mouse::Button button, sf::Vector2f pos);
 			static void handleDrag();
 			static void handleHover();
 			static void handleQuit(bool force);
 
 			static bool hasQuit();
-
-
 			static long double getProgramTime();
-
-			// store target window on first click
-			// compare to hit window on second click
-			// if match, perform double click
-			// otherwise, perform single click on both
-			static void performClick(sf::Mouse::Button button, sf::Vector2f);
-
+			static sf::Vector2f getMousePosition();
 			static sf::RenderWindow& getRenderWindow();
 			static double getRenderDelay();
-
-			static sf::Vector2f getMousePosition();
+			static void translateView(sf::Vector2f offset);
+			static void resetView();
+			static void resize(int w, int h);
 
 			static Window* getDraggingWindow();
 			static void setDraggingWindow(Window* window, sf::Vector2f offset = sf::Vector2f(0, 0));
-
 			static void focusTo(Window* window);
 			static Window* getCurrentWindow();
 			static TextEntry* getTextEntry();
@@ -86,6 +79,9 @@ namespace ui {
 			static uint32_t click_timestamp;
 			static sf::Mouse::Button click_button;
 			static Window* click_window;
+			static sf::View view;
+			static int width;
+			static int height;
 		};
 	}
 
@@ -151,8 +147,8 @@ namespace ui {
 
 		Window* findWindowAt(sf::Vector2f _pos);
 
-		virtual void render(sf::RenderWindow& renderwindow, sf::Vector2f offset);
-		void renderChildWindows(sf::RenderWindow& renderwindow, sf::Vector2f offset);
+		virtual void render(sf::RenderWindow& renderwindow);
+		void renderChildWindows(sf::RenderWindow& renderwindow);
 
 		void startTransition(double duration, const std::function<void(double)> transitionFn, const std::function<void()>& onComplete = {});
 
@@ -171,7 +167,7 @@ namespace ui {
 		void setText(const std::string& _text);
 		const std::string& getText();
 
-		void render(sf::RenderWindow& renderwin, sf::Vector2f offset) override;
+		void render(sf::RenderWindow& renderwin) override;
 
 		private:
 
@@ -192,7 +188,7 @@ namespace ui {
 		//to be overridden and used to deal with submission of newly typed text
 		virtual void onReturn(std::string entered_text);
 
-		void render(sf::RenderWindow& renderwindow, sf::Vector2f offset) override;
+		void render(sf::RenderWindow& renderwindow) override;
 
 		void onLeftClick(int clicks) override;
 

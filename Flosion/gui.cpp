@@ -35,10 +35,13 @@ namespace ui {
 
 
 	void Context::init(sf::Vector2f size, std::string title, double _render_delay){
+		width = size.x;
+		height = size.y;
 		render_delay = _render_delay;
 		sf::ContextSettings settings;
 		settings.antialiasingLevel = 8;
 		Context::getRenderWindow().create(sf::VideoMode(size.x, size.y), title, sf::Style::Default, settings);
+		view = Context::getRenderWindow().getDefaultView();
 		Context::current_window = root();
 		Context::clock.restart();
 	}
@@ -111,7 +114,7 @@ namespace ui {
 	sf::Vector2f Context::getMousePosition(){
 		return (sf::Vector2f)sf::Mouse::getPosition(renderwindow);
 	}
-	void Context::performClick(sf::Mouse::Button button, sf::Vector2f pos){
+	void Context::handleMouseDown(sf::Mouse::Button button, sf::Vector2f pos){
 		Window* hitwin = root()->findWindowAt(pos);
 
 		if (hitwin == nullptr){
@@ -280,6 +283,19 @@ namespace ui {
 	double Context::getRenderDelay(){
 		return render_delay;
 	}
+	void Context::translateView(sf::Vector2f offset){
+		view.move(offset);
+		renderwindow.setView(view);
+	}
+	void Context::resetView(){
+		view.setCenter(width / 2.0f, height / 2.0f);
+		view.setSize(width, height);
+		renderwindow.setView(view);
+	}
+	void Context::resize(int w, int h){
+		width = w;
+		height = h;
+	}
 	Window* Context::getDraggingWindow(){
 		return dragging_window;
 	}
@@ -312,7 +328,9 @@ namespace ui {
 	uint32_t Context::click_timestamp;
 	sf::Mouse::Button Context::click_button;
 	Window* Context::click_window;
-
+	sf::View Context::view;
+	int Context::width;
+	int Context::height;
 
 
 	Window::~Window(){
@@ -462,20 +480,21 @@ namespace ui {
 
 		return nullptr;
 	}
-	void Window::render(sf::RenderWindow& renderwindow, sf::Vector2f offset){
+	void Window::render(sf::RenderWindow& renderwindow){
 		sf::RectangleShape rectshape;
-		rectshape.setPosition(pos + offset);
 		rectshape.setSize(size);
 		rectshape.setFillColor(sf::Color((((uint32_t)std::hash<Window*>{}(this)) & 0xFFFFFF00) | 0x80));
 		rectshape.setOutlineColor(sf::Color(0xFF));
 		rectshape.setOutlineThickness(1);
 		renderwindow.draw(rectshape);
-		renderChildWindows(renderwindow, offset);
+		renderChildWindows(renderwindow);
 	}
-	void Window::renderChildWindows(sf::RenderWindow& renderwindow, sf::Vector2f offset){
+	void Window::renderChildWindows(sf::RenderWindow& renderwindow){
 		for (int i = childwindows.size() - 1; i >= 0; i -= 1){
 			if (childwindows[i]->visible){
-				childwindows[i]->render(renderwindow, offset + pos);
+				Context::translateView(-(childwindows[i]->pos));
+				childwindows[i]->render(renderwindow);
+				Context::translateView(childwindows[i]->pos);
 			}
 		}
 	}
@@ -499,8 +518,7 @@ namespace ui {
 	const std::string& Text::getText(){
 		return text.getString();
 	}
-	void Text::render(sf::RenderWindow& renderwin, sf::Vector2f offset){
-		text.setPosition(pos + offset);
+	void Text::render(sf::RenderWindow& renderwin){
 		renderwin.draw(text);
 	}
 	void Text::updateSize(){
@@ -532,14 +550,12 @@ namespace ui {
 	void TextEntry::onReturn(std::string entered_text){
 
 	}
-	void TextEntry::render(sf::RenderWindow& renderwindow, sf::Vector2f offset){
+	void TextEntry::render(sf::RenderWindow& renderwindow){
 		sf::RectangleShape rect(size);
-		rect.setPosition(pos + offset);
 		rect.setFillColor(sf::Color(0xFF));
 		rect.setOutlineColor(sf::Color(0x808080FF));
 		rect.setOutlineThickness(1);
 		renderwindow.draw(rect);
-		text.setPosition(offset + pos);
 		renderwindow.draw(text);
 		if (Context::getTextEntry() == this){
 			sf::RectangleShape rect2(sf::Vector2f(cursor_width, 15));
@@ -548,7 +564,7 @@ namespace ui {
 				255,
 				0,
 				128 * (0.5 + 0.5 * sin(getProgramTime() * PI / 1.5))));
-			rect2.setPosition(pos + offset + sf::Vector2f(cursor_pos, 0));
+			rect2.setPosition(sf::Vector2f(cursor_pos, 0));
 			renderwindow.draw(rect2);
 		}
 	}
@@ -666,7 +682,7 @@ namespace ui {
 						quit();
 						break;
 					case sf::Event::Resized:
-						Context::getRenderWindow().setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
+						Context::resize(event.size.width, event.size.height);
 						break;
 					case sf::Event::LostFocus:
 						if (Context::getCurrentWindow()){
@@ -719,7 +735,7 @@ namespace ui {
 						break;
 					case sf::Event::MouseButtonPressed:
 					{
-						Context::performClick(event.mouseButton.button, sf::Vector2f(event.mouseButton.x, event.mouseButton.y));
+						Context::handleMouseDown(event.mouseButton.button, sf::Vector2f(event.mouseButton.x, event.mouseButton.y));
 						break;
 					}
 					case sf::Event::MouseButtonReleased:
@@ -739,10 +755,11 @@ namespace ui {
 
 			//clear the screen
 			Context::getRenderWindow().clear();
+			Context::resetView();
 
 			//render the root window, and all child windows it contains
 			root()->size = getScreenSize();
-			root()->render(Context::getRenderWindow(), {0, 0});
+			root()->render(Context::getRenderWindow());
 
 			//highlight current window if alt is pressed
 			if ((sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt) || sf::Keyboard::isKeyPressed(sf::Keyboard::RAlt)) && Context::getCurrentWindow()){

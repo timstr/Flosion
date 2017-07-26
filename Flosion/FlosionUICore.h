@@ -88,13 +88,12 @@ namespace fui {
 			std::cout << "time to expand!\n";
 		}
 
-		void render(sf::RenderWindow& renderwin, sf::Vector2f offset) override {
+		void render(sf::RenderWindow& renderwin) override {
 			sf::RectangleShape rect;
-			rect.setPosition(this->pos + offset);
-			rect.setSize(this->size);
+			rect.setSize(size);
 			rect.setFillColor(sf::Color(0xC0C0C0FF));
 			renderwin.draw(rect);
-			renderChildWindows(renderwin, offset);
+			renderChildWindows(renderwin);
 		}
 
 		void onLeftClick(int clicks) override {
@@ -112,16 +111,15 @@ namespace fui {
 	// MasterContainer is the singleton-intended container that holds everything in the current work area
 	struct MasterContainer : Container {
 
-		void render(sf::RenderWindow& renderwin, sf::Vector2f offset) override {
+		void render(sf::RenderWindow& renderwin) override {
 			pos = {0, 0};
 			size = ui::getScreenSize();
 
 			sf::RectangleShape rect;
-			rect.setPosition(pos);
 			rect.setSize(size);
 			rect.setFillColor(sf::Color(0x808080FF));
 			renderwin.draw(rect);
-			renderChildWindows(renderwin, offset);
+			renderChildWindows(renderwin);
 		}
 	};
 
@@ -210,10 +208,9 @@ namespace fui {
 			hover_timestamp = ui::getProgramTime();
 		}
 
-		void render(sf::RenderWindow& rw, sf::Vector2f offset) override {
+		void render(sf::RenderWindow& rw) override {
 			sf::RectangleShape rect;
 			rect.setFillColor(sf::Color(0x4040FF80));
-			rect.setPosition(pos + offset);
 			rect.setSize(size);
 			rect.setOutlineColor(sf::Color(0x000000FF));
 			rect.setOutlineThickness(1);
@@ -223,7 +220,7 @@ namespace fui {
 			} else {
 				caption->visible = false;
 			}
-			renderChildWindows(rw, offset);
+			renderChildWindows(rw);
 		}
 
 		void onLeftClick(int clicks) override;
@@ -252,10 +249,9 @@ namespace fui {
 		void addWireOut(NumberWire* wire);
 		void removeWireOut(NumberWire* wire);
 
-		void render(sf::RenderWindow& rw, sf::Vector2f offset) override {
+		void render(sf::RenderWindow& rw) override {
 			sf::RectangleShape rect;
 			rect.setFillColor(sf::Color(0x00008080));
-			rect.setPosition(pos + offset);
 			rect.setSize(size);
 			rect.setOutlineColor(sf::Color(0x000000FF));
 			rect.setOutlineThickness(1);
@@ -289,10 +285,9 @@ namespace fui {
 
 		void onDropDragWindow(Window* window) override;
 
-		void render(sf::RenderWindow& rw, sf::Vector2f offset) override {
+		void render(sf::RenderWindow& rw) override {
 			sf::RectangleShape rect;
 			rect.setFillColor(sf::Color(0x00FF0080));
-			rect.setPosition(pos + offset);
 			rect.setSize(size);
 			rect.setOutlineColor(sf::Color(0x000000FF));
 			rect.setOutlineThickness(1);
@@ -322,10 +317,9 @@ namespace fui {
 		void addWireOut(SoundWire* wire);
 		void removeWireOut(SoundWire* wire);
 
-		void render(sf::RenderWindow& rw, sf::Vector2f offset) override {
+		void render(sf::RenderWindow& rw) override {
 			sf::RectangleShape rect;
 			rect.setFillColor(sf::Color(0x00800080));
-			rect.setPosition(pos + offset);
 			rect.setSize(size);
 			rect.setOutlineColor(sf::Color(0x000000FF));
 			rect.setOutlineThickness(1);
@@ -429,7 +423,7 @@ namespace fui {
 			src = output;
 		}
 
-		void render(sf::RenderWindow& rw, sf::Vector2f offset) override {
+		void render(sf::RenderWindow& rw) override {
 			if (dst){
 				head->pos = dst->absPos() - absPos();
 			}
@@ -438,11 +432,11 @@ namespace fui {
 			}
 
 			sf::Vertex line[] = {
-				sf::Vertex(head->pos + offset + pos + sf::Vector2f(10, 10), sf::Color(0x0000FFFF)),
-				sf::Vertex(tail->pos + offset + pos + sf::Vector2f(10, 10), sf::Color(0xFF))
+				sf::Vertex(head->pos + sf::Vector2f(10, 10), sf::Color(0x0000FFFF)),
+				sf::Vertex(tail->pos + sf::Vector2f(10, 10), sf::Color(0xFF))
 			};
 			rw.draw(line, 2, sf::Lines);
-			renderChildWindows(rw, offset);
+			renderChildWindows(rw);
 		}
 
 		void dragHead(){
@@ -533,7 +527,7 @@ namespace fui {
 			src = output;
 		}
 
-		void render(sf::RenderWindow& rw, sf::Vector2f offset) override {
+		void render(sf::RenderWindow& rw) override {
 			if (dst){
 				head->pos = dst->absPos() - absPos();
 			}
@@ -542,11 +536,11 @@ namespace fui {
 			}
 
 			sf::Vertex line[] = {
-				sf::Vertex(head->pos + offset + pos + sf::Vector2f(10, 10), sf::Color(0x00FF00FF)),
-				sf::Vertex(tail->pos + offset + pos + sf::Vector2f(10, 10), sf::Color(0xFF))
+				sf::Vertex(head->pos + sf::Vector2f(10, 10), sf::Color(0x00FF00FF)),
+				sf::Vertex(tail->pos + sf::Vector2f(10, 10), sf::Color(0xFF))
 			};
 			rw.draw(line, 2, sf::Lines);
-			renderChildWindows(rw, offset);
+			renderChildWindows(rw);
 		}
 
 		void dragHead(){

@@ -147,9 +147,9 @@ namespace fui {
 			addNumberInput(new NumberInput(&numres.input, this, "Input", {0, 0}));
 		}
 
-		void render(sf::RenderWindow& rw, sf::Vector2f offset) override {
+		void render(sf::RenderWindow& rw) override {
 			text->setText(std::to_string(numres.getValue(nullptr, 0, 0)));
-			ProcessingObject::render(rw, offset);
+			ProcessingObject::render(rw);
 		}
 
 		private:

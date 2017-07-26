@@ -40,9 +40,8 @@ namespace fui {
 			AmpMeter(DACObject* _parent) : parent(_parent){
 				size = {50, 100};
 			}
-			void render(sf::RenderWindow& rw, sf::Vector2f offset) override {
+			void render(sf::RenderWindow& rw) override {
 				sf::RectangleShape rect;
-				rect.setPosition(pos + offset);
 				rect.setSize(size);
 				rect.setFillColor(sf::Color(0xFF));
 				rect.setOutlineColor(sf::Color(0xFF));
@@ -55,13 +54,13 @@ namespace fui {
 				double rheight = ampl.r * size.y;
 
 				rect.setSize(sf::Vector2f(20, lheight));
-				rect.setPosition(offset + pos + sf::Vector2f(0, size.y - lheight));
+				rect.setPosition(sf::Vector2f(0, size.y - lheight));
 				rect.setFillColor(getColor(ampl.l));
 				rect.setOutlineThickness(0);
 				rw.draw(rect);
 
 				rect.setSize(sf::Vector2f(20, rheight));
-				rect.setPosition(offset + pos + sf::Vector2f(30, size.y - rheight));
+				rect.setPosition(sf::Vector2f(30, size.y - rheight));
 				rect.setFillColor(getColor(ampl.r));
 				rw.draw(rect);
 			}
