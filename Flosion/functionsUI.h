@@ -2,7 +2,6 @@
 
 #include "FlosionUICore.h"
 #include "functions.h"
-#include "approacher.h"
 
 namespace fui {
 
@@ -121,22 +120,6 @@ namespace fui {
 		musical::SquareWave square;
 	}; 
 	fuiRegisterObject(SquareWaveObject, "square", "sqarewave", "square wave", "pulse", "pulse wave");
-
-	struct ApproacherObject : ProcessingObject {
-		ApproacherObject(){
-			size = {250, 50};
-
-			addNumberInput(new NumberInput(&approacher.input, this, "Input", {-5, 10}));
-
-			addNumberOutput(new NumberOutput(&approacher, this, {225, 10}));
-
-			addChildWindow(new ui::Text("Approacher", getFont()), {30, 5});
-		}
-
-		private:
-		musical::Approacher approacher;
-	}; 
-	fuiRegisterObject(ApproacherObject, "approacher");
 
 
 

@@ -153,9 +153,16 @@
   <ItemGroup>
     <ClCompile Include="Flosion.cpp" />
     <ClCompile Include="gui.cpp" />
+    <ClCompile Include="NumberInput.cpp" />
+    <ClCompile Include="NumberResult.cpp" />
+    <ClCompile Include="NumberSource.cpp" />
+    <ClCompile Include="Sample.cpp" />
+    <ClCompile Include="SoundInput.cpp" />
+    <ClCompile Include="SoundResult.cpp" />
+    <ClCompile Include="SoundSource.cpp" />
+    <ClCompile Include="Stateful.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="approacher.h" />
     <ClInclude Include="audio.h" />
     <ClInclude Include="audioUI.h" />
     <ClInclude Include="constantUI.h" />
@@ -170,8 +177,17 @@
     <ClInclude Include="functionsUI.h" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="musical.h" />
+    <ClInclude Include="NumberInput.h" />
+    <ClInclude Include="NumberResult.h" />
+    <ClInclude Include="NumberSource.h" />
+    <ClInclude Include="Sample.h" />
     <ClInclude Include="sampler.h" />
     <ClInclude Include="samplerUI.h" />
+    <ClInclude Include="SoundInput.h" />
+    <ClInclude Include="SoundResult.h" />
+    <ClInclude Include="SoundSource.h" />
+    <ClInclude Include="Stateful.h" />
+    <ClInclude Include="StateNumberSource.h" />
     <ClInclude Include="timestretch.h" />
     <ClInclude Include="timestretchUI.h" />
     <ClInclude Include="wavegen.h" />

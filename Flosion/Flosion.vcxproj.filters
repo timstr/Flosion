@@ -16,10 +16,13 @@
     <Filter Include="FlosionUI">
       <UniqueIdentifier>{773aff02-7cc8-4dd5-be7f-c067942882f0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Musical">
+    <Filter Include="Musical Extensions">
+      <UniqueIdentifier>{b71a1bfb-8f9f-4c11-9514-35300636a058}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Musical Core">
       <UniqueIdentifier>{82547314-45a1-4dc9-bcb9-0f7f615821ee}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mathematical">
+    <Filter Include="Mathematical Extensions">
       <UniqueIdentifier>{c7b89f5f-f3b8-44fa-800d-47d34c11c3b5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -30,6 +33,30 @@
     <ClCompile Include="gui.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="Sample.cpp">
+      <Filter>Musical Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Stateful.cpp">
+      <Filter>Musical Core</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundInput.cpp">
+      <Filter>Musical Core</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundSource.cpp">
+      <Filter>Musical Core</Filter>
+    </ClCompile>
+    <ClCompile Include="NumberInput.cpp">
+      <Filter>Musical Core</Filter>
+    </ClCompile>
+    <ClCompile Include="NumberSource.cpp">
+      <Filter>Musical Core</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundResult.cpp">
+      <Filter>Musical Core</Filter>
+    </ClCompile>
+    <ClCompile Include="NumberResult.cpp">
+      <Filter>Musical Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FlosionUICore.h">
@@ -39,19 +66,10 @@
       <Filter>FlosionUI</Filter>
     </ClInclude>
     <ClInclude Include="musical.h">
-      <Filter>Musical</Filter>
-    </ClInclude>
-    <ClInclude Include="audio.h">
-      <Filter>Musical</Filter>
-    </ClInclude>
-    <ClInclude Include="dac.h">
-      <Filter>Musical</Filter>
+      <Filter>Musical Core</Filter>
     </ClInclude>
     <ClInclude Include="wavegenUI.h">
       <Filter>FlosionUI</Filter>
-    </ClInclude>
-    <ClInclude Include="wavegen.h">
-      <Filter>Musical</Filter>
     </ClInclude>
     <ClInclude Include="constantUI.h">
       <Filter>FlosionUI</Filter>
@@ -65,23 +83,14 @@
     <ClInclude Include="audioUI.h">
       <Filter>FlosionUI</Filter>
     </ClInclude>
-    <ClInclude Include="timestretch.h">
-      <Filter>Musical</Filter>
-    </ClInclude>
     <ClInclude Include="timestretchUI.h">
       <Filter>FlosionUI</Filter>
-    </ClInclude>
-    <ClInclude Include="sampler.h">
-      <Filter>Musical</Filter>
     </ClInclude>
     <ClInclude Include="samplerUI.h">
       <Filter>FlosionUI</Filter>
     </ClInclude>
     <ClInclude Include="functions.h">
-      <Filter>Mathematical</Filter>
-    </ClInclude>
-    <ClInclude Include="approacher.h">
-      <Filter>Mathematical</Filter>
+      <Filter>Mathematical Extensions</Filter>
     </ClInclude>
     <ClInclude Include="filebrowser.h">
       <Filter>FlosionUI</Filter>
@@ -89,11 +98,53 @@
     <ClInclude Include="gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ensemble.h">
-      <Filter>Musical</Filter>
-    </ClInclude>
     <ClInclude Include="ensembleUI.h">
       <Filter>FlosionUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample.h">
+      <Filter>Musical Core</Filter>
+    </ClInclude>
+    <ClInclude Include="wavegen.h">
+      <Filter>Musical Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="sampler.h">
+      <Filter>Musical Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="timestretch.h">
+      <Filter>Musical Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="ensemble.h">
+      <Filter>Musical Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="dac.h">
+      <Filter>Musical Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="audio.h">
+      <Filter>Musical Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="Stateful.h">
+      <Filter>Musical Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundInput.h">
+      <Filter>Musical Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundSource.h">
+      <Filter>Musical Core</Filter>
+    </ClInclude>
+    <ClInclude Include="NumberSource.h">
+      <Filter>Musical Core</Filter>
+    </ClInclude>
+    <ClInclude Include="NumberInput.h">
+      <Filter>Musical Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundResult.h">
+      <Filter>Musical Core</Filter>
+    </ClInclude>
+    <ClInclude Include="NumberResult.h">
+      <Filter>Musical Core</Filter>
+    </ClInclude>
+    <ClInclude Include="StateNumberSource.h">
+      <Filter>Musical Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
