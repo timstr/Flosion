@@ -23,7 +23,7 @@ namespace musical {
 			source->removeDstInput(this);
 		}
 	}
-	bool NumberInput::isSafeSource(NumberSource* src){
+	bool NumberInput::isSafeSource(NumberSource* src) const {
 		if (src == nullptr){
 			return true;
 		}
@@ -62,12 +62,12 @@ namespace musical {
 			source->addDstInput(this);
 		}
 	}
-	void NumberInput::findAllStatefulSources(std::vector<Stateful*>& sources){
+	void NumberInput::findAllStatefulSources(std::vector<Stateful*>& sources) const {
 		if (source){
 			source->findAllStatefulSources(sources);
 		}
 	}
-	void NumberInput::findAllStatefulDests(std::vector<Stateful*>& dests){
+	void NumberInput::findAllStatefulDests(std::vector<Stateful*>& dests) const {
 		if (owner){
 			dests.push_back(owner);
 		}
@@ -75,7 +75,7 @@ namespace musical {
 			parent->findAllStatefulDests(dests);
 		}
 	}
-	bool NumberInput::findStatelessDest(){
+	bool NumberInput::findStatelessDest() const {
 		if (parent){
 			return parent->findStatelessDest();
 		} else if (owner){
@@ -90,7 +90,7 @@ namespace musical {
 	// or from sound processing objects, which shall be found as parents of some state
 	// in the state chain (accessed through the line of parents in the given state)
 	// this state is to be passed on as-is to preserve its full context
-	float NumberInput::getValue(State* state, unsigned int chunk_pos, float default_value){
+	float NumberInput::getValue(State* state, unsigned int chunk_pos, float default_value) const {
 		if (source){
 			return source->evaluate(state, chunk_pos);
 		} else {

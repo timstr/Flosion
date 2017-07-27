@@ -23,10 +23,10 @@ namespace musical {
 		virtual void resetState(State* parent_state) = 0;
 
 
-		SoundSource* SoundInput::getSource();
+		SoundSource* SoundInput::getSource() const;
 		virtual void setSource(SoundSource* _source) = 0;
-		bool hasSource();
-		bool findSource(Stateful* src) override;
+		bool hasSource() const;
+		bool findSource(Stateful* src) const override;
 
 		protected:
 		SoundSource* source;

@@ -27,7 +27,7 @@ namespace musical {
 		}
 		throw std::runtime_error("The destination SoundInput could not be found");
 	}
-	bool SoundSource::findSource(Stateful* src){
+	bool SoundSource::findSource(Stateful* src) const {
 		if (src == this){
 			return true;
 		}

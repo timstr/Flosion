@@ -51,7 +51,7 @@ namespace fui {
 				timestamp2 = timestamp1 + expected_duration;
 			}
 
-			float evaluate(musical::State* state, int chunk_pos) override {
+			float evaluate(musical::State* state, int chunk_pos) const override {
 				long double now = ui::getProgramTime();
 
 				const double rate = 0.04;

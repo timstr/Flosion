@@ -15,7 +15,7 @@ namespace musical {
 
 		float getValue(State* state, int chunk_pos, float default_value = 0.0);
 
-		bool isSafeSource(NumberSource* source);
+		bool isSafeSource(NumberSource* source) const;
 
 		void setSource(NumberSource* source);
 

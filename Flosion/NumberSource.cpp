@@ -49,7 +49,7 @@ namespace musical {
 		}
 		throw std::runtime_error("The input could not be found");
 	}
-	void NumberSource::findAllStatefulSources(std::vector<Stateful*>& sources){
+	void NumberSource::findAllStatefulSources(std::vector<Stateful*>& sources) const {
 		if (parent){
 			sources.push_back(parent);
 		}
@@ -57,12 +57,12 @@ namespace musical {
 			inputs[i]->findAllStatefulSources(sources);
 		}
 	}
-	void NumberSource::findAllStatefulDests(std::vector<Stateful*>& dests){
+	void NumberSource::findAllStatefulDests(std::vector<Stateful*>& dests) const {
 		for (int i = 0; i < dsts.size(); i++){
 			dsts[i]->findAllStatefulDests(dests);
 		}
 	}
-	bool NumberSource::findStatelessDest(){
+	bool NumberSource::findStatelessDest() const {
 		for (int i = 0; i < dsts.size(); i++){
 			if (dsts[i]->findStatelessDest()){
 				return true;
@@ -81,10 +81,10 @@ namespace musical {
 	void Constant::setValue(float val){
 		value = val;
 	}
-	float Constant::getValue(){
+	float Constant::getValue() const {
 		return value;
 	}
-	float Constant::evaluate(State* state, int chunk_pos){
+	float Constant::evaluate(State* state, int chunk_pos) const {
 		return value;
 	}
 }

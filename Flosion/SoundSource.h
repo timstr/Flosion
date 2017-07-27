@@ -17,8 +17,6 @@ namespace musical {
 	struct SoundSource : Stateful {
 		~SoundSource();
 
-		// fills buffer with next chunk of audio data
-		//-------------------------------------------------------------------
 		virtual void getNextChunk(Sample* buffer, State* parent_state, SoundInput* dst) = 0;
 
 		void addDstInput(SoundInput* input);
@@ -33,7 +31,7 @@ namespace musical {
 
 		virtual void removeAllStatesFrom(SoundInput* input) = 0;
 
-		bool findSource(Stateful* src) override;
+		bool findSource(Stateful* src) const override;
 
 		void addSoundInput(SoundInput* input);
 
@@ -54,9 +52,6 @@ namespace musical {
 		}
 		~SoundSourceTemplate(){
 			while (dsts.size() > 0){
-				if (dsts.front()->getSource() != this){
-					throw std::runtime_error("A destination SoundInput is apparently connected to a different SoundSource");
-				}
 				dsts.front()->setSource(nullptr);
 			}
 		}

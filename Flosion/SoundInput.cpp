@@ -20,13 +20,13 @@ namespace musical {
 			parent->removeSoundInput(this);
 		}
 	}
-	SoundSource* SoundInput::getSource(){
+	SoundSource* SoundInput::getSource() const {
 		return source;
 	}
-	bool SoundInput::hasSource(){
+	bool SoundInput::hasSource() const {
 		return source != nullptr;
 	}
-	bool SoundInput::findSource(Stateful* src) {
+	bool SoundInput::findSource(Stateful* src) const {
 		if (this == src){
 			return true;
 		}

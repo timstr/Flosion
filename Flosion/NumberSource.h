@@ -20,7 +20,7 @@ namespace musical {
 	struct NumberSource {
 		NumberSource(Stateful* _parent);
 		virtual ~NumberSource();
-		virtual float evaluate(State* state, int chunk_pos) = 0;
+		virtual float evaluate(State* state, int chunk_pos) const = 0;
 
 		private:
 
@@ -30,17 +30,17 @@ namespace musical {
 		void addInput(NumberInput* input);
 		void removeInput(NumberInput* input);
 
-		void findAllStatefulSources(std::vector<Stateful*>& sources);
+		void findAllStatefulSources(std::vector<Stateful*>& sources) const;
 
-		void findAllStatefulDests(std::vector<Stateful*>& dests);
+		void findAllStatefulDests(std::vector<Stateful*>& dests) const;
 
-		bool findStatelessDest();
+		bool findStatelessDest() const;
 
 		Stateful* parent;
 		std::vector<NumberInput*> dsts;
 		std::vector<NumberInput*> inputs;
 
-		friend class NumberInput;
+		friend struct NumberInput;
 	};
 
 	struct PureFunction : NumberSource {
@@ -51,9 +51,9 @@ namespace musical {
 		Constant(float _value = 0.0);
 
 		void setValue(float val);
-		float getValue();
+		float getValue() const;
 
-		float evaluate(State* state, int chunk_pos) override;
+		float evaluate(State* state, int chunk_pos) const override;
 
 		private:
 		float value;

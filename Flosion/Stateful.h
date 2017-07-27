@@ -5,7 +5,7 @@ namespace musical {
 	struct Stateful {
 		virtual ~Stateful();
 
-		virtual bool findSource(Stateful* src) = 0;
+		virtual bool findSource(Stateful* src) const = 0;
 	};
 
 	struct State {

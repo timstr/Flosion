@@ -10,7 +10,7 @@ namespace musical {
 	float NumberResult::getValue(State* state, int chunk_pos, float default_value){
 		return input.getValue(state, chunk_pos, default_value);
 	}
-	bool NumberResult::isSafeSource(NumberSource* source){
+	bool NumberResult::isSafeSource(NumberSource* source) const {
 		return input.isSafeSource(source);
 	}
 	void NumberResult::setSource(NumberSource* source){

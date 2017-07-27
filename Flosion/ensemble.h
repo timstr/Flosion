@@ -54,7 +54,7 @@ namespace musical {
 
 			struct Frequency : MultiInputNumberSource<InputState, Input> {
 				using MultiInputNumberSource::MultiInputNumberSource;
-				float getValue(InputState* state, int chunk_pos) override {
+				float getValue(InputState* state, int chunk_pos) const override {
 					double freq = parentmultiinput->parentsoundsource->frequency.getValue(state, chunk_pos);
 					double spread = parentmultiinput->parentsoundsource->frequency_spread.getValue(state, chunk_pos);
 					return freq * (1.0 + spread * state->rand_value);
