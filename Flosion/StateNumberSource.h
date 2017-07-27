@@ -7,8 +7,8 @@ namespace musical {
 
 	// to allow SoundProcessor classes to share their state data
 	template <typename StateType>
-	struct StateNumber : NumberSource {
-		StateNumber(SoundSource* _owner) : NumberSource(_owner){
+	struct StateNumberSource : NumberSource {
+		StateNumberSource(SoundSource* _owner) : NumberSource(_owner){
 			owner = _owner;
 		}
 
@@ -38,8 +38,8 @@ namespace musical {
 
 	// to allow SoundProcessor classes to share the stateful data of their MultiInputs
 	template <class StateType, class SoundInputType = SoundInput>
-	struct MultiInputNumber : NumberSource {
-		MultiInputNumber(SoundInputType* _owner) : NumberSource(_owner), parentmultiinput(_owner) {
+	struct MultiInputNumberSource : NumberSource {
+		MultiInputNumberSource(SoundInputType* _owner) : NumberSource(_owner), parentmultiinput(_owner) {
 
 		}
 

@@ -93,15 +93,15 @@ namespace musical {
 
 			}
 
-			struct Frequency : MultiInputNumber<InputState> {
-				using MultiInputNumber::MultiInputNumber;
+			struct Frequency : MultiInputNumberSource<InputState> {
+				using MultiInputNumberSource::MultiInputNumberSource;
 				double getValue(InputState* state, int chunk_pos) override {
 					return state->key->frequency;
 				}
 			} frequency;
 
-			struct Amplitude : MultiInputNumber<InputState> {
-				using MultiInputNumber::MultiInputNumber;
+			struct Amplitude : MultiInputNumberSource<InputState> {
+				using MultiInputNumberSource::MultiInputNumberSource;
 				double getValue(InputState* state, int chunk_pos) override {
 					return state->key->amplitude;
 				}
