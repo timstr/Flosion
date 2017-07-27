@@ -12,7 +12,7 @@ namespace musical {
 			owner = _owner;
 		}
 
-		double evaluate(State* state, int chunk_pos) override {
+		float evaluate(State* state, int chunk_pos) override {
 			while (state){
 				if (state->getOwner() == owner){
 #ifdef _DEBUG
@@ -30,7 +30,7 @@ namespace musical {
 			throw std::runtime_error("State belonging to owner sound processing object was not found in state chain");
 		}
 
-		virtual double getValue(StateType* state, int chunk_pos) = 0;
+		virtual float getValue(StateType* state, int chunk_pos) = 0;
 
 		private:
 		SoundSource* owner;
@@ -43,7 +43,7 @@ namespace musical {
 
 		}
 
-		double evaluate(State* state, int chunk_pos) override {
+		float evaluate(State* state, int chunk_pos) override {
 			while (state){
 				if (state->getOwner() == parentmultiinput){
 #ifdef _DEBUG
@@ -62,7 +62,7 @@ namespace musical {
 			throw std::exception("A state belonging to the MultiInput was not found in the state chain");
 		}
 
-		virtual double getValue(StateType* state, int chunk_pos) = 0;
+		virtual float getValue(StateType* state, int chunk_pos) = 0;
 
 		SoundInputType* const parentmultiinput;
 	};

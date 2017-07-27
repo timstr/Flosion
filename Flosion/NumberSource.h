@@ -20,7 +20,7 @@ namespace musical {
 	struct NumberSource {
 		NumberSource(Stateful* _parent);
 		virtual ~NumberSource();
-		virtual double evaluate(State* state, int chunk_pos) = 0;
+		virtual float evaluate(State* state, int chunk_pos) = 0;
 
 		private:
 
@@ -48,14 +48,14 @@ namespace musical {
 	};
 
 	struct Constant : PureFunction {
-		Constant(double _value = 0.0);
+		Constant(float _value = 0.0);
 
-		void setValue(double val);
-		double getValue();
+		void setValue(float val);
+		float getValue();
 
-		double evaluate(State* state, int chunk_pos) override;
+		float evaluate(State* state, int chunk_pos) override;
 
 		private:
-		double value;
+		float value;
 	};
 }

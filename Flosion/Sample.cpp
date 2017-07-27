@@ -9,7 +9,7 @@ namespace musical {
 		r = 0;
 	}
 
-	Sample::Sample(double _l, double _r){
+	Sample::Sample(float _l, float _r){
 		l = _l;
 		r = _r;
 	}
@@ -21,10 +21,10 @@ namespace musical {
 	Sample& Sample::operator-=(const Sample& s){
 		return *this = Sample(l + s.l, r + s.r);
 	}
-	Sample& Sample::operator*=(double v){
+	Sample& Sample::operator*=(float v){
 		return *this = Sample(l * v, r * v);
 	}
-	Sample& Sample::operator/=(double v){
+	Sample& Sample::operator/=(float v){
 		return *this = Sample(l / v, r / v);
 	}
 
@@ -38,13 +38,13 @@ namespace musical {
 	Sample operator-(const Sample& s){
 		return Sample(-s.l, -s.r);
 	}
-	Sample operator*(const Sample& s, double v){
+	Sample operator*(const Sample& s, float v){
 		return Sample(s.l * v, s.r * v);
 	}
-	Sample operator*(double v, const Sample& s){
+	Sample operator*(float v, const Sample& s){
 		return Sample(s.l * v, s.r * v);
 	}
-	Sample operator/(const Sample& s, double v){
+	Sample operator/(const Sample& s, float v){
 		return Sample(s.l / v, s.r / v);
 	}
 }

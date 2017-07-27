@@ -1,25 +1,25 @@
 #pragma once
 
-// TODO: switch from double to float
+// TODO: switch from float to float
 
 namespace musical {
 
 	struct Sample {
-		double l, r;
+		float l, r;
 
 		Sample();
-		Sample(double _l, double _r);
+		Sample(float _l, float _r);
 
 		Sample& operator+=(const Sample& s);
 		Sample& operator-=(const Sample& s);
-		Sample& operator*=(double v);
-		Sample& operator/=(double v);
+		Sample& operator*=(float v);
+		Sample& operator/=(float v);
 	};
 
 	Sample operator+(const Sample& a, const Sample& b);
 	Sample operator-(const Sample& a, const Sample& b);
 	Sample operator-(const Sample& s);
-	Sample operator*(const Sample& s, double v);
-	Sample operator*(double v, const Sample& s);
-	Sample operator/(const Sample& s, double v);
+	Sample operator*(const Sample& s, float v);
+	Sample operator*(float v, const Sample& s);
+	Sample operator/(const Sample& s, float v);
 }

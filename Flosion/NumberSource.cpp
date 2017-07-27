@@ -75,16 +75,16 @@ namespace musical {
 
 	}
 
-	Constant::Constant(double _value){
+	Constant::Constant(float _value){
 		value = _value;
 	}
-	void Constant::setValue(double val){
+	void Constant::setValue(float val){
 		value = val;
 	}
-	double Constant::getValue(){
+	float Constant::getValue(){
 		return value;
 	}
-	double Constant::evaluate(State* state, int chunk_pos){
+	float Constant::evaluate(State* state, int chunk_pos){
 		return value;
 	}
 }

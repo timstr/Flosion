@@ -28,7 +28,7 @@ namespace musical {
 
 		struct WaveGenPhase : StateNumberSource<WaveGenState> {
 			using StateNumberSource::StateNumberSource;
-			double getValue(WaveGenState* state, int chunk_pos) override {
+			float getValue(WaveGenState* state, int chunk_pos) override {
 				return state->phase;
 			}
 		} phase;
