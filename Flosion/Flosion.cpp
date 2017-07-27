@@ -15,8 +15,10 @@
 #include "FlosionUI.h"
 
 // TODO: synchronize this stuff
-// TODO: switch from SFML soundstream to PortAudio
+// TODO: switch from SFML soundstream to PortAudio?
 int main(){
+
+	srand(unsigned(time(nullptr)));
 
 	ui::init({1000, 700}, "Oy Oy Oy Oh My Oy", 30);
 

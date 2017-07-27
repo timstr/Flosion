@@ -4,12 +4,6 @@
 #include <map>
 #include <functional>
 
-// TODO:
-// - find improvements anywhere, really
-// - put comments on every function so I don't need to remember all this stuff accross the years
-// - tab key navigation through a window's child windows? Enter/Escape to move to child/parent?
-// - use SFML views to offset/clip child window rendering
-
 extern const double PI;
 
 namespace ui {
@@ -227,7 +221,7 @@ namespace ui {
 
 	sf::Vector2f getMousePos();
 
-	void init(sf::Vector2f size = sf::Vector2f(500, 500), std::string title = "Behold", int target_fps = 30); //TODO: this might goof up, make bool?
+	void init(sf::Vector2f size = sf::Vector2f(500, 500), std::string title = "Behold", int target_fps = 30);
 
 	void quit(bool force = false);
 

@@ -1,7 +1,5 @@
 #pragma once
 
-// TODO: switch from float to float
-
 namespace musical {
 
 	struct Sample {

@@ -665,9 +665,8 @@ namespace ui {
 		return sf::Vector2f(sf::Mouse::getPosition(Context::getRenderWindow()));
 	}
 
-	void init(sf::Vector2f size, std::string title, int target_fps){//TODO: this might goof up, make bool?
+	void init(sf::Vector2f size, std::string title, int target_fps){
 		Context::init(size, title, 1.0 / target_fps);
-		srand(unsigned(time(nullptr)));
 	}
 	void quit(bool force){
 		Context::handleQuit(force);

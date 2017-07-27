@@ -9,14 +9,6 @@ namespace musical {
 			inputs[i]->setSource(nullptr);
 		}
 		inputs.clear();
-
-		// TODO: fix this up
-		// Note: When this destructor is called, the destructor for SoundSourceTemplate has already been called
-		// and this object is effectively only of type SoundSource
-		// thus the calls from SoundInput::setSource to SoundSource::removeState are UB?
-		// maybe?
-		// perhaps do this work in SoundSourceTemplate
-
 	}
 	void SoundSource::addDstInput(SoundInput* input){
 		for (int i = 0; i < dsts.size(); i++){
