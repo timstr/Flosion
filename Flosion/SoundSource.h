@@ -5,7 +5,7 @@
 #include "Stateful.h"
 #include "SoundInput.h"
 #include <vector>
-#include <map>
+#include <unordered_map>
 
 namespace musical {
 
@@ -143,7 +143,13 @@ namespace musical {
 			}
 		}
 
-		std::map<std::pair<State*, SoundInput*>, StateType*> state_map;
+		struct Hash {
+			std::size_t operator()(const std::pair<State*, SoundInput*>& x) const {
+				return std::hash<State*>()(x.first) * 31 + std::hash<SoundInput*>()(x.second);
+			}
+		};
+
+		std::unordered_map<std::pair<State*, SoundInput*>, StateType*, Hash> state_map;
 	};
 
 }

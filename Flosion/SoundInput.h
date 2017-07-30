@@ -4,7 +4,7 @@
 #include "Stateful.h"
 #include "SoundSource.h"
 #include "Sample.h"
-#include <map>
+#include <unordered_map>
 #include <set>
 
 namespace musical {
@@ -302,7 +302,13 @@ namespace musical {
 
 		private:
 
-		std::map<std::pair<KeyType, State*>, StateType*> state_map;
+		struct Hash {
+			std::size_t operator()(const std::pair<KeyType, State*>& x) const {
+				return std::hash<KeyType>()(x.first) * 31 + std::hash<State*>()(x.second);
+			}
+		};
+
+		std::unordered_map<std::pair<KeyType, State*>, StateType*, Hash> state_map;
 
 		std::set<KeyType> keys;
 		std::set<State*> states;
