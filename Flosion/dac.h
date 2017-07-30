@@ -26,13 +26,6 @@ namespace musical {
 
 		Sample inbuffer[CHUNK_SIZE];
 		int16_t outbuffer[CHUNK_SIZE * 2];
-		
-		volatile bool _play;
-		volatile bool render_chunk;
-		volatile bool chunk_avail;
-		std::thread worker;
-
-		static void renderAudio(DAC* dac);
 
 		// sf::SoundStream overrides
 
