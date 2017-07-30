@@ -9,6 +9,7 @@ namespace musical {
 
 	struct DAC : private sf::SoundStream {
 		DAC();
+		~DAC();
 
 		void play();
 		void pause();
@@ -17,7 +18,7 @@ namespace musical {
 		bool isPlaying() const;
 
 		// returns the average amplitude of the current chunk, intended for aesthetic use
-		Sample getCurrentAmp();
+		Sample getCurrentAmp() const;
 
 		SoundResult input;
 
@@ -25,6 +26,15 @@ namespace musical {
 
 		Sample inbuffer[CHUNK_SIZE];
 		int16_t outbuffer[CHUNK_SIZE * 2];
+		
+		volatile bool _play;
+		volatile bool render_chunk;
+		volatile bool chunk_avail;
+		std::thread worker;
+
+		static void renderAudio(DAC* dac);
+
+		// sf::SoundStream overrides
 
 		bool onGetData(Chunk& data) override;
 
