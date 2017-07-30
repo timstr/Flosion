@@ -52,6 +52,10 @@ namespace fui {
 			}
 
 			float evaluate(musical::State* state, int chunk_pos) const override {
+				// TODO: sliding bypassed for speed testing
+				return val2;
+
+				/* 
 				long double now = ui::getProgramTime();
 
 				const double rate = 0.04;
@@ -62,13 +66,7 @@ namespace fui {
 					return val2;
 				}
 				return val1 + (val2 - val1) * (1 - exp(-rate * (now - timestamp1) / (timestamp2 - timestamp1)));
-
-				// linear interpolation
-				/*if (now > timestamp2){
-					return val2;
-				} else {
-					return val1 + (val2 - val1) * (now - timestamp1) / (timestamp2 - timestamp1);
-				}*/
+				*/
 			};
 
 			private:
