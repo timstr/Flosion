@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace musical {
 
 	struct Stateful {
@@ -17,9 +19,14 @@ namespace musical {
 		State* getParentState() const;
 		Stateful* getOwner() const;
 
+		void tickTime();
+		void skipTime(uint32_t t);
+		long double getTime() const;
+
 		private:
 		State* const parent;
 		Stateful* const owner;
+		uint32_t time;
 	};
 
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "FlosionUICore.h"
-#include "dac.h"
+#include "DAC.h"
 
 namespace fui {
 

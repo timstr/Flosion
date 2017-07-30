@@ -6,7 +6,7 @@
 
 #include "gui.h"
 
-#define MUSICAL_CHUNK_SIZE 2048;
+#define MUSICAL_CHUNK_SIZE 1024;
 
 #include "musical.h"
 #include "audio.h"
@@ -15,7 +15,7 @@
 #include "FlosionUI.h"
 
 // TODO: synchronize this stuff
-// TODO: switch from SFML soundstream to PortAudio?
+// TODO: cache things
 int main(){
 
 	srand(unsigned(time(nullptr)));
@@ -34,7 +34,6 @@ int main(){
 			obj->startTransition(1.0, [=](double x){
 				obj->pos = start + (end - start) * (float)(0.5 - 0.5 * cos(x * PI));
 			});
-
 			container->addObject(obj);
 		} else {
 			std::cout << "The object \"" << name << "\" couldn't be instantiated\n";

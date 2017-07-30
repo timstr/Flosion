@@ -1,6 +1,7 @@
 #pragma once
 
 #include "musical.h"
+#include "StateNumberSource.h"
 
 namespace musical {
 

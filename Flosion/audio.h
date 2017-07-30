@@ -1,6 +1,6 @@
 #pragma once
 
-#include "musical.h"
+#include "SoundSource.h"
 #include <SFML\Audio.hpp>
 #include <functional>
 #include <thread>

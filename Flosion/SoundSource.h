@@ -1,5 +1,6 @@
 #pragma once
 
+#include "musical.h"
 #include "Sample.h"
 #include "Stateful.h"
 #include "SoundInput.h"
@@ -7,8 +8,6 @@
 #include <map>
 
 namespace musical {
-
-	extern const int CHUNK_SIZE;
 
 	struct SoundInput;
 

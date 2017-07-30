@@ -1,6 +1,6 @@
 #pragma once
 #include "gui.h"
-#include "musical.h"
+#include "NumberInput.h"
 
 #define fuiRegisterObject(type, ...) \
 namespace { \

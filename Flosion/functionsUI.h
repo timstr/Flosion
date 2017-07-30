@@ -2,6 +2,7 @@
 
 #include "FlosionUICore.h"
 #include "functions.h"
+#include "NumberResult.h"
 
 namespace fui {
 

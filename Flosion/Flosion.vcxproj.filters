@@ -57,6 +57,9 @@
     <ClCompile Include="NumberResult.cpp">
       <Filter>Musical Core</Filter>
     </ClCompile>
+    <ClCompile Include="DAC.cpp">
+      <Filter>Musical Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FlosionUICore.h">
@@ -116,9 +119,6 @@
     <ClInclude Include="ensemble.h">
       <Filter>Musical Extensions</Filter>
     </ClInclude>
-    <ClInclude Include="dac.h">
-      <Filter>Musical Extensions</Filter>
-    </ClInclude>
     <ClInclude Include="audio.h">
       <Filter>Musical Extensions</Filter>
     </ClInclude>
@@ -144,6 +144,9 @@
       <Filter>Musical Core</Filter>
     </ClInclude>
     <ClInclude Include="StateNumberSource.h">
+      <Filter>Musical Core</Filter>
+    </ClInclude>
+    <ClInclude Include="DAC.h">
       <Filter>Musical Core</Filter>
     </ClInclude>
   </ItemGroup>
