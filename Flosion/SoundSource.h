@@ -59,7 +59,9 @@ namespace musical {
 		// and passes corresponding local state
 		//-------------------------------------------------------------------
 		void getNextChunk(Sample* buffer, State* parent_state, SoundInput* dst) override {
-			renderChunk(buffer, lookupState(parent_state, dst));
+			StateType* state = lookupState(parent_state, dst);
+			renderChunk(buffer, state);
+			state->skipTime(CHUNK_SIZE);
 		}
 
 		// to be overridden in user-defined classes to fill buffer with next

@@ -100,6 +100,13 @@ namespace musical {
 			}
 		}
 
+		float getTimeSpeed(State* s) override {
+			if (s->getOwner() != this){
+				throw std::runtime_error("Bad things have happened");
+			}
+			return speed.getValue(s, 0, 1.0);
+		}
+
 		NumberResult speed;
 
 		SingleInput input;

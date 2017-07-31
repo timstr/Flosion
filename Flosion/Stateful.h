@@ -2,10 +2,17 @@
 
 #include <cstdint>
 
+#include "musical.h"
+
 namespace musical {
+
+	struct Stateful;
+	struct State;
 
 	struct Stateful {
 		virtual ~Stateful();
+
+		virtual float getTimeSpeed(State* state_chain);
 
 		virtual bool findSource(Stateful* src) const = 0;
 	};
@@ -19,9 +26,9 @@ namespace musical {
 		State* getParentState() const;
 		Stateful* getOwner() const;
 
-		void tickTime();
 		void skipTime(uint32_t t);
-		long double getTime() const;
+		long double getTime(unsigned int offset);
+		long double getGlobalTime(unsigned int offset);
 
 		private:
 		State* const parent;
