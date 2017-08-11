@@ -34,10 +34,11 @@ namespace musical {
 	}
 	long double State::getGlobalTime(unsigned int offset){
 		State* s = this;
+		double os = offset;
 		while (true){
-			offset /= s->owner->getTimeSpeed(s);
+			os /= s->owner->getTimeSpeed(s);
 			if (s->parent == nullptr){
-				return s->getTime(offset);
+				return s->getTime(os);
 			}
 			s = s->parent;
 		}
