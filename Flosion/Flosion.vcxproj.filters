@@ -62,12 +62,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FlosionUICore.h">
-      <Filter>FlosionUI</Filter>
-    </ClInclude>
-    <ClInclude Include="FlosionUI.h">
-      <Filter>FlosionUI</Filter>
-    </ClInclude>
     <ClInclude Include="musical.h">
       <Filter>Musical Core</Filter>
     </ClInclude>
@@ -148,6 +142,15 @@
     </ClInclude>
     <ClInclude Include="DAC.h">
       <Filter>Musical Core</Filter>
+    </ClInclude>
+    <ClInclude Include="spline.h">
+      <Filter>Mathematical Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="splineUI.h">
+      <Filter>FlosionUI</Filter>
+    </ClInclude>
+    <ClInclude Include="FlosionUI.h">
+      <Filter>FlosionUI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

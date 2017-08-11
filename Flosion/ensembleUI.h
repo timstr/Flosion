@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FlosionUICore.h"
+#include "FlosionUI.h"
 #include "ensemble.h"
 
 namespace fui {

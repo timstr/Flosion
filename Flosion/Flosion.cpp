@@ -12,7 +12,15 @@
 #include "audio.h"
 #include "dac.h"
 
-#include "FlosionUI.h"
+#include "constantUI.h"
+#include "functionsUI.h"
+#include "dacUI.h"
+#include "audioUI.h"
+#include "wavegenUI.h"
+#include "timestretchUI.h"
+#include "samplerUI.h"
+#include "ensembleUI.h"
+#include "splineUI.h"
 
 // TODO: synchronize this stuff
 // TODO: cache things
@@ -24,7 +32,7 @@ int main(){
 
 	fui::MasterContainer* container = new fui::MasterContainer();
 
-	std::vector<std::string> names = {"const", "+", "d0", "var", "slider", "usine", "usine", "dac", "dac", "audio", "wavegen", "square", "saw", "timestretch", "timestretch", "sampler", "+", "+", "-", "-", "*", "*", "/", "/", "ensemble"};
+	std::vector<std::string> names = {"const", "+", "d0", "var", "slider", "usine", "usine", "dac", "dac", "audio", "wavegen", "square", "saw", "timestretch", "timestretch", "sampler", "+", "+", "-", "-", "*", "*", "/", "/", "ensemble", "spline"};
 
 	for (const std::string& name : names){
 		fui::Object* obj = fui::Factory::createObject(name);
@@ -41,7 +49,9 @@ int main(){
 	}
 
 	container->addObject(new fui::SliderObject(0, 1000));
+	container->addObject(new fui::SliderObject(0, 1000));
 	container->addObject(new fui::SliderObject(0, 2));
+	container->addObject(new fui::SliderObject(0, 0.1));
 
 	ui::root()->addChildWindow(container);
 

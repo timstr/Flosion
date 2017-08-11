@@ -173,7 +173,6 @@
     <ClInclude Include="ensembleUI.h" />
     <ClInclude Include="filebrowser.h" />
     <ClInclude Include="FlosionUI.h" />
-    <ClInclude Include="FlosionUICore.h" />
     <ClInclude Include="functions.h" />
     <ClInclude Include="functionsUI.h" />
     <ClInclude Include="gui.h" />
@@ -187,6 +186,8 @@
     <ClInclude Include="SoundInput.h" />
     <ClInclude Include="SoundResult.h" />
     <ClInclude Include="SoundSource.h" />
+    <ClInclude Include="spline.h" />
+    <ClInclude Include="splineUI.h" />
     <ClInclude Include="Stateful.h" />
     <ClInclude Include="StateNumberSource.h" />
     <ClInclude Include="timestretch.h" />
