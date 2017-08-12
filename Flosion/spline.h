@@ -10,6 +10,11 @@ namespace musical {
 		Spline() : input(this){
 
 		}
+		~Spline(){
+			for (Point* p : points){
+				delete p;
+			}
+		}
 
 		float evaluate(State* state, int chunk_pos) const override {
 			return getValueAt(input.getValue(state, chunk_pos));
@@ -17,47 +22,30 @@ namespace musical {
 
 		float getValueAt(float pos) const {
 			if (points.size() == 0){
-				return (min_y + max_y) / 2;
+				return (min_y + max_y) * 0.5f;
 			}
 
-			auto it = points.begin();
-			if ((*it)->x > pos){
-				return (*it)->y;
-			}
-			auto prev = it;
-			it++;
-			for (; it != points.end(); it++){
-				if ((*it)->x > pos){
-					return interpolate((*prev)->y, (*it)->y, (pos - (*prev)->x) / ((*it)->x - (*prev)->x));
-				}
-				prev = it;
-			}
-			return (*prev)->y;
+			Point p(this, pos, 0.0f);
 
+			auto it = points.upper_bound(&p);
 
-			// TODO: fix this code and read about lower_bound and upper_bound
-			/*Point p(nullptr, pos, 0.0f);
+			auto right = it;
 
-			auto left = points.lower_bound(&p);
-			auto right = points.upper_bound(&p);
-
-			if (left == points.end()){
-				if (right == points.end()){
-					return 0.0f;
-				} else {
-					return (*right)->y;
-				}
+			if (right == points.end()){
+				auto left = --it;
+				return (*left)->y;
 			} else {
-				if (right == points.end()){
-					return (*left)->y;
+				if (right == points.begin()){
+					return (*right)->y;
 				} else {
+					auto left = --it;
 					if ((*left)->x == (*right)->x){
 						return (*left)->y;
 					} else {
-						return interpolate((*left)->y, (*right)->y, (pos - (*left)->x) / ((*right)->x - (*left)->x));
+						return interpolate((*left)->y, (*right)->y, (pos - (*left)->x) / ((*right)->x - (*left)->x), interp);
 					}
 				}
-			}*/
+			}
 		}
 
 		NumberInput input;
@@ -93,7 +81,6 @@ namespace musical {
 			points.insert(point);
 			return point;
 		}
-
 		void removePoint(Point* point){
 			for (auto it = points.begin(); it != points.end(); it++){
 				if (*it == point){
@@ -130,15 +117,36 @@ namespace musical {
 			max_y = y;
 		}
 
+		enum class Interpolation {
+			None,
+			Linear,
+			Sinusoid
+		};
+
+		void setInterpolation(Interpolation method){
+			interp = method;
+		}
+
 		private:
+
+		Interpolation interp = Interpolation::Linear;
 
 		float min_x = 0;
 		float max_x = 1;
 		float min_y = -1;
 		float max_y = 1;
 
-		static float interpolate(float l, float r, float x){
-			return l + (x * (r - l));
+		static float interpolate(float l, float r, float x, Interpolation method){
+			switch (method){
+				case Interpolation::None:
+					return l;
+				case Interpolation::Linear:
+					return l + (x * (r - l));
+				case Interpolation::Sinusoid:
+					return l + ((0.5f - 0.5f * cos(x * 3.1415927f)) * (r - l));
+				default:
+					return l;
+			}
 		}
 
 		struct Comparator {

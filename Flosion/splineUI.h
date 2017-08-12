@@ -16,7 +16,7 @@ namespace fui {
 		void render(sf::RenderWindow& rw) override {
 			sf::RectangleShape rect;
 			rect.setSize(size);
-			rect.setFillColor(sf::Color(0xFFFF0000));
+			rect.setFillColor(sf::Color(0x404040FF));
 			rect.setOutlineColor(sf::Color(0xFF));
 			rect.setOutlineThickness(1.0);
 			rw.draw(rect);

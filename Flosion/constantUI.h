@@ -41,7 +41,7 @@ namespace fui {
 		double min_value = 0;
 		double max_value = 10;
 		
-		//TODO: add 'tightness' parameter to control exponential decay rate
+		//TODO: add 'tightness' parameter to control exponential decay rate?
 		struct SlidingConstant : musical::PureFunction {
 
 			void updateValue(double newval, long double expected_duration){
