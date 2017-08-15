@@ -88,7 +88,7 @@ namespace musical {
 
 		void renderChunk(Sample* buffer, TimeStretchState* state) override {
 			for (int i = 0; i < CHUNK_SIZE; i++){
-				double sp = speed.getValue(state, i, 1);
+				double sp = speed.getValue(state, 1);
 				if (sp <= 0.001){
 					buffer[i] = {0, 0};
 				} else {
@@ -97,6 +97,7 @@ namespace musical {
 					}
 					buffer[i] = state->advanceAndGetSample(sp, input, state);
 				}
+				state->tick();
 			}
 		}
 
@@ -104,7 +105,7 @@ namespace musical {
 			if (s->getOwner() != this){
 				throw std::runtime_error("Bad things have happened");
 			}
-			return speed.getValue(s, 0, 1.0);
+			return speed.getValue(s, 1.0);
 		}
 
 		NumberResult speed;

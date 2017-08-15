@@ -45,13 +45,13 @@ namespace fui {
 		struct SlidingConstant : musical::PureFunction {
 
 			void updateValue(double newval, long double expected_duration){
-				val1 = evaluate(nullptr, 0);
+				val1 = evaluate(nullptr);
 				val2 = newval;
 				timestamp1 = ui::getProgramTime();
 				timestamp2 = timestamp1 + expected_duration;
 			}
 
-			float evaluate(musical::State* state, int chunk_pos) const override {
+			float evaluate(musical::State* state) const override {
 				// TODO: sliding bypassed for speed testing
 				return val2;
 

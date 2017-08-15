@@ -7,8 +7,8 @@ namespace musical {
 	NumberResult::NumberResult(Stateful* owner) : input(nullptr, owner) {
 
 	}
-	float NumberResult::getValue(State* state, int chunk_pos, float default_value){
-		return input.getValue(state, chunk_pos, default_value);
+	float NumberResult::getValue(State* state, float default_value){
+		return input.getValue(state, default_value);
 	}
 	bool NumberResult::isSafeSource(NumberSource* source) const {
 		return input.isSafeSource(source);

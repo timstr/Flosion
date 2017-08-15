@@ -16,8 +16,8 @@ namespace musical {
 			}
 		}
 
-		float evaluate(State* state, int chunk_pos) const override {
-			return getValueAt(input.getValue(state, chunk_pos));
+		float evaluate(State* state) const override {
+			return getValueAt(input.getValue(state));
 		};
 
 		float getValueAt(float pos) const {

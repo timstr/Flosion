@@ -22,14 +22,16 @@ namespace musical {
 			for (int i = 0; i < CHUNK_SIZE; i++){
 				buffer[i].l = wavefunction.getValue(state, i);
 				buffer[i].r = buffer[i].l;
-				state->phase += frequency.getValue(state, i, 250) / (double)SFREQ;
+
+				state->phase += frequency.getValue(state, 250) / (double)SFREQ;
 				state->phase -= floor(state->phase);
+				state->tick();
 			}
 		}
 
 		struct WaveGenPhase : StateNumberSource<WaveGenState> {
 			using StateNumberSource::StateNumberSource;
-			float getValue(WaveGenState* state, int chunk_pos) const override {
+			float getValue(WaveGenState* state) const override {
 				return state->phase;
 			}
 		} phase;

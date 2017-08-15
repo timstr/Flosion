@@ -27,7 +27,7 @@ namespace musical {
 		// or from sound processing objects, which shall be found as parents of some state
 		// in the state chain (accessed through the line of parents in the given state)
 		// this state is to be passed on as-is to preserve its full context
-		float getValue(State* state, unsigned int chunk_pos, float default_value = 0) const;
+		float getValue(State* state, float default_value = 0) const;
 
 		private:
 		NumberSource* parent;

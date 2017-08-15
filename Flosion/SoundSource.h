@@ -61,7 +61,7 @@ namespace musical {
 		void getNextChunk(Sample* buffer, State* parent_state, SoundInput* dst) override {
 			StateType* state = lookupState(parent_state, dst);
 			renderChunk(buffer, state);
-			state->skipTime(CHUNK_SIZE);
+			state->commitTime();
 		}
 
 		// to be overridden in user-defined classes to fill buffer with next

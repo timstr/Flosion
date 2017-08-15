@@ -13,7 +13,7 @@ namespace musical {
 	struct NumberResult {
 		NumberResult(Stateful* owner);
 
-		float getValue(State* state, int chunk_pos, float default_value = 0.0);
+		float getValue(State* state, float default_value = 0.0);
 
 		bool isSafeSource(NumberSource* source) const;
 

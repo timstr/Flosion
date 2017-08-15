@@ -11,7 +11,9 @@ namespace musical {
 	float Stateful::getTimeSpeed(State* state_chain){
 		return 1.0f;
 	}
-
+	long double Stateful::getTime(State* state_chain){
+		state_chain->getTimeAt(this);
+	}
 
 
 	State::State(State* _parent, Stateful* _owner) : parent(_parent), owner(_owner) {
@@ -26,19 +28,37 @@ namespace musical {
 	Stateful* State::getOwner() const {
 		return owner;
 	};
+	void State::tick(){
+		time_offset += 1;
+	}
 	void State::skipTime(uint32_t t){
-		time += t;
+		time_offset += t;
 	}
-	long double State::getTime(unsigned int offset){
-		return (time + offset) / (long double)SFREQ;
+	void State::commitTime(){
+		time += time_offset;
+		time_offset = 0;
 	}
-	long double State::getGlobalTime(unsigned int offset){
+	long double State::getTime() const{
+		return (time + time_offset) / (long double)SFREQ;
+	}
+	long double State::getTimeAt(Stateful* stateful){
 		State* s = this;
-		double os = offset;
+		double offset = time_offset;
+		while (s){
+			offset /= s->owner->getTimeSpeed(s);
+			if (s->owner == stateful){
+				return (s->time + offset) / (long double)SFREQ;
+			}
+			s = s->parent;
+		}
+	}
+	long double State::getGlobalTime(){
+		State* s = this;
+		double offset = time_offset;
 		while (true){
-			os /= s->owner->getTimeSpeed(s);
+			offset /= s->owner->getTimeSpeed(s);
 			if (s->parent == nullptr){
-				return s->getTime(os);
+				return (s->time + offset) / (long double)SFREQ;
 			}
 			s = s->parent;
 		}

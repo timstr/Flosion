@@ -14,6 +14,8 @@ namespace musical {
 
 		virtual float getTimeSpeed(State* state_chain);
 
+		long double getTime(State* state_chain);
+
 		virtual bool findSource(Stateful* src) const = 0;
 	};
 
@@ -26,14 +28,18 @@ namespace musical {
 		State* getParentState() const;
 		Stateful* getOwner() const;
 
+		void tick();
 		void skipTime(uint32_t t);
-		long double getTime(unsigned int offset);
-		long double getGlobalTime(unsigned int offset);
+		void commitTime();
+		long double getTime() const;
+		long double getTimeAt(Stateful* stateful);
+		long double getGlobalTime();
 
 		private:
 		State* const parent;
 		Stateful* const owner;
 		uint32_t time;
+		uint32_t time_offset;
 	};
 
 }

@@ -84,7 +84,7 @@ namespace musical {
 	float Constant::getValue() const {
 		return value;
 	}
-	float Constant::evaluate(State* state, int chunk_pos) const {
+	float Constant::evaluate(State* state) const {
 		return value;
 	}
 }

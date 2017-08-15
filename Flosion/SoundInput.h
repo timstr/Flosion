@@ -154,6 +154,7 @@ namespace musical {
 				for (int i = 0; i < CHUNK_SIZE; i++){
 					buffer[i] = Sample(0, 0);
 				}
+				state->skipTime(CHUNK_SIZE);
 			}
 		}
 
