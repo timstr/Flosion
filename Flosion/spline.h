@@ -58,6 +58,8 @@ namespace musical {
 				return y;
 			}
 
+			// TODO: this function can break the ordering of the Points set
+			// fix up
 			void setX(float _x){
 				x = std::min(std::max(spline->min_x, _x), spline->max_x);
 			}

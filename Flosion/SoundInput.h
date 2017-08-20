@@ -154,8 +154,9 @@ namespace musical {
 				for (int i = 0; i < CHUNK_SIZE; i++){
 					buffer[i] = Sample(0, 0);
 				}
-				state->skipTime(CHUNK_SIZE);
 			}
+			state->skipTime(CHUNK_SIZE);
+			state->commitTime();
 		}
 
 		void getNextChunk(Sample* buffer, const iterator& it){
@@ -165,6 +166,8 @@ namespace musical {
 			if (source){
 				source->getNextChunk(buffer, &it.state(), this);
 			}
+			it.state().skipTime(CHUNK_SIZE);
+			it.state().commitTime();
 		}
 
 		void setSource(SoundSource* _source) override {
