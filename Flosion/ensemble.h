@@ -52,8 +52,8 @@ namespace musical {
 
 			}
 
-			struct Frequency : MultiInputNumberSource<InputState, Input> {
-				using MultiInputNumberSource::MultiInputNumberSource;
+			struct Frequency : StateNumberSource {
+				using StateNumberSource::StateNumberSource;
 				float getValue(InputState* state) const override {
 					double freq = parentmultiinput->parentsoundsource->frequency.getValue(state);
 					double spread = parentmultiinput->parentsoundsource->frequency_spread.getValue(state);

@@ -158,7 +158,6 @@
     <ClCompile Include="NumberResult.cpp" />
     <ClCompile Include="NumberSource.cpp" />
     <ClCompile Include="Sample.cpp" />
-    <ClCompile Include="SoundInput.cpp" />
     <ClCompile Include="SoundResult.cpp" />
     <ClCompile Include="SoundSource.cpp" />
     <ClCompile Include="Stateful.cpp" />
@@ -183,13 +182,11 @@
     <ClInclude Include="Sample.h" />
     <ClInclude Include="sampler.h" />
     <ClInclude Include="samplerUI.h" />
-    <ClInclude Include="SoundInput.h" />
     <ClInclude Include="SoundResult.h" />
     <ClInclude Include="SoundSource.h" />
     <ClInclude Include="spline.h" />
     <ClInclude Include="splineUI.h" />
     <ClInclude Include="Stateful.h" />
-    <ClInclude Include="StateNumberSource.h" />
     <ClInclude Include="timestretch.h" />
     <ClInclude Include="timestretchUI.h" />
     <ClInclude Include="wavegen.h" />

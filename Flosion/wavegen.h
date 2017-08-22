@@ -1,7 +1,6 @@
 #pragma once
 
 #include "musical.h"
-#include "StateNumberSource.h"
 
 namespace musical {
 
@@ -29,7 +28,7 @@ namespace musical {
 			}
 		}
 
-		struct WaveGenPhase : StateNumberSource<WaveGenState> {
+		struct WaveGenPhase : StateNumberSource {
 			using StateNumberSource::StateNumberSource;
 			float getValue(WaveGenState* state) const override {
 				return state->phase;

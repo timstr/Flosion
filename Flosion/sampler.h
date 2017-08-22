@@ -88,20 +88,20 @@ namespace musical {
 			Sample buffer[CHUNK_SIZE];
 		};
 
-		struct SamplerInput : MultiInput<InputState, Note*> {
-			SamplerInput(SoundSource* parent) : MultiInput(parent), frequency(this), amplitude(this) {
+		struct SamplerInput : MultiInput<InputState, Note*, Sampler> {
+			SamplerInput(Sampler* parent) : MultiInput(parent), frequency(this), amplitude(this) {
 
 			}
 
-			struct Frequency : MultiInputNumberSource<InputState> {
-				using MultiInputNumberSource::MultiInputNumberSource;
+			struct Frequency : StateNumberSource {
+				using StateNumberSource::StateNumberSource;
 				float getValue(InputState* state) const override {
 					return state->key->frequency;
 				}
 			} frequency;
 
-			struct Amplitude : MultiInputNumberSource<InputState> {
-				using MultiInputNumberSource::MultiInputNumberSource;
+			struct Amplitude : StateNumberSource {
+				using StateNumberSource::StateNumberSource;
 				float getValue(InputState* state) const override {
 					return state->key->amplitude;
 				}

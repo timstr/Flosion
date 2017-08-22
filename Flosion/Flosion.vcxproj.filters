@@ -39,9 +39,6 @@
     <ClCompile Include="Stateful.cpp">
       <Filter>Musical Core</Filter>
     </ClCompile>
-    <ClCompile Include="SoundInput.cpp">
-      <Filter>Musical Core</Filter>
-    </ClCompile>
     <ClCompile Include="SoundSource.cpp">
       <Filter>Musical Core</Filter>
     </ClCompile>
@@ -119,9 +116,6 @@
     <ClInclude Include="Stateful.h">
       <Filter>Musical Core</Filter>
     </ClInclude>
-    <ClInclude Include="SoundInput.h">
-      <Filter>Musical Core</Filter>
-    </ClInclude>
     <ClInclude Include="SoundSource.h">
       <Filter>Musical Core</Filter>
     </ClInclude>
@@ -135,9 +129,6 @@
       <Filter>Musical Core</Filter>
     </ClInclude>
     <ClInclude Include="NumberResult.h">
-      <Filter>Musical Core</Filter>
-    </ClInclude>
-    <ClInclude Include="StateNumberSource.h">
       <Filter>Musical Core</Filter>
     </ClInclude>
     <ClInclude Include="DAC.h">

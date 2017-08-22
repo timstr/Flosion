@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SoundSource.h"
-#include "SoundInput.h"
 
 namespace musical {
 
