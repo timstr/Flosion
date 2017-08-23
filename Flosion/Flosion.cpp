@@ -6,10 +6,6 @@
 
 #define MUSICAL_CHUNK_SIZE 1024;
 
-#include "musical.h"
-#include "audio.h"
-#include "dac.h"
-
 #include "constantUI.h"
 #include "functionsUI.h"
 #include "dacUI.h"

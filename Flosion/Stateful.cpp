@@ -22,6 +22,11 @@ namespace musical {
 	State::~State(){
 
 	}
+	void State::performReset(){
+		time = 0;
+		time_offset = 0;
+		reset();
+	}
 	State* State::getParentState() const {
 		return parent;
 	}

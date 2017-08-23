@@ -23,7 +23,7 @@ namespace musical {
 		State(State* _parent, Stateful* _owner);
 		virtual ~State();
 
-		virtual void reset() = 0;
+		void performReset();
 
 		State* getParentState() const;
 		Stateful* getOwner() const;
@@ -34,6 +34,9 @@ namespace musical {
 		long double getTime() const;
 		long double getTimeAt(Stateful* stateful);
 		long double getGlobalTime();
+
+		protected:
+		virtual void reset() = 0;
 
 		private:
 		State* const parent;

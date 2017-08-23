@@ -19,11 +19,12 @@ namespace musical {
 
 		void renderChunk(Sample* buffer, SamplerState* state) override {
 			double sampler_time = state->getTime();
-			double delta = CHUNK_SIZE / (double)SFREQ;
+			const double delta = CHUNK_SIZE / (double)SFREQ;
 
 			for (auto it = input.begin(state); it != input.end(state); it++){
 				Note* note = it.key();
 				// if the note is playing now
+				// specifically, if the note both begins before the end of the chunk and ends after the beginning of the chunk
 				if (note->start_time < (sampler_time + delta) && (note->start_time + note->length) >= sampler_time){
 					int carryover = (uint32_t)(note->start_time * SFREQ) % CHUNK_SIZE;
 

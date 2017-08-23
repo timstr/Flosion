@@ -101,7 +101,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Tim\Documents\Headers;C:\SFML-2.4.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\SFML-2.4.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -153,10 +153,12 @@
   <ItemGroup>
     <ClCompile Include="DAC.cpp" />
     <ClCompile Include="Flosion.cpp" />
+    <ClCompile Include="Font.cpp" />
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="NumberInput.cpp" />
     <ClCompile Include="NumberResult.cpp" />
     <ClCompile Include="NumberSource.cpp" />
+    <ClCompile Include="FlosionUI.cpp" />
     <ClCompile Include="Sample.cpp" />
     <ClCompile Include="SoundResult.cpp" />
     <ClCompile Include="SoundSource.cpp" />
@@ -171,7 +173,7 @@
     <ClInclude Include="ensemble.h" />
     <ClInclude Include="ensembleUI.h" />
     <ClInclude Include="filebrowser.h" />
-    <ClInclude Include="FlosionUI.h" />
+    <ClInclude Include="Font.h" />
     <ClInclude Include="functions.h" />
     <ClInclude Include="functionsUI.h" />
     <ClInclude Include="gui.h" />
@@ -179,6 +181,7 @@
     <ClInclude Include="NumberInput.h" />
     <ClInclude Include="NumberResult.h" />
     <ClInclude Include="NumberSource.h" />
+    <ClInclude Include="FlosionUI.h" />
     <ClInclude Include="Sample.h" />
     <ClInclude Include="sampler.h" />
     <ClInclude Include="samplerUI.h" />

@@ -152,7 +152,7 @@ namespace musical {
 				throw std::runtime_error("The provided state is already registered");
 			}
 			StateType* st = new StateType(parent_state, this);
-			st->reset();
+			st->performReset();
 			state_map[std::make_pair(parent_state, dst)] = st;
 			for (int i = 0; i < inputs.size(); i++){
 				inputs[i]->addState(st);
@@ -181,7 +181,7 @@ namespace musical {
 			if (it == state_map.end()){
 				throw std::runtime_error("The parent state could not be found in the state map");
 			} else {
-				it->second->reset();
+				it->second->performReset();
 				for (int i = 0; i < inputs.size(); i++){
 					inputs[i]->resetState(it->second);
 				}
@@ -345,7 +345,7 @@ namespace musical {
 				}
 				for (auto it = states.begin(); it != states.end(); it++){
 					InputStateType* st = new InputStateType(*it, this, key);
-					st->reset();
+					st->performReset();
 					state_map[std::make_pair(key, *it)] = st;
 					if (source){
 						source->addState(st, this);
@@ -383,7 +383,7 @@ namespace musical {
 				}
 				for (auto it = keys.begin(); it != keys.end(); it++){
 					InputStateType* st = new InputStateType(parent_state, this, *it);
-					st->reset();
+					st->performReset();
 					state_map[std::make_pair(*it, parent_state)] = st;
 					if (source){
 						source->addState(st, this);
