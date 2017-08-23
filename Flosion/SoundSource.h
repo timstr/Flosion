@@ -164,7 +164,7 @@ namespace musical {
 		void removeState(State* parent_state, SoundInput* dst) override {
 			auto it = state_map.find(std::make_pair(parent_state, dst));
 			if (it == state_map.end()){
-				throw std::runtime_error("The parent state could not be found in the state map"); // TODO: this error keeps getting thrown when removing a note
+				throw std::runtime_error("The parent state could not be found in the state map");
 			} else {
 				for (int i = 0; i < inputs.size(); i++){
 					inputs[i]->removeState(it->second);
@@ -363,7 +363,7 @@ namespace musical {
 						throw std::runtime_error("The provided key could not be found in the state map");
 					}
 					if (source){
-						source->removeState(*it, this);
+						source->removeState(it2->second, this);
 					}
 					delete it2->second;
 					state_map.erase(it2);

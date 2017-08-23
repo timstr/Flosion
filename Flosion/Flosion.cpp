@@ -1,5 +1,3 @@
-
-#include <iostream>
 #include <SFML/Graphics.hpp>
 #include <math.h>
 #include "filebrowser.h"
@@ -22,6 +20,8 @@
 #include "ensembleUI.h"
 #include "splineUI.h"
 
+#include <iostream>
+
 // TODO: synchronize this stuff
 // TODO: cache things
 int main(){
@@ -32,7 +32,7 @@ int main(){
 
 	fui::MasterContainer* container = new fui::MasterContainer();
 
-	std::vector<std::string> names = {"const", "+", "d0", "var", "slider", "usine", "usine", "dac", "dac", "audio", "wavegen", "square", "saw", "timestretch", "timestretch", "sampler", "+", "+", "-", "-", "*", "*", "/", "/", "ensemble", "spline"};
+	std::vector<std::string> names = {"const", "+", "d0", "var", "slider", "usine", "usine", "dac", "dac", "audio", "wavegen", "square", "saw", "timestretch", "timestretch", "sampler", "+", "+", "-", "-", "*", "*", "*", "*", "/", "/", "ensemble", "spline"};
 
 	for (const std::string& name : names){
 		fui::Object* obj = fui::Factory::createObject(name);
