@@ -12,7 +12,7 @@ namespace musical {
 		return 1.0f;
 	}
 	long double Stateful::getTime(State* state_chain){
-		state_chain->getTimeAt(this);
+		return state_chain->getTimeAt(this);
 	}
 
 

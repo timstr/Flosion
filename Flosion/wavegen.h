@@ -30,7 +30,7 @@ namespace musical {
 
 		struct WaveGenPhase : StateNumberSource {
 			using StateNumberSource::StateNumberSource;
-			float getValue(WaveGenState* state) const override {
+			float getValue(WaveGenState* state, State* context) const override {
 				return state->phase;
 			}
 		} phase;

@@ -9,7 +9,7 @@ namespace fui {
 		SplineObject(){
 			size = {200, 100};
 			addNumberInput(new NumberInput(&spline.input, this, "Input", {-25, 35}));
-			addNumberOutput(new NumberOutput(&spline, this, {195, 35}));
+			addNumberOutput(new NumberOutput(&spline, this, "Output", {195, 35}));
 			calculateRenderPoints();
 		}
 

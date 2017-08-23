@@ -7,6 +7,8 @@ namespace { \
 	::fui::Factory::RegisterObject<type> register_object_##type({##__VA_ARGS__}); \
 }
 
+// TODO: reorganize this file into appropriate .h and .cpp files so I can breathe
+
 namespace fui {
 
 	struct Object;
@@ -198,6 +200,7 @@ namespace fui {
 			addChildWindow(caption = new ui::Text(_caption, fui::getFont()));
 			caption->pos.x = -5 - caption->size.x;
 			caption->pos.y = 0;
+			hover_timestamp = ui::getProgramTime() - 1;
 		}
 
 		void setWireIn(NumberWire* wire);
@@ -207,6 +210,7 @@ namespace fui {
 		void onHover() override {
 			hover_timestamp = ui::getProgramTime();
 		}
+		void onHoverWithDrag(Window* win) override;
 
 		void render(sf::RenderWindow& rw) override {
 			sf::RectangleShape rect;
@@ -215,7 +219,7 @@ namespace fui {
 			rect.setOutlineColor(sf::Color(0x000000FF));
 			rect.setOutlineThickness(1);
 			rw.draw(rect);
-			if (ui::getProgramTime() - hover_timestamp < 1){
+			if (ui::getProgramTime() - hover_timestamp < 0.25){
 				caption->visible = true;
 			} else {
 				caption->visible = false;
@@ -230,7 +234,6 @@ namespace fui {
 		musical::NumberInput* target;
 		NumberWire* wire_in;
 		ui::Text* caption;
-
 		double hover_timestamp;
 
 		friend struct NumberWire;
@@ -239,11 +242,15 @@ namespace fui {
 	// the source of a numberwire
 	// corresponds to a number source
 	struct NumberOutput : ui::Window {
-		NumberOutput(musical::NumberSource* _target, Object* _parent, sf::Vector2f _pos = {0,0}){
+		NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption = "", sf::Vector2f _pos = {0,0}){
 			pos = _pos;
 			size = {30, 30};
 			target = _target;
 			parent = _parent;
+			addChildWindow(caption = new ui::Text(_caption, fui::getFont()));
+			caption->pos.x = 0;
+			caption->pos.y = -30;
+			hover_timestamp = ui::getProgramTime() - 1;
 		}
 
 		void addWireOut(NumberWire* wire);
@@ -256,9 +263,20 @@ namespace fui {
 			rect.setOutlineColor(sf::Color(0x000000FF));
 			rect.setOutlineThickness(1);
 			rw.draw(rect);
+			if (ui::getProgramTime() - hover_timestamp < 0.25){
+				caption->visible = true;
+			} else {
+				caption->visible = false;
+			}
+			renderChildWindows(rw);
 		}
 
 		void onDropDragWindow(Window* window) override;
+
+		void onHover() override {
+			hover_timestamp = ui::getProgramTime();
+		}
+		void onHoverWithDrag(Window* win) override;
 
 		void onLeftClick(int clicks) override;
 
@@ -266,6 +284,8 @@ namespace fui {
 		Object* parent;
 		musical::NumberSource* target;
 		std::vector<NumberWire*> wires_out;
+		ui::Text* caption;
+		double hover_timestamp;
 
 		friend struct NumberWire;
 	};
@@ -691,6 +711,11 @@ namespace fui {
 			}
 		}
 	}
+	void NumberInput::onHoverWithDrag(Window* win){
+		if (dynamic_cast<NumberWire::Head*>(win)){
+			hover_timestamp = ui::getProgramTime();
+		}
+	}
 	void NumberInput::onLeftClick(int clicks){
 		if (wire_in){
 			wire_in->dragHead();
@@ -736,6 +761,11 @@ namespace fui {
 					wiretail->pos = start + (end - start) * (float)sin(x * PI / 2);
 				});
 			}
+		}
+	}
+	void NumberOutput::onHoverWithDrag(Window* win){
+		if (dynamic_cast<NumberWire::Tail*>(win)){
+			hover_timestamp = ui::getProgramTime();
 		}
 	}
 	void NumberOutput::onLeftClick(int clicks){

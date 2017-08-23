@@ -13,7 +13,7 @@ namespace fui {
 			addNumberInput(new NumberInput(&add.input1, this, "Input A", {-5, 5}));
 			addNumberInput(new NumberInput(&add.input2, this, "Input B", {-5, 40}));
 
-			addNumberOutput(new NumberOutput(&add, this, {size.x - 25, 5}));
+			addNumberOutput(new NumberOutput(&add, this, "Output", {size.x - 25, 5}));
 
 			addChildWindow(new ui::Text("Add", getFont()), {30, 5});
 		}
@@ -30,7 +30,7 @@ namespace fui {
 			addNumberInput(new NumberInput(&subtract.input1, this, "Input A", {-5, 5}));
 			addNumberInput(new NumberInput(&subtract.input2, this, "Input B", {-5, 40}));
 
-			addNumberOutput(new NumberOutput(&subtract, this, {size.x - 25, 5}));
+			addNumberOutput(new NumberOutput(&subtract, this, "Output", {size.x - 25, 5}));
 
 			addChildWindow(new ui::Text("Subtract", getFont()), {30, 5});
 		}
@@ -47,7 +47,7 @@ namespace fui {
 			addNumberInput(new NumberInput(&multiply.input1, this, "Input A", {-5, 5}));
 			addNumberInput(new NumberInput(&multiply.input2, this, "Input B", {-5, 40}));
 
-			addNumberOutput(new NumberOutput(&multiply, this, {size.x - 25, 5}));
+			addNumberOutput(new NumberOutput(&multiply, this, "Output", {size.x - 25, 5}));
 
 			addChildWindow(new ui::Text("Multiply", getFont()), {30, 5});
 		}
@@ -64,7 +64,7 @@ namespace fui {
 			addNumberInput(new NumberInput(&divide.input1, this, "Input A", {-5, 5}));
 			addNumberInput(new NumberInput(&divide.input2, this, "Input B", {-5, 40}));
 
-			addNumberOutput(new NumberOutput(&divide, this, {size.x - 25, 5}));
+			addNumberOutput(new NumberOutput(&divide, this, "Output", {size.x - 25, 5}));
 
 			addChildWindow(new ui::Text("Divide", getFont()), {30, 5});
 		}
@@ -80,7 +80,7 @@ namespace fui {
 
 			addNumberInput(new NumberInput(&usine.input, this, "Input", {-5, 10}));
 
-			addNumberOutput(new NumberOutput(&usine, this, {225, 10}));
+			addNumberOutput(new NumberOutput(&usine, this, "Output", {225, 10}));
 
 			addChildWindow(new ui::Text("Unit Sine", getFont()), {30, 5});
 		}
@@ -96,7 +96,7 @@ namespace fui {
 
 			addNumberInput(new NumberInput(&saw.input, this, "Input", {-5, 10}));
 
-			addNumberOutput(new NumberOutput(&saw, this, {225, 10}));
+			addNumberOutput(new NumberOutput(&saw, this, "Output", {225, 10}));
 
 			addChildWindow(new ui::Text("Saw Wave", getFont()), {30, 5});
 		}
@@ -112,7 +112,7 @@ namespace fui {
 
 			addNumberInput(new NumberInput(&square.input, this, "Input", {-5, 10}));
 
-			addNumberOutput(new NumberOutput(&square, this, {225, 10}));
+			addNumberOutput(new NumberOutput(&square, this, "Output", {225, 10}));
 
 			addChildWindow(new ui::Text("Square Wave", getFont()), {30, 5});
 		}

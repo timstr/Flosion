@@ -10,13 +10,15 @@ namespace fui {
 			size = {400, 400};
 			addSoundInput(new SoundInput(&sampler.input, this, {-5, 5}));
 			addSoundOutput(new SoundOutput(&sampler, this, {size.x - 25, 5}));
-			addNumberOutput(new NumberOutput(&sampler.input.frequency, this, {30, -5}));
+			addNumberOutput(new NumberOutput(&sampler.input.frequency, this, "Note Frequency", {30, -5}));
+			addNumberOutput(new NumberOutput(&sampler.input.notetime, this, "Note Time", {65, -5}));
+			addNumberOutput(new NumberOutput(&sampler.input.noteprogress, this, "Note Progress", {100, -5}));
 			addChildWindow(new ui::Text("Sampler", fui::getFont()), {30, 30});
 		}
 
 		void onLeftClick(int clicks) override {
 			sf::Vector2f mousepos = localMousePos();
-			NoteWindow* notewin = new NoteWindow(this, sampler.addNote(freqFromYPos(mousepos.y), 0.1, timeFromXPos(mousepos.x), 0.25 * musical::SFREQ));
+			NoteWindow* notewin = new NoteWindow(this, sampler.addNote(freqFromYPos(mousepos.y), 0.1, timeFromXPos(mousepos.x), 0.1 + (rand() % 20) * 0.1));
 			addChildWindow(notewin, mousepos);
 			notewin->startDrag();
 		}
@@ -24,18 +26,18 @@ namespace fui {
 		private:
 
 		static double freqFromYPos(float pos){
-			return 16.3516 * pow(2.0, pos / 100.0);
+			return 16.3516 * pow(2.0, pos / 50.0);
 		}
 
-		static uint32_t timeFromXPos(float pos){
-			return pos * musical::SFREQ / 100;
+		static double timeFromXPos(float pos){
+			return pos / 100;
 		}
 
 		struct NoteWindow : ui::Window {
 			NoteWindow(SamplerObject* _parent, musical::Sampler::Note* _note){
 				parent = _parent;
 				note = _note;
-				size = {25, 10};
+				size = sf::Vector2f(note->length * 100, 10);
 			}
 			void onLeftClick(int clicks) override {
 				if (clicks == 1){

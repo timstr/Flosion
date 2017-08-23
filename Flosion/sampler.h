@@ -8,10 +8,8 @@ namespace musical {
 		using State::State;
 
 		void reset() override {
-			time = 0;
-		}
 
-		uint32_t time;
+		}
 	};
 
 	struct Sampler : SoundSourceTemplate<SamplerState> {
@@ -20,33 +18,39 @@ namespace musical {
 		}
 
 		void renderChunk(Sample* buffer, SamplerState* state) override {
-			for (auto st = input.begin(state); st != input.end(state); st++){
+			double sampler_time = state->getTime();
+			double delta = CHUNK_SIZE / (double)SFREQ;
+
+			for (auto it = input.begin(state); it != input.end(state); it++){
+				Note* note = it.key();
 				// if the note is playing now
-				if (st.key()->start_time <= state->time + CHUNK_SIZE && st.key()->start_time + st.key()->length > state->time){
-					int carryover = st.key()->start_time % CHUNK_SIZE;
+				if (note->start_time < (sampler_time + delta) && (note->start_time + note->length) >= sampler_time){
+					int carryover = (uint32_t)(note->start_time * SFREQ) % CHUNK_SIZE;
+
 					// if this is the note's first time playing...
-					if (st.key()->start_time >= state->time){
-						input.resetState(st);
+					if (note->start_time >= sampler_time){
+						// reset it
+						input.resetState(it);
 					} else {
-						int carryover = st.key()->start_time % CHUNK_SIZE;
+						// add the trailing part of its buffer
 						for (int i = 0; i < carryover; i++){
-							buffer[i] += st.state().buffer[CHUNK_SIZE - carryover + i] * 0.1;
+							buffer[i] += it.state().buffer[CHUNK_SIZE - carryover + i] * 0.1; // TODO: perform some kind of mixing/compression here instead of quieting
 						}
 					}
 					// get the next chunk for the note
-					input.getNextChunk(st.state().buffer, st);
+					input.getNextChunk(it.state().buffer, it);
 					// write its first part to the output buffer
 					for (int i = carryover; i < CHUNK_SIZE; i++){
-						buffer[i] += st.state().buffer[i - carryover] * 0.1;
+						buffer[i] += it.state().buffer[i - carryover] * 0.1; // TODO: see above
 					}
 				}
 			}
 
-			state->time += CHUNK_SIZE;
+			state->skipTime(CHUNK_SIZE);
 		}
 
 		struct Note {
-			Note(double _frequency, double _amplitude, uint32_t _start_time, uint32_t _length){
+			Note(double _frequency, double _amplitude, double _start_time, double _length){
 				frequency = _frequency;
 				amplitude = _amplitude;
 				start_time = _start_time;
@@ -54,11 +58,11 @@ namespace musical {
 			}
 			double frequency;
 			double amplitude;
-			uint32_t start_time;
-			uint32_t length;
+			double start_time;
+			double length;
 		};
 
-		Note* addNote(double frequency, double amplitude, uint32_t start_time, uint32_t length){
+		Note* addNote(double frequency, double amplitude, double start_time, double length){
 			Note* note = new Note(frequency, amplitude, start_time, length);
 			notes.push_back(note);
 			input.addKey(note);
@@ -89,23 +93,37 @@ namespace musical {
 		};
 
 		struct SamplerInput : MultiInput<InputState, Note*, Sampler> {
-			SamplerInput(Sampler* parent) : MultiInput(parent), frequency(this), amplitude(this) {
+			SamplerInput(Sampler* parent) : MultiInput(parent), frequency(this), amplitude(this), notetime(this), noteprogress(this) {
 
 			}
 
 			struct Frequency : StateNumberSource {
 				using StateNumberSource::StateNumberSource;
-				float getValue(InputState* state) const override {
+				float getValue(InputState* state, State* context) const override {
 					return state->key->frequency;
 				}
 			} frequency;
 
 			struct Amplitude : StateNumberSource {
 				using StateNumberSource::StateNumberSource;
-				float getValue(InputState* state) const override {
+				float getValue(InputState* state, State* context) const override {
 					return state->key->amplitude;
 				}
 			} amplitude;
+
+			struct NoteTime : StateNumberSource {
+				using StateNumberSource::StateNumberSource;
+				float getValue(InputState* state, State* context) const override {
+					return context->getTimeAt(parentmultiinput);
+				}
+			} notetime;
+
+			struct NoteProgress : StateNumberSource {
+				using StateNumberSource::StateNumberSource;
+				float getValue(InputState* state, State* context) const override {
+					return context->getTimeAt(parentmultiinput) / state->key->length;
+				}
+			} noteprogress;
 		} input;
 
 		private:

@@ -164,7 +164,7 @@ namespace musical {
 		void removeState(State* parent_state, SoundInput* dst) override {
 			auto it = state_map.find(std::make_pair(parent_state, dst));
 			if (it == state_map.end()){
-				throw std::runtime_error("The parent state could not be found in the state map");
+				throw std::runtime_error("The parent state could not be found in the state map"); // TODO: this error keeps getting thrown when removing a note
 			} else {
 				for (int i = 0; i < inputs.size(); i++){
 					inputs[i]->removeState(it->second);
@@ -195,16 +195,17 @@ namespace musical {
 			}
 
 			float evaluate(State* state) const override {
+				State* context = state;
 				while (state){
 					if (state->getOwner() == owner){
 #ifdef _DEBUG
 						if (StateType* s = dynamic_cast<StateType*>(state)){
-							return getValue(s, chunk_pos);
+							return getValue(s, context);
 						} else {
 							throw std::runtime_error("The found state is not compatible");
 						}
 #else
-						return getValue((StateType*)state);
+						return getValue((StateType*)state, context);
 #endif
 					}
 					state = state->getParentState();
@@ -212,7 +213,7 @@ namespace musical {
 				throw std::runtime_error("State belonging to owner sound processing object was not found in state chain");
 			}
 
-			virtual float getValue(StateType* state) const = 0;
+			virtual float getValue(StateType* state, State* context) const = 0;
 
 			private:
 			SoundSource* owner;
@@ -459,16 +460,17 @@ namespace musical {
 				}
 
 				float evaluate(State* state) const override {
+					State* context = state;
 					while (state){
 						if (state->getOwner() == parentmultiinput){
 #ifdef _DEBUG
 							if (InputStateType* s = dynamic_cast<InputStateType*>(state)){
-								return getValue(s, chunk_pos);
+								return getValue(s, context);
 							} else {
 								throw std::exception("State found belonging to MultiInput is incorrect type");
 							}
 #else
-							return getValue((InputStateType*)state);
+							return getValue((InputStateType*)state, context);
 #endif
 						}
 						state = state->getParentState();
@@ -477,7 +479,7 @@ namespace musical {
 					throw std::exception("A state belonging to the MultiInput was not found in the state chain");
 				}
 
-				virtual float getValue(InputStateType* state) const = 0;
+				virtual float getValue(InputStateType* state, State* context) const = 0;
 
 				MultiInput<InputStateType, KeyType, SoundSourceType>* const parentmultiinput;
 			};
