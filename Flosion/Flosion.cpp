@@ -28,22 +28,6 @@ int main(){
 
 	fui::MasterContainer* container = new fui::MasterContainer();
 
-	std::vector<std::string> names = {"const", "+", "d0", "var", "slider", "usine", "usine", "dac", "dac", "audio", "wavegen", "square", "saw", "timestretch", "timestretch", "sampler", "+", "+", "-", "-", "*", "*", "*", "*", "/", "/", "ensemble", "spline"};
-
-	for (const std::string& name : names){
-		fui::Object* obj = fui::Factory::createObject(name);
-		if (obj){
-			sf::Vector2f start = sf::Vector2f(rand() % 900, -200);
-			sf::Vector2f end = sf::Vector2f(rand() % 900, rand() % 600);
-			obj->startTransition(1.0, [=](double x){
-				obj->pos = start + (end - start) * (float)(0.5 - 0.5 * cos(x * PI));
-			});
-			container->addObject(obj);
-		} else {
-			std::cout << "The object \"" << name << "\" couldn't be instantiated\n";
-		}
-	}
-
 	container->addObject(new fui::SliderObject(0, 1000));
 	container->addObject(new fui::SliderObject(0, 1000));
 	container->addObject(new fui::SliderObject(0, 2));

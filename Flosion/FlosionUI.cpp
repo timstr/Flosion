@@ -44,7 +44,32 @@ namespace fui {
 	}
 	void Container::onLeftClick(int clicks){
 		if (clicks == 2){
-			// TODO
+			Menu* menu = new Menu(this);
+			addChildWindow(menu);
+			menu->pos = localMousePos() - menu->size * 0.5f;
+			menu->beginTyping();
+		}
+	}
+	Container::Menu::Menu(Container* _container){
+		container = _container;
+		size = {100, 20};
+		addChildWindow(textentry = new ui::TextEntry("", getFont()));
+		textentry->setCallback([this](const std::string& str){
+			createObject(str);
+			close();
+		});
+	}
+	void Container::Menu::beginTyping(){
+		textentry->grabFocus();
+	}
+	void Container::Menu::onLoseFocus(){
+		close();
+	}
+	void Container::Menu::createObject(const std::string& str){
+		Object* obj = Factory::createObject(str);
+		if (obj){
+			obj->pos = pos + size * 0.5f - obj->size * 0.5f;
+			container->addObject(obj);
 		}
 	}
 

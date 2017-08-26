@@ -68,47 +68,50 @@ namespace ui {
 		}
 	}
 	void Context::focusTo(Window* window){
+		if (Context::current_window == window){
+			return;
+		}
+
 		if (Context::dragging_window){
 			Context::dragging_window = nullptr;
 		}
 		if (Context::getTextEntry()){
 			Context::setTextEntry(nullptr);
 		}
-		if (Context::current_window != window){
-			std::vector<Window*> current_path;
-			std::vector<Window*> new_path;
 
-			Window* twindow = Context::current_window;
-			while (twindow != nullptr){
-				current_path.push_back(twindow);
-				twindow = twindow->parent;
+		std::vector<Window*> current_path;
+		std::vector<Window*> new_path;
+
+		Window* twindow = Context::current_window;
+		Context::current_window = window;
+
+		while (twindow != nullptr){
+			current_path.push_back(twindow);
+			twindow = twindow->parent;
+		}
+
+		twindow = window;
+		while (twindow != nullptr){
+			new_path.push_back(twindow);
+			twindow = twindow->parent;
+		}
+
+		while ((current_path.size() > 0) && (new_path.size() > 0) && (current_path.back() == new_path.back())){
+			current_path.pop_back();
+			new_path.pop_back();
+		}
+
+		while (current_path.size() > 0){
+			current_path.front()->onLoseFocus();
+			current_path.erase(current_path.begin());
+		}
+
+		while (new_path.size() > 0){
+			if (new_path.back()->parent){
+				new_path.back()->parent->bringChildToFront(new_path.back());
 			}
-
-			twindow = window;
-			while (twindow != nullptr){
-				new_path.push_back(twindow);
-				twindow = twindow->parent;
-			}
-
-			while ((current_path.size() > 0) && (new_path.size() > 0) && (current_path.back() == new_path.back())){
-				current_path.pop_back();
-				new_path.pop_back();
-			}
-
-			while (current_path.size() > 0){
-				current_path.front()->onLoseFocus();
-				current_path.erase(current_path.begin());
-			}
-
-			while (new_path.size() > 0){
-				if (new_path.back()->parent){
-					new_path.back()->parent->bringChildToFront(new_path.back());
-				}
-				new_path.back()->onFocus();
-				new_path.pop_back();
-			}
-
-			Context::current_window = window;
+			new_path.back()->onFocus();
+			new_path.pop_back();
 		}
 	}
 	sf::Vector2f Context::getMousePosition(){
@@ -528,12 +531,30 @@ namespace ui {
 
 
 
-	TextEntry::TextEntry(sf::Font& font, int charsize){
+	TextEntry::TextEntry(const sf::Font& font, int charsize){
 		text = sf::Text("", font, charsize);
 		updateSize();
 	}
-	TextEntry::TextEntry(const std::string& str, sf::Font& font, int charsize){
+	TextEntry::TextEntry(const std::string& str, const sf::Font& font, int charsize, sf::Color _text_color, sf::Color _bg_color){
 		text = sf::Text(str, font, charsize);
+		updateSize();
+		setTextColor(_text_color);
+		setBackGroundColor(_bg_color);
+	}
+	void TextEntry::beginTyping(){
+		grabFocus();
+		Context::setTextEntry(this);
+	}
+	void TextEntry::moveTo(sf::Vector2f pos){
+		for (int i = 0; i < text.getString().getSize(); i++){
+			sf::Vector2f charpos = text.findCharacterPos(i);
+			if (pos.x < charpos.x){
+				cursor_index = i - 1;
+				updateSize();
+				return;
+			}
+		}
+		cursor_index = text.getString().getSize();
 		updateSize();
 	}
 	void TextEntry::setText(const std::string& str){
@@ -547,14 +568,26 @@ namespace ui {
 		cursor_index = 0;
 		updateSize();
 	}
+	void TextEntry::setTextColor(sf::Color color){
+		text.setFillColor(color);
+	}
+	sf::Color TextEntry::getTextColor() const {
+		return text.getFillColor();
+	}
+	void TextEntry::setBackGroundColor(sf::Color color){
+		background_color = color;
+	}
+	sf::Color TextEntry::getBackGroundColor() const {
+		return background_color;
+	}
 	void TextEntry::onReturn(std::string entered_text){
-
+		if (callback){
+			callback(entered_text);
+		}
 	}
 	void TextEntry::render(sf::RenderWindow& renderwindow){
 		sf::RectangleShape rect(size);
-		rect.setFillColor(sf::Color(0xFF));
-		rect.setOutlineColor(sf::Color(0x808080FF));
-		rect.setOutlineThickness(1);
+		rect.setFillColor(background_color);
 		renderwindow.draw(rect);
 		renderwindow.draw(text);
 		if (Context::getTextEntry() == this){
@@ -563,24 +596,17 @@ namespace ui {
 				255,
 				255,
 				0,
-				128 * (0.5 + 0.5 * sin(getProgramTime() * PI / 1.5))));
+				128 * (0.5 + 0.5 * sin(getProgramTime() * PI * 2))));
 			rect2.setPosition(sf::Vector2f(cursor_pos, 0));
 			renderwindow.draw(rect2);
 		}
 	}
 	void TextEntry::onLeftClick(int clicks){
-		Context::setTextEntry(this);
-		sf::Vector2f mousepos = localMousePos();
-		for (int i = 0; i < text.getString().getSize(); i++){
-			sf::Vector2f charpos = text.findCharacterPos(i);
-			if (mousepos.x < charpos.x){
-				cursor_index = i - 1;
-				updateSize();
-				return;
-			}
-		}
-		cursor_index = text.getString().getSize();
-		updateSize();
+		beginTyping();
+		moveTo(localMousePos());
+	}
+	void TextEntry::onFocus(){
+		beginTyping();
 	}
 	void TextEntry::write(char ch){
 		std::string oldstring = text.getString();

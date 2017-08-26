@@ -173,13 +173,24 @@ namespace ui {
 	};
 
 	struct TextEntry : Window {
-		TextEntry(sf::Font& font, int charsize = 15);
-		TextEntry(const std::string& str, sf::Font& font, int charsize = 15);
+		TextEntry(const sf::Font& font, int charsize = 15);
+		TextEntry(const std::string& str, const sf::Font& font, int charsize = 15, sf::Color _text_color = sf::Color(0xFF), sf::Color _bg_color = sf::Color(0xFFFFFFFF));
+
+		void beginTyping();
+		void moveTo(sf::Vector2f pos);
 
 		void setText(const std::string& str);
 		std::string getText() const;
-
 		void clearText();
+
+		void setCallback(const std::function<void(const std::string&)> _callback){
+			callback = _callback;
+		}
+
+		void setTextColor(sf::Color color);
+		sf::Color getTextColor() const;
+		void setBackGroundColor(sf::Color color);
+		sf::Color getBackGroundColor() const;
 
 		//to be overridden and used to deal with submission of newly typed text
 		virtual void onReturn(std::string entered_text);
@@ -187,11 +198,10 @@ namespace ui {
 		void render(sf::RenderWindow& renderwindow) override;
 
 		void onLeftClick(int clicks) override;
+		void onFocus() override;
 
 		private:
-		// common text entry functions...
 		void write(char ch);
-
 		void onBackspace();
 		void onDelete();
 		void onLeft();
@@ -201,6 +211,8 @@ namespace ui {
 
 		void updateSize();
 
+		sf::Color background_color;
+		std::function<void(const std::string&)> callback;
 		sf::Text text;
 		int cursor_index = 0;
 		float cursor_pos;

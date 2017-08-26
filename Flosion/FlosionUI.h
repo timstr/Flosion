@@ -56,12 +56,21 @@ namespace fui {
 		private:
 		std::vector<Object*> objects;
 
+		struct Menu : ui::Window {
+			Menu(Container* _container);
+			void beginTyping();
+			void onLoseFocus() override;
+			private:
+			ui::TextEntry* textentry;
+			Container* container;
+			void createObject(const std::string& str);
+		};
+
 		friend struct Object;
 	};
 
 	// MasterContainer is the singleton-intended container that holds everything in the current work area
 	struct MasterContainer : Container {
-
 		void render(sf::RenderWindow& renderwin) override;
 	};
 
