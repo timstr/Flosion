@@ -53,7 +53,7 @@ namespace fui {
 	Container::Menu::Menu(Container* _container){
 		container = _container;
 		size = {100, 20};
-		addChildWindow(textentry = new ui::TextEntry("", getFont()));
+		addChildWindow(textentry = new ui::TextEntry("", getFont(), 15, sf::Color(0xFFFFFF), sf::Color(0x0)));
 		textentry->setCallback([this](const std::string& str){
 			createObject(str);
 			close();

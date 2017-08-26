@@ -591,11 +591,11 @@ namespace ui {
 		renderwindow.draw(rect);
 		renderwindow.draw(text);
 		if (Context::getTextEntry() == this){
-			sf::RectangleShape rect2(sf::Vector2f(cursor_width, 15));
+			sf::RectangleShape rect2(sf::Vector2f(cursor_width, text.getCharacterSize()));
 			rect2.setFillColor(sf::Color(
-				255,
-				255,
-				0,
+				text.getColor().r,
+				text.getColor().g,
+				text.getColor().b,
 				128 * (0.5 + 0.5 * sin(getProgramTime() * PI * 2))));
 			rect2.setPosition(sf::Vector2f(cursor_pos, 0));
 			renderwindow.draw(rect2);
@@ -654,13 +654,13 @@ namespace ui {
 	void TextEntry::updateSize(){
 		sf::FloatRect rect = text.getLocalBounds();
 		if (rect.width <= 1){
-			size = {15, 15};
+			size = sf::Vector2f(text.getCharacterSize(), text.getCharacterSize());
 		} else {
-			size = {rect.width, 15};
+			size = sf::Vector2f(rect.width, text.getCharacterSize());
 		}
 		cursor_pos = text.findCharacterPos(cursor_index).x;
 		if (cursor_index == text.getString().getSize()){
-			cursor_width = 7.5;
+			cursor_width = text.getCharacterSize() * 0.5f;
 		} else {
 			cursor_width = text.findCharacterPos(cursor_index + 1).x - cursor_pos;
 		}
