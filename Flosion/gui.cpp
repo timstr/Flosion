@@ -9,6 +9,7 @@ const double PI = 3.14159265358979323846264338327950288;
 
 namespace ui {
 
+	// Transition
 	Transition::Transition(Window* _target, double _duration, const std::function<void(double)>& _transitionFn, const std::function<void()>& _onComplete) : target(_target) {
 		duration = _duration;
 		transitionFn = _transitionFn;
@@ -32,8 +33,7 @@ namespace ui {
 		return completed;
 	}
 
-
-
+	// Context
 	void Context::init(sf::Vector2f size, std::string title, double _render_delay){
 		width = size.x;
 		height = size.y;
@@ -335,7 +335,7 @@ namespace ui {
 	int Context::width;
 	int Context::height;
 
-
+	// Window
 	Window::~Window(){
 		if (parent){
 			parent->releaseChildWindow(this);
@@ -506,7 +506,7 @@ namespace ui {
 	}
 
 
-
+	// Text
 	Text::Text(const std::string& _text, const sf::Font& _font, sf::Color color, int charsize){
 		text = sf::Text("", _font, charsize);
 		text.setString(_text);
@@ -530,7 +530,7 @@ namespace ui {
 	}
 
 
-
+	// TextEntry
 	TextEntry::TextEntry(const sf::Font& font, int charsize){
 		text = sf::Text("", font, charsize);
 		updateSize();

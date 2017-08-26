@@ -78,6 +78,7 @@ namespace fui {
 	// corresponds to the input of a processing object
 	struct NumberInput : ui::Window {
 		NumberInput(musical::NumberInput* _target, Object* _parent, const std::string& _caption = "", sf::Vector2f _pos = {0,0});
+		~NumberInput();
 
 		void setWireIn(NumberWire* wire);
 
@@ -105,6 +106,7 @@ namespace fui {
 	// corresponds to a number source
 	struct NumberOutput : ui::Window {
 		NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption = "", sf::Vector2f _pos = {0,0});
+		~NumberOutput();
 
 		void addWireOut(NumberWire* wire);
 		void removeWireOut(NumberWire* wire);
@@ -143,6 +145,7 @@ namespace fui {
 		};
 
 		NumberWire();
+		~NumberWire();
 
 		bool safeToConnect(NumberInput* input);
 		bool safeToConnect(NumberOutput* output);

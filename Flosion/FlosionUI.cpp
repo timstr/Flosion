@@ -35,12 +35,15 @@ namespace fui {
 	void Container::expand(){
 		// TODO
 	}
-	void Container::render(sf::RenderWindow& renderwin){
-		sf::RectangleShape rect;
-		rect.setSize(size);
-		rect.setFillColor(sf::Color(0xC0C0C0FF));
-		renderwin.draw(rect);
-		renderChildWindows(renderwin);
+	void Container::render(sf::RenderWindow& rw){
+		sf::Vertex vertices[] = {
+			sf::Vertex({0, 0}, sf::Color(0x404040FF)),
+			sf::Vertex({size.x, 0}, sf::Color(0x404040FF)),
+			sf::Vertex({size.x, size.y}, sf::Color(0x202020FF)),
+			sf::Vertex({0, size.y}, sf::Color(0x202020FF)),
+		};
+		rw.draw(vertices, 4, sf::PrimitiveType::Quads);
+		renderChildWindows(rw);
 	}
 	void Container::onLeftClick(int clicks){
 		if (clicks == 2){
@@ -74,15 +77,10 @@ namespace fui {
 	}
 
 	// Master Container
-	void MasterContainer::render(sf::RenderWindow& renderwin){
+	void MasterContainer::render(sf::RenderWindow& rw){
 		pos = {0, 0};
 		size = ui::getScreenSize();
-
-		sf::RectangleShape rect;
-		rect.setSize(size);
-		rect.setFillColor(sf::Color(0x808080FF));
-		renderwin.draw(rect);
-		renderChildWindows(renderwin);
+		Container::render(rw);
 	}
 
 
@@ -97,6 +95,11 @@ namespace fui {
 		caption->pos.x = -5 - caption->size.x;
 		caption->pos.y = 0;
 		hover_timestamp = ui::getProgramTime() - 1;
+	}
+	NumberInput::~NumberInput(){
+		if (wire_in){
+			wire_in->close();
+		}
 	}
 	void NumberInput::onHover(){
 		hover_timestamp = ui::getProgramTime();
@@ -166,6 +169,11 @@ namespace fui {
 		caption->pos.x = 0;
 		caption->pos.y = -30;
 		hover_timestamp = ui::getProgramTime() - 1;
+	}
+	NumberOutput::~NumberOutput(){
+		while (wires_out.size() > 0){
+			wires_out.back()->close();
+		}
 	}
 	void NumberOutput::render(sf::RenderWindow& rw){
 		sf::RectangleShape rect;
@@ -258,6 +266,10 @@ namespace fui {
 		dst = nullptr;
 		src = nullptr;
 	}
+	NumberWire::~NumberWire(){
+		ConnectHeadTo(nullptr);
+		ConnectTailTo(nullptr);
+	}
 	bool NumberWire::safeToConnect(NumberInput* input){
 		if (!src){
 			return true;
@@ -283,11 +295,11 @@ namespace fui {
 			temp->setWireIn(nullptr);
 			temp->target->setSource(nullptr);
 		}
-		if (input){
-			dst = input;
-			input->setWireIn(this);
+		dst = input;
+		if (dst){
+			dst->setWireIn(this);
 			if (src){
-				input->target->setSource(src->target);
+				dst->target->setSource(src->target);
 			}
 		}
 	}
@@ -295,19 +307,17 @@ namespace fui {
 		if (src){
 			src->removeWireOut(this);
 		}
-
-		if (output){
-			output->addWireOut(this);
+		src = output;
+		if (src){
+			src->addWireOut(this);
 			if (dst){
-				dst->target->setSource(output->target);
+				dst->target->setSource(src->target);
 			}
 		} else {
 			if (dst){
 				dst->target->setSource(nullptr);
 			}
 		}
-
-		src = output;
 	}
 	void NumberWire::render(sf::RenderWindow& rw){
 		if (dst){

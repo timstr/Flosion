@@ -16,11 +16,11 @@ namespace musical {
 		source = nullptr;
 	}
 	NumberInput::~NumberInput(){
-		if (parent){
-			parent->removeInput(this);
-		}
 		if (source){
 			source->removeDstInput(this);
+		}
+		if (parent){
+			parent->removeInput(this);
 		}
 	}
 	bool NumberInput::isSafeSource(NumberSource* src) const {
@@ -53,11 +53,11 @@ namespace musical {
 		if (!isSafeSource(_source)){
 			throw std::runtime_error("The numbersource is not safe to connect; it violates the integrity of stateful information");
 		}
-
-		if (source){
-			source->removeDstInput(this);
-		}
+		NumberSource* prev = source;
 		source = _source;
+		if (prev){
+			prev->removeDstInput(this);
+		}
 		if (source){
 			source->addDstInput(this);
 		}

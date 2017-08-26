@@ -18,7 +18,7 @@ namespace musical {
 	void NumberSource::addDstInput(NumberInput* dst){
 		for (int i = 0; i < dsts.size(); i++){
 			if (dsts[i] == dst){
-				throw std::runtime_error("The destination NumberInput is already registered");
+				return;
 			}
 		}
 		dsts.push_back(dst);
@@ -27,15 +27,15 @@ namespace musical {
 		for (int i = 0; i < dsts.size(); i++){
 			if (dsts[i] == dst){
 				dsts.erase(dsts.begin() + i);
+				dst->setSource(nullptr);
 				return;
 			}
 		}
-		throw std::runtime_error("The destination NumberInput could not be found");
 	}
 	void NumberSource::addInput(NumberInput* input){
 		for (int i = 0; i < inputs.size(); i++){
 			if (inputs[i] == input){
-				throw std::runtime_error("The input is already registered");
+				return;
 			}
 		}
 		inputs.push_back(input);
@@ -47,7 +47,6 @@ namespace musical {
 				return;
 			}
 		}
-		throw std::runtime_error("The input could not be found");
 	}
 	void NumberSource::findAllStatefulSources(std::vector<Stateful*>& sources) const {
 		if (parent){
