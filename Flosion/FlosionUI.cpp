@@ -56,11 +56,7 @@ namespace fui {
 	Container::Menu::Menu(Container* _container){
 		container = _container;
 		size = {100, 20};
-		addChildWindow(textentry = new ui::TextEntry("", getFont(), 15, sf::Color(0xFFFFFF), sf::Color(0x0)));
-		textentry->setCallback([this](const std::string& str){
-			createObject(str);
-			close();
-		});
+		addChildWindow(textentry = new TextField(this));
 	}
 	void Container::Menu::beginTyping(){
 		textentry->grabFocus();
@@ -70,10 +66,90 @@ namespace fui {
 	}
 	void Container::Menu::createObject(const std::string& str){
 		Object* obj = Factory::createObject(str);
-		if (obj){
-			obj->pos = pos + size * 0.5f - obj->size * 0.5f;
-			container->addObject(obj);
+		if (!obj){
+			if (listitems.size() > 0){
+				obj = Factory::createObject(listitems.front()->str);
+			} else {
+				return;
+			}
 		}
+		obj->pos = sf::Vector2f(sf::Vector2i(pos + size * 0.5f - obj->size * 0.5f));
+		container->addObject(obj);
+	}
+	void Container::Menu::render(sf::RenderWindow& rw){
+		sf::RectangleShape rect;
+		rect.setFillColor(sf::Color(0x404040FF));
+		rect.setSize(size);
+		rect.setOutlineColor(sf::Color(0x808080FF));
+		rect.setOutlineThickness(1.0f);
+		rw.draw(rect);
+		renderChildWindows(rw);
+	}
+	void Container::Menu::refreshList(const std::string& text){
+		for (ListItem* li : listitems){
+			li->close();
+		}
+		listitems.clear();
+		auto& objmap = Factory::getObjectMap();
+		int y = size.y;
+		int count = 0;
+		const int max_items = 10;
+		for (auto it = objmap.begin(); it != objmap.end() && count < max_items; it++){
+			if (it->first.find(text) == 0){
+				ListItem* li = new ListItem(this, it->first);
+				listitems.push_back(li);
+				addChildWindow(li);
+				li->pos.y = y;
+				y += li->size.y;
+				count++;
+			}
+		}
+	}
+	Container::Menu::TextField::TextField(Menu* _menu) : TextEntry("", getFont(), 15, sf::Color(0xFFFFFFFF), sf::Color(0x0)){
+		menu = _menu;
+	}
+	void Container::Menu::TextField::onType(const std::string& text){
+		menu->refreshList(text);
+	}
+	void Container::Menu::TextField::onReturn(const std::string& text){
+		menu->createObject(text);
+		menu->close();
+	}
+	void Container::Menu::TextField::onKeyDown(sf::Keyboard::Key key){
+		if (key == sf::Keyboard::Down){
+			focusToNextWindow();
+		} else if (key == sf::Keyboard::Up){
+			focusToPreviousWindow();
+		}
+	}
+	Container::Menu::ListItem::ListItem(Menu* _menu, const std::string& _str){
+		menu = _menu;
+		str = _str;
+		size = {100, 20};
+		addChildWindow(new ui::Text(str, getFont(), sf::Color(0xFFFFFFFF), 15));
+	}
+	void Container::Menu::ListItem::onLeftClick(int clicks){
+		menu->createObject(str);
+		menu->close();
+	}
+	void Container::Menu::ListItem::onKeyDown(sf::Keyboard::Key key){
+		if (key == sf::Keyboard::Return){
+			menu->createObject(str);
+			menu->close();
+		} else if (key == sf::Keyboard::Down){
+			focusToNextWindow();
+		} else if (key == sf::Keyboard::Up){
+			focusToPreviousWindow();
+		}
+	}
+	void Container::Menu::ListItem::render(sf::RenderWindow& rw){
+		sf::RectangleShape rect;
+		rect.setFillColor(sf::Color(isFocused() ? 0x808000FF : 0xFF));
+		rect.setSize(size);
+		rect.setOutlineColor(sf::Color(0x404040FF));
+		rect.setOutlineThickness(1.0f);
+		rw.draw(rect);
+		renderChildWindows(rw);
 	}
 
 	// Master Container

@@ -120,7 +120,7 @@ namespace fui {
 		private:
 		musical::SquareWave square;
 	}; 
-	fuiRegisterObject(SquareWaveObject, "square", "sqarewave", "square wave", "pulse", "pulse wave");
+	fuiRegisterObject(SquareWaveObject, "square", "squarewave", "square wave", "pulse", "pulse wave");
 
 
 

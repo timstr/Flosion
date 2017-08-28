@@ -60,8 +60,25 @@ namespace fui {
 			Menu(Container* _container);
 			void beginTyping();
 			void onLoseFocus() override;
+			void render(sf::RenderWindow& rw) override;
+			void refreshList(const std::string& text);
 			private:
-			ui::TextEntry* textentry;
+			struct ListItem : ui::Window {
+				ListItem(Menu* _menu, const std::string& _str);
+				void onLeftClick(int clicks) override;
+				void onKeyDown(sf::Keyboard::Key key) override;
+				void render(sf::RenderWindow& rw) override;	
+				Menu* menu;
+				std::string str;
+			};
+			std::vector<ListItem*> listitems;
+			struct TextField : ui::TextEntry {
+				TextField(Menu* _menu);
+				void onType(const std::string& text) override;
+				void onReturn(const std::string& text) override;
+				void onKeyDown(sf::Keyboard::Key key) override;
+				Menu* menu;
+			}* textentry;
 			Container* container;
 			void createObject(const std::string& str);
 		};
@@ -290,10 +307,10 @@ namespace fui {
 
 		static Object* createObject(const std::string& name);
 
+		static std::map<std::string, std::function<Object*()>>& getObjectMap();
+
 		private:
 		Factory() = delete;
-
-		static std::map<std::string, std::function<Object*()>>& getObjectMap();
 
 		template<class ObjectType>
 		static Object* instantiate(){

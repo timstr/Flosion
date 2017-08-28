@@ -339,7 +339,9 @@ namespace ui {
 	Window::~Window(){
 		if (parent){
 			parent->releaseChildWindow(this);
-			Context::focusTo(parent);
+			if (Context::getCurrentWindow() == this){
+				Context::focusTo(parent);
+			}
 		}
 		Context::clearTransitions(this);
 		if (Context::getDraggingWindow() == this){
@@ -406,8 +408,73 @@ namespace ui {
 	void Window::onFocus(){
 
 	}
+	bool Window::isFocused(){
+		return Context::getCurrentWindow() == this;
+	}
 	void Window::onLoseFocus(){
 
+	}
+	void Window::focusToNextWindow(){
+		if (parent && isFocused()){
+			Window* next = nullptr;
+			for (Window* window : parent->childwindows){
+				if (window->pos.y > pos.y){
+					if (!next || window->pos.y < next->pos.y){
+						next = window;
+					}
+				} else if (window->pos.y == pos.y){
+					if (window->pos.x > pos.x){
+						if (!next || window->pos.x < next->pos.x){
+							next = window;
+						}
+					}
+				}
+			}
+			if (next == nullptr){
+				next = parent->childwindows.front();
+				for (Window* window : parent->childwindows){
+					if (window->pos.y < next->pos.y){
+						next = window;
+					} else if (window->pos.y == next->pos.y){
+						if (window->pos.x < next->pos.x){
+							next = window;
+						}
+					}
+				}
+			}
+			Context::focusTo(next);
+		}
+	}
+	void Window::focusToPreviousWindow(){
+		if (parent && isFocused()){
+			Window* prev = nullptr;
+			for (Window* window : parent->childwindows){
+				if (window->pos.y < pos.y){
+					if (!prev || window->pos.y > prev->pos.y){
+						prev = window;
+					}
+				} else if (window->pos.y == pos.y){
+					if (window->pos.x < pos.x){
+						if (!prev || window->pos.x > prev->pos.x){
+							prev = window;
+						}
+					}
+				}
+			}
+			if (prev == nullptr){
+				prev = parent->childwindows.front();
+				for (Window* window : parent->childwindows){
+					if (window->pos.y > prev->pos.y){
+						prev = window;
+					} else if (window->pos.y == prev->pos.y){
+						if (window->pos.x > prev->pos.x){
+							prev = window;
+						}
+					}
+				}
+			}
+			Context::focusTo(prev);
+		}
 	}
 	void Window::grabFocus(){
 		Context::focusTo(this);
@@ -580,10 +647,11 @@ namespace ui {
 	sf::Color TextEntry::getBackGroundColor() const {
 		return background_color;
 	}
-	void TextEntry::onReturn(std::string entered_text){
-		if (callback){
-			callback(entered_text);
-		}
+	void TextEntry::onReturn(const std::string& entered_text){
+		
+	}
+	void TextEntry::onType(const std::string& full_text){
+		
 	}
 	void TextEntry::render(sf::RenderWindow& renderwindow){
 		sf::RectangleShape rect(size);
@@ -613,6 +681,7 @@ namespace ui {
 		text.setString(oldstring.substr(0, cursor_index) + ch + oldstring.substr(cursor_index, oldstring.size() - 1));
 		cursor_index += 1;
 		updateSize();
+		onType(text.getString());
 	}
 	void TextEntry::onBackspace(){
 		if (!text.getString().isEmpty() && cursor_index > 0){
@@ -622,6 +691,7 @@ namespace ui {
 			text.setString(newstring);
 			updateSize();
 		}
+		onType(text.getString());
 	}
 	void TextEntry::onDelete(){
 		if (!text.getString().isEmpty() && cursor_index < text.getString().getSize()){
@@ -630,6 +700,7 @@ namespace ui {
 			text.setString(newstring);
 			updateSize();
 		}
+		onType(text.getString());
 	}
 	void TextEntry::onLeft(){
 		if (cursor_index > 0){
@@ -748,10 +819,14 @@ namespace ui {
 								case sf::Keyboard::Return:
 									Context::getTextEntry()->onReturn(Context::getTextEntry()->getText());
 									break;
+								default:
+									Context::handleKeyPress(event.key.code);
+									break;
 							}
 						} else {
 							Context::handleKeyPress(event.key.code);
 						}
+						
 						break;
 					case sf::Event::KeyReleased:
 						if (Context::getCurrentWindow()){

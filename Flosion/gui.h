@@ -128,8 +128,11 @@ namespace ui {
 		virtual void onDropDragWindow(Window *window);
 
 		virtual void onFocus();
+		bool isFocused();
 		virtual void onLoseFocus();
 		void grabFocus();
+		void focusToNextWindow();
+		void focusToPreviousWindow();
 
 		virtual void onKeyDown(sf::Keyboard::Key key);
 		virtual void onKeyUp(sf::Keyboard::Key key);
@@ -183,17 +186,14 @@ namespace ui {
 		std::string getText() const;
 		void clearText();
 
-		void setCallback(const std::function<void(const std::string&)> _callback){
-			callback = _callback;
-		}
-
 		void setTextColor(sf::Color color);
 		sf::Color getTextColor() const;
 		void setBackGroundColor(sf::Color color);
 		sf::Color getBackGroundColor() const;
 
 		//to be overridden and used to deal with submission of newly typed text
-		virtual void onReturn(std::string entered_text);
+		virtual void onReturn(const std::string& entered_text);
+		virtual void onType(const std::string& full_text);
 
 		void render(sf::RenderWindow& renderwindow) override;
 
@@ -212,7 +212,6 @@ namespace ui {
 		void updateSize();
 
 		sf::Color background_color;
-		std::function<void(const std::string&)> callback;
 		sf::Text text;
 		int cursor_index = 0;
 		float cursor_pos;
