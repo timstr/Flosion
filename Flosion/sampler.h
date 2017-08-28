@@ -1,5 +1,6 @@
 #pragma once
 
+#include "spline.h"
 #include "musical.h"
 
 namespace musical {
@@ -52,19 +53,69 @@ namespace musical {
 
 		struct Note {
 			Note(double _frequency, double _amplitude, double _start_time, double _length){
-				frequency = _frequency;
+				frequency.useConstant();
+				frequency.getConstant().setValue(_frequency);
+				frequency.getSpline().setMinY(0.0);
+				frequency.getSpline().setMaxY(20000);
 				amplitude = _amplitude;
 				start_time = _start_time;
 				length = _length;
 			}
-			double frequency;
+
+			struct Parameter {
+				Parameter(){
+					mode = 0;
+				}
+				void useConstant(){
+					mode = 0;
+				}
+				void useSpline(){
+					mode = 1;
+				}
+				musical::Constant& getConstant(){
+					return constant;
+				}
+				musical::Spline& getSpline(){
+					return spline;
+				}
+				float getValue(float progress){
+					if (mode == 0){
+						return constant.getValue();
+					} else {
+						return spline.getValueAt(progress);
+					}
+				}
+				private:
+				musical::Constant constant;
+				musical::Spline spline;
+				int mode;
+			};
+
+			Parameter& addParameter(int id){
+				parameters[id] = Parameter();
+				return parameters[id];
+			}
+			Parameter& getParameter(int id){
+				return parameters[id];
+			}
+			void removeParameter(int id){
+				parameters.erase(id);
+			}
+
 			double amplitude;
 			double start_time;
 			double length;
+			Parameter frequency;
+
+			private:
+			std::map<int, Parameter> parameters;
 		};
 
 		Note* addNote(double frequency, double amplitude, double start_time, double length){
 			Note* note = new Note(frequency, amplitude, start_time, length);
+			for (int id : parameter_ids){
+				note->addParameter(id);
+			}
 			notes.push_back(note);
 			input.addKey(note);
 			return note;
@@ -79,6 +130,19 @@ namespace musical {
 				}
 			}
 			throw std::runtime_error("The Note could not be found");
+		}
+
+		void addParameter(int id){
+			parameter_ids.insert(id);
+			for (Note* note : notes){
+				note->addParameter(id);
+			}
+		}
+		void removeParameter(int id){
+			parameter_ids.erase(id);
+			for (Note* note : notes){
+				note->removeParameter(id);
+			}
 		}
 
 		struct InputState : MultiInputState<Note*> {
@@ -98,10 +162,43 @@ namespace musical {
 
 			}
 
+			struct ParameterFunction : StateNumberSource {
+				ParameterFunction(int _id, SamplerInput* samplerinput) : StateNumberSource(samplerinput) {
+					id = _id;
+				}
+				float getValue(InputState* state, State* context) const override {
+					Note* note = state->key;
+					float progress = context->getTimeAt(parentmultiinput) / state->key->length;
+					return note->getParameter(id).getValue(progress);
+				}
+				int id;
+			};
+
+			ParameterFunction* addParameter(int id){
+				for (auto it = paramfns.begin(); it != paramfns.end(); it++){
+					if ((*it)->id == id){
+						throw std::runtime_error("A parameter with the provided id already exists");
+					}
+				}
+				paramfns.push_back(new ParameterFunction(id, this));
+			}
+			void removeParameter(int id){
+				for (auto it = paramfns.begin(); it != paramfns.end(); it++){
+					if ((*it)->id == id){
+						delete *it;
+						paramfns.erase(it);
+						return;
+					}
+				}
+				throw std::runtime_error("A parameter with the provided id could not be found");
+			}
+
 			struct Frequency : StateNumberSource {
 				using StateNumberSource::StateNumberSource;
 				float getValue(InputState* state, State* context) const override {
-					return state->key->frequency;
+					Note* note = state->key;
+					float progress = context->getTimeAt(parentmultiinput) / state->key->length;
+					return note->frequency.getValue(progress);
 				}
 			} frequency;
 
@@ -125,10 +222,15 @@ namespace musical {
 					return context->getTimeAt(parentmultiinput) / state->key->length;
 				}
 			} noteprogress;
+
+			private:
+
+			std::vector<ParameterFunction*> paramfns;
 		} input;
 
 		private:
 		std::vector<Note*> notes;
+		std::set<int> parameter_ids;
 	};
 
 }

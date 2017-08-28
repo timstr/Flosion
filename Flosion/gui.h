@@ -97,7 +97,7 @@ namespace ui {
 	}
 
 
-
+	// TODO: add optional clipping of child windows to restrict rendering and hit tests to within window
 	struct Window {
 		bool disabled = false;
 		bool visible = true;

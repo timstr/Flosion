@@ -353,7 +353,7 @@ namespace ui {
 		delete this;
 	}
 	bool Window::hit(sf::Vector2f testpos){
-		return ((testpos.x >= pos.x) && (testpos.x < pos.x + size.x) && (testpos.y >= pos.y) && (testpos.y < pos.y + size.y));
+		return ((testpos.x >= 0.0f) && (testpos.x < size.x) && (testpos.y >= 0.0f) && (testpos.y < size.y));
 	}
 	sf::Vector2f Window::localMousePos(){
 		sf::Vector2f pos = (sf::Vector2f)sf::Mouse::getPosition(Context::getRenderWindow());
@@ -544,7 +544,7 @@ namespace ui {
 			return window;
 		}
 
-		if (this->hit(_pos)){
+		if (this->hit(_pos - pos)){
 			return this;
 		}
 

@@ -38,6 +38,10 @@ namespace fui {
 			PointHandle(SplineObject* _parent, musical::Spline::Point* _point){
 				parent = _parent;
 				point = _point;
+				point->setOnDestroy([this]{
+					parent->calculateRenderPoints();
+					close();
+				});
 				size = {10, 10};
 			}
 
