@@ -14,6 +14,7 @@ namespace musical {
 			carryover = 0;
 			prev = {0, 0};
 			next = {0, 0};
+			speed = 1.0f;
 		}
 
 		Sample advanceAndGetSample(double delta, SingleInput& input, State* statechain){
@@ -79,6 +80,7 @@ namespace musical {
 		Sample next;
 		unsigned int bufferpos;
 		double carryover;
+		float speed;
 	};
 
 	struct TimeStretch : SoundSourceTemplate<TimeStretchState> {
@@ -88,14 +90,14 @@ namespace musical {
 
 		void renderChunk(Sample* buffer, TimeStretchState* state) override {
 			for (int i = 0; i < CHUNK_SIZE; i++){
-				double sp = speed.getValue(state, 1);
-				if (sp <= 0.001){
+				state->speed = speed.getValue(state, 1);
+				if (state->speed <= 0.001){
 					buffer[i] = {0, 0};
 				} else {
-					if (sp > 16){
-						sp = 16;
+					if (state->speed > 16){
+						state->speed = 16;
 					}
-					buffer[i] = state->advanceAndGetSample(sp, input, state);
+					buffer[i] = state->advanceAndGetSample(state->speed, input, state);
 				}
 				state->tick();
 			}
@@ -105,7 +107,7 @@ namespace musical {
 			if (s->getOwner() != this){
 				throw std::runtime_error("Bad things have happened");
 			}
-			return speed.getValue(s, 1.0);
+			return ((TimeStretchState*)s)->speed;
 		}
 
 		NumberResult speed;

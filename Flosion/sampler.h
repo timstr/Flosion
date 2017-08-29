@@ -55,8 +55,10 @@ namespace musical {
 			Note(double _frequency, double _amplitude, double _start_time, double _length){
 				frequency.useConstant();
 				frequency.getConstant().setValue(_frequency);
-				frequency.getSpline().setMinY(0.0);
-				frequency.getSpline().setMaxY(20000);
+				frequency.getSpline().setMinX(0.0f);
+				frequency.getSpline().setMaxX(1.0f);
+				frequency.getSpline().setMinY(0.0f);
+				frequency.getSpline().setMaxY(20000.0f);
 				amplitude = _amplitude;
 				start_time = _start_time;
 				length = _length;
