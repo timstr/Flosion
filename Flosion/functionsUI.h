@@ -88,7 +88,7 @@ namespace fui {
 		private:
 		musical::UnitSine usine;
 	}; 
-	fuiRegisterObject(UnitSineObject, "usine", "usin", "unit sine", "unit sin");
+	fuiRegisterObject(UnitSineObject, "usin", "unit sine");
 
 	struct SawWaveObject : ProcessingObject {
 		SawWaveObject(){
@@ -104,7 +104,7 @@ namespace fui {
 		private:
 		musical::SawWave saw;
 	}; 
-	fuiRegisterObject(SawWaveObject, "saw", "sawwave", "saw wave");
+	fuiRegisterObject(SawWaveObject, "saw", "saw wave");
 
 	struct SquareWaveObject : ProcessingObject {
 		SquareWaveObject(){
@@ -120,7 +120,7 @@ namespace fui {
 		private:
 		musical::SquareWave square;
 	}; 
-	fuiRegisterObject(SquareWaveObject, "square", "squarewave", "square wave", "pulse", "pulse wave");
+	fuiRegisterObject(SquareWaveObject, "square wave", "pulse wave");
 
 
 
@@ -140,6 +140,6 @@ namespace fui {
 		musical::NumberResult numres;
 		ui::Text* text;
 	};
-	fuiRegisterObject(DisplayObject, "display", "show", "d0");
+	fuiRegisterObject(DisplayObject, "display", "d0");
 
 }

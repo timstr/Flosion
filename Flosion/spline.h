@@ -42,13 +42,19 @@ namespace musical {
 					if ((*left)->x == (*right)->x){
 						return (*left)->y;
 					} else {
-						return interpolate((*left)->y, (*right)->y, (pos - (*left)->x) / ((*right)->x - (*left)->x), interp);
+						return interpolate((*left)->y, (*right)->y, (pos - (*left)->x) / ((*right)->x - (*left)->x), (*left)->interp_method);
 					}
 				}
 			}
 		}
 
 		NumberInput input;
+
+		enum class Interpolation {
+			None,
+			Linear,
+			Sinusoid
+		};
 
 		struct Point {
 			~Point(){
@@ -68,8 +74,6 @@ namespace musical {
 				return y;
 			}
 
-			// TODO: this function can break the ordering of the Points set
-			// fix up
 			void setX(float _x){
 				_x = std::min(std::max(spline->min_x, _x), spline->max_x);
 
@@ -113,6 +117,13 @@ namespace musical {
 				y = std::min(std::max(spline->min_y, _y), spline->max_y);
 			}
 
+			void setInterpolationMethod(Interpolation interp){
+				interp_method = interp;
+			}
+			Interpolation getInterpolationMethod() const {
+				return interp_method;
+			}
+
 			private:
 			Point(Spline* _spline, float _x, float _y){
 				spline = _spline;
@@ -122,6 +133,7 @@ namespace musical {
 			Spline* spline;
 			float x;
 			float y;
+			Interpolation interp_method;
 			std::function<void()> onDestroy;
 			friend struct Spline;
 		};
@@ -134,7 +146,14 @@ namespace musical {
 				points.erase(it);
 				delete p;
 			}
-			points.insert(point);
+			auto it2 = points.insert(point);
+			// set the interpolation method to that of the previous point, or linear by default
+			if (it2.first != points.begin()){
+				auto prev = std::prev(it2.first);
+				point->setInterpolationMethod((*prev)->getInterpolationMethod());
+			} else {
+				point->setInterpolationMethod(Interpolation::Linear);
+			}
 			return point;
 		}
 		void removePoint(Point* point){
@@ -181,19 +200,7 @@ namespace musical {
 			max_y = y;
 		}
 
-		enum class Interpolation {
-			None,
-			Linear,
-			Sinusoid
-		};
-
-		void setInterpolation(Interpolation method){
-			interp = method;
-		}
-
 		private:
-
-		Interpolation interp = Interpolation::Linear;
 
 		float min_x = 0;
 		float max_x = 1;

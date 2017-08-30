@@ -20,7 +20,7 @@ namespace fui {
 
 		void onLeftClick(int clicks) override {
 			sf::Vector2f mousepos = localMousePos();
-			float freq = freqFromYPos(size.y - mousepos.y);
+			float freq = freqFromNote(floor(NoteFromYPos(mousepos.y, size.y)));
 			float time = timeFromXPos(mousepos.x);
 			NoteWindow* notewin = new NoteWindow(this, sampler.addNote(freq, 0.1, time, 1.0));
 			addChildWindow(notewin);
@@ -53,11 +53,23 @@ namespace fui {
 
 		private:
 
-		static double freqFromYPos(float pos){
-			return 16.3516 * exp2(pos / pixels_per_note / 12.0);
+		static double freqFromNote(float note){
+			return 16.3516 * exp2(note / 12.0);
 		}
-		static double yPosFromFreq(float freq){
-			return pixels_per_note * 12.0 * log2f(freq / 16.3516);
+		static double NoteFromYPos(float pos, float ysize){
+			return (ysize - pos) / pixels_per_note;
+		}
+		static double freqFromYPos(float pos, float ysize){
+			return freqFromNote(NoteFromYPos(pos, ysize));
+		}
+		static double noteFromFreq(float freq){
+			return log2(freq / 16.3516) * 12.0;
+		}
+		static double yPosFromNote(float note, float ysize){
+			return ysize - (note * pixels_per_note);
+		}
+		static double yPosFromFreq(float freq, float ysize){
+			return yPosFromNote(noteFromFreq(freq), ysize);
 		}
 		static double timeFromXPos(float pos){
 			return pos / pixels_per_second;
@@ -83,8 +95,9 @@ namespace fui {
 			}
 			bool hit(sf::Vector2f vec) override {
 				if (Window::hit(vec)){
-					double y = parent->size.y - yPosFromFreq(note->frequency.getValue(vec.x / size.x));
-					return (vec.y >= y - pixels_per_note && vec.y < y + pixels_per_note);
+					float progress = vec.x / size.x;
+					double y = yPosFromFreq(note->frequency.getValue(progress), size.y);
+					return (vec.y >= y && vec.y < y + pixels_per_note);
 				}
 				return false;
 			}
@@ -92,7 +105,7 @@ namespace fui {
 				if (clicks == 1){
 					sf::Vector2f mousepos = localMousePos();
 					float progress = mousepos.x / size.x;
-					float freq = freqFromYPos(size.y - mousepos.y);
+					float freq = freqFromNote(floor(NoteFromYPos(mousepos.y, size.y)));
 					FreqSplineBtn* btn = new FreqSplineBtn(this, note->frequency.getSpline().addPoint(progress, freq));
 					addChildWindow(btn);
 					btn->startDrag();
@@ -116,11 +129,11 @@ namespace fui {
 				size.x = width;
 				vertices.resize(width * 2 + 2);
 				for (int x = 0; x < width + 1; x++){
-					double y = parent->size.y - yPosFromFreq(spline.getValueAt(x / (double)width));
+					double y = yPosFromFreq(spline.getValueAt(x / (double)width), size.y);
 					vertices[2 * x].color = sf::Color(0xFFFFFF80);
-					vertices[2 * x].position = sf::Vector2f(x, y - pixels_per_note * 0.5f);
+					vertices[2 * x].position = sf::Vector2f(x, y);
 					vertices[2 * x + 1].color = sf::Color(0xFFFFFF80);
-					vertices[2 * x + 1].position = sf::Vector2f(x, y + pixels_per_note * 0.5f);
+					vertices[2 * x + 1].position = sf::Vector2f(x, y + pixels_per_note);
 				}
 				lengthbtn->pos = vertices[width * 2].position;
 				for (FreqSplineBtn* btn : splinebuttons){
@@ -180,19 +193,29 @@ namespace fui {
 				}
 				void updatePoint(){
 					point->setX((pos.x + size.x * 0.5f) / notewin->size.x);
-					point->setY(freqFromYPos(notewin->size.y - pos.y - (size.y * 0.5f)));
+					point->setY(freqFromYPos(pos.y, notewin->size.y));
 				}
 				void updateFromPoint(){
-					pos.x = point->getX() * notewin->size.x - (size.x * 0.5f);
-					pos.y = notewin->size.y - yPosFromFreq(point->getY()) - (size.y * 0.5f);
+					pos.x = point->getX() * notewin->size.x - size.x * 0.5f;
+					pos.y = yPosFromFreq(point->getY(), notewin->size.y);
 				}
 				void onRightClick(int clicks) override {
 					if (clicks == 1){
 						startDrag();
 					} else if (clicks == 2){
-						NoteWindow* nw = notewin;
-						notewin->note->frequency.getSpline().removePoint(point);
-						nw->redraw();
+						musical::Spline::Interpolation next;
+						switch (point->getInterpolationMethod()){
+							case musical::Spline::Interpolation::None:
+								point->setInterpolationMethod(musical::Spline::Interpolation::Linear);
+								break;
+							case musical::Spline::Interpolation::Linear:
+								point->setInterpolationMethod(musical::Spline::Interpolation::Sinusoid);
+								break;
+							case musical::Spline::Interpolation::Sinusoid:
+								point->setInterpolationMethod(musical::Spline::Interpolation::None);
+								break;
+						}
+						notewin->redraw();
 					}
 				}
 				void onLeftClick(int clicks) override {
@@ -205,7 +228,7 @@ namespace fui {
 					}
 				}
 				void onDrag() override {
-					pos.y = notewin->size.y - floorf((notewin->size.y - pos.y) / pixels_per_note) * pixels_per_note;
+					pos.y = yPosFromNote(floor(NoteFromYPos(pos.y, notewin->size.y)), notewin->size.y);
 					pos.x = std::min(std::max(pos.x + size.x * 0.5f, 0.0f), notewin->size.x) - size.x * 0.5f;
 					updatePoint();
 					notewin->redraw();
