@@ -123,6 +123,19 @@ namespace musical {
 			Interpolation getInterpolationMethod() const {
 				return interp_method;
 			}
+			void toggleInterpolationMethod(){
+				switch (interp_method){
+					case Interpolation::None:
+						interp_method = Interpolation::Linear;
+						break;
+					case Interpolation::Linear:
+						interp_method = Interpolation::Sinusoid;
+						break;
+					case Interpolation::Sinusoid:
+						interp_method = Interpolation::None;
+						break;
+				}
+			}
 
 			private:
 			Point(Spline* _spline, float _x, float _y){

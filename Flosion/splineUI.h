@@ -52,14 +52,17 @@ namespace fui {
 				circle.setOutlineThickness(1.0);
 				rw.draw(circle);
 			}
-
+			void onRightClick(int clicks) override {
+				point->toggleInterpolationMethod();
+				parent->calculateRenderPoints();
+			}
 			void onLeftClick(int clicks) override {
 				if (clicks == 1){
 					startDrag();
 				} else if (clicks == 2){
+					SplineObject* so = parent;
 					parent->spline.removePoint(point);
-					parent->calculateRenderPoints();
-					close();
+					so->calculateRenderPoints();
 				}
 			}
 			void onDrag() override {

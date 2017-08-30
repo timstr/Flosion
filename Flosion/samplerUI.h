@@ -203,18 +203,7 @@ namespace fui {
 					if (clicks == 1){
 						startDrag();
 					} else if (clicks == 2){
-						musical::Spline::Interpolation next;
-						switch (point->getInterpolationMethod()){
-							case musical::Spline::Interpolation::None:
-								point->setInterpolationMethod(musical::Spline::Interpolation::Linear);
-								break;
-							case musical::Spline::Interpolation::Linear:
-								point->setInterpolationMethod(musical::Spline::Interpolation::Sinusoid);
-								break;
-							case musical::Spline::Interpolation::Sinusoid:
-								point->setInterpolationMethod(musical::Spline::Interpolation::None);
-								break;
-						}
+						point->toggleInterpolationMethod();
 						notewin->redraw();
 					}
 				}
