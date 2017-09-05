@@ -255,7 +255,6 @@ namespace fui {
 							return;
 						}
 					}
-					throw std::runtime_error("The spline button could not be found");
 				}
 				
 				void updatePoint(){

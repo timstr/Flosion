@@ -169,7 +169,9 @@ namespace musical {
 						throw std::runtime_error("A parameter with the provided id already exists");
 					}
 				}
-				paramfns.push_back(new ParameterFunction(id, this));
+				ParameterFunction* pf = new ParameterFunction(id, this);
+				paramfns.push_back(pf);
+				return pf;
 			}
 			void removeParameter(int id){
 				for (auto it = paramfns.begin(); it != paramfns.end(); it++){
