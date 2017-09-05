@@ -18,5 +18,5 @@ namespace fui {
 		private:
 		musical::WaveGen wavegen;
 	};
-	fuiRegisterObject(WaveGenObject, "wavegen", "wave generator");
+	fuiRegisterObject(WaveGenObject, "wave generator");
 };

@@ -134,19 +134,6 @@ namespace musical {
 			throw std::runtime_error("The Note could not be found");
 		}
 
-		void addParameter(int id){
-			parameter_ids.insert(id);
-			for (Note* note : notes){
-				note->addParameter(id);
-			}
-		}
-		void removeParameter(int id){
-			parameter_ids.erase(id);
-			for (Note* note : notes){
-				note->removeParameter(id);
-			}
-		}
-
 		struct InputState : MultiInputState<Note*> {
 			using MultiInputState::MultiInputState;
 
@@ -229,6 +216,21 @@ namespace musical {
 
 			std::vector<ParameterFunction*> paramfns;
 		} input;
+
+		SamplerInput::ParameterFunction* addParameter(int id){
+			parameter_ids.insert(id);
+			for (Note* note : notes){
+				note->addParameter(id);
+			}
+			return input.addParameter(id);
+		}
+		void removeParameter(int id){
+			parameter_ids.erase(id);
+			for (Note* note : notes){
+				note->removeParameter(id);
+			}
+			input.removeParameter(id);
+		}
 
 		private:
 		std::vector<Note*> notes;

@@ -39,5 +39,5 @@ namespace fui {
 		musical::Audio audio;
 		ui::Text* caption;
 	};
-	fuiRegisterObject(AudioObject, "audio", "sound", "audioclip");
+	fuiRegisterObject(AudioObject, "sound", "audioclip");
 }

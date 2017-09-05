@@ -178,13 +178,31 @@ namespace musical {
 				}
 			}
 		}
-
 		void clear(){
 			while (points.size() > 0){
 				Point* p = *points.begin();
 				points.erase(points.begin());
 				delete p;
 			}
+		}
+
+		float getMinimum() const {
+			float min = max_y;
+			for (Point* p : points){
+				if (p->y < min){
+					min = p->y;
+				}
+			}
+			return min;
+		}
+		float getMaximum() const {
+			float max = min_y;
+			for (Point* p : points){
+				if (p->y > max){
+					max = p->y;
+				}
+			}
+			return max;
 		}
 
 		float getMinX() const {

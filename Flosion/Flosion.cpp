@@ -20,6 +20,12 @@
 
 // TODO: synchronize this stuff
 // TODO: cache things
+// TODO: Phase vocoder
+// TODO: scatter
+// TODO: ring mod
+// TODO: filter
+// TODO: distortion
+// TODO: feedback
 int main(){
 
 	srand(unsigned(time(nullptr)));

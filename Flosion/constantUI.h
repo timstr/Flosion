@@ -17,7 +17,7 @@ namespace fui {
 		private:
 		musical::Constant constant;
 	};
-	fuiRegisterObject(ConstantObject, "const", "constant", "value", "val", "number", "num");
+	fuiRegisterObject(ConstantObject, "constant", "value", "number");
 
 
 	struct SliderObject : ProcessingObject {
@@ -125,5 +125,5 @@ namespace fui {
 		} *slider;
 		ui::Text* caption;
 	};
-	fuiRegisterObject(SliderObject, "slider", "var", "variable");
+	fuiRegisterObject(SliderObject, "slider", "variable");
 };
