@@ -290,6 +290,19 @@ namespace ui {
 		view.move(offset);
 		renderwindow.setView(view);
 	}
+	void Context::clipView(sf::Vector2f size){
+		sf::Vector2f screensize = getScreenSize();
+		sf::Vector2f viewpos = -(view.getCenter() - view.getSize() * 0.5f);
+		float x = viewpos.x / screensize.x;
+		float y = viewpos.y / screensize.y;
+		float width = size.x / screensize.x;
+		float height = size.y / screensize.y;
+		view.reset(sf::FloatRect(viewpos, size));
+		view.setViewport(sf::FloatRect(x, y, width, height));
+	}
+	void Context::unclipView(){
+		view.setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
+	}
 	void Context::resetView(){
 		view.setCenter(width / 2.0f, height / 2.0f);
 		view.setSize(width, height);
@@ -533,9 +546,13 @@ namespace ui {
 			return nullptr;
 		}
 
+		if (clipping && _pos.x < 0.0f || _pos.x > size.x || _pos.y < 0.0 || _pos.y > size.y){
+			return false;
+		}
+
 		Window* window = nullptr;
 		for (int i = 0; i < childwindows.size() && window == nullptr; i++){
-			window = childwindows[i]->findWindowAt(_pos - pos);
+			window = childwindows[i]->findWindowAt(_pos - childwindows[i]->pos);
 			if (window && (window == Context::getDraggingWindow())){
 				window = nullptr;
 			}
@@ -544,7 +561,7 @@ namespace ui {
 			return window;
 		}
 
-		if (this->hit(_pos - pos)){
+		if (this->hit(_pos)){
 			return this;
 		}
 
@@ -563,7 +580,14 @@ namespace ui {
 		for (int i = childwindows.size() - 1; i >= 0; i -= 1){
 			if (childwindows[i]->visible){
 				Context::translateView(-(childwindows[i]->pos));
+				if (childwindows[i]->clipping){
+					Context::clipView(childwindows[i]->size);
+					Context::translateView(-(childwindows[i]->pos));
+				}
 				childwindows[i]->render(renderwindow);
+				if (childwindows[i]->clipping){
+					Context::unclipView();
+				}
 				Context::translateView(childwindows[i]->pos);
 			}
 		}

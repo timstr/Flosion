@@ -55,6 +55,8 @@ namespace ui {
 			static sf::RenderWindow& getRenderWindow();
 			static double getRenderDelay();
 			static void translateView(sf::Vector2f offset);
+			static void clipView(sf::Vector2f size);
+			static void unclipView();
 			static void resetView();
 			static void resize(int w, int h);
 
@@ -97,10 +99,10 @@ namespace ui {
 	}
 
 
-	// TODO: add optional clipping of child windows to restrict rendering and hit tests to within window
 	struct Window {
 		bool disabled = false;
 		bool visible = true;
+		bool clipping = false;
 		sf::Vector2f pos;
 		sf::Vector2f size;
 

@@ -3,11 +3,15 @@
 #include "FlosionUI.h"
 #include "sampler.h"
 
+// TODO: spline interface for note parameters
+// TODO: editor for parameter name / range
+
 namespace fui {
 
 	struct SamplerObject : ProcessingObject {
 		SamplerObject(){
-			size = {800, 400};
+			clipping = true;
+			size = {400, 400};
 			addSoundInput(new SoundInput(&sampler.input, this, {-5, 5}));
 			addSoundOutput(new SoundOutput(&sampler, this, {size.x - 25, 5}));
 			addNumberOutput(new NumberOutput(&sampler.input.frequency, this, "Note Frequency", {30, -5}));
@@ -39,12 +43,19 @@ namespace fui {
 			rect.setOutlineColor(sf::Color(0xFF));
 			rect.setOutlineThickness(1.0f);
 			rw.draw(rect);
-			rect.setOutlineThickness(0.0f);
-			rect.setFillColor(sf::Color(0x40));
+			rect.setOutlineThickness(0.5f);
 			rect.setSize(sf::Vector2f(size.x, pixels_per_note));
-			for (float y = size.y - 2 * pixels_per_note; y >= 0; y -= 2 * pixels_per_note){
+			int count = 0;
+			for (float y = size.y - pixels_per_note; y >= 0; y -= pixels_per_note){
+				int note = count % 12;
+				if ((note < 4 && note % 2 == 1) || (note > 5 && note % 2 == 0)){
+					rect.setFillColor(sf::Color(0x40));
+				} else {
+					rect.setFillColor(sf::Color(0xFFFFFF40));
+				}
 				rect.setPosition(sf::Vector2f(0.0f, y));
 				rw.draw(rect);
+				count++;
 			}
 			renderChildWindows(rw);
 		}
@@ -518,6 +529,9 @@ namespace fui {
 			for (const ParameterData& pd : paramdata){
 				pd.visible = pd.id == id;
 			}
+			for (ParamHandle* ph : param_handles){
+				ph->size.y = ph->getParamId() == id ? 60 : 45;
+			}
 		}
 		void hideParameters(){
 			for (NoteWindow* nw : note_windows){
@@ -525,6 +539,9 @@ namespace fui {
 			}
 			for (const ParameterData& pd : paramdata){
 				pd.visible = false;
+			}
+			for (ParamHandle* ph : param_handles){
+				ph->size.y = 45;
 			}
 		}
 
@@ -558,7 +575,7 @@ namespace fui {
 			ParamHandle(SamplerObject* _parent, const ParameterData& _param_data) : param_data(_param_data){
 				parent = _parent;
 				size = {30, 60};
-				addChildWindow(new NumberOutput(param_data.numbersource, parent, param_data.name));
+				addChildWindow(numberoutput = new NumberOutput(param_data.numbersource, parent, param_data.name));
 				parent->param_handles.push_back(this);
 			}
 			~ParamHandle(){
@@ -583,16 +600,29 @@ namespace fui {
 			void render(sf::RenderWindow& rw) override {
 				sf::RectangleShape rect;
 				rect.setSize(size);
-				rect.setFillColor(param_data.display_color);
+				if (param_data.visible){
+					rect.setFillColor(param_data.display_color);
+				} else {
+					rect.setFillColor(sf::Color(param_data.display_color.r * 0.5, param_data.display_color.g * 0.5, param_data.display_color.b * 0.5, 255));
+				}
 				rect.setOutlineColor(sf::Color(0xFF));
 				rect.setOutlineThickness(1.0f);
 				rw.draw(rect);
 				renderChildWindows(rw);
 			}
 
+			void onHover() override {
+				numberoutput->onHover();
+			}
+
+			int getParamId() const {
+				return param_data.id;
+			}
+
 			private:
 			SamplerObject* parent;
 			const ParameterData& param_data;
+			NumberOutput* numberoutput;
 		};
 
 		std::set<ParameterData> paramdata;
