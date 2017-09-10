@@ -10,7 +10,6 @@ namespace fui {
 
 	struct SamplerObject : ProcessingObject {
 		SamplerObject(){
-			clipping = true;
 			size = {400, 400};
 			addSoundInput(new SoundInput(&sampler.input, this, {-5, 5}));
 			addSoundOutput(new SoundOutput(&sampler, this, {size.x - 25, 5}));
@@ -19,21 +18,9 @@ namespace fui {
 			addNumberOutput(new NumberOutput(&sampler.input.noteprogress, this, "Note Progress", {100, -5}));
 			addChildWindow(new ui::Text("Sampler", fui::getFont()), {30, 30});
 			addChildWindow(addparambtn = new AddParamBtn(this));
+			addChildWindow(notecontainer = new NoteContainer(this));
 			addparambtn->pos = {135, -5};
 			next_param_id = 1;
-		}
-
-		void onLeftClick(int clicks) override {
-			hideParameters();
-			sf::Vector2f mousepos = localMousePos();
-			float freq = freqFromNote(ceil(NoteFromYPos(mousepos.y, size.y)));
-			float time = timeFromXPos(mousepos.x);
-			NoteWindow* notewin = addNote(freq, time, 1.0);
-			notewin->beginDragging();
-		}
-		void onRightClick(int clicks) override {
-			hideParameters();
-			startDrag();
 		}
 
 		void render(sf::RenderWindow& rw) override {
@@ -43,20 +30,6 @@ namespace fui {
 			rect.setOutlineColor(sf::Color(0xFF));
 			rect.setOutlineThickness(1.0f);
 			rw.draw(rect);
-			rect.setOutlineThickness(0.5f);
-			rect.setSize(sf::Vector2f(size.x, pixels_per_note));
-			int count = 0;
-			for (float y = size.y - pixels_per_note; y >= 0; y -= pixels_per_note){
-				int note = count % 12;
-				if ((note < 4 && note % 2 == 1) || (note > 5 && note % 2 == 0)){
-					rect.setFillColor(sf::Color(0x40));
-				} else {
-					rect.setFillColor(sf::Color(0xFFFFFF40));
-				}
-				rect.setPosition(sf::Vector2f(0.0f, y));
-				rw.draw(rect);
-				count++;
-			}
 			renderChildWindows(rw);
 		}
 
@@ -113,30 +86,138 @@ namespace fui {
 			return l.id < r.id;
 		}
 
+		struct NoteWindow;
+
+		struct NoteContainer : ui::Window {
+			NoteContainer(SamplerObject* _parent){
+				sampler_object = _parent;
+				size = sampler_object->size;
+				clipping = true;
+				addChildWindow(container = new Container(this));
+			}
+
+			void addNote(NoteWindow* notewin){
+				container->addNote(notewin);
+			}
+			void removeNote(NoteWindow* notewin){
+				container->removeNote(notewin);
+			}
+
+			void render(sf::RenderWindow& rw){
+				renderChildWindows(rw);
+			}
+
+			const std::vector<NoteWindow*>& getNotes() const {
+				return container->notewindows;
+			}
+
+			struct Container : ui::Window {
+				Container(NoteContainer* _parent){
+					parent = _parent;
+					size = {800, 800};
+					pos = sf::Vector2f(0.0f, parent->size.y - size.y);
+				}
+
+				void onLeftClick(int clicks) override {
+					if (keyDown(sf::Keyboard::LShift) || keyDown(sf::Keyboard::RShift)){
+						startDrag();
+					} else {
+						parent->sampler_object->hideParameters();
+						sf::Vector2f mousepos = localMousePos();
+						float freq = freqFromNote(ceil(NoteFromYPos(mousepos.y, size.y)));
+						float time = timeFromXPos(mousepos.x);
+						NoteWindow* notewin = parent->sampler_object->addNote(freq, time, 0.5f);
+						addChildWindow(notewin);
+						notewin->beginDragging();
+					}
+				}
+				void onRightClick(int clicks) override {
+					parent->sampler_object->startDrag();
+				}
+
+				void onDrag() override {
+					pos.x = std::min(std::max(pos.x, parent->sampler_object->size.x - size.x), 0.0f);
+					pos.y = std::min(std::max(pos.y, parent->sampler_object->size.y - size.y), 0.0f);
+				}
+
+				void addNote(NoteWindow* notewin){
+					notewindows.push_back(notewin);
+				}
+				void removeNote(NoteWindow* notewin){
+					for (auto it = notewindows.begin(); it != notewindows.end(); it++){
+						if (*it == notewin){
+							notewindows.erase(it);
+							return;
+						}
+					}
+				}
+
+				void render(sf::RenderWindow& rw) override {
+					sf::RectangleShape rect;
+					rect.setSize(size);
+					rect.setOutlineColor(sf::Color(0xFF));
+					rect.setOutlineThickness(0.5f);
+					rect.setSize(sf::Vector2f(size.x, pixels_per_note));
+					int count = 0;
+					for (float y = size.y - pixels_per_note; y >= 0; y -= pixels_per_note){
+						int note = count % 12;
+						if ((note < 4 && note % 2 == 1) || (note > 5 && note % 2 == 0)){
+							rect.setFillColor(sf::Color(0x40));
+						} else {
+							rect.setFillColor(sf::Color(0xFFFFFF40));
+						}
+						rect.setPosition(sf::Vector2f(0.0f, y));
+						rw.draw(rect);
+						count++;
+					}
+					sf::Vertex vertices[2] = {
+						sf::Vertex(sf::Vector2f(0.0f, 0.0f), sf::Color(0x80)),
+						sf::Vertex(sf::Vector2f(0.0f, size.y), sf::Color(0x80)),
+					};
+					for (float x = pixels_per_second; x <= size.x; x += pixels_per_second){
+						vertices[0].position.x = x;
+						vertices[1].position.x = x;
+						rw.draw(vertices, 2, sf::PrimitiveType::Lines);
+					}
+					vertices[0].color = sf::Color(0x40);
+					vertices[1].color = sf::Color(0x40);
+					for (float x = pixels_per_second * 0.5f; x <= size.x; x += pixels_per_second){
+						vertices[0].position.x = x;
+						vertices[1].position.x = x;
+						rw.draw(vertices, 2, sf::PrimitiveType::Lines);
+					}
+					renderChildWindows(rw);
+				}
+
+				NoteContainer* parent;
+				std::vector<NoteWindow*> notewindows;
+			}* container;
+
+			private:
+
+			SamplerObject* sampler_object;
+		}* notecontainer;
+
 		struct NoteWindow : ui::Window {
 			NoteWindow(SamplerObject* _parent, musical::Sampler::Note* _note){
-				parent = _parent;
+				sampler_object = _parent;
+				container = sampler_object->notecontainer->container;
 				note = _note;
 				note->frequency.useSpline();
 				note->frequency.getSpline().clear();
 				pos = sf::Vector2f(note->start_time * pixels_per_second, 0.0f);
-				size = sf::Vector2f(note->length * 100, parent->size.y);
+				size = sf::Vector2f(note->length * 100, container->size.y);
 				addChildWindow(new FreqSplineBtn(this, note->frequency.getSpline().addPoint(0.0, note->frequency.getConstant().getValue())));
 				addChildWindow(lengthbtn = new LengthBtn(this));
 				addChildWindow(grabber = new Grabber(this));
-				parent->note_windows.push_back(this);
+				sampler_object->notecontainer->addNote(this);
 				redraw();
 			}
 			~NoteWindow(){
 				while (splinebuttons.size() > 0){
 					splinebuttons.back()->close();
 				}
-				for (auto it = parent->note_windows.begin(); it != parent->note_windows.end(); it++){
-					if (*it == this){
-						parent->note_windows.erase(it);
-						return;
-					}
-				}
+				sampler_object->notecontainer->removeNote(this);
 			}
 			
 			bool hit(sf::Vector2f vec) override {
@@ -149,7 +230,7 @@ namespace fui {
 			}
 			
 			void onRightClick(int clicks) override {
-				parent->hideParameters();
+				sampler_object->hideParameters();
 				if (clicks == 1){
 					sf::Vector2f mousepos = localMousePos();
 					float progress = mousepos.x / size.x;
@@ -160,11 +241,13 @@ namespace fui {
 				}
 			}
 			void onLeftClick(int clicks) override {
-				parent->hideParameters();
-				if (clicks == 1){
+				sampler_object->hideParameters();
+				if (keyDown(sf::Keyboard::LShift) || keyDown(sf::Keyboard::RShift)){
+					container->startDrag();
+				} else if (clicks == 1){
 					beginDragging();
 				} else if (clicks == 2){
-					parent->sampler.removeNote(note);
+					sampler_object->sampler.removeNote(note);
 					close();
 				}
 			}
@@ -230,7 +313,7 @@ namespace fui {
 				
 				void onDrag() override {
 					pos.y = notewin->vertices[notewin->vertices.size() - 2].position.y;
-					pos.x = std::min(std::max(0.0f, pos.x), notewin->parent->size.x - notewin->pos.x);
+					pos.x = std::min(std::max(0.0f, pos.x), notewin->container->size.x - notewin->pos.x);
 					notewin->size.x = pos.x;
 					notewin->updateNote();
 					notewin->redraw();
@@ -468,7 +551,7 @@ namespace fui {
 						btn->pos.y = btn->old_y + pos.y;
 						btn->updatePoint();
 					}
-					notewin->pos.x = std::min(std::max(0.0f, pos.x), notewin->parent->size.x - notewin->size.x);
+					notewin->pos.x = std::min(std::max(0.0f, pos.x), notewin->container->size.x - notewin->size.x);
 					notewin->pos.y = 0.0f;
 					notewin->updateNote();
 					notewin->redraw();
@@ -491,7 +574,8 @@ namespace fui {
 				grabber->startDrag();
 			}
 
-			SamplerObject* parent;
+			SamplerObject* sampler_object;
+			NoteContainer::Container* container;
 			musical::Sampler::Note* note;
 			std::vector<sf::Vertex> vertices;
 			std::vector<FreqSplineBtn*> splinebuttons;
@@ -504,7 +588,6 @@ namespace fui {
 			for (const ParameterData& pd : paramdata){
 				notewin->addParameter(pd);
 			}
-			addChildWindow(notewin);
 			return notewin;
 		}
 
@@ -516,14 +599,14 @@ namespace fui {
 			sf::Vector2f newpos = sf::Vector2f(135 + param_handles.size() * 35, -5);
 			addChildWindow(new ParamHandle(this, *(it.first)), newpos);
 			addparambtn->pos = newpos + sf::Vector2f(35, 0);
-			for (NoteWindow* nw : note_windows){
+			for (NoteWindow* nw : notecontainer->getNotes()){
 				nw->addParameter(*(it.first));
 			}
 			showParameter(id);
 		}
 
 		void showParameter(int id){
-			for (NoteWindow* nw : note_windows){
+			for (NoteWindow* nw : notecontainer->getNotes()){
 				nw->showParameter(id);
 			}
 			for (const ParameterData& pd : paramdata){
@@ -534,7 +617,7 @@ namespace fui {
 			}
 		}
 		void hideParameters(){
-			for (NoteWindow* nw : note_windows){
+			for (NoteWindow* nw : notecontainer->getNotes()){
 				nw->hideParameters();
 			}
 			for (const ParameterData& pd : paramdata){
@@ -626,7 +709,6 @@ namespace fui {
 		};
 
 		std::set<ParameterData> paramdata;
-		std::vector<NoteWindow*> note_windows;
 		std::vector<ParamHandle*> param_handles;
 		musical::Sampler sampler;
 		int next_param_id;

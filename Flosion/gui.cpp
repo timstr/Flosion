@@ -41,7 +41,7 @@ namespace ui {
 		sf::ContextSettings settings;
 		settings.antialiasingLevel = 8;
 		Context::getRenderWindow().create(sf::VideoMode(size.x, size.y), title, sf::Style::Default, settings);
-		view = Context::getRenderWindow().getDefaultView();
+		resetView();
 		Context::current_window = root();
 		Context::clock.restart();
 	}
@@ -287,26 +287,30 @@ namespace ui {
 		return render_delay;
 	}
 	void Context::translateView(sf::Vector2f offset){
-		view.move(offset);
-		renderwindow.setView(view);
+		view_offset.x-= offset.x;
+		view_offset.y -= offset.y;
 	}
-	void Context::clipView(sf::Vector2f size){
-		sf::Vector2f screensize = getScreenSize();
-		sf::Vector2f viewpos = -(view.getCenter() - view.getSize() * 0.5f);
-		float x = viewpos.x / screensize.x;
-		float y = viewpos.y / screensize.y;
-		float width = size.x / screensize.x;
-		float height = size.y / screensize.y;
-		view.reset(sf::FloatRect(viewpos, size));
-		view.setViewport(sf::FloatRect(x, y, width, height));
-	}
-	void Context::unclipView(){
-		view.setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
+	sf::Vector2f Context::getViewOffset(){
+		return view_offset;
 	}
 	void Context::resetView(){
-		view.setCenter(width / 2.0f, height / 2.0f);
-		view.setSize(width, height);
-		renderwindow.setView(view);
+		sf::Vector2f size = getScreenSize();
+		clip_rect = sf::FloatRect(0, 0, size.x, size.y);
+		view_offset = sf::Vector2f(0, 0);
+		updateView();
+	}
+	const sf::FloatRect& Context::getClipRect(){
+		return clip_rect;
+	}
+	void Context::setClipRect(const sf::FloatRect& rect){
+		clip_rect = rect;
+	}
+	void Context::intersectClipRect(const sf::FloatRect& rect){
+		float left = std::max(clip_rect.left, rect.left);
+		float top = std::max(clip_rect.top, rect.top);
+		float right = std::min(clip_rect.left + clip_rect.width, rect.left + rect.width);
+		float bottom = std::min(clip_rect.top + clip_rect.height, rect.top + rect.height);
+		clip_rect = sf::FloatRect(left, top, right - left, bottom - top);
 	}
 	void Context::resize(int w, int h){
 		width = w;
@@ -328,6 +332,22 @@ namespace ui {
 	void Context::setTextEntry(TextEntry* textentry){
 		text_entry = textentry;
 	}
+	void Context::updateView(){
+		sf::Vector2f size = getScreenSize();
+		sf::View view;
+		sf::FloatRect rect = getClipRect();
+		sf::Vector2f offset = getViewOffset() + sf::Vector2f(rect.left, rect.top);
+		view.setSize(rect.width, rect.height);
+		view.setCenter(offset.x + rect.width * 0.5f, offset.y + rect.height * 0.5f);
+		sf::FloatRect vp = sf::FloatRect(
+			rect.left / size.x,
+			rect.top / size.y,
+			rect.width / size.x,
+			rect.height / size.y
+		);
+		view.setViewport(vp);
+		renderwindow.setView(view);
+	}
 
 	bool Context::quit = false;
 	double Context::render_delay = 0.025;
@@ -344,7 +364,8 @@ namespace ui {
 	uint32_t Context::click_timestamp;
 	sf::Mouse::Button Context::click_button;
 	Window* Context::click_window;
-	sf::View Context::view;
+	sf::FloatRect Context::clip_rect;
+	sf::Vector2f Context::view_offset;
 	int Context::width;
 	int Context::height;
 
@@ -546,7 +567,7 @@ namespace ui {
 			return nullptr;
 		}
 
-		if (clipping && _pos.x < 0.0f || _pos.x > size.x || _pos.y < 0.0 || _pos.y > size.y){
+		if (clipping && ((_pos.x < 0.0f) || (_pos.x > size.x) || (_pos.y < 0.0) || (_pos.y > size.y))){
 			return false;
 		}
 
@@ -579,16 +600,21 @@ namespace ui {
 	void Window::renderChildWindows(sf::RenderWindow& renderwindow){
 		for (int i = childwindows.size() - 1; i >= 0; i -= 1){
 			if (childwindows[i]->visible){
-				Context::translateView(-(childwindows[i]->pos));
 				if (childwindows[i]->clipping){
-					Context::clipView(childwindows[i]->size);
-					Context::translateView(-(childwindows[i]->pos));
+					sf::FloatRect rect = Context::getClipRect();
+					sf::Vector2f pos = Context::getViewOffset();
+					Context::intersectClipRect(sf::FloatRect(-pos + childwindows[i]->pos, childwindows[i]->size));
+					Context::translateView(childwindows[i]->pos);
+					Context::updateView();
+					childwindows[i]->render(renderwindow);
+					Context::translateView(-childwindows[i]->pos);
+					Context::setClipRect(rect);
+				} else {
+					Context::translateView(childwindows[i]->pos);
+					Context::updateView();
+					childwindows[i]->render(renderwindow);
+					Context::translateView(-childwindows[i]->pos);
 				}
-				childwindows[i]->render(renderwindow);
-				if (childwindows[i]->clipping){
-					Context::unclipView();
-				}
-				Context::translateView(childwindows[i]->pos);
 			}
 		}
 	}

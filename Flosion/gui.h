@@ -55,9 +55,12 @@ namespace ui {
 			static sf::RenderWindow& getRenderWindow();
 			static double getRenderDelay();
 			static void translateView(sf::Vector2f offset);
-			static void clipView(sf::Vector2f size);
-			static void unclipView();
+			static sf::Vector2f getViewOffset();
 			static void resetView();
+			static void updateView();
+			static const sf::FloatRect& getClipRect();
+			static void setClipRect(const sf::FloatRect& rect);
+			static void intersectClipRect(const sf::FloatRect& rect);
 			static void resize(int w, int h);
 
 			static Window* getDraggingWindow();
@@ -68,6 +71,7 @@ namespace ui {
 			static void setTextEntry(TextEntry* textentry);
 
 			private:
+
 
 			static bool quit;
 			static double render_delay;
@@ -85,14 +89,15 @@ namespace ui {
 			static sf::Clock clock;
 
 			static std::map<std::pair<sf::Keyboard::Key, std::vector<sf::Keyboard::Key>>, void (*)()> commands;
-			static bool (*quit_handler)();
+			static bool (*quit_handler)(); // TODO: use std::function
 
 			static const int doubleclicktime;
 
 			static uint32_t click_timestamp;
 			static sf::Mouse::Button click_button;
 			static Window* click_window;
-			static sf::View view;
+			static sf::FloatRect clip_rect;
+			static sf::Vector2f view_offset;
 			static int width;
 			static int height;
 		};
