@@ -105,6 +105,24 @@ namespace fui {
 
 			void render(sf::RenderWindow& rw){
 				renderChildWindows(rw);
+
+				sf::RectangleShape rect;
+				rect.setFillColor(sf::Color(0xFFFFFF40));
+				float ysize = size.y * size.y / container->size.y;
+				float ymin = size.y - container->size.y;
+				float ymax = 0;
+				float ypos = (size.y - ysize) * (1 - (container->pos.y - ymin) / (ymax - ymin));
+				rect.setSize(sf::Vector2f(5, ysize));
+				rect.setPosition(sf::Vector2f(5, ypos));
+				rw.draw(rect);
+
+				float xsize = size.x * size.x / container->size.x;
+				float xmin = size.x - container->size.x;
+				float xmax = 0;
+				float xpos = (size.x - xsize) * (1 - (container->pos.x - xmin) / (xmax - xmin));
+				rect.setPosition(sf::Vector2f(xpos, size.y - 10));
+				rect.setSize(sf::Vector2f(xsize, 5));
+				rw.draw(rect);
 			}
 
 			const std::vector<NoteWindow*>& getNotes() const {

@@ -5,6 +5,9 @@
 #include <map>
 #include <functional>
 
+// TODO: remove:
+#include <iostream>
+
 const double PI = 3.14159265358979323846264338327950288;
 
 namespace ui {
@@ -601,19 +604,22 @@ namespace ui {
 		for (int i = childwindows.size() - 1; i >= 0; i -= 1){
 			if (childwindows[i]->visible){
 				if (childwindows[i]->clipping){
+
 					sf::FloatRect rect = Context::getClipRect();
 					sf::Vector2f pos = Context::getViewOffset();
-					Context::intersectClipRect(sf::FloatRect(-pos + childwindows[i]->pos, childwindows[i]->size));
+					Context::intersectClipRect(sf::FloatRect(-pos, childwindows[i]->size));
 					Context::translateView(childwindows[i]->pos);
 					Context::updateView();
 					childwindows[i]->render(renderwindow);
 					Context::translateView(-childwindows[i]->pos);
 					Context::setClipRect(rect);
+					Context::updateView();
 				} else {
 					Context::translateView(childwindows[i]->pos);
 					Context::updateView();
 					childwindows[i]->render(renderwindow);
 					Context::translateView(-childwindows[i]->pos);
+					Context::updateView();
 				}
 			}
 		}
