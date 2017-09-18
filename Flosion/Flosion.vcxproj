@@ -177,6 +177,7 @@
     <ClInclude Include="functions.h" />
     <ClInclude Include="functionsUI.h" />
     <ClInclude Include="gui.h" />
+    <ClInclude Include="guihelpers.h" />
     <ClInclude Include="musical.h" />
     <ClInclude Include="NumberInput.h" />
     <ClInclude Include="NumberResult.h" />

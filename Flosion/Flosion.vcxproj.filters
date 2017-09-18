@@ -151,5 +151,8 @@
     <ClInclude Include="FlosionUI.h">
       <Filter>UI Core</Filter>
     </ClInclude>
+    <ClInclude Include="guihelpers.h">
+      <Filter>UI Core</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

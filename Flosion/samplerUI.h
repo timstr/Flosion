@@ -726,6 +726,15 @@ namespace fui {
 			NumberOutput* numberoutput;
 		};
 
+		struct XScrollBtn : ui::Window {
+			XScrollBtn(SamplerObject* _sampler_object){
+				sampler_object = _sampler_object;
+			}
+
+			private:
+			SamplerObject* sampler_object;
+		};
+
 		std::set<ParameterData> paramdata;
 		std::vector<ParamHandle*> param_handles;
 		musical::Sampler sampler;
