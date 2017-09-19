@@ -422,6 +422,9 @@ namespace ui {
 	void Window::onRightRelease(){
 
 	}
+	void Window::onScroll(double delta_x, double delta_y){
+
+	}
 	void Window::startDrag(){
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left) || sf::Mouse::isButtonPressed(sf::Mouse::Right)){
 			if (Context::getDraggingWindow() != this){
@@ -896,6 +899,15 @@ namespace ui {
 					}
 					case sf::Event::MouseButtonReleased:
 						Context::handleMouseUp(event.mouseButton.button, sf::Vector2f(event.mouseButton.x, event.mouseButton.y));
+						break;
+					case sf::Event::MouseWheelScrolled:
+						if (Context::getCurrentWindow()){
+							if (event.mouseWheelScroll.wheel == sf::Mouse::Wheel::HorizontalWheel){
+								Context::getCurrentWindow()->onScroll(event.mouseWheelScroll.delta, 0.0);
+							} else if (event.mouseWheelScroll.wheel == sf::Mouse::Wheel::HorizontalWheel){
+								Context::getCurrentWindow()->onScroll(0.0, event.mouseWheelScroll.delta);
+							}
+						}
 						break;
 				}
 			}

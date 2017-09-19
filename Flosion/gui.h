@@ -127,6 +127,8 @@ namespace ui {
 		virtual void onRightClick(int clicks);
 		virtual void onRightRelease();
 
+		virtual void onScroll(double delta_x, double delta_y);
+
 		void startDrag();
 		virtual void onDrag();
 
