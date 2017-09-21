@@ -606,10 +606,10 @@ namespace ui {
 	Window::XAlignment Window::xMiddleOf(Window* window){
 		return XAlignment(Alignment::Center, window, 0.0f);
 	}
-	Window::YAlignment Window::topOf(Window* window, float margin){
+	Window::YAlignment Window::above(Window* window, float margin){
 		return YAlignment(Alignment::Before, window, margin);
 	}
-	Window::YAlignment Window::bottomOf(Window* window, float margin){
+	Window::YAlignment Window::below(Window* window, float margin){
 		return YAlignment(Alignment::After, window, margin);
 	}
 	Window::YAlignment Window::yMiddleOf(Window* window){

@@ -191,8 +191,8 @@ namespace ui {
 		static XAlignment leftOf(Window* window, float margin = 0.0f);
 		static XAlignment rightOf(Window* window, float margin = 0.0f);
 		static XAlignment xMiddleOf(Window* window);
-		static YAlignment topOf(Window* window, float margin = 0.0f);
-		static YAlignment bottomOf(Window* window, float margin = 0.0f);
+		static YAlignment above(Window* window, float margin = 0.0f);
+		static YAlignment below(Window* window, float margin = 0.0f);
 		static YAlignment yMiddleOf(Window* window);
 
 		void addChildWindow(Window *window);
