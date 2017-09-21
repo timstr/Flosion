@@ -11,15 +11,15 @@ namespace fui {
 	struct SamplerObject : ProcessingObject {
 		SamplerObject(){
 			size = {400, 400};
-			addSoundInput(new SoundInput(&sampler.input, this, {-5, 5}));
+			addSoundInput(new SoundInput(&sampler.input, this, {-30, 5}));
 			addSoundOutput(new SoundOutput(&sampler, this, {size.x - 25, 5}));
-			addNumberOutput(new NumberOutput(&sampler.input.frequency, this, "Note Frequency", {30, -5}));
-			addNumberOutput(new NumberOutput(&sampler.input.notetime, this, "Note Time", {65, -5}));
-			addNumberOutput(new NumberOutput(&sampler.input.noteprogress, this, "Note Progress", {100, -5}));
+			addNumberOutput(new NumberOutput(&sampler.input.frequency, this, "Note Frequency", {30, -30}));
+			addNumberOutput(new NumberOutput(&sampler.input.notetime, this, "Note Time", {65, -30}));
+			addNumberOutput(new NumberOutput(&sampler.input.noteprogress, this, "Note Progress", {100, -30}));
 			addChildWindow(new ui::Text("Sampler", fui::getFont()), {30, 30});
 			addChildWindow(addparambtn = new AddParamBtn(this));
 			addChildWindow(notecontainer = new NoteContainer(this));
-			addparambtn->pos = {135, -5};
+			addparambtn->pos = {135, -30};
 			next_param_id = 1;
 		}
 

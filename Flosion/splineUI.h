@@ -20,7 +20,7 @@ namespace fui {
 			rect.setOutlineColor(sf::Color(0xFF));
 			rect.setOutlineThickness(1.0);
 			rw.draw(rect);
-			rw.draw(renderpoints.data(), renderpoints.size(), sf::PrimitiveType::LinesStrip);
+			rw.draw(renderpoints.data(), renderpoints.size(), sf::PrimitiveType::LineStrip);
 			renderChildWindows(rw);
 		}
 

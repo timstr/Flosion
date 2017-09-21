@@ -6,6 +6,9 @@
 
 extern const double PI;
 
+// TODO: add convenient way to align child windows relative to each other
+// centering, left-align, right-align
+
 namespace ui {
 
 	struct Window;
@@ -115,8 +118,6 @@ namespace ui {
 
 		void close();
 
-		// returns true if 'testpos' is inside the bounds of the window
-		// 'testpos' shall be relative to parent window
 		virtual bool hit(sf::Vector2f testpos);
 
 		sf::Vector2f localMousePos();
@@ -147,8 +148,58 @@ namespace ui {
 		virtual void onKeyUp(sf::Keyboard::Key key);
 		bool keyDown(sf::Keyboard::Key key);
 
+		struct Alignment {
+			protected:
+			enum Type {
+				None,
+				After,
+				Before,
+				Center,
+			};
+
+			float margin;
+
+			Alignment(Type _type, Window* _relative_to = nullptr, float _margin = 0.0f);
+
+			Type type;
+			Window* relative_to;
+
+			friend class Window;
+		};
+
+		struct XAlignment : Alignment {
+			private:
+
+			XAlignment(Type type, Window* relative_to = nullptr, float margin = 0.0f);
+
+			friend class Window;
+		};
+		struct YAlignment : Alignment {
+			private:
+
+			YAlignment(Type type, Window* relative_to = nullptr, float margin = 0.0f);
+
+			friend class Window;
+		};
+
+		void setXAlign(XAlignment xalignment = XAlignment(Alignment::None, nullptr));
+		void setYAlign(YAlignment yalignment = YAlignment(Alignment::None, nullptr));
+		void align();
+		void alignChildren();
+
+		// TODO: implement these and more
+		static XAlignment leftOf(Window* window, float margin = 0.0f);
+		static XAlignment rightOf(Window* window, float margin = 0.0f);
+		static XAlignment xMiddleOf(Window* window);
+		static YAlignment topOf(Window* window, float margin = 0.0f);
+		static YAlignment bottomOf(Window* window, float margin = 0.0f);
+		static YAlignment yMiddleOf(Window* window);
+
 		void addChildWindow(Window *window);
 		void addChildWindow(Window *window, sf::Vector2f pos);
+		void addChildWindow(Window *window, XAlignment xalignment);
+		void addChildWindow(Window *window, YAlignment xalignment);
+		void addChildWindow(Window *window, XAlignment xalignment, YAlignment yalignment);
 		void releaseChildWindow(Window* window);
 		void bringChildToFront(Window *window);
 		void clear();
@@ -160,11 +211,17 @@ namespace ui {
 
 		void startTransition(double duration, const std::function<void(double)> transitionFn, const std::function<void()>& onComplete = {});
 
-		protected:
-		std::vector<Window*> childwindows;
+		// TODO: think of good ideas for this alignment business
+
+		const std::vector<Window*>& getChildWindows() const;
+		Window* getParent() const;
 
 		private:
 		Window* parent = nullptr;
+		std::vector<Window*> childwindows;
+
+		XAlignment xalign = XAlignment(Alignment::None, nullptr);
+		YAlignment yalign = YAlignment(Alignment::None, nullptr);
 
 		friend struct Context;
 	};

@@ -14,7 +14,7 @@ namespace fui {
 			addNumberInput(new NumberInput(&ensemble.frequency_spread.input, this, "Frequency Spread", {-5, 75}));
 			addSoundInput(new SoundInput(&ensemble.input, this, {-5, 110}));
 			addNumberOutput(new NumberOutput(&ensemble.input.frequency, this, "Frequency", {60, -5}));
-			addChildWindow(new ui::Text("Ensemble", fui::getFont()), {25, 25});
+			addChildWindow(new ui::Text("Ensemble", fui::getFont()), xMiddleOf(this), yMiddleOf(this));
 		}
 
 		private:

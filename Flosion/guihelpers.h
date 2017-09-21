@@ -7,7 +7,7 @@ namespace ui {
 	// callback button
 	// slider
 	// convenient text entry panel
-	// convenient forms
+	// binding of components to objects
 	// tab navigation, space/enter toggling, automatic alignment and sizing
 
 	struct CallbackButton : ui::Window {
@@ -16,7 +16,7 @@ namespace ui {
 		*/
 	};
 
-	struct RadioButton : ui::Window {
+	struct ToggleButton : ui::Window {
 		/*
 		on-change callback?
 		*/
@@ -42,12 +42,6 @@ namespace ui {
 		validation function?
 		on-change callback?
 		on-return callback?
-		*/
-	};
-
-	struct Form : ui::Window {
-		/*
-		automatic content alignment?
 		*/
 	};
 }

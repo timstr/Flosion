@@ -532,6 +532,89 @@ namespace ui {
 			return(false);
 		}
 	}
+	Window::Alignment::Alignment(Type _type, Window* _relative_to, float _margin){
+		type = _type;
+		relative_to = _relative_to;
+		margin = _margin;
+	}
+	Window::XAlignment::XAlignment(Type type, Window* relative_to, float margin) : Alignment(type, relative_to) {
+
+	}
+	Window::YAlignment::YAlignment(Type type, Window* relative_to, float margin) : Alignment(type, relative_to) {
+
+	}
+	void Window::setXAlign(XAlignment xalignment){
+		if (xalignment.type != Alignment::None && !(xalignment.relative_to == parent || xalignment.relative_to->parent == parent)){
+			throw std::runtime_error("Invalid alignment");
+		}
+		xalign = xalignment;
+		align();
+	}
+	void Window::setYAlign(YAlignment yalignment){
+		if (yalignment.type != Alignment::None && !(yalignment.relative_to == parent || yalignment.relative_to->parent == parent)){
+			throw std::runtime_error("Invalid alignment");
+		}
+		yalign = yalignment;
+		align();
+	}
+	void Window::align(){
+		if (xalign.type != Alignment::None){
+			if (xalign.relative_to){
+				float relx = xalign.relative_to == parent ? 0.0f : xalign.relative_to->pos.x;
+				switch (xalign.type){
+					case Alignment::Before:
+						pos.x = relx - size.x - xalign.margin;
+						break;
+					case Alignment::After:
+						pos.x = relx + xalign.relative_to->size.x + xalign.margin;
+						break;
+					case Alignment::Center:
+						pos.x = relx + xalign.relative_to->size.x * 0.5f - size.x * 0.5f;
+						break;
+				}
+			}
+		}
+
+		if (yalign.type != Alignment::None){
+			if (yalign.relative_to){
+				float rely = yalign.relative_to == parent ? 0.0f : yalign.relative_to->pos.y;
+				switch (yalign.type){
+					case Alignment::Before:
+						pos.y = rely - size.y - yalign.margin;
+						break;
+					case Alignment::After:
+						pos.y = rely + yalign.relative_to->size.y + yalign.margin;
+						break;
+					case Alignment::Center:
+						pos.y = rely + yalign.relative_to->size.y * 0.5f - size.y * 0.5f;
+						break;
+				}
+			}
+		}
+	}
+	void Window::alignChildren(){
+		// TODO:
+		// algorithmically find an order in which all children can be aligned without invalidating previous alignments
+		// or throw an exception if there is a cycle
+	}
+	Window::XAlignment Window::leftOf(Window* window, float margin){
+		return XAlignment(Alignment::Before, window, margin);
+	}
+	Window::XAlignment Window::rightOf(Window* window, float margin){
+		return XAlignment(Alignment::After, window, margin);
+	}
+	Window::XAlignment Window::xMiddleOf(Window* window){
+		return XAlignment(Alignment::Center, window, 0.0f);
+	}
+	Window::YAlignment Window::topOf(Window* window, float margin){
+		return YAlignment(Alignment::Before, window, margin);
+	}
+	Window::YAlignment Window::bottomOf(Window* window, float margin){
+		return YAlignment(Alignment::After, window, margin);
+	}
+	Window::YAlignment Window::yMiddleOf(Window* window){
+		return YAlignment(Alignment::Center, window, 0.0f);
+	}
 	void Window::addChildWindow(Window *window){
 		if (window->parent != nullptr){
 			throw;
@@ -542,6 +625,19 @@ namespace ui {
 	void Window::addChildWindow(Window *window, sf::Vector2f pos){
 		window->pos = pos;
 		addChildWindow(window);
+	}
+	void Window::addChildWindow(Window *window, XAlignment xalignment){
+		addChildWindow(window);
+		window->setXAlign(xalignment);
+	}
+	void Window::addChildWindow(Window *window, YAlignment yalignment){
+		addChildWindow(window);
+		window->setYAlign(yalignment);
+	}
+	void Window::addChildWindow(Window *window, XAlignment xalignment, YAlignment yalignment){
+		addChildWindow(window);
+		window->setXAlign(xalignment);
+		window->setYAlign(yalignment);
 	}
 	void Window::releaseChildWindow(Window* window){
 		for (int i = 0; i < childwindows.size(); i++){
@@ -629,6 +725,12 @@ namespace ui {
 	}
 	void Window::startTransition(double duration, const std::function<void(double)> transitionFn, const std::function<void()>& onComplete){
 		Context::addTransition(Transition(this, duration, transitionFn, onComplete));
+	}
+	const std::vector<Window*>& Window::getChildWindows() const {
+		return childwindows;
+	}
+	Window* Window::getParent() const {
+		return parent;
 	}
 
 
