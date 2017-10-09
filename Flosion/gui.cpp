@@ -3,10 +3,9 @@
 #include "gui.h"
 #include <SFML\Graphics.hpp>
 #include <map>
+#include <set>
 #include <functional>
 
-// TODO: remove:
-#include <iostream>
 
 const double PI = 3.14159265358979323846264338327950288;
 
@@ -544,18 +543,16 @@ namespace ui {
 
 	}
 	void Window::setXAlign(XAlignment xalignment){
-		if (xalignment.type != Alignment::None && !(xalignment.relative_to == parent || xalignment.relative_to->parent == parent)){
-			throw std::runtime_error("Invalid alignment");
-		}
 		xalign = xalignment;
-		align();
+		if (parent){
+			parent->children_aligned = false;
+		}
 	}
 	void Window::setYAlign(YAlignment yalignment){
-		if (yalignment.type != Alignment::None && !(yalignment.relative_to == parent || yalignment.relative_to->parent == parent)){
-			throw std::runtime_error("Invalid alignment");
-		}
 		yalign = yalignment;
-		align();
+		if (parent){
+			parent->children_aligned = false;
+		}
 	}
 	void Window::align(){
 		if (xalign.type != Alignment::None){
@@ -593,9 +590,33 @@ namespace ui {
 		}
 	}
 	void Window::alignChildren(){
-		// TODO:
-		// algorithmically find an order in which all children can be aligned without invalidating previous alignments
-		// or throw an exception if there is a cycle
+		std::set<Window*> remaining;
+		std::vector<Window*> ordered;
+
+		for (Window* w : childwindows){
+			remaining.insert(w);
+		}
+
+		while (remaining.size() > 0){
+			bool found = false;
+			for (auto it = remaining.begin(); !found && it != remaining.end(); it++){
+				Window* xwin = (*it)->xalign.relative_to;
+				Window* ywin = (*it)->yalign.relative_to;
+				if ((!xwin || (remaining.find(xwin) == remaining.end())) && (!ywin || (remaining.find(ywin) == remaining.end()))){
+					ordered.push_back(*it);
+					remaining.erase(it);
+					found = true;
+					break;
+				}
+			}
+			if (!found){
+				throw std::runtime_error("The relative alignments are cyclical");
+			}
+		}
+
+		for (Window* w : ordered){
+			w->align();
+		}
 	}
 	Window::XAlignment Window::leftOf(Window* window, float margin){
 		return XAlignment(Alignment::Before, window, margin);
@@ -700,6 +721,10 @@ namespace ui {
 		renderChildWindows(renderwindow);
 	}
 	void Window::renderChildWindows(sf::RenderWindow& renderwindow){
+		if (!children_aligned){
+			alignChildren();
+			children_aligned = true;
+		}
 		for (int i = childwindows.size() - 1; i >= 0; i -= 1){
 			if (childwindows[i]->visible){
 				if (childwindows[i]->clipping){

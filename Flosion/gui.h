@@ -198,7 +198,7 @@ namespace ui {
 		void addChildWindow(Window *window);
 		void addChildWindow(Window *window, sf::Vector2f pos);
 		void addChildWindow(Window *window, XAlignment xalignment);
-		void addChildWindow(Window *window, YAlignment xalignment);
+		void addChildWindow(Window *window, YAlignment yalignment);
 		void addChildWindow(Window *window, XAlignment xalignment, YAlignment yalignment);
 		void releaseChildWindow(Window* window);
 		void bringChildToFront(Window *window);
@@ -222,6 +222,7 @@ namespace ui {
 
 		XAlignment xalign = XAlignment(Alignment::None, nullptr);
 		YAlignment yalign = YAlignment(Alignment::None, nullptr);
+		bool children_aligned = false;
 
 		friend struct Context;
 	};
