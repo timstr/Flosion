@@ -155,6 +155,8 @@ namespace ui {
 				After,
 				Before,
 				Center,
+				InsideMin,
+				InsideMax
 			};
 
 			float margin;
@@ -164,7 +166,7 @@ namespace ui {
 			Type type;
 			Window* relative_to;
 
-			friend class Window;
+			friend struct Window;
 		};
 
 		struct XAlignment : Alignment {
@@ -172,14 +174,14 @@ namespace ui {
 
 			XAlignment(Type type, Window* relative_to = nullptr, float margin = 0.0f);
 
-			friend class Window;
+			friend struct Window;
 		};
 		struct YAlignment : Alignment {
 			private:
 
 			YAlignment(Type type, Window* relative_to = nullptr, float margin = 0.0f);
 
-			friend class Window;
+			friend struct Window;
 		};
 
 		void setXAlign(XAlignment xalignment = XAlignment(Alignment::None, nullptr));
@@ -187,13 +189,18 @@ namespace ui {
 		void align();
 		void alignChildren();
 
-		// TODO: implement these and more
+		static XAlignment noAlignX();
 		static XAlignment leftOf(Window* window, float margin = 0.0f);
 		static XAlignment rightOf(Window* window, float margin = 0.0f);
-		static XAlignment xMiddleOf(Window* window);
+		static XAlignment middleOfX(Window* window);
+		static XAlignment insideLeft(Window* window, float margin = 0.0f);
+		static XAlignment insideRight(Window* window, float margin = 0.0f);
+		static YAlignment noAlignY();
 		static YAlignment above(Window* window, float margin = 0.0f);
 		static YAlignment below(Window* window, float margin = 0.0f);
-		static YAlignment yMiddleOf(Window* window);
+		static YAlignment insideTop(Window* window, float margin = 0.0f);
+		static YAlignment insideBottom(Window* window, float margin = 0.0f);
+		static YAlignment middleOfY(Window* window);
 
 		void addChildWindow(Window *window);
 		void addChildWindow(Window *window, sf::Vector2f pos);

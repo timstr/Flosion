@@ -161,8 +161,7 @@ namespace fui {
 
 
 	// NumberInput
-	NumberInput::NumberInput(musical::NumberInput* _target, Object* _parent, const std::string& _caption, sf::Vector2f _pos){
-		pos = _pos;
+	NumberInput::NumberInput(musical::NumberInput* _target, Object* _parent, const std::string& _caption){
 		size = {30, 30};
 		target = _target;
 		parent = _parent;
@@ -236,8 +235,7 @@ namespace fui {
 
 
 	// NumberOutput
-	NumberOutput::NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption, sf::Vector2f _pos){
-		pos = _pos;
+	NumberOutput::NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption){
 		size = {30, 30};
 		target = _target;
 		parent = _parent;
@@ -423,8 +421,7 @@ namespace fui {
 
 
 	// SoundInput
-	SoundInput::SoundInput(musical::SoundInput* _target, Object* _parent, sf::Vector2f _pos){
-		pos = _pos;
+	SoundInput::SoundInput(musical::SoundInput* _target, Object* _parent){
 		size = {30, 30};
 		target = _target;
 		parent = _parent;
@@ -465,8 +462,7 @@ namespace fui {
 
 
 	// SoundOutput
-	SoundOutput::SoundOutput(musical::SoundSource* _target, Object* _parent, sf::Vector2f _pos){
-		pos = _pos;
+	SoundOutput::SoundOutput(musical::SoundSource* _target, Object* _parent){
 		size = {30, 30};
 		target = _target;
 		parent = _parent;
@@ -620,14 +616,19 @@ namespace fui {
 			return;
 		}
 	}
-	void ProcessingObject::addSoundInput(SoundInput* si){
+	void ProcessingObject::addSoundInput(SoundInput* si, sf::Vector2f pos){
 		for (auto it = sound_inputs.begin(); it != sound_inputs.end(); it++){
 			if (*it == si){
 				throw std::runtime_error("The SoundInput has already been added");
 			}
 		}
 		sound_inputs.push_back(si);
-		addChildWindow(si);
+		addChildWindow(si, pos);
+	}
+	void ProcessingObject::addSoundInput(SoundInput* si, XAlignment xalign, YAlignment yalign){
+		addSoundInput(si);
+		si->setXAlign(xalign);
+		si->setYAlign(yalign);
 	}
 	void ProcessingObject::removeSoundInput(SoundInput* si){
 		for (auto it = sound_inputs.begin(); it != sound_inputs.end(); it++){
@@ -639,14 +640,19 @@ namespace fui {
 		throw std::runtime_error("The SoundInput could not be found.");
 		releaseChildWindow(si);
 	}
-	void ProcessingObject::addSoundOutput(SoundOutput* so){
+	void ProcessingObject::addSoundOutput(SoundOutput* so, sf::Vector2f pos){
 		for (auto it = sound_outputs.begin(); it != sound_outputs.end(); it++){
 			if (*it == so){
 				throw std::runtime_error("The SoundOutput has already been added");
 			}
 		}
 		sound_outputs.push_back(so);
-		addChildWindow(so);
+		addChildWindow(so, pos);
+	}
+	void ProcessingObject::addSoundOutput(SoundOutput* so, XAlignment xalign, YAlignment yalign){
+		addSoundOutput(so);
+		so->setXAlign(xalign);
+		so->setYAlign(yalign);
 	}
 	void ProcessingObject::removeSoundOutput(SoundOutput* so){
 		for (auto it = sound_outputs.begin(); it != sound_outputs.end(); it++){
@@ -658,14 +664,19 @@ namespace fui {
 		throw std::runtime_error("The SoundOutput could not be found.");
 		releaseChildWindow(so);
 	}
-	void ProcessingObject::addNumberInput(NumberInput* ni){
+	void ProcessingObject::addNumberInput(NumberInput* ni, sf::Vector2f pos){
 		for (auto it = number_inputs.begin(); it != number_inputs.end(); it++){
 			if (*it == ni){
 				throw std::runtime_error("The NumberInput has already been added");
 			}
 		}
 		number_inputs.push_back(ni);
-		addChildWindow(ni);
+		addChildWindow(ni, pos);
+	}
+	void ProcessingObject::addNumberInput(NumberInput* ni, XAlignment xalign, YAlignment yalign){
+		addNumberInput(ni);
+		ni->setXAlign(xalign);
+		ni->setYAlign(yalign);
 	}
 	void ProcessingObject::removeNumberInput(NumberInput* ni){
 		for (auto it = number_inputs.begin(); it != number_inputs.end(); it++){
@@ -677,14 +688,19 @@ namespace fui {
 		throw std::runtime_error("The NumberInput could not be found.");
 		releaseChildWindow(ni);
 	}
-	void ProcessingObject::addNumberOutput(NumberOutput* no){
+	void ProcessingObject::addNumberOutput(NumberOutput* no, sf::Vector2f pos){
 		for (auto it = number_outputs.begin(); it != number_outputs.end(); it++){
 			if (*it == no){
 				throw std::runtime_error("The NumberOutput has already been added");
 			}
 		}
 		number_outputs.push_back(no);
-		addChildWindow(no);
+		addChildWindow(no, pos);
+	}
+	void ProcessingObject::addNumberOutput(NumberOutput* no, XAlignment xalign, YAlignment yalign){
+		addNumberOutput(no);
+		no->setXAlign(xalign);
+		no->setYAlign(yalign);
 	}
 	void ProcessingObject::removeNumberOutput(NumberOutput* no){
 		for (auto it = number_outputs.begin(); it != number_outputs.end(); it++){

@@ -8,11 +8,13 @@ namespace fui {
 	struct WaveGenObject : ProcessingObject {
 		WaveGenObject(){
 			size = {150, 100};
-			addSoundOutput(new SoundOutput(&wavegen, this, {size.x - 20, 5}));
-			addNumberInput(new NumberInput(&wavegen.frequency.input, this, "Frequency", {-5, 5}));
-			addNumberInput(new NumberInput(&wavegen.wavefunction.input, this, "Wave Function", {-5, 40}));
-			addNumberOutput(new NumberOutput(&wavegen.phase, this, "Phase", {60, -5}));
-			addChildWindow(new ui::Text("WaveGenerator", fui::getFont()), {25, 25});
+			auto in1 = new NumberInput(&wavegen.frequency.input, this, "Frequency");
+			auto in2 = new NumberInput(&wavegen.wavefunction.input, this, "Wave Function");
+			addNumberInput(in1, leftOf(this), insideTop(this));
+			addNumberInput(in2, leftOf(this), below(in1));
+			addNumberOutput(new NumberOutput(&wavegen.phase, this, "Phase"), middleOfX(this), above(this));
+			addSoundOutput(new SoundOutput(&wavegen, this), rightOf(this), middleOfY(this));
+			addChildWindow(new ui::Text("WaveGenerator", fui::getFont()), middleOfX(this), middleOfY(this));
 		}
 
 		private:

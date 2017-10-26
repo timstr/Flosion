@@ -5,21 +5,27 @@
 
 // TODO: spline interface for note parameters
 // TODO: editor for parameter name / range
+// TODO: use Window alignments to position note parameter outputs
 
 namespace fui {
 
 	struct SamplerObject : ProcessingObject {
 		SamplerObject(){
 			size = {400, 400};
-			addSoundInput(new SoundInput(&sampler.input, this, {-30, 5}));
-			addSoundOutput(new SoundOutput(&sampler, this, {size.x - 25, 5}));
-			addNumberOutput(new NumberOutput(&sampler.input.frequency, this, "Note Frequency", {30, -30}));
-			addNumberOutput(new NumberOutput(&sampler.input.notetime, this, "Note Time", {65, -30}));
-			addNumberOutput(new NumberOutput(&sampler.input.noteprogress, this, "Note Progress", {100, -30}));
+			auto si = new SoundInput(&sampler.input, this);
+			auto so = new SoundOutput(&sampler, this);
+			notefrequency = new NumberOutput(&sampler.input.frequency, this, "Note Frequency");
+			notetime = new NumberOutput(&sampler.input.notetime, this, "Note Time");
+			noteprogress = new NumberOutput(&sampler.input.noteprogress, this, "Note Progress");
+
+			addSoundInput(si, leftOf(this), insideTop(this, 30));
+			addSoundOutput(so, rightOf(this), insideTop(this, 30));
+			addNumberOutput(notefrequency, insideLeft(this, 30), above(this));
+			addNumberOutput(notetime, rightOf(notefrequency, 5), above(this));
+			addNumberOutput(noteprogress, rightOf(notetime, 5), above(this));
 			addChildWindow(new ui::Text("Sampler", fui::getFont()), {30, 30});
-			addChildWindow(addparambtn = new AddParamBtn(this));
+			addChildWindow(addparambtn = new AddParamBtn(this), rightOf(noteprogress, 5.0), above(this));
 			addChildWindow(notecontainer = new NoteContainer(this));
-			addparambtn->pos = {135, -30};
 			next_param_id = 1;
 		}
 
@@ -614,9 +620,10 @@ namespace fui {
 			musical::NumberSource* ns = sampler.addParameter(id);
 			std::string caption = _caption == "" ? "Parameter " + std::to_string(id) : _caption;
 			auto it = paramdata.insert(ParameterData(id, caption, _color, ns));
-			sf::Vector2f newpos = sf::Vector2f(135 + param_handles.size() * 35, -5);
-			addChildWindow(new ParamHandle(this, *(it.first)), newpos);
-			addparambtn->pos = newpos + sf::Vector2f(35, 0);
+			addChildWindow(new ParamHandle(this, *(it.first)),
+						   rightOf(param_handles.empty() ? (ui::Window*)noteprogress : (ui::Window*)param_handles.back(), 5.0),
+						   insideTop(this, -30));
+			addparambtn->setXAlign(rightOf(param_handles.back(), 5.0));
 			for (NoteWindow* nw : notecontainer->getNotes()){
 				nw->addParameter(*(it.first));
 			}
@@ -726,6 +733,7 @@ namespace fui {
 			NumberOutput* numberoutput;
 		};
 
+		// TODO:
 		struct XScrollBtn : ui::Window {
 			XScrollBtn(SamplerObject* _sampler_object){
 				sampler_object = _sampler_object;
@@ -736,6 +744,9 @@ namespace fui {
 		};
 
 		std::set<ParameterData> paramdata;
+		NumberOutput* notefrequency;
+		NumberOutput* notetime;
+		NumberOutput* noteprogress;
 		std::vector<ParamHandle*> param_handles;
 		musical::Sampler sampler;
 		int next_param_id;

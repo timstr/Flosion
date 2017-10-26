@@ -8,13 +8,19 @@ namespace fui {
 	struct EnsembleObject : ProcessingObject {
 		EnsembleObject(){
 			size = {150, 145};
-			addSoundOutput(new SoundOutput(&ensemble, this, {size.x - 20, 5}));
-			addNumberInput(new NumberInput(&ensemble.num_voices.input, this, "Number of Voices", {-5, 40}));
-			addNumberInput(new NumberInput(&ensemble.frequency.input, this, "Frequency", {-5, 5}));
-			addNumberInput(new NumberInput(&ensemble.frequency_spread.input, this, "Frequency Spread", {-5, 75}));
-			addSoundInput(new SoundInput(&ensemble.input, this, {-5, 110}));
-			addNumberOutput(new NumberOutput(&ensemble.input.frequency, this, "Frequency", {60, -5}));
-			addChildWindow(new ui::Text("Ensemble", fui::getFont()), xMiddleOf(this), yMiddleOf(this));
+			auto numv = new NumberInput(&ensemble.num_voices.input, this, "Number of Voices");
+			auto freq = new NumberInput(&ensemble.frequency.input, this, "Frequency");
+			auto fspr = new NumberInput(&ensemble.frequency_spread.input, this, "Frequency Spread");
+			auto soundin = new SoundInput(&ensemble.input, this);
+
+
+			addSoundOutput(new SoundOutput(&ensemble, this), rightOf(this), insideTop(this, 20));
+			addNumberInput(numv, leftOf(this), insideTop(this));
+			addNumberInput(freq, leftOf(this), below(numv));
+			addNumberInput(fspr, leftOf(this), below(freq));
+			addSoundInput(soundin, leftOf(this), below(fspr, 5));
+			addNumberOutput(new NumberOutput(&ensemble.input.frequency, this, "Frequency"), insideLeft(this), above(this));
+			addChildWindow(new ui::Text("Ensemble", fui::getFont()), middleOfX(this), middleOfY(this));
 		}
 
 		private:

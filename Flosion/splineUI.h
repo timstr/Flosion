@@ -8,8 +8,8 @@ namespace fui {
 	struct SplineObject : ProcessingObject {
 		SplineObject(){
 			size = {200, 100};
-			addNumberInput(new NumberInput(&spline.input, this, "Input", {-25, 35}));
-			addNumberOutput(new NumberOutput(&spline, this, "Output", {195, 35}));
+			addNumberInput(new NumberInput(&spline.input, this, "Input"), leftOf(this), middleOfY(this));
+			addNumberOutput(new NumberOutput(&spline, this, "Output"), rightOf(this), middleOfY(this));
 			calculateRenderPoints();
 		}
 

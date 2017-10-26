@@ -94,7 +94,7 @@ namespace fui {
 	// the destination for a numberwire
 	// corresponds to the input of a processing object
 	struct NumberInput : ui::Window {
-		NumberInput(musical::NumberInput* _target, Object* _parent, const std::string& _caption = "", sf::Vector2f _pos = {0,0});
+		NumberInput(musical::NumberInput* _target, Object* _parent, const std::string& _caption = "");
 		~NumberInput();
 
 		void setWireIn(NumberWire* wire);
@@ -122,7 +122,7 @@ namespace fui {
 	// the source of a numberwire
 	// corresponds to a number source
 	struct NumberOutput : ui::Window {
-		NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption = "", sf::Vector2f _pos = {0,0});
+		NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption = "");
 		~NumberOutput();
 
 		void addWireOut(NumberWire* wire);
@@ -188,7 +188,7 @@ namespace fui {
 	// the destination for a sound wire
 	// corresponds to a sound input of a processing object
 	struct SoundInput : ui::Window {
-		SoundInput(musical::SoundInput* _target, Object* _parent, sf::Vector2f _pos = {0,0});
+		SoundInput(musical::SoundInput* _target, Object* _parent);
 
 		void setWireIn(SoundWire* wire);
 
@@ -209,7 +209,7 @@ namespace fui {
 	// the source of a sound wire
 	// corresponds to a sound source
 	struct SoundOutput : ui::Window {
-		SoundOutput(musical::SoundSource* _target, Object* _parent, sf::Vector2f _pos = {0,0});
+		SoundOutput(musical::SoundSource* _target, Object* _parent);
 
 		void addWireOut(SoundWire* wire);
 		void removeWireOut(SoundWire* wire);
@@ -274,16 +274,20 @@ namespace fui {
 
 		void onDropDragWindow(Window* window) override;
 
-		void addSoundInput(SoundInput* si);
+		void addSoundInput(SoundInput* si, sf::Vector2f pos = sf::Vector2f(0, 0));
+		void addSoundInput(SoundInput* si, XAlignment xalign, YAlignment yalign = noAlignY());
 		void removeSoundInput(SoundInput* si);
 
-		void addSoundOutput(SoundOutput* so);
+		void addSoundOutput(SoundOutput* so, sf::Vector2f pos = sf::Vector2f(0, 0));
+		void addSoundOutput(SoundOutput* so, XAlignment xalign, YAlignment yalign = noAlignY());
 		void removeSoundOutput(SoundOutput* so);
 
-		void addNumberInput(NumberInput* ni);
+		void addNumberInput(NumberInput* ni, sf::Vector2f pos = sf::Vector2f(0, 0));
+		void addNumberInput(NumberInput* ni, XAlignment xalign, YAlignment yalign = noAlignY());
 		void removeNumberInput(NumberInput* ni);
 
-		void addNumberOutput(NumberOutput* no);
+		void addNumberOutput(NumberOutput* no, sf::Vector2f pos = sf::Vector2f(0, 0));
+		void addNumberOutput(NumberOutput* no, XAlignment xalign, YAlignment yalign = noAlignY());
 		void removeNumberOutput(NumberOutput* no);
 
 		private:

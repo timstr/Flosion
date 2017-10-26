@@ -536,10 +536,10 @@ namespace ui {
 		relative_to = _relative_to;
 		margin = _margin;
 	}
-	Window::XAlignment::XAlignment(Type type, Window* relative_to, float margin) : Alignment(type, relative_to) {
-
+	Window::XAlignment::XAlignment(Type type, Window* relative_to, float margin) : Alignment(type, relative_to, margin) {
+		
 	}
-	Window::YAlignment::YAlignment(Type type, Window* relative_to, float margin) : Alignment(type, relative_to) {
+	Window::YAlignment::YAlignment(Type type, Window* relative_to, float margin) : Alignment(type, relative_to, margin) {
 
 	}
 	void Window::setXAlign(XAlignment xalignment){
@@ -568,6 +568,12 @@ namespace ui {
 					case Alignment::Center:
 						pos.x = relx + xalign.relative_to->size.x * 0.5f - size.x * 0.5f;
 						break;
+					case Alignment::InsideMin:
+						pos.x = relx + xalign.margin;
+						break;
+					case Alignment::InsideMax:
+						pos.x = relx + xalign.relative_to->size.x - size.x - xalign.margin;
+						break;
 				}
 			}
 		}
@@ -584,6 +590,12 @@ namespace ui {
 						break;
 					case Alignment::Center:
 						pos.y = rely + yalign.relative_to->size.y * 0.5f - size.y * 0.5f;
+						break;
+					case Alignment::InsideMin:
+						pos.y = rely + yalign.margin;
+						break;
+					case Alignment::InsideMax:
+						pos.y = rely + yalign.relative_to->size.y - size.y - yalign.margin;
 						break;
 				}
 			}
@@ -618,14 +630,27 @@ namespace ui {
 			w->align();
 		}
 	}
+	
+	Window::XAlignment Window::noAlignX(){
+		return XAlignment(Alignment::None);
+	}
 	Window::XAlignment Window::leftOf(Window* window, float margin){
 		return XAlignment(Alignment::Before, window, margin);
 	}
 	Window::XAlignment Window::rightOf(Window* window, float margin){
 		return XAlignment(Alignment::After, window, margin);
 	}
-	Window::XAlignment Window::xMiddleOf(Window* window){
+	Window::XAlignment Window::middleOfX(Window* window){
 		return XAlignment(Alignment::Center, window, 0.0f);
+	}
+	Window::XAlignment Window::insideLeft(Window* window, float margin){
+		return XAlignment(Alignment::InsideMin, window, margin);
+	}
+	Window::XAlignment Window::insideRight(Window* window, float margin){
+		return XAlignment(Alignment::InsideMax, window, margin);
+	}
+	Window::YAlignment Window::noAlignY(){
+		return YAlignment(Alignment::None);
 	}
 	Window::YAlignment Window::above(Window* window, float margin){
 		return YAlignment(Alignment::Before, window, margin);
@@ -633,8 +658,14 @@ namespace ui {
 	Window::YAlignment Window::below(Window* window, float margin){
 		return YAlignment(Alignment::After, window, margin);
 	}
-	Window::YAlignment Window::yMiddleOf(Window* window){
+	Window::YAlignment Window::middleOfY(Window* window){
 		return YAlignment(Alignment::Center, window, 0.0f);
+	}
+	Window::YAlignment Window::insideTop(Window* window, float margin){
+		return YAlignment(Alignment::InsideMin, window, margin);
+	}
+	Window::YAlignment Window::insideBottom(Window* window, float margin){
+		return YAlignment(Alignment::InsideMax, window, margin);
 	}
 	void Window::addChildWindow(Window *window){
 		if (window->parent != nullptr){
@@ -762,9 +793,8 @@ namespace ui {
 	// Text
 	Text::Text(const std::string& _text, const sf::Font& _font, sf::Color color, int charsize){
 		text = sf::Text("", _font, charsize);
-		text.setString(_text);
 		text.setFillColor(color);
-		updateSize();
+		setText(_text);
 		disabled = true;
 	}
 	void Text::setText(const std::string& _text){
@@ -778,8 +808,13 @@ namespace ui {
 		renderwin.draw(text);
 	}
 	void Text::updateSize(){
-		size.x = text.getLocalBounds().width;
-		size.y = text.getLocalBounds().height;
+		if (text.getString().isEmpty()){
+			size.x = 0;
+			size.y = (float)text.getCharacterSize();
+		} else {
+			size.x = text.getLocalBounds().width;
+			size.y = text.getLocalBounds().height;
+		}
 	}
 
 

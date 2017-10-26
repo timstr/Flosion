@@ -9,9 +9,9 @@ namespace fui {
 		AudioObject(){
 			size = {150, 150};
 			addChildWindow(new ui::Text("Audio Clip", getFont()));
-			addSoundOutput(new SoundOutput(&audio, this, {size.x - 20, 20}));
-			addChildWindow(new LoadButton(this), {25, 20});
-			addChildWindow(caption = new ui::Text("-", fui::getFont()), {5, 80});
+			addSoundOutput(new SoundOutput(&audio, this), rightOf(this), insideTop(this, 20));
+			addChildWindow(new LoadButton(this), insideLeft(this, 20), insideTop(this, 20));
+			addChildWindow(caption = new ui::Text("-", fui::getFont()), insideRight(this, 5), insideBottom(this, 5));
 		}
 
 		private:
@@ -29,6 +29,7 @@ namespace fui {
 					size_t pos = filename.find_last_of('\\'); 
 					std::string shortname = filename.substr(pos + 1);
 					parent->caption->setText(shortname);
+					parent->alignChildren();
 				}
 			}
 

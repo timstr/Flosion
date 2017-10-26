@@ -8,10 +8,10 @@ namespace fui {
 	struct TimeStretchObject : ProcessingObject {
 		TimeStretchObject(){
 			size = {150, 150};
-			addNumberInput(new NumberInput(&timestretch.speed.input, this, "Speed Ratio", {-5, 5}));
-			addSoundInput(new SoundInput(&timestretch.input, this, {-5, 40}));
-			addSoundOutput(new SoundOutput(&timestretch, this, {size.x - 25, 5}));
-			addChildWindow(new ui::Text("TimeStretch", fui::getFont()), {10, 10});
+			addNumberInput(new NumberInput(&timestretch.speed.input, this, "Speed Ratio"), leftOf(this), insideTop(this));
+			addSoundInput(new SoundInput(&timestretch.input, this), leftOf(this), middleOfY(this));
+			addSoundOutput(new SoundOutput(&timestretch, this), rightOf(this), middleOfY(this));
+			addChildWindow(new ui::Text("TimeStretch", fui::getFont()), middleOfX(this), middleOfY(this));
 		}
 
 		private:
