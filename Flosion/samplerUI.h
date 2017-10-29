@@ -5,7 +5,6 @@
 
 // TODO: spline interface for note parameters
 // TODO: editor for parameter name / range
-// TODO: use Window alignments to position note parameter outputs
 
 namespace fui {
 
@@ -100,6 +99,8 @@ namespace fui {
 				size = sampler_object->size;
 				clipping = true;
 				addChildWindow(container = new Container(this));
+				addChildWindow(xscrollbtn = new XScrollBtn(this));
+				addChildWindow(yscrollbtn = new YScrollBtn(this));
 			}
 
 			void addNote(NoteWindow* notewin){
@@ -111,24 +112,6 @@ namespace fui {
 
 			void render(sf::RenderWindow& rw){
 				renderChildWindows(rw);
-
-				sf::RectangleShape rect;
-				rect.setFillColor(sf::Color(0xFFFFFF40));
-				float ysize = size.y * size.y / container->size.y;
-				float ymin = size.y - container->size.y;
-				float ymax = 0;
-				float ypos = (size.y - ysize) * (1 - (container->pos.y - ymin) / (ymax - ymin));
-				rect.setSize(sf::Vector2f(5, ysize));
-				rect.setPosition(sf::Vector2f(5, ypos));
-				rw.draw(rect);
-
-				float xsize = size.x * size.x / container->size.x;
-				float xmin = size.x - container->size.x;
-				float xmax = 0;
-				float xpos = (size.x - xsize) * (1 - (container->pos.x - xmin) / (xmax - xmin));
-				rect.setPosition(sf::Vector2f(xpos, size.y - 10));
-				rect.setSize(sf::Vector2f(xsize, 5));
-				rw.draw(rect);
 			}
 
 			const std::vector<NoteWindow*>& getNotes() const {
@@ -162,6 +145,8 @@ namespace fui {
 				void onDrag() override {
 					pos.x = std::min(std::max(pos.x, parent->sampler_object->size.x - size.x), 0.0f);
 					pos.y = std::min(std::max(pos.y, parent->sampler_object->size.y - size.y), 0.0f);
+					parent->xscrollbtn->update();
+					parent->yscrollbtn->update();
 				}
 
 				void addNote(NoteWindow* notewin){
@@ -217,13 +202,95 @@ namespace fui {
 				std::vector<NoteWindow*> notewindows;
 			}* container;
 
+			struct XScrollBtn : ui::Window {
+				XScrollBtn(NoteContainer* _container)
+					: container(_container) {
+					size.y = 10;
+					pos.y = container->size.y - size.y - 5;
+					update();
+				}
+
+				void update(){
+					size.x = container->size.x * container->size.x / container->container->size.x;
+					float xmin = container->size.x - container->container->size.x;
+					float xmax = 0;
+					pos.x = (container->size.x - size.x) * (1 - (container->container->pos.x - xmin) / (xmax - xmin));
+				}
+
+				void onLeftClick(int clicks) override {
+					startDrag();
+				}
+
+				void onDrag() override {
+					pos.x = std::min(std::max(pos.x, 0.0f), container->size.x - size.x);
+					pos.y = container->size.y - size.y - 5;
+
+					float xmin = container->size.x - container->container->size.x;
+					float xmax = 0;
+
+					container->container->pos.x = (1 - (pos.x / (container->size.x - size.x))) * (xmax - xmin) + xmin;
+				}
+
+				void render(sf::RenderWindow& rw) override {
+					sf::RectangleShape rect;
+					rect.setSize(size);
+					rect.setFillColor(sf::Color(0x80));
+					rw.draw(rect);
+				}
+
+				private:
+				NoteContainer* const container;
+			}* xscrollbtn;
+
+			struct YScrollBtn : ui::Window {
+				YScrollBtn(NoteContainer* _container)
+					: container(_container) {
+					size.x = 10;
+					pos.x = 5;
+					update();
+				}
+
+				void update(){
+					size.y = container->size.y * container->size.y / container->container->size.y;
+					float xmin = container->size.y - container->container->size.y;
+					float xmax = 0;
+					pos.y = (container->size.y - size.y) * (1 - (container->container->pos.y - xmin) / (xmax - xmin));
+				}
+
+				void onLeftClick(int clicks) override {
+					startDrag();
+				}
+
+				void onDrag() override {
+					pos.y = std::min(std::max(pos.y, 0.0f), container->size.y - size.y);
+					pos.x = 5;
+
+					float xmin = container->size.y - container->container->size.y;
+					float xmax = 0;
+
+					container->container->pos.y = (1 - (pos.y / (container->size.y - size.y))) * (xmax - xmin) + xmin;
+				}
+
+				void render(sf::RenderWindow& rw) override {
+					sf::RectangleShape rect;
+					rect.setSize(size);
+					rect.setFillColor(sf::Color(0x80));
+					rw.draw(rect);
+				}
+
+				private:
+				NoteContainer* const container;
+			}* yscrollbtn;
+
 			private:
 
 			SamplerObject* sampler_object;
+
 		}* notecontainer;
 
 		struct NoteWindow : ui::Window {
 			NoteWindow(SamplerObject* _parent, musical::Sampler::Note* _note){
+				bring_to_front = true;
 				sampler_object = _parent;
 				container = sampler_object->notecontainer->container;
 				note = _note;
@@ -653,6 +720,7 @@ namespace fui {
 			}
 		}
 
+		// button for adding a new parameter
 		struct AddParamBtn : ui::Window {
 			AddParamBtn(SamplerObject* _sampler){
 				sampler = _sampler;
@@ -679,6 +747,7 @@ namespace fui {
 			SamplerObject* sampler;
 		}* addparambtn;
 
+		// holds a NumberOutput and label for a user-defined note parameter
 		struct ParamHandle : ui::Window {
 			ParamHandle(SamplerObject* _parent, const ParameterData& _param_data) : param_data(_param_data){
 				parent = _parent;
@@ -731,16 +800,6 @@ namespace fui {
 			SamplerObject* parent;
 			const ParameterData& param_data;
 			NumberOutput* numberoutput;
-		};
-
-		// TODO:
-		struct XScrollBtn : ui::Window {
-			XScrollBtn(SamplerObject* _sampler_object){
-				sampler_object = _sampler_object;
-			}
-
-			private:
-			SamplerObject* sampler_object;
 		};
 
 		std::set<ParameterData> paramdata;

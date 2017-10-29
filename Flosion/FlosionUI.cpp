@@ -7,6 +7,7 @@ namespace fui {
 	Object::Object(){
 		container = nullptr;
 		size = {100, 100};
+		bring_to_front = true;
 	}
 	Container* Object::getContainer(){
 		return container;
