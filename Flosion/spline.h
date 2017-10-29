@@ -50,10 +50,14 @@ namespace musical {
 
 		NumberInput input;
 
-		enum class Interpolation {
+		enum Interpolation {
 			None,
 			Linear,
-			Sinusoid
+			Sinusoid,
+			EaseIn,
+			EaseOut,
+
+			Count
 		};
 
 		struct Point {
@@ -117,24 +121,14 @@ namespace musical {
 				y = std::min(std::max(spline->min_y, _y), spline->max_y);
 			}
 
-			void setInterpolationMethod(Interpolation interp){
+			void setInterpolationMethod(int interp){
 				interp_method = interp;
 			}
-			Interpolation getInterpolationMethod() const {
+			int getInterpolationMethod() const {
 				return interp_method;
 			}
 			void toggleInterpolationMethod(){
-				switch (interp_method){
-					case Interpolation::None:
-						interp_method = Interpolation::Linear;
-						break;
-					case Interpolation::Linear:
-						interp_method = Interpolation::Sinusoid;
-						break;
-					case Interpolation::Sinusoid:
-						interp_method = Interpolation::None;
-						break;
-				}
+				interp_method = (interp_method + 1) % Spline::Interpolation::Count;
 			}
 
 			private:
@@ -146,7 +140,7 @@ namespace musical {
 			Spline* spline;
 			float x;
 			float y;
-			Interpolation interp_method;
+			unsigned int interp_method;
 			std::function<void()> onDestroy;
 			friend struct Spline;
 		};
@@ -238,7 +232,7 @@ namespace musical {
 		float min_y = -1;
 		float max_y = 1;
 
-		static float interpolate(float l, float r, float x, Interpolation method){
+		static float interpolate(float l, float r, float x, int method){
 			switch (method){
 				case Interpolation::None:
 					return l;
@@ -246,6 +240,10 @@ namespace musical {
 					return l + (x * (r - l));
 				case Interpolation::Sinusoid:
 					return l + ((0.5f - 0.5f * cos(x * 3.1415927f)) * (r - l));
+				case Interpolation::EaseIn:
+					return l + (r - l) * pow(x, 4.0);
+				case Interpolation::EaseOut:
+					return l + (r - l) * (1.0 - pow(1.0 - x, 4));
 				default:
 					return l;
 			}
