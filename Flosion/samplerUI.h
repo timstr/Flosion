@@ -101,6 +101,7 @@ namespace fui {
 				addChildWindow(container = new Container(this));
 				addChildWindow(xscrollbtn = new XScrollBtn(this));
 				addChildWindow(yscrollbtn = new YScrollBtn(this));
+				addChildWindow(resizebtn = new ResizeBtn(this));
 			}
 
 			void addNote(NoteWindow* notewin){
@@ -108,6 +109,28 @@ namespace fui {
 			}
 			void removeNote(NoteWindow* notewin){
 				container->removeNote(notewin);
+			}
+
+			void resize(float width, float height){
+				size.x = width;
+				size.y = height;
+
+				size.x = std::min(std::max(100.0f, size.x), container->size.x);
+				size.y = std::min(std::max(100.0f, size.y), container->size.y);
+
+				if (container->pos.x < size.x - container->size.x){
+					container->pos.x = size.x - container->size.x;
+				}
+				if (container->pos.y < size.y - container->size.y){
+					container->pos.y = size.y - container->size.y;
+				}
+
+				xscrollbtn->update();
+				yscrollbtn->update();
+				resizebtn->update();
+
+				sampler_object->size = size;
+				sampler_object->alignChildren();
 			}
 
 			void render(sf::RenderWindow& rw){
@@ -214,7 +237,13 @@ namespace fui {
 					size.x = container->size.x * container->size.x / container->container->size.x;
 					float xmin = container->size.x - container->container->size.x;
 					float xmax = 0;
-					pos.x = (container->size.x - size.x) * (1 - (container->container->pos.x - xmin) / (xmax - xmin));
+					disabled = xmin >= xmax;
+					if (disabled){
+						pos.x = 0;
+					} else {
+						pos.x = (container->size.x - size.x) * (1 - (container->container->pos.x - xmin) / (xmax - xmin));
+					}
+					pos.y = container->size.y - size.y - 5;
 				}
 
 				void onLeftClick(int clicks) override {
@@ -232,10 +261,12 @@ namespace fui {
 				}
 
 				void render(sf::RenderWindow& rw) override {
-					sf::RectangleShape rect;
-					rect.setSize(size);
-					rect.setFillColor(sf::Color(0x80));
-					rw.draw(rect);
+					if (!disabled){
+						sf::RectangleShape rect;
+						rect.setSize(size);
+						rect.setFillColor(sf::Color(0x80));
+						rw.draw(rect);
+					}
 				}
 
 				private:
@@ -251,10 +282,16 @@ namespace fui {
 				}
 
 				void update(){
+					pos.x = 5;
 					size.y = container->size.y * container->size.y / container->container->size.y;
-					float xmin = container->size.y - container->container->size.y;
-					float xmax = 0;
-					pos.y = (container->size.y - size.y) * (1 - (container->container->pos.y - xmin) / (xmax - xmin));
+					float ymin = container->size.y - container->container->size.y;
+					float ymax = 0;
+					disabled = ymin >= ymax;
+					if (disabled){
+						pos.y = 0;
+					} else {
+						pos.y = (container->size.y - size.y) * (1 - (container->container->pos.y - ymin) / (ymax - ymin));
+					}
 				}
 
 				void onLeftClick(int clicks) override {
@@ -272,15 +309,43 @@ namespace fui {
 				}
 
 				void render(sf::RenderWindow& rw) override {
-					sf::RectangleShape rect;
-					rect.setSize(size);
-					rect.setFillColor(sf::Color(0x80));
-					rw.draw(rect);
+					if (!disabled){
+						sf::RectangleShape rect;
+						rect.setSize(size);
+						rect.setFillColor(sf::Color(0x80));
+						rw.draw(rect);
+					}
 				}
 
 				private:
 				NoteContainer* const container;
 			}* yscrollbtn;
+
+			struct ResizeBtn : ui::Window {
+				ResizeBtn(NoteContainer* _container) : container(_container) {
+					size = {20, 20};
+					update();
+				}
+
+				void update(){
+					pos.x = container->size.x - size.x;
+					pos.y = container->size.y - size.y;
+				}
+
+				void onLeftClick(int clicks) override {
+					startDrag();
+				}
+
+				void onDrag() override {
+					pos.x = std::min(std::max(100.0f - size.x, pos.x), container->container->size.x - size.x);
+					pos.y = std::min(std::max(100.0f - size.y, pos.y), container->container->size.y - size.y);
+
+					container->resize(pos.x + size.x, pos.y + size.y);
+				}
+
+				private:
+				NoteContainer* const container;
+			}* resizebtn;
 
 			private:
 
