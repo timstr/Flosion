@@ -612,17 +612,40 @@ namespace fui {
 				void redrawSpline(){
 					size.x = notewin->size.x;
 					int width = size.x;
-					vertices.resize(width);
-					for (int i = 0; i < width; i++){
-						double y = size.y * (1 - (parameter.getSpline().getValueAt(i / (double)width) - parameter.getSpline().getMinY()) / (parameter.getSpline().getMaxY() - parameter.getSpline().getMinY()));
-						vertices[i].position = sf::Vector2f(i, y);
-						vertices[i].color = paramdata.display_color;
+					vertices.resize(width * 2 + 2);
+					float minY = parameter.getSpline().getMinY();
+					float maxY = parameter.getSpline().getMaxY();
+					for (int i = 0; i <= width; i++){
+						double y = size.y * (1 - (parameter.getSpline().getValueAt(i / (double)width) - minY) / (maxY - minY));
+						vertices[2 * i].position = sf::Vector2f(i, y);
+						vertices[2 * i].color = paramdata.display_color;
+						vertices[2 * i + 1].position = sf::Vector2f(i, size.y);
+						vertices[2 * i + 1].color = sf::Color(paramdata.display_color.r / 2, paramdata.display_color.g / 2, paramdata.display_color.b / 2, 0xFF);
+					}
+				}
+
+				void onLeftClick(int clicks) override {
+					if (clicks == 2){
+						switchMode();
 					}
 				}
 
 				void onRightClick(int clicks) override {
-					dragger->startDrag();
+					if (spline_mode){
+						sf::Vector2f mousepos = localMousePos();
+						float time = mousepos.x / size.x;
+						float maxY = parameter.getSpline().getMaxY();
+						float minY = parameter.getSpline().getMinY();
+						float val = minY + (maxY - minY) * (1.0 - (mousepos.y / size.y));
+						auto point = parameter.getSpline().addPoint(time, val);
+						SplineButton* btn = new SplineButton(this, point);
+						addChildWindow(btn, mousepos - btn->size * 0.5f);
+						btn->startDrag();
+					} else {
+						dragger->startDrag();
+					}
 				}
+
 
 				void render(sf::RenderWindow& rw) override {
 					sf::RectangleShape rect;
@@ -632,7 +655,7 @@ namespace fui {
 					rect.setFillColor(sf::Color(paramdata.display_color.r * 0.25, paramdata.display_color.g * 0.25, paramdata.display_color.b * 0.25, 0x40));
 					rw.draw(rect);
 					if (spline_mode){
-						rw.draw(vertices.data(), vertices.size(), sf::PrimitiveType::LineStrip);
+						rw.draw(vertices.data(), vertices.size(), sf::PrimitiveType::TrianglesStrip);
 					} else {
 						float amt = (parameter.getConstant().getValue() - paramdata.min_value) / (paramdata.max_value - paramdata.min_value);
 						rect.setOutlineThickness(0.0f);
@@ -641,13 +664,18 @@ namespace fui {
 						rect.setPosition(sf::Vector2f(0.0f, size.y * (1 - amt)));
 						rw.draw(rect);
 					}
+					renderChildWindows(rw);
 				}
 
-				// TODO:
 				struct SplineButton : ui::Window {
-					SplineButton(ParamWindow* _paramwindow){
+					SplineButton(ParamWindow* _paramwindow, musical::Spline::Point* _point) : point(_point) {
 						paramwindow = _paramwindow;
 						paramwindow->spline_buttons.push_back(this);
+						size = {10.0f, 10.0f};
+						point->setOnDestroy([this]{
+							paramwindow->redrawSpline();
+							close();
+						});
 					}
 					~SplineButton(){
 						for (auto it = paramwindow->spline_buttons.begin(); it != paramwindow->spline_buttons.end(); it++){
@@ -658,8 +686,50 @@ namespace fui {
 						}
 					}
 
+					void render(sf::RenderWindow& rw) override {
+						sf::CircleShape circle(size.x * 0.5);
+						circle.setFillColor(paramwindow->paramdata.display_color);
+						circle.setOutlineColor(sf::Color(0xFF));
+						circle.setOutlineThickness(1.0f);
+						rw.draw(circle);
+					}
+
+					void onRightClick(int clicks) override {
+						startDrag();
+						old_pos = pos;
+					}
+					void onRightRelease() override {
+						if (old_pos == pos){
+							point->toggleInterpolationMethod();
+							paramwindow->redrawSpline();
+						}
+					}
+
+					void onLeftClick(int clicks) override {
+						if (clicks == 2){
+							ParamWindow* pw = paramwindow;
+							pw->parameter.getSpline().removePoint(point);
+							pw->redrawSpline();
+						}
+					}
+
+					void onDrag() override {
+						pos.x = std::min(std::max(0.0f, pos.x + size.x * 0.5f), paramwindow->size.x) - size.x * 0.5f;
+						pos.y = std::min(std::max(0.0f, pos.y + size.y * 0.5f), paramwindow->size.y) - size.y * 0.5f;
+
+						float time = (pos.x + size.x * 0.5f) / paramwindow->size.x;
+						float maxY = paramwindow->parameter.getSpline().getMaxY();
+						float minY = paramwindow->parameter.getSpline().getMinY();
+						float val = minY + (maxY - minY) * (1.0 - ((pos.y + size.y * 0.5f) / paramwindow->size.y));
+						point->setX(time);
+						point->setY(val);
+						paramwindow->redrawSpline();
+					}
+
 					private:
 					ParamWindow* paramwindow;
+					musical::Spline::Point* const point;
+					sf::Vector2f old_pos;
 				};
 
 				struct ConstDragger : ui::Window {
@@ -692,6 +762,7 @@ namespace fui {
 				ConstDragger* dragger;
 				NoteWindow* notewin;
 				musical::Sampler::Note::Parameter& parameter;
+				sf::Vector2f old_pos;
 			};
 
 			struct Grabber : ui::Window {
