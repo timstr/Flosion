@@ -447,7 +447,13 @@ namespace fui {
 
 			void showParameter(int id){
 				for (ParamWindow* pw : param_windows){
-					pw->visible = (pw->paramdata.id == id);
+					if (pw->paramdata.id == id){
+						pw->visible = true;
+						pw->update();
+						pw->redrawSpline();
+					} else {
+						pw->visible = false;
+					}
 				}
 			}
 			void hideParameters(){
@@ -473,6 +479,10 @@ namespace fui {
 					notewin->size.x = pos.x;
 					notewin->updateNote();
 					notewin->redraw();
+				}
+
+				void onFocus() override {
+					notewin->sampler_object->hideParameters();
 				}
 				
 				void render(sf::RenderWindow& rw) override {
@@ -544,6 +554,10 @@ namespace fui {
 					notewin->redraw();
 				}
 				
+				void onFocus() override {
+					notewin->sampler_object->hideParameters();
+				}
+
 				void render(sf::RenderWindow& rw) override {
 					sf::CircleShape circle = sf::CircleShape(size.x / 2);
 					circle.setFillColor(sf::Color(0xFF));
@@ -600,13 +614,19 @@ namespace fui {
 
 				void update(){
 					size.x = notewin->size.x;
-					float minfreq = spline_mode ? notewin->note->frequency.getSpline().getMinimum() : notewin->note->frequency.getConstant().getValue();
-					float maxfreq = spline_mode ? notewin->note->frequency.getSpline().getMaximum() : notewin->note->frequency.getConstant().getValue();
-					float miny = yPosFromFreq(minfreq, notewin->size.y);
-					float maxy = yPosFromFreq(maxfreq, notewin->size.y);
 					size.y = 50;
 					pos.x = 0;
-					pos.y = (maxy + miny) * 0.5f - size.y * 0.5f;
+
+					float minfreq = notewin->note->frequency.getSpline().getMinimum();
+					float maxfreq = notewin->note->frequency.getSpline().getMaximum();
+					float miny = yPosFromFreq(minfreq, notewin->container->size.y);
+					float maxy = yPosFromFreq(maxfreq, notewin->container->size.y);
+
+					pos.y = ((maxy + miny) * 0.5f) - size.y * 0.5f;
+
+					for (SplineButton* btn : spline_buttons){
+						btn->update();
+					}
 				}
 
 				void redrawSpline(){
@@ -652,14 +672,21 @@ namespace fui {
 					rect.setSize(size);
 					rect.setOutlineColor(sf::Color(0xFF));
 					rect.setOutlineThickness(1.0f);
-					rect.setFillColor(sf::Color(paramdata.display_color.r * 0.25, paramdata.display_color.g * 0.25, paramdata.display_color.b * 0.25, 0x40));
+					rect.setFillColor(sf::Color(paramdata.display_color.r * 0.25, paramdata.display_color.g * 0.25, paramdata.display_color.b * 0.25, 0xC0));
 					rw.draw(rect);
 					if (spline_mode){
 						rw.draw(vertices.data(), vertices.size(), sf::PrimitiveType::TrianglesStrip);
 					} else {
 						float amt = (parameter.getConstant().getValue() - paramdata.min_value) / (paramdata.max_value - paramdata.min_value);
+						/*sf::Vertex vdata[] = {
+							sf::Vertex(sf::Vector2f(0.0f, size.y * (1.0f - amt)), paramdata.display_color),
+							sf::Vertex(sf::Vector2f(0.0f, size.y), sf::Color(paramdata.display_color.r / 2, paramdata.display_color.g / 2, paramdata.display_color.b / 2, 0xFF)),
+							sf::Vertex(sf::Vector2f(size.x, size.y * (1.0f - amt)), paramdata.display_color),
+							sf::Vertex(sf::Vector2f(size.x, size.y), sf::Color(paramdata.display_color.r / 2, paramdata.display_color.g / 2, paramdata.display_color.b / 2, 0xFF)),
+						};
+						rw.draw(vdata, 4, sf::PrimitiveType::TriangleStrip);*/
 						rect.setOutlineThickness(0.0f);
-						rect.setFillColor(sf::Color((paramdata.display_color.toInteger() & 0xFFFFFF00) | 0x80));
+						rect.setFillColor(paramdata.display_color);
 						rect.setSize(sf::Vector2f(size.x, size.y * amt));
 						rect.setPosition(sf::Vector2f(0.0f, size.y * (1 - amt)));
 						rw.draw(rect);
@@ -684,6 +711,10 @@ namespace fui {
 								return;
 							}
 						}
+					}
+
+					void update(){
+						pos.x = point->getX() * paramwindow->size.x;
 					}
 
 					void render(sf::RenderWindow& rw) override {
