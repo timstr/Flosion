@@ -109,7 +109,7 @@ namespace ui {
 		}
 
 		while (new_path.size() > 0){
-			if (new_path.back()->parent){
+			if (new_path.back()->parent && new_path.back()->bring_to_front){
 				new_path.back()->parent->bringChildToFront(new_path.back());
 			}
 			new_path.back()->onFocus();

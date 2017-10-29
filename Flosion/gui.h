@@ -111,6 +111,7 @@ namespace ui {
 		bool disabled = false;
 		bool visible = true;
 		bool clipping = false;
+		bool bring_to_front = false;
 		sf::Vector2f pos;
 		sf::Vector2f size;
 
@@ -149,7 +150,6 @@ namespace ui {
 		bool keyDown(sf::Keyboard::Key key);
 
 		struct Alignment {
-			protected:
 			enum Type {
 				None,
 				After,
@@ -159,6 +159,7 @@ namespace ui {
 				InsideMax
 			};
 
+			protected:
 			float margin;
 
 			Alignment(Type _type, Window* _relative_to = nullptr, float _margin = 0.0f);
