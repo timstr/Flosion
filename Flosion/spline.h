@@ -233,13 +233,16 @@ namespace musical {
 		float max_y = 1;
 
 		static float interpolate(float l, float r, float x, int method){
+			if (l == r){
+				return l;
+			}
 			switch (method){
 				case Interpolation::None:
 					return l;
 				case Interpolation::Linear:
 					return l + (x * (r - l));
 				case Interpolation::Sinusoid:
-					return l + ((0.5f - 0.5f * cos(x * 3.1415927f)) * (r - l));
+					return l + (r - l) * (0.5f - 0.5f * cos(x * 3.1415927f));
 				case Interpolation::EaseIn:
 					return l + (r - l) * pow(x, 4.0);
 				case Interpolation::EaseOut:
