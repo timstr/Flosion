@@ -420,21 +420,7 @@ namespace fui {
 				vertices.resize(width * 2 + 2);
 				for (int x = 0; x < width + 1; x++){
 					double y = yPosFromFreq(spline.getValueAt(x / (double)width), size.y);
-
 					sf::Color color = sf::Color(0xFF);
-					for (ParamWindow* pw : param_windows){
-						sf::Color src = pw->paramdata.display_color;
-						float min = pw->parameter.getSpline().getMinimum();
-						float max = pw->parameter.getSpline().getMaximum();
-						src.a = 255 * (pw->parameter.getValue(x / (double)width) - min) / (max - min);
-						sf::Color dst = color;
-						int alpha = src.a + (dst.a * (255 - src.a)) / 255;
-						color.r = (src.r * src.a + (dst.r * dst.a * (255 - src.a)) / 255) / alpha;
-						color.g = (src.g * src.a + (dst.g * dst.a * (255 - src.a)) / 255) / alpha;
-						color.b = (src.b * src.a + (dst.b * dst.a * (255 - src.a)) / 255) / alpha;
-						color.a = alpha;
-					}
-
 					vertices[2 * x].color = color;
 					vertices[2 * x].position = sf::Vector2f(x, y);
 					vertices[2 * x + 1].color = color;
@@ -446,11 +432,15 @@ namespace fui {
 				}
 				for (ParamWindow* pw : param_windows){
 					pw->update();
+					redrawParameterGraph(pw);
 				}
 			}
 			
 			void render(sf::RenderWindow& rw) override {
 				rw.draw(vertices.data(), vertices.size(), sf::PrimitiveType::TrianglesStrip);
+				for (auto& graph : param_graphs){
+					rw.draw(graph.second.data(), graph.second.size(), sf::PrimitiveType::LineStrip);
+				}
 				renderChildWindows(rw);
 			}
 
@@ -458,6 +448,7 @@ namespace fui {
 				ParamWindow* paramwin = new ParamWindow(this, note->getParameter(parameter_data.id), parameter_data);
 				addChildWindow(paramwin);
 				paramwin->visible = false;
+				redrawParameterGraph(paramwin);
 			}
 
 			void showParameter(int id){
@@ -649,8 +640,8 @@ namespace fui {
 					size.x = notewin->size.x;
 					int width = size.x;
 					vertices.resize(width * 2 + 2);
-					float minY = parameter.getSpline().getMinY();
-					float maxY = parameter.getSpline().getMaxY();
+					float minY = paramdata.min_value;
+					float maxY = paramdata.max_value;
 					for (int i = 0; i <= width; i++){
 						double y = size.y * (1 - (parameter.getSpline().getValueAt(i / (double)width) - minY) / (maxY - minY));
 						vertices[2 * i].position = sf::Vector2f(i, y);
@@ -670,8 +661,8 @@ namespace fui {
 					if (spline_mode){
 						sf::Vector2f mousepos = localMousePos();
 						float time = mousepos.x / size.x;
-						float maxY = parameter.getSpline().getMaxY();
-						float minY = parameter.getSpline().getMinY();
+						float maxY = paramdata.max_value;
+						float minY = paramdata.min_value;
 						float val = minY + (maxY - minY) * (1.0 - (mousepos.y / size.y));
 						auto point = parameter.getSpline().addPoint(time, val);
 						SplineButton* btn = new SplineButton(this, point);
@@ -681,7 +672,6 @@ namespace fui {
 						dragger->startDrag();
 					}
 				}
-
 
 				void render(sf::RenderWindow& rw) override {
 					sf::RectangleShape rect;
@@ -704,7 +694,7 @@ namespace fui {
 						rect.setOutlineThickness(0.0f);
 						rect.setFillColor(paramdata.display_color);
 						rect.setSize(sf::Vector2f(size.x, size.y * amt));
-						rect.setPosition(sf::Vector2f(0.0f, size.y * (1 - amt)));
+						rect.setPosition(sf::Vector2f(0.0f, size.y * (1.0f - amt)));
 						rw.draw(rect);
 					}
 					renderChildWindows(rw);
@@ -749,6 +739,7 @@ namespace fui {
 						if (old_pos == pos){
 							point->toggleInterpolationMethod();
 							paramwindow->redrawSpline();
+							paramwindow->notewin->redrawParameterGraph(paramwindow);
 						}
 					}
 
@@ -757,6 +748,7 @@ namespace fui {
 							ParamWindow* pw = paramwindow;
 							pw->parameter.getSpline().removePoint(point);
 							pw->redrawSpline();
+							pw->notewin->redrawParameterGraph(pw);
 						}
 					}
 
@@ -765,12 +757,13 @@ namespace fui {
 						pos.y = std::min(std::max(0.0f, pos.y + size.y * 0.5f), paramwindow->size.y) - size.y * 0.5f;
 
 						float time = (pos.x + size.x * 0.5f) / paramwindow->size.x;
-						float maxY = paramwindow->parameter.getSpline().getMaxY();
-						float minY = paramwindow->parameter.getSpline().getMinY();
+						float maxY = paramwindow->paramdata.max_value;
+						float minY = paramwindow->paramdata.min_value;
 						float val = minY + (maxY - minY) * (1.0 - ((pos.y + size.y * 0.5f) / paramwindow->size.y));
 						point->setX(time);
 						point->setY(val);
 						paramwindow->redrawSpline();
+						paramwindow->notewin->redrawParameterGraph(paramwindow);
 					}
 
 					private:
@@ -791,9 +784,12 @@ namespace fui {
 					void onDrag() override {
 						pos.x = 0;
 						pos.y = std::min(std::max(pos.y, 0.0f), paramwindow->size.y);
-						double val = paramwindow->paramdata.min_value + (paramwindow->paramdata.max_value - paramwindow->paramdata.min_value) * (1 - (pos.y / paramwindow->size.y));
+						float minv = paramwindow->paramdata.min_value;
+						float maxv = paramwindow->paramdata.max_value;
+						double val = minv + (maxv - minv) * (1.0f - (pos.y / paramwindow->size.y));
 						paramwindow->parameter.getConstant().setValue(val);
 						paramwindow->update();
+						paramwindow->notewin->redrawParameterGraph(paramwindow);
 					}
 
 					private:
@@ -848,12 +844,27 @@ namespace fui {
 				grabber->startDrag();
 			}
 
+			void redrawParameterGraph(ParamWindow* pw){
+				int width = size.x;
+				std::vector<sf::Vertex>& vertices = param_graphs[pw];
+				vertices.resize(width);
+				float minv = pw->paramdata.min_value;
+				float maxv = pw->paramdata.max_value;
+				for (int x = 0; x < width; x++){
+					float ymin = yPosFromFreq(note->frequency.getValue(x / (float)width), size.y);
+					float val = (pw->parameter.getValue(x / (float)width) - minv) / (maxv - minv);
+					vertices[x].position = sf::Vector2f(x, ymin + (1.0f - val) * pixels_per_note);
+					vertices[x].color = pw->paramdata.display_color;
+				}
+			}
+
 			SamplerObject* sampler_object;
 			NoteContainer::Container* container;
 			musical::Sampler::Note* note;
 			std::vector<sf::Vertex> vertices;
 			std::vector<FreqSplineBtn*> splinebuttons;
 			std::vector<ParamWindow*> param_windows;
+			std::map<ParamWindow*, std::vector<sf::Vertex>> param_graphs;
 			bool spline_mode;
 		};
 
