@@ -420,9 +420,24 @@ namespace fui {
 				vertices.resize(width * 2 + 2);
 				for (int x = 0; x < width + 1; x++){
 					double y = yPosFromFreq(spline.getValueAt(x / (double)width), size.y);
-					vertices[2 * x].color = sf::Color(0xFFFFFF80);
+
+					sf::Color color = sf::Color(0xFF);
+					for (ParamWindow* pw : param_windows){
+						sf::Color src = pw->paramdata.display_color;
+						float min = pw->parameter.getSpline().getMinimum();
+						float max = pw->parameter.getSpline().getMaximum();
+						src.a = 255 * (pw->parameter.getValue(x / (double)width) - min) / (max - min);
+						sf::Color dst = color;
+						int alpha = src.a + (dst.a * (255 - src.a)) / 255;
+						color.r = (src.r * src.a + (dst.r * dst.a * (255 - src.a)) / 255) / alpha;
+						color.g = (src.g * src.a + (dst.g * dst.a * (255 - src.a)) / 255) / alpha;
+						color.b = (src.b * src.a + (dst.b * dst.a * (255 - src.a)) / 255) / alpha;
+						color.a = alpha;
+					}
+
+					vertices[2 * x].color = color;
 					vertices[2 * x].position = sf::Vector2f(x, y);
-					vertices[2 * x + 1].color = sf::Color(0xFFFFFF80);
+					vertices[2 * x + 1].color = color;
 					vertices[2 * x + 1].position = sf::Vector2f(x, y + pixels_per_note);
 				}
 				lengthbtn->pos = vertices[width * 2].position;
@@ -451,6 +466,7 @@ namespace fui {
 						pw->visible = true;
 						pw->update();
 						pw->redrawSpline();
+						pw->bringToFront();
 					} else {
 						pw->visible = false;
 					}
@@ -785,6 +801,7 @@ namespace fui {
 				};
 
 				const ParameterData& paramdata;
+				musical::Sampler::Note::Parameter& parameter;
 
 				private:
 				bool spline_mode;
@@ -792,7 +809,6 @@ namespace fui {
 				std::vector<SplineButton*> spline_buttons;
 				ConstDragger* dragger;
 				NoteWindow* notewin;
-				musical::Sampler::Note::Parameter& parameter;
 				sf::Vector2f old_pos;
 			};
 
