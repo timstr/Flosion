@@ -110,7 +110,7 @@ namespace ui {
 
 		while (new_path.size() > 0){
 			if (new_path.back()->parent && new_path.back()->bring_to_front){
-				new_path.back()->parent->bringChildToFront(new_path.back());
+				new_path.back()->bringToFront();
 			}
 			new_path.back()->onFocus();
 			new_path.pop_back();
@@ -701,11 +701,14 @@ namespace ui {
 		}
 		throw;
 	}
-	void Window::bringChildToFront(Window *window){
-		for (int i = 0; i < childwindows.size(); i++){
-			if (childwindows[i] == window){
-				childwindows.erase(childwindows.begin() + i);
-				childwindows.insert(childwindows.begin(), window);
+	void Window::bringToFront(){
+		if (!parent){
+			return;
+		}
+		for (int i = 0; i < parent->childwindows.size(); i++){
+			if (parent->childwindows[i] == this){
+				parent->childwindows.erase(parent->childwindows.begin() + i);
+				parent->childwindows.insert(parent->childwindows.begin(), this);
 				return;
 			}
 		}

@@ -209,7 +209,7 @@ namespace ui {
 		void addChildWindow(Window *window, YAlignment yalignment);
 		void addChildWindow(Window *window, XAlignment xalignment, YAlignment yalignment);
 		void releaseChildWindow(Window* window);
-		void bringChildToFront(Window *window);
+		void bringToFront();
 		void clear();
 
 		Window* findWindowAt(sf::Vector2f _pos);
