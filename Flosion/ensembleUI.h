@@ -14,12 +14,12 @@ namespace fui {
 			auto soundin = new SoundInput(&ensemble.input, this);
 
 
-			addSoundOutput(new SoundOutput(&ensemble, this), rightOf(this), insideTop(this, 20));
-			addNumberInput(numv, leftOf(this), insideTop(this));
-			addNumberInput(freq, leftOf(this), below(numv));
-			addNumberInput(fspr, leftOf(this), below(freq));
-			addSoundInput(soundin, leftOf(this), below(fspr, 5));
-			addNumberOutput(new NumberOutput(&ensemble.input.frequency, this, "Frequency"), insideLeft(this), above(this));
+			addChildWindow(new SoundOutput(&ensemble, this), rightOf(this), insideTop(this, 20));
+			addChildWindow(numv, leftOf(this), insideTop(this));
+			addChildWindow(freq, leftOf(this), below(numv));
+			addChildWindow(fspr, leftOf(this), below(freq));
+			addChildWindow(soundin, leftOf(this), below(fspr, 5));
+			addChildWindow(new NumberOutput(&ensemble.input.frequency, this, "Frequency"), insideLeft(this), above(this));
 			addChildWindow(new ui::Text("Ensemble", fui::getFont()), middleOfX(this), middleOfY(this));
 		}
 

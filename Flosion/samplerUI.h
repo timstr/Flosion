@@ -17,11 +17,11 @@ namespace fui {
 			notetime = new NumberOutput(&sampler.input.notetime, this, "Note Time");
 			noteprogress = new NumberOutput(&sampler.input.noteprogress, this, "Note Progress");
 
-			addSoundInput(si, leftOf(this), insideTop(this, 30));
-			addSoundOutput(so, rightOf(this), insideTop(this, 30));
-			addNumberOutput(notefrequency, insideLeft(this, 30), above(this));
-			addNumberOutput(notetime, rightOf(notefrequency, 5), above(this));
-			addNumberOutput(noteprogress, rightOf(notetime, 5), above(this));
+			addChildWindow(si, leftOf(this), insideTop(this, 30));
+			addChildWindow(so, rightOf(this), insideTop(this, 30));
+			addChildWindow(notefrequency, insideLeft(this, 30), above(this));
+			addChildWindow(notetime, rightOf(notefrequency, 5), above(this));
+			addChildWindow(noteprogress, rightOf(notetime, 5), above(this));
 			addChildWindow(new ui::Text("Sampler", fui::getFont()), {30, 30});
 			addChildWindow(addparambtn = new AddParamBtn(this), rightOf(noteprogress, 5.0), above(this));
 			addChildWindow(notecontainer = new NoteContainer(this));

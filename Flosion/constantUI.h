@@ -10,7 +10,7 @@ namespace fui {
 		ConstantObject(double value = 1){
 			size = {100, 30};
 			addChildWindow(new ui::Text(std::to_string(value), getFont()));
-			addNumberOutput(new NumberOutput(&constant, this, "Value"), rightOf(this));
+			addChildWindow(new NumberOutput(&constant, this, "Value"), rightOf(this));
 			constant.setValue(value);
 		}
 
@@ -29,7 +29,7 @@ namespace fui {
 			size = {300, 30};
 			addChildWindow(slider = new Slider(this));
 			addChildWindow(caption = new ui::Text("-", fui::getFont()));
-			addNumberOutput(new NumberOutput(&value, this, "Value"), rightOf(this));
+			addChildWindow(new NumberOutput(&value, this, "Value"), rightOf(this));
 		}
 
 		void onLeftClick(int clicks) override {

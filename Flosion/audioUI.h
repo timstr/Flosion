@@ -9,7 +9,7 @@ namespace fui {
 		AudioObject(){
 			size = {150, 150};
 			addChildWindow(new ui::Text("Audio Clip", getFont()));
-			addSoundOutput(new SoundOutput(&audio, this), rightOf(this), insideTop(this, 20));
+			addChildWindow(new SoundOutput(&audio, this), rightOf(this), insideTop(this, 20));
 			addChildWindow(new LoadButton(this), insideLeft(this, 20), insideTop(this, 20));
 			addChildWindow(caption = new ui::Text("-", fui::getFont()), insideRight(this, 5), insideBottom(this, 5));
 		}

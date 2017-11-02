@@ -8,7 +8,7 @@ namespace fui {
 		DACObject(){
 			size = {150, 150};
 			addChildWindow(new ui::Text("DAC", getFont()));
-			addSoundInput(new SoundInput(&dac.input.input, this), leftOf(this), middleOfY(this));
+			addChildWindow(new SoundInput(&dac.input.input, this), leftOf(this), middleOfY(this));
 			addChildWindow(new PlayButton(this), {25, 20});
 			addChildWindow(new AmpMeter(this), {90, 10});
 		}

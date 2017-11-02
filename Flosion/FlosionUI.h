@@ -26,10 +26,18 @@ namespace fui {
 
 		private:
 		// the FUI container that holds the current object
-		// on if this is the master container should this ever be null
+		// or if this is the master container should this ever be null
 		Container* container;
+		std::vector<SoundInput*> sound_inputs;
+		std::vector<SoundOutput*> sound_outputs;
+		std::vector<NumberInput*> number_inputs;
+		std::vector<NumberOutput*> number_outputs;
 
 		friend struct Container;
+		friend struct SoundInput;
+		friend struct SoundOutput;
+		friend struct NumberInput;
+		friend struct NumberOutput;
 	};
 
 	// Container is what holds all objects
@@ -189,6 +197,7 @@ namespace fui {
 	// corresponds to a sound input of a processing object
 	struct SoundInput : ui::Window {
 		SoundInput(musical::SoundInput* _target, Object* _parent);
+		~SoundInput();
 
 		void setWireIn(SoundWire* wire);
 
@@ -210,6 +219,7 @@ namespace fui {
 	// corresponds to a sound source
 	struct SoundOutput : ui::Window {
 		SoundOutput(musical::SoundSource* _target, Object* _parent);
+		~SoundOutput();
 
 		void addWireOut(SoundWire* wire);
 		void removeWireOut(SoundWire* wire);
@@ -273,28 +283,6 @@ namespace fui {
 		void onRightClick(int clicks) override;
 
 		void onDropDragWindow(Window* window) override;
-
-		void addSoundInput(SoundInput* si, sf::Vector2f pos = sf::Vector2f(0, 0));
-		void addSoundInput(SoundInput* si, XAlignment xalign, YAlignment yalign = noAlignY());
-		void removeSoundInput(SoundInput* si);
-
-		void addSoundOutput(SoundOutput* so, sf::Vector2f pos = sf::Vector2f(0, 0));
-		void addSoundOutput(SoundOutput* so, XAlignment xalign, YAlignment yalign = noAlignY());
-		void removeSoundOutput(SoundOutput* so);
-
-		void addNumberInput(NumberInput* ni, sf::Vector2f pos = sf::Vector2f(0, 0));
-		void addNumberInput(NumberInput* ni, XAlignment xalign, YAlignment yalign = noAlignY());
-		void removeNumberInput(NumberInput* ni);
-
-		void addNumberOutput(NumberOutput* no, sf::Vector2f pos = sf::Vector2f(0, 0));
-		void addNumberOutput(NumberOutput* no, XAlignment xalign, YAlignment yalign = noAlignY());
-		void removeNumberOutput(NumberOutput* no);
-
-		private:
-		std::vector<SoundInput*> sound_inputs;
-		std::vector<SoundOutput*> sound_outputs;
-		std::vector<NumberInput*> number_inputs;
-		std::vector<NumberOutput*> number_outputs;
 	};
 
 
