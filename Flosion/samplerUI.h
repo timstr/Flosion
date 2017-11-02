@@ -151,7 +151,7 @@ namespace fui {
 				void onLeftClick(int clicks) override {
 					if (keyDown(sf::Keyboard::LShift) || keyDown(sf::Keyboard::RShift)){
 						startDrag();
-					} else {
+					} else if (clicks == 2){
 						parent->sampler_object->hideParameters();
 						sf::Vector2f mousepos = localMousePos();
 						float freq = freqFromNote(ceil(NoteFromYPos(mousepos.y, size.y)));
