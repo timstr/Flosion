@@ -162,11 +162,10 @@ namespace fui {
 
 
 	// NumberInput
-	NumberInput::NumberInput(musical::NumberInput* _target, Object* _parent, const std::string& _caption){
+	NumberInput::NumberInput(musical::NumberInput* _target, Object* _parent, const std::string& _caption)
+		: target(_target), owner_object(_parent) {
 		size = {30, 30};
-		target = _target;
-		parent = _parent;
-		parent->number_inputs.push_back(this);
+		owner_object->number_inputs.push_back(this);
 		wire_in = nullptr;
 		addChildWindow(caption = new ui::Text(_caption, fui::getFont()));
 		caption->pos.x = -5 - caption->size.x;
@@ -177,9 +176,9 @@ namespace fui {
 		if (wire_in){
 			wire_in->close();
 		}
-		for (auto it = parent->number_inputs.begin(); it != parent->number_inputs.end(); it++){
+		for (auto it = owner_object->number_inputs.begin(); it != owner_object->number_inputs.end(); it++){
 			if (*it == this){
-				parent->number_inputs.erase(it);
+				owner_object->number_inputs.erase(it);
 				return;
 			}
 		}
@@ -235,7 +234,7 @@ namespace fui {
 			wire_in->dragHead();
 		} else {
 			NumberWire* wire = new NumberWire;
-			this->parent->getContainer()->addObject(wire);
+			this->owner_object->getContainer()->addObject(wire);
 			wire->ConnectHeadTo(this);
 			wire->dragTail();
 		}
@@ -243,11 +242,10 @@ namespace fui {
 
 
 	// NumberOutput
-	NumberOutput::NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption){
+	NumberOutput::NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption)
+		: target(_target), owner_object(_parent) {
 		size = {30, 30};
-		target = _target;
-		parent = _parent;
-		parent->number_outputs.push_back(this);
+		owner_object->number_outputs.push_back(this);
 		addChildWindow(caption = new ui::Text(_caption, fui::getFont()));
 		caption->pos.x = 0;
 		caption->pos.y = -30;
@@ -257,9 +255,9 @@ namespace fui {
 		while (wires_out.size() > 0){
 			wires_out.back()->close();
 		}
-		for (auto it = parent->number_outputs.begin(); it != parent->number_outputs.end(); it++){
+		for (auto it = owner_object->number_outputs.begin(); it != owner_object->number_outputs.end(); it++){
 			if (*it == this){
-				parent->number_outputs.erase(it);
+				owner_object->number_outputs.erase(it);
 				return;
 			}
 		}
@@ -323,7 +321,7 @@ namespace fui {
 	}
 	void NumberOutput::onLeftClick(int clicks){
 		NumberWire* wire = new NumberWire;
-		this->parent->getContainer()->addObject(wire);
+		this->owner_object->getContainer()->addObject(wire);
 		wire->ConnectTailTo(this);
 		wire->dragHead();
 	}
@@ -436,17 +434,16 @@ namespace fui {
 
 
 	// SoundInput
-	SoundInput::SoundInput(musical::SoundInput* _target, Object* _parent){
+	SoundInput::SoundInput(musical::SoundInput* _target, Object* _parent)
+		: target(_target), owner_object(_parent) {
 		size = {30, 30};
-		target = _target;
-		parent = _parent;
-		parent->sound_inputs.push_back(this);
+		owner_object->sound_inputs.push_back(this);
 		wire_in = nullptr;
 	}
 	SoundInput::~SoundInput(){
-		for (auto it = parent->sound_inputs.begin(); it != parent->sound_inputs.end(); it++){
+		for (auto it = owner_object->sound_inputs.begin(); it != owner_object->sound_inputs.end(); it++){
 			if (*it == this){
-				parent->sound_inputs.erase(it);
+				owner_object->sound_inputs.erase(it);
 				return;
 			}
 		}
@@ -478,7 +475,7 @@ namespace fui {
 			wire_in->dragHead();
 		} else {
 			SoundWire* wire = new SoundWire;
-			this->parent->getContainer()->addObject(wire);
+			this->owner_object->getContainer()->addObject(wire);
 			wire->ConnectHeadTo(this);
 			wire->dragTail();
 		}
@@ -486,16 +483,15 @@ namespace fui {
 
 
 	// SoundOutput
-	SoundOutput::SoundOutput(musical::SoundSource* _target, Object* _parent){
+	SoundOutput::SoundOutput(musical::SoundSource* _target, Object* _parent)
+		: target(_target), owner_object(_parent) {
 		size = {30, 30};
-		target = _target;
-		parent = _parent;
-		parent->sound_outputs.push_back(this);
+		owner_object->sound_outputs.push_back(this);
 	}
 	SoundOutput::~SoundOutput(){
-		for (auto it = parent->sound_outputs.begin(); it != parent->sound_outputs.end(); it++){
+		for (auto it = owner_object->sound_outputs.begin(); it != owner_object->sound_outputs.end(); it++){
 			if (*it == this){
-				parent->sound_outputs.erase(it);
+				owner_object->sound_outputs.erase(it);
 				return;
 			}
 		}
@@ -535,7 +531,7 @@ namespace fui {
 	}
 	void SoundOutput::onLeftClick(int clicks){
 		SoundWire* wire = new SoundWire;
-		this->parent->getContainer()->addObject(wire);
+		this->owner_object->getContainer()->addObject(wire);
 		wire->ConnectTailTo(this);
 		wire->dragHead();
 	}

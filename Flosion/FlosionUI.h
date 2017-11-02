@@ -117,8 +117,8 @@ namespace fui {
 		void onLeftClick(int clicks) override;
 
 		private:
-		Object* parent;
-		musical::NumberInput* target;
+		Object* const owner_object;
+		musical::NumberInput* const target;
 		NumberWire* wire_in;
 		ui::Text* caption;
 		double hover_timestamp;
@@ -146,8 +146,8 @@ namespace fui {
 		void onLeftClick(int clicks) override;
 
 		private:
-		Object* parent;
-		musical::NumberSource* target;
+		Object* const owner_object;
+		musical::NumberSource* const target;
 		std::vector<NumberWire*> wires_out;
 		ui::Text* caption;
 		double hover_timestamp;
@@ -208,8 +208,8 @@ namespace fui {
 		void onLeftClick(int clicks) override;
 
 		private:
-		Object* parent;
-		musical::SoundInput* target;
+		Object* const owner_object;
+		musical::SoundInput* const target;
 		SoundWire* wire_in;
 
 		friend struct SoundWire;
@@ -231,8 +231,8 @@ namespace fui {
 		void onLeftClick(int clicks) override;
 
 		private:
-		Object* parent;
-		musical::SoundSource* target;
+		Object* const owner_object;
+		musical::SoundSource* const target;
 		std::vector<SoundWire*> wires_out;
 
 		friend struct SoundWire;
