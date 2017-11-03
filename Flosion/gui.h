@@ -48,7 +48,7 @@ namespace ui {
 			static void setQuitHandler(bool (*handler)());
 
 			static void handleKeyPress(sf::Keyboard::Key key);
-			static void handleMouseDown(sf::Mouse::Button button, vec2);
+			static void handleMouseDown(sf::Mouse::Button button, vec2 pos);
 			static void handleMouseUp(sf::Mouse::Button button, vec2 pos);
 			static void handleDrag();
 			static void handleHover();
@@ -138,7 +138,9 @@ namespace ui {
 
 		virtual void onHover();
 		virtual void onHoverWithDrag(Window *drag_window);
-		virtual void onDropDragWindow(Window *window);
+
+		// shall return false if the parent's method is to be invoked
+		virtual bool onDropDragWindow(Window *window);
 
 		virtual void onFocus();
 		bool isFocused();

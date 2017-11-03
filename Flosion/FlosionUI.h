@@ -107,7 +107,7 @@ namespace fui {
 
 		void setWireIn(NumberWire* wire);
 
-		void onDropDragWindow(Window* window) override;
+		bool onDropDragWindow(Window* window) override;
 
 		void onHover() override;
 		void onHoverWithDrag(Window* win) override;
@@ -138,7 +138,7 @@ namespace fui {
 
 		void render(sf::RenderWindow& rw) override;
 
-		void onDropDragWindow(Window* window) override;
+		bool onDropDragWindow(Window* window) override;
 
 		void onHover() override;
 		void onHoverWithDrag(Window* win) override;
@@ -201,7 +201,7 @@ namespace fui {
 
 		void setWireIn(SoundWire* wire);
 
-		void onDropDragWindow(Window* window) override;
+		bool onDropDragWindow(Window* window) override;
 
 		void render(sf::RenderWindow& rw) override;
 
@@ -226,7 +226,7 @@ namespace fui {
 
 		void render(sf::RenderWindow& rw) override;
 
-		void onDropDragWindow(Window* window) override;
+		bool onDropDragWindow(Window* window) override;
 
 		void onLeftClick(int clicks) override;
 
@@ -282,7 +282,7 @@ namespace fui {
 
 		void onRightClick(int clicks) override;
 
-		void onDropDragWindow(Window* window) override;
+		bool onDropDragWindow(Window* window) override;
 	};
 
 

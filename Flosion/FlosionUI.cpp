@@ -209,7 +209,7 @@ namespace fui {
 			wire->ConnectHeadTo(this);
 		}
 	}
-	void NumberInput::onDropDragWindow(Window* window) {
+	bool NumberInput::onDropDragWindow(Window* window) {
 		if (NumberWire::Head* wirehead = dynamic_cast<NumberWire::Head*>(window)){
 			if (wirehead->wire->safeToConnect(this)){
 				wirehead->wire->ConnectHeadTo(this);
@@ -222,7 +222,9 @@ namespace fui {
 					wirehead->pos = start + (end - start) * (float)sin(x * PI / 2);
 				});
 			}
+			return true;
 		}
+		return false;
 	}
 	void NumberInput::onHoverWithDrag(Window* win){
 		if (dynamic_cast<NumberWire::Head*>(win)){
@@ -299,7 +301,7 @@ namespace fui {
 			}
 		}
 	}
-	void NumberOutput::onDropDragWindow(Window* window){
+	bool NumberOutput::onDropDragWindow(Window* window){
 		if (NumberWire::Tail* wiretail = dynamic_cast<NumberWire::Tail*>(window)){
 			if (wiretail->wire->safeToConnect(this)){
 				wiretail->wire->ConnectTailTo(this);
@@ -312,7 +314,9 @@ namespace fui {
 					wiretail->pos = start + (end - start) * (float)sin(x * PI / 2);
 				});
 			}
+			return true;
 		}
+		return false;
 	}
 	void NumberOutput::onHoverWithDrag(Window* win){
 		if (dynamic_cast<NumberWire::Tail*>(win)){
@@ -465,10 +469,12 @@ namespace fui {
 			wire->ConnectHeadTo(this);
 		}
 	}
-	void SoundInput::onDropDragWindow(Window* window) {
+	bool SoundInput::onDropDragWindow(Window* window) {
 		if (SoundWire::Head* wirehead = dynamic_cast<SoundWire::Head*>(window)){
 			wirehead->wire->ConnectHeadTo(this);
+			return true;
 		}
+		return false;
 	}
 	void SoundInput::onLeftClick(int clicks){
 		if (wire_in){
@@ -524,10 +530,12 @@ namespace fui {
 			}
 		}
 	}
-	void SoundOutput::onDropDragWindow(Window* window){
+	bool SoundOutput::onDropDragWindow(Window* window){
 		if (SoundWire::Tail* wiretail = dynamic_cast<SoundWire::Tail*>(window)){
 			wiretail->wire->ConnectTailTo(this);
+			return true;
 		}
+		return true;
 	}
 	void SoundOutput::onLeftClick(int clicks){
 		SoundWire* wire = new SoundWire;
@@ -627,23 +635,24 @@ namespace fui {
 	void ProcessingObject::onRightClick(int clicks){
 		startDrag();
 	}
-	void ProcessingObject::onDropDragWindow(Window* window){
+	bool ProcessingObject::onDropDragWindow(Window* window){
 		if (NumberWire::Head* wirehead = dynamic_cast<NumberWire::Head*>(window)){
 			// TODO: show all the number inputs
-			return;
+			return true;
 		}
 		if (NumberWire::Tail* wiretail = dynamic_cast<NumberWire::Tail*>(window)){
 			// TODO: show all the number outputs
-			return;
+			return true;
 		}
 		if (SoundWire::Head* wirehead = dynamic_cast<SoundWire::Head*>(window)){
 			// TODO: show all the sound inputs
-			return;
+			return true;
 		}
 		if (SoundWire::Tail* wiretail = dynamic_cast<SoundWire::Tail*>(window)){
 			// TODO: show all the sound outputs
-			return;
+			return true;
 		}
+		return false;
 	}
 
 

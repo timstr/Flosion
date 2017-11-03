@@ -239,8 +239,8 @@ namespace ui {
 			}
 
 			Window* hover_window = root()->findWindowAt(pos);
-			if (hover_window){
-				hover_window->onDropDragWindow(Context::dragging_window);
+			while (hover_window && !(hover_window->onDropDragWindow(Context::dragging_window))){
+				hover_window = hover_window->parent;
 			}
 			Context::dragging_window = nullptr;
 		} else if (Context::current_window){
@@ -441,8 +441,8 @@ namespace ui {
 	void Window::onHoverWithDrag(Window *drag_window){
 
 	}
-	void Window::onDropDragWindow(Window *window){
-
+	bool Window::onDropDragWindow(Window *window){
+		return false;
 	}
 	void Window::onFocus(){
 
