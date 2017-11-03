@@ -25,8 +25,8 @@ namespace fui {
 		}
 
 		void onLeftClick(int clicks) override {
-			sf::Vector2f mousepos = localMousePos();
-			sf::Vector2f pos = toSplinePoint(mousepos);
+			vec2 mousepos = localMousePos();
+			vec2 pos = toSplinePoint(mousepos);
 			musical::Spline::Point* point = spline.addPoint(pos.x, pos.y);
 			PointHandle* handle = new PointHandle(this, point);
 			addChildWindow(handle);
@@ -66,7 +66,7 @@ namespace fui {
 				}
 			}
 			void onDrag() override {
-				sf::Vector2f p = parent->toSplinePoint(pos + (size * 0.5f));
+				vec2 p = parent->toSplinePoint(pos + (size * 0.5f));
 				point->setX(p.x);
 				point->setY(p.y);
 				p.x = point->getX();
@@ -79,14 +79,14 @@ namespace fui {
 			musical::Spline::Point* point;
 		};
 
-		sf::Vector2f toScreenPoint(sf::Vector2f spline_point){
-			return sf::Vector2f(
+		vec2 toScreenPoint(vec2 spline_point){
+			return vec2(
 				(spline_point.x - spline.getMinX()) / (spline.getMaxX() - spline.getMinX()) * size.x,
 				(1 - (spline_point.y - spline.getMinY()) / (spline.getMaxY() - spline.getMinY())) * size.y
 			);
 		}
-		sf::Vector2f toSplinePoint(sf::Vector2f screen_point){
-			return sf::Vector2f(
+		vec2 toSplinePoint(vec2 screen_point){
+			return vec2(
 				(screen_point.x / (float)size.x) * (spline.getMaxX() - spline.getMinX()) + spline.getMinX(),
 				(1 - (screen_point.y / (float)size.y)) * (spline.getMaxY() - spline.getMinY()) + spline.getMinY()
 			);

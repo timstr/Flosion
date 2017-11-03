@@ -53,14 +53,14 @@ namespace fui {
 				double lheight = ampl.l * size.y;
 				double rheight = ampl.r * size.y;
 
-				rect.setSize(sf::Vector2f(20, lheight));
-				rect.setPosition(sf::Vector2f(0, size.y - lheight));
+				rect.setSize(vec2(20, lheight));
+				rect.setPosition(vec2(0, size.y - lheight));
 				rect.setFillColor(getColor(ampl.l));
 				rect.setOutlineThickness(0);
 				rw.draw(rect);
 
-				rect.setSize(sf::Vector2f(20, rheight));
-				rect.setPosition(sf::Vector2f(30, size.y - rheight));
+				rect.setSize(vec2(20, rheight));
+				rect.setPosition(vec2(30, size.y - rheight));
 				rect.setFillColor(getColor(ampl.r));
 				rw.draw(rect);
 			}

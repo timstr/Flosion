@@ -36,7 +36,7 @@ namespace ui {
 	}
 
 	// Context
-	void Context::init(sf::Vector2f size, std::string title, double _render_delay){
+	void Context::init(vec2 size, std::string title, double _render_delay){
 		width = size.x;
 		height = size.y;
 		render_delay = _render_delay;
@@ -116,10 +116,10 @@ namespace ui {
 			new_path.pop_back();
 		}
 	}
-	sf::Vector2f Context::getMousePosition(){
-		return (sf::Vector2f)sf::Mouse::getPosition(renderwindow);
+	vec2 Context::getMousePosition(){
+		return (vec2)sf::Mouse::getPosition(renderwindow);
 	}
-	void Context::handleMouseDown(sf::Mouse::Button button, sf::Vector2f pos){
+	void Context::handleMouseDown(sf::Mouse::Button button, vec2 pos){
 		Window* hitwin = root()->findWindowAt(pos);
 
 		if (hitwin == nullptr){
@@ -230,7 +230,7 @@ namespace ui {
 			current_window->onKeyDown(key);
 		}
 	}
-	void Context::handleMouseUp(sf::Mouse::Button button, sf::Vector2f pos){
+	void Context::handleMouseUp(sf::Mouse::Button button, vec2 pos){
 		if (Context::dragging_window){
 			if (button == sf::Mouse::Left){
 				Context::dragging_window->onLeftRelease();
@@ -253,12 +253,12 @@ namespace ui {
 	}
 	void Context::handleDrag(){
 		if (dragging_window){
-			dragging_window->pos = (sf::Vector2f)sf::Mouse::getPosition(Context::getRenderWindow()) - drag_offset;
+			dragging_window->pos = (vec2)sf::Mouse::getPosition(Context::getRenderWindow()) - drag_offset;
 			dragging_window->onDrag();
 		}
 	}
 	void Context::handleHover(){
-		Window* hover_window = root()->findWindowAt((sf::Vector2f)sf::Mouse::getPosition(Context::getRenderWindow()));
+		Window* hover_window = root()->findWindowAt((vec2)sf::Mouse::getPosition(Context::getRenderWindow()));
 		if (hover_window){
 			if (dragging_window){
 				hover_window->onHoverWithDrag(dragging_window);
@@ -288,17 +288,17 @@ namespace ui {
 	double Context::getRenderDelay(){
 		return render_delay;
 	}
-	void Context::translateView(sf::Vector2f offset){
+	void Context::translateView(vec2 offset){
 		view_offset.x-= offset.x;
 		view_offset.y -= offset.y;
 	}
-	sf::Vector2f Context::getViewOffset(){
+	vec2 Context::getViewOffset(){
 		return view_offset;
 	}
 	void Context::resetView(){
-		sf::Vector2f size = getScreenSize();
+		vec2 size = getScreenSize();
 		clip_rect = sf::FloatRect(0, 0, size.x, size.y);
-		view_offset = sf::Vector2f(0, 0);
+		view_offset = vec2(0, 0);
 		updateView();
 	}
 	const sf::FloatRect& Context::getClipRect(){
@@ -321,7 +321,7 @@ namespace ui {
 	Window* Context::getDraggingWindow(){
 		return dragging_window;
 	}
-	void Context::setDraggingWindow(Window* window, sf::Vector2f offset){
+	void Context::setDraggingWindow(Window* window, vec2 offset){
 		dragging_window = window;
 		drag_offset = offset;
 	}
@@ -335,10 +335,10 @@ namespace ui {
 		text_entry = textentry;
 	}
 	void Context::updateView(){
-		sf::Vector2f size = getScreenSize();
+		vec2 size = getScreenSize();
 		sf::View view;
 		sf::FloatRect rect = getClipRect();
-		sf::Vector2f offset = getViewOffset() + sf::Vector2f(rect.left, rect.top);
+		vec2 offset = getViewOffset() + vec2(rect.left, rect.top);
 		view.setSize(rect.width, rect.height);
 		view.setCenter(offset.x + rect.width * 0.5f, offset.y + rect.height * 0.5f);
 		sf::FloatRect vp = sf::FloatRect(
@@ -353,7 +353,7 @@ namespace ui {
 
 	bool Context::quit = false;
 	double Context::render_delay = 0.025;
-	sf::Vector2f Context::drag_offset = sf::Vector2f();
+	vec2 Context::drag_offset = vec2();
 	sf::RenderWindow Context::renderwindow;
 	Window* Context::dragging_window = nullptr;
 	Window* Context::current_window = nullptr;
@@ -367,7 +367,7 @@ namespace ui {
 	sf::Mouse::Button Context::click_button;
 	Window* Context::click_window;
 	sf::FloatRect Context::clip_rect;
-	sf::Vector2f Context::view_offset;
+	vec2 Context::view_offset;
 	int Context::width;
 	int Context::height;
 
@@ -388,11 +388,11 @@ namespace ui {
 	void Window::close(){
 		delete this;
 	}
-	bool Window::hit(sf::Vector2f testpos){
+	bool Window::hit(vec2 testpos){
 		return ((testpos.x >= 0.0f) && (testpos.x < size.x) && (testpos.y >= 0.0f) && (testpos.y < size.y));
 	}
-	sf::Vector2f Window::localMousePos(){
-		sf::Vector2f pos = (sf::Vector2f)sf::Mouse::getPosition(Context::getRenderWindow());
+	vec2 Window::localMousePos(){
+		vec2 pos = (vec2)sf::Mouse::getPosition(Context::getRenderWindow());
 		Window *window = this;
 		while (window){
 			pos -= window->pos;
@@ -400,8 +400,8 @@ namespace ui {
 		}
 		return(pos);
 	}
-	sf::Vector2f Window::absPos(){
-		sf::Vector2f pos = sf::Vector2f();
+	vec2 Window::absPos(){
+		vec2 pos = vec2();
 		Window *window = this;
 		while (window != nullptr){
 			pos += window->pos;
@@ -428,7 +428,7 @@ namespace ui {
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left) || sf::Mouse::isButtonPressed(sf::Mouse::Right)){
 			if (Context::getDraggingWindow() != this){
 				Context::focusTo(this);
-				Context::setDraggingWindow(this, (sf::Vector2f)sf::Mouse::getPosition(Context::getRenderWindow()) - pos);
+				Context::setDraggingWindow(this, (vec2)sf::Mouse::getPosition(Context::getRenderWindow()) - pos);
 			}
 		}
 	}
@@ -674,7 +674,7 @@ namespace ui {
 		window->parent = this;
 		childwindows.insert(childwindows.begin(), window);
 	}
-	void Window::addChildWindow(Window *window, sf::Vector2f pos){
+	void Window::addChildWindow(Window *window, vec2 pos){
 		window->pos = pos;
 		addChildWindow(window);
 	}
@@ -719,7 +719,7 @@ namespace ui {
 			childwindows[0]->close();
 		}
 	}
-	Window* Window::findWindowAt(sf::Vector2f _pos){
+	Window* Window::findWindowAt(vec2 _pos){
 		if (!visible || disabled){
 			return nullptr;
 		}
@@ -764,7 +764,7 @@ namespace ui {
 				if (childwindows[i]->clipping){
 
 					sf::FloatRect rect = Context::getClipRect();
-					sf::Vector2f pos = Context::getViewOffset();
+					vec2 pos = Context::getViewOffset();
 					Context::intersectClipRect(sf::FloatRect(-pos, childwindows[i]->size));
 					Context::translateView(childwindows[i]->pos);
 					Context::updateView();
@@ -836,9 +836,9 @@ namespace ui {
 		grabFocus();
 		Context::setTextEntry(this);
 	}
-	void TextEntry::moveTo(sf::Vector2f pos){
+	void TextEntry::moveTo(vec2 pos){
 		for (int i = 0; i < text.getString().getSize(); i++){
-			sf::Vector2f charpos = text.findCharacterPos(i);
+			vec2 charpos = text.findCharacterPos(i);
 			if (pos.x < charpos.x){
 				cursor_index = i - 1;
 				updateSize();
@@ -883,13 +883,13 @@ namespace ui {
 		renderwindow.draw(rect);
 		renderwindow.draw(text);
 		if (Context::getTextEntry() == this){
-			sf::RectangleShape rect2(sf::Vector2f(cursor_width, text.getCharacterSize()));
+			sf::RectangleShape rect2(vec2(cursor_width, text.getCharacterSize()));
 			rect2.setFillColor(sf::Color(
 				text.getColor().r,
 				text.getColor().g,
 				text.getColor().b,
 				128 * (0.5 + 0.5 * sin(getProgramTime() * PI * 2))));
-			rect2.setPosition(sf::Vector2f(cursor_pos, 0));
+			rect2.setPosition(vec2(cursor_pos, 0));
 			renderwindow.draw(rect2);
 		}
 	}
@@ -949,9 +949,9 @@ namespace ui {
 	void TextEntry::updateSize(){
 		sf::FloatRect rect = text.getLocalBounds();
 		if (rect.width <= 1){
-			size = sf::Vector2f(text.getCharacterSize(), text.getCharacterSize());
+			size = vec2(text.getCharacterSize(), text.getCharacterSize());
 		} else {
-			size = sf::Vector2f(rect.width, text.getCharacterSize());
+			size = vec2(rect.width, text.getCharacterSize());
 		}
 		cursor_pos = text.findCharacterPos(cursor_index).x;
 		if (cursor_index == text.getString().getSize()){
@@ -979,14 +979,14 @@ namespace ui {
 	long double getProgramTime(){
 		return Context::getProgramTime();
 	}
-	sf::Vector2f getScreenSize(){
-		return (sf::Vector2f)Context::getRenderWindow().getSize();
+	vec2 getScreenSize(){
+		return (vec2)Context::getRenderWindow().getSize();
 	}
-	sf::Vector2f getMousePos(){
-		return sf::Vector2f(sf::Mouse::getPosition(Context::getRenderWindow()));
+	vec2 getMousePos(){
+		return vec2(sf::Mouse::getPosition(Context::getRenderWindow()));
 	}
 
-	void init(sf::Vector2f size, std::string title, int target_fps){
+	void init(vec2 size, std::string title, int target_fps){
 		Context::init(size, title, 1.0 / target_fps);
 	}
 	void quit(bool force){
@@ -1059,11 +1059,11 @@ namespace ui {
 						break;
 					case sf::Event::MouseButtonPressed:
 					{
-						Context::handleMouseDown(event.mouseButton.button, sf::Vector2f(event.mouseButton.x, event.mouseButton.y));
+						Context::handleMouseDown(event.mouseButton.button, vec2(event.mouseButton.x, event.mouseButton.y));
 						break;
 					}
 					case sf::Event::MouseButtonReleased:
-						Context::handleMouseUp(event.mouseButton.button, sf::Vector2f(event.mouseButton.x, event.mouseButton.y));
+						Context::handleMouseUp(event.mouseButton.button, vec2(event.mouseButton.x, event.mouseButton.y));
 						break;
 					case sf::Event::MouseWheelScrolled:
 						if (Context::getCurrentWindow()){

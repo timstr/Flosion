@@ -6,6 +6,8 @@
 
 extern const double PI;
 
+typedef sf::Vector2f vec2;
+
 // TODO: add convenient way to align child windows relative to each other
 // centering, left-align, right-align
 
@@ -35,7 +37,7 @@ namespace ui {
 		};
 
 		struct Context {
-			static void init(sf::Vector2f size, std::string title, double _render_delay);
+			static void init(vec2 size, std::string title, double _render_delay);
 
 			static void addTransition(const Transition& transition);
 			static void applyTransitions();
@@ -46,19 +48,19 @@ namespace ui {
 			static void setQuitHandler(bool (*handler)());
 
 			static void handleKeyPress(sf::Keyboard::Key key);
-			static void handleMouseDown(sf::Mouse::Button button, sf::Vector2f);
-			static void handleMouseUp(sf::Mouse::Button button, sf::Vector2f pos);
+			static void handleMouseDown(sf::Mouse::Button button, vec2);
+			static void handleMouseUp(sf::Mouse::Button button, vec2 pos);
 			static void handleDrag();
 			static void handleHover();
 			static void handleQuit(bool force);
 
 			static bool hasQuit();
 			static long double getProgramTime();
-			static sf::Vector2f getMousePosition();
+			static vec2 getMousePosition();
 			static sf::RenderWindow& getRenderWindow();
 			static double getRenderDelay();
-			static void translateView(sf::Vector2f offset);
-			static sf::Vector2f getViewOffset();
+			static void translateView(vec2 offset);
+			static vec2 getViewOffset();
 			static void resetView();
 			static void updateView();
 			static const sf::FloatRect& getClipRect();
@@ -67,7 +69,7 @@ namespace ui {
 			static void resize(int w, int h);
 
 			static Window* getDraggingWindow();
-			static void setDraggingWindow(Window* window, sf::Vector2f offset = sf::Vector2f(0, 0));
+			static void setDraggingWindow(Window* window, vec2 offset = vec2(0, 0));
 			static void focusTo(Window* window);
 			static Window* getCurrentWindow();
 			static TextEntry* getTextEntry();
@@ -79,7 +81,7 @@ namespace ui {
 			static bool quit;
 			static double render_delay;
 
-			static sf::Vector2f drag_offset;
+			static vec2 drag_offset;
 
 			static sf::RenderWindow renderwindow;
 
@@ -100,7 +102,7 @@ namespace ui {
 			static sf::Mouse::Button click_button;
 			static Window* click_window;
 			static sf::FloatRect clip_rect;
-			static sf::Vector2f view_offset;
+			static vec2 view_offset;
 			static int width;
 			static int height;
 		};
@@ -112,17 +114,17 @@ namespace ui {
 		bool visible = true;
 		bool clipping = false;
 		bool bring_to_front = false;
-		sf::Vector2f pos;
-		sf::Vector2f size;
+		vec2 pos;
+		vec2 size;
 
 		virtual ~Window();
 
 		void close();
 
-		virtual bool hit(sf::Vector2f testpos);
+		virtual bool hit(vec2 testpos);
 
-		sf::Vector2f localMousePos();
-		sf::Vector2f absPos();
+		vec2 localMousePos();
+		vec2 absPos();
 
 		virtual void onLeftClick(int clicks);
 		virtual void onLeftRelease();
@@ -204,7 +206,7 @@ namespace ui {
 		static YAlignment middleOfY(Window* window);
 
 		void addChildWindow(Window *window);
-		void addChildWindow(Window *window, sf::Vector2f pos);
+		void addChildWindow(Window *window, vec2 pos);
 		void addChildWindow(Window *window, XAlignment xalignment);
 		void addChildWindow(Window *window, YAlignment yalignment);
 		void addChildWindow(Window *window, XAlignment xalignment, YAlignment yalignment);
@@ -212,7 +214,7 @@ namespace ui {
 		void bringToFront();
 		void clear();
 
-		Window* findWindowAt(sf::Vector2f _pos);
+		Window* findWindowAt(vec2 _pos);
 
 		virtual void render(sf::RenderWindow& renderwindow);
 		void renderChildWindows(sf::RenderWindow& renderwindow);
@@ -255,7 +257,7 @@ namespace ui {
 		TextEntry(const std::string& str, const sf::Font& font, int charsize = 15, sf::Color _text_color = sf::Color(0xFF), sf::Color _bg_color = sf::Color(0xFFFFFFFF));
 
 		void beginTyping();
-		void moveTo(sf::Vector2f pos);
+		void moveTo(vec2 pos);
 
 		void setText(const std::string& str);
 		std::string getText() const;
@@ -303,11 +305,11 @@ namespace ui {
 
 	long double getProgramTime();
 
-	sf::Vector2f getScreenSize();
+	vec2 getScreenSize();
 
-	sf::Vector2f getMousePos();
+	vec2 getMousePos();
 
-	void init(sf::Vector2f size = sf::Vector2f(500, 500), std::string title = "Behold", int target_fps = 30);
+	void init(vec2 size = vec2(500, 500), std::string title = "Behold", int target_fps = 30);
 
 	void quit(bool force = false);
 

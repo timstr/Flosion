@@ -145,7 +145,7 @@ namespace fui {
 				Container(NoteContainer* _parent){
 					parent = _parent;
 					size = {800, 800};
-					pos = sf::Vector2f(0.0f, parent->size.y - size.y);
+					pos = vec2(0.0f, parent->size.y - size.y);
 				}
 
 				void onLeftClick(int clicks) override {
@@ -153,7 +153,7 @@ namespace fui {
 						startDrag();
 					} else if (clicks == 2){
 						parent->sampler_object->hideParameters();
-						sf::Vector2f mousepos = localMousePos();
+						vec2 mousepos = localMousePos();
 						float freq = freqFromNote(ceil(NoteFromYPos(mousepos.y, size.y)));
 						float time = timeFromXPos(mousepos.x);
 						NoteWindow* notewin = parent->sampler_object->addNote(freq, time, 0.5f);
@@ -189,7 +189,7 @@ namespace fui {
 					rect.setSize(size);
 					rect.setOutlineColor(sf::Color(0xFF));
 					rect.setOutlineThickness(0.5f);
-					rect.setSize(sf::Vector2f(size.x, pixels_per_note));
+					rect.setSize(vec2(size.x, pixels_per_note));
 					int count = 0;
 					for (float y = size.y - pixels_per_note; y >= 0; y -= pixels_per_note){
 						int note = count % 12;
@@ -198,13 +198,13 @@ namespace fui {
 						} else {
 							rect.setFillColor(sf::Color(0xFFFFFF40));
 						}
-						rect.setPosition(sf::Vector2f(0.0f, y));
+						rect.setPosition(vec2(0.0f, y));
 						rw.draw(rect);
 						count++;
 					}
 					sf::Vertex vertices[2] = {
-						sf::Vertex(sf::Vector2f(0.0f, 0.0f), sf::Color(0x80)),
-						sf::Vertex(sf::Vector2f(0.0f, size.y), sf::Color(0x80)),
+						sf::Vertex(vec2(0.0f, 0.0f), sf::Color(0x80)),
+						sf::Vertex(vec2(0.0f, size.y), sf::Color(0x80)),
 					};
 					for (float x = pixels_per_second; x <= size.x; x += pixels_per_second){
 						vertices[0].position.x = x;
@@ -361,8 +361,8 @@ namespace fui {
 				note = _note;
 				note->frequency.useSpline();
 				note->frequency.getSpline().clear();
-				pos = sf::Vector2f(note->start_time * pixels_per_second, 0.0f);
-				size = sf::Vector2f(note->length * 100, container->size.y);
+				pos = vec2(note->start_time * pixels_per_second, 0.0f);
+				size = vec2(note->length * 100, container->size.y);
 				addChildWindow(new FreqSplineBtn(this, note->frequency.getSpline().addPoint(0.0, note->frequency.getConstant().getValue())));
 				addChildWindow(lengthbtn = new LengthBtn(this));
 				addChildWindow(grabber = new Grabber(this));
@@ -376,7 +376,7 @@ namespace fui {
 				sampler_object->notecontainer->removeNote(this);
 			}
 			
-			bool hit(sf::Vector2f vec) override {
+			bool hit(vec2 vec) override {
 				if (Window::hit(vec)){
 					float progress = vec.x / size.x;
 					double y = yPosFromFreq(note->frequency.getValue(progress), size.y);
@@ -388,7 +388,7 @@ namespace fui {
 			void onRightClick(int clicks) override {
 				sampler_object->hideParameters();
 				if (clicks == 1){
-					sf::Vector2f mousepos = localMousePos();
+					vec2 mousepos = localMousePos();
 					float progress = mousepos.x / size.x;
 					float freq = freqFromNote(ceil(NoteFromYPos(mousepos.y, size.y)));
 					FreqSplineBtn* btn = new FreqSplineBtn(this, note->frequency.getSpline().addPoint(progress, freq));
@@ -422,9 +422,9 @@ namespace fui {
 					double y = yPosFromFreq(spline.getValueAt(x / (double)width), size.y);
 					sf::Color color = sf::Color(0xFF);
 					vertices[2 * x].color = color;
-					vertices[2 * x].position = sf::Vector2f(x, y);
+					vertices[2 * x].position = vec2(x, y);
 					vertices[2 * x + 1].color = color;
-					vertices[2 * x + 1].position = sf::Vector2f(x, y + pixels_per_note);
+					vertices[2 * x + 1].position = vec2(x, y + pixels_per_note);
 				}
 				lengthbtn->pos = vertices[width * 2].position;
 				for (FreqSplineBtn* btn : splinebuttons){
@@ -472,7 +472,7 @@ namespace fui {
 			struct LengthBtn : ui::Window {
 				LengthBtn(NoteWindow* _notewin){
 					notewin = _notewin;
-					size = sf::Vector2f(pixels_per_note, pixels_per_note);
+					size = vec2(pixels_per_note, pixels_per_note);
 					pos = {notewin->size.x, 0};
 				};
 				
@@ -511,7 +511,7 @@ namespace fui {
 						notewin->redraw();
 						close();
 					});
-					size = sf::Vector2f(pixels_per_note, pixels_per_note);
+					size = vec2(pixels_per_note, pixels_per_note);
 					updateFromPoint();
 					notewin->splinebuttons.push_back(this);
 				}
@@ -578,7 +578,7 @@ namespace fui {
 				private:
 				musical::Spline::Point* point;
 				NoteWindow* notewin;
-				sf::Vector2f prev_pos;
+				vec2 prev_pos;
 			};
 
 			struct ParamWindow : ui::Window {
@@ -644,9 +644,9 @@ namespace fui {
 					float maxY = paramdata.max_value;
 					for (int i = 0; i <= width; i++){
 						double y = size.y * (1 - (parameter.getSpline().getValueAt(i / (double)width) - minY) / (maxY - minY));
-						vertices[2 * i].position = sf::Vector2f(i, y);
+						vertices[2 * i].position = vec2(i, y);
 						vertices[2 * i].color = paramdata.display_color;
-						vertices[2 * i + 1].position = sf::Vector2f(i, size.y);
+						vertices[2 * i + 1].position = vec2(i, size.y);
 						vertices[2 * i + 1].color = sf::Color(paramdata.display_color.r / 2, paramdata.display_color.g / 2, paramdata.display_color.b / 2, 0xFF);
 					}
 				}
@@ -659,7 +659,7 @@ namespace fui {
 
 				void onRightClick(int clicks) override {
 					if (spline_mode){
-						sf::Vector2f mousepos = localMousePos();
+						vec2 mousepos = localMousePos();
 						float time = mousepos.x / size.x;
 						float maxY = paramdata.max_value;
 						float minY = paramdata.min_value;
@@ -685,16 +685,16 @@ namespace fui {
 					} else {
 						float amt = (parameter.getConstant().getValue() - paramdata.min_value) / (paramdata.max_value - paramdata.min_value);
 						/*sf::Vertex vdata[] = {
-							sf::Vertex(sf::Vector2f(0.0f, size.y * (1.0f - amt)), paramdata.display_color),
-							sf::Vertex(sf::Vector2f(0.0f, size.y), sf::Color(paramdata.display_color.r / 2, paramdata.display_color.g / 2, paramdata.display_color.b / 2, 0xFF)),
-							sf::Vertex(sf::Vector2f(size.x, size.y * (1.0f - amt)), paramdata.display_color),
-							sf::Vertex(sf::Vector2f(size.x, size.y), sf::Color(paramdata.display_color.r / 2, paramdata.display_color.g / 2, paramdata.display_color.b / 2, 0xFF)),
+							sf::Vertex(vec2(0.0f, size.y * (1.0f - amt)), paramdata.display_color),
+							sf::Vertex(vec2(0.0f, size.y), sf::Color(paramdata.display_color.r / 2, paramdata.display_color.g / 2, paramdata.display_color.b / 2, 0xFF)),
+							sf::Vertex(vec2(size.x, size.y * (1.0f - amt)), paramdata.display_color),
+							sf::Vertex(vec2(size.x, size.y), sf::Color(paramdata.display_color.r / 2, paramdata.display_color.g / 2, paramdata.display_color.b / 2, 0xFF)),
 						};
 						rw.draw(vdata, 4, sf::PrimitiveType::TriangleStrip);*/
 						rect.setOutlineThickness(0.0f);
 						rect.setFillColor(paramdata.display_color);
-						rect.setSize(sf::Vector2f(size.x, size.y * amt));
-						rect.setPosition(sf::Vector2f(0.0f, size.y * (1.0f - amt)));
+						rect.setSize(vec2(size.x, size.y * amt));
+						rect.setPosition(vec2(0.0f, size.y * (1.0f - amt)));
 						rw.draw(rect);
 					}
 					renderChildWindows(rw);
@@ -769,7 +769,7 @@ namespace fui {
 					private:
 					ParamWindow* paramwindow;
 					musical::Spline::Point* const point;
-					sf::Vector2f old_pos;
+					vec2 old_pos;
 				};
 
 				struct ConstDragger : ui::Window {
@@ -805,7 +805,7 @@ namespace fui {
 				std::vector<SplineButton*> spline_buttons;
 				ConstDragger* dragger;
 				NoteWindow* notewin;
-				sf::Vector2f old_pos;
+				vec2 old_pos;
 			};
 
 			struct Grabber : ui::Window {
@@ -853,7 +853,7 @@ namespace fui {
 				for (int x = 0; x < width; x++){
 					float ymin = yPosFromFreq(note->frequency.getValue(x / (float)width), size.y);
 					float val = (pw->parameter.getValue(x / (float)width) - minv) / (maxv - minv);
-					vertices[x].position = sf::Vector2f(x, ymin + (1.0f - val) * pixels_per_note);
+					vertices[x].position = vec2(x, ymin + (1.0f - val) * pixels_per_note);
 					vertices[x].color = pw->paramdata.display_color;
 				}
 			}

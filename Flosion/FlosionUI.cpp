@@ -74,7 +74,7 @@ namespace fui {
 				return;
 			}
 		}
-		obj->pos = sf::Vector2f(sf::Vector2i(pos + size * 0.5f - obj->size * 0.5f));
+		obj->pos = vec2(sf::Vector2i(pos + size * 0.5f - obj->size * 0.5f));
 		container->addObject(obj);
 	}
 	void Container::Menu::render(sf::RenderWindow& rw){
@@ -214,9 +214,9 @@ namespace fui {
 			if (wirehead->wire->safeToConnect(this)){
 				wirehead->wire->ConnectHeadTo(this);
 			} else {
-				sf::Vector2f start = wirehead->pos;
-				sf::Vector2f diff = wirehead->pos - wirehead->wire->tail->pos;
-				sf::Vector2f end = sf::Vector2f(sf::Vector2i(wirehead->pos - (diff * (float)(50 / hypot(diff.x, diff.y)))));
+				vec2 start = wirehead->pos;
+				vec2 diff = wirehead->pos - wirehead->wire->tail->pos;
+				vec2 end = vec2(sf::Vector2i(wirehead->pos - (diff * (float)(50 / hypot(diff.x, diff.y)))));
 
 				wirehead->startTransition(0.25, [=](double x){
 					wirehead->pos = start + (end - start) * (float)sin(x * PI / 2);
@@ -304,9 +304,9 @@ namespace fui {
 			if (wiretail->wire->safeToConnect(this)){
 				wiretail->wire->ConnectTailTo(this);
 			} else {
-				sf::Vector2f start = wiretail->pos;
-				sf::Vector2f diff = wiretail->pos - wiretail->wire->head->pos;
-				sf::Vector2f end = sf::Vector2f(sf::Vector2i(wiretail->pos - (diff * (float)(50 / hypot(diff.x, diff.y)))));
+				vec2 start = wiretail->pos;
+				vec2 diff = wiretail->pos - wiretail->wire->head->pos;
+				vec2 end = vec2(sf::Vector2i(wiretail->pos - (diff * (float)(50 / hypot(diff.x, diff.y)))));
 
 				wiretail->startTransition(0.25, [=](double x){
 					wiretail->pos = start + (end - start) * (float)sin(x * PI / 2);
@@ -415,8 +415,8 @@ namespace fui {
 		}
 
 		sf::Vertex line[] = {
-			sf::Vertex(head->pos + sf::Vector2f(10, 10), sf::Color(0x0000FFFF)),
-			sf::Vertex(tail->pos + sf::Vector2f(10, 10), sf::Color(0xFF))
+			sf::Vertex(head->pos + vec2(10, 10), sf::Color(0x0000FFFF)),
+			sf::Vertex(tail->pos + vec2(10, 10), sf::Color(0xFF))
 		};
 		rw.draw(line, 2, sf::Lines);
 		renderChildWindows(rw);
@@ -605,8 +605,8 @@ namespace fui {
 		}
 
 		sf::Vertex line[] = {
-			sf::Vertex(head->pos + sf::Vector2f(10, 10), sf::Color(0x00FF00FF)),
-			sf::Vertex(tail->pos + sf::Vector2f(10, 10), sf::Color(0xFF))
+			sf::Vertex(head->pos + vec2(10, 10), sf::Color(0x00FF00FF)),
+			sf::Vertex(tail->pos + vec2(10, 10), sf::Color(0xFF))
 		};
 		rw.draw(line, 2, sf::Lines);
 		renderChildWindows(rw);
