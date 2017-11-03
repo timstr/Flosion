@@ -3,6 +3,7 @@
 #include "NumberSource.h"
 #include "SoundSource.h"
 #include <functional>
+#include "Font.h"
 
 #include <iostream> // TODO: remove
 
@@ -25,6 +26,56 @@ namespace fui {
 		Container* getContainer();
 
 		private:
+
+		struct WireDropList : ui::Window {
+			WireDropList(const std::vector<std::pair<std::function<void()>, std::string>>& items){
+				size.x = 200.0f;
+				size.y = 30.0f * items.size();
+				int count = 0;
+				for (auto& item : items){
+					addChildWindow(new ListItem(this, item.first, item.second), vec2(0, count * 30.0f));
+					count++;
+				}
+			}
+
+			void onLoseFocus() override {
+				close();
+			}
+
+			struct ListItem : ui::Window {
+				ListItem(WireDropList* _parent, const std::function<void()>& fn, const std::string& str) : callback(fn), parent(_parent) {
+					clipping = true;
+					size = vec2(200.0f, 30.0f);
+					addChildWindow(new ui::Text(str, getFont(), sf::Color(0xFFFFFFFF), 20), insideLeft(this, 5.0f), middleOfY(this));
+				}
+
+				void onLeftClick(int clicks) override {
+					callback();
+					parent->close();
+				}
+
+				void render(sf::RenderWindow& rw) override {
+					sf::RectangleShape rect;
+					rect.setSize(size);
+					rect.setFillColor(sf::Color(0x000000C0));
+					rect.setOutlineColor(sf::Color(0x80808080));
+					rect.setOutlineThickness(1.0f);
+					rw.draw(rect);
+					renderChildWindows(rw);
+				}
+
+				WireDropList* const parent;
+				const std::function<void()> callback;
+			};
+		};
+
+		void showNumberInputList(NumberWire* wire, vec2 pos);
+		void showNumberOutputList(NumberWire* wire, vec2 pos);
+		void showSoundInputList(SoundWire* wire, vec2 pos);
+		void showSoundOutputList(SoundWire* wire, vec2 pos);
+
+		void showWireDropList(const std::vector<std::pair<std::function<void()>, std::string>>& items, vec2 pos);
+
 		// the FUI container that holds the current object
 		// or if this is the master container should this ever be null
 		Container* container;
@@ -38,6 +89,8 @@ namespace fui {
 		friend struct SoundOutput;
 		friend struct NumberInput;
 		friend struct NumberOutput;
+
+		friend struct ProcessingObject;
 	};
 
 	// Container is what holds all objects
@@ -116,11 +169,14 @@ namespace fui {
 
 		void onLeftClick(int clicks) override;
 
+		const std::string& getCaption() const;
+
 		private:
 		Object* const owner_object;
 		musical::NumberInput* const target;
 		NumberWire* wire_in;
 		ui::Text* caption;
+		std::string caption_str;
 		double hover_timestamp;
 
 		friend struct NumberWire;
@@ -145,11 +201,14 @@ namespace fui {
 
 		void onLeftClick(int clicks) override;
 
+		const std::string& getCaption() const;
+
 		private:
 		Object* const owner_object;
 		musical::NumberSource* const target;
 		std::vector<NumberWire*> wires_out;
 		ui::Text* caption;
+		std::string caption_str;
 		double hover_timestamp;
 
 		friend struct NumberWire;

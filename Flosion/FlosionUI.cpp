@@ -12,6 +12,41 @@ namespace fui {
 	Container* Object::getContainer(){
 		return container;
 	}
+	void Object::showWireDropList(const std::vector<std::pair<std::function<void()>, std::string>>& items, vec2 pos){
+		WireDropList* wdl = new WireDropList(items);
+		addChildWindow(wdl, pos - wdl->size * 0.5f);
+		wdl->grabFocus();
+	}
+	void Object::showNumberInputList(NumberWire* wire, vec2 pos){
+		std::vector<std::pair<std::function<void()>, std::string>> items;
+		for (NumberInput* ni : number_inputs){
+			items.push_back(std::make_pair(
+				[wire,ni]{
+					wire->ConnectHeadTo(ni);
+				},
+				ni->getCaption()
+			));
+		}
+		showWireDropList(items, pos);
+	}
+	void Object::showNumberOutputList(NumberWire* wire, vec2 pos){
+		std::vector<std::pair<std::function<void()>, std::string>> items;
+		for (NumberOutput* no : number_outputs){
+			items.push_back(std::make_pair(
+				[wire,no]{
+					wire->ConnectTailTo(no);
+				},
+				no->getCaption()
+				));
+		}
+		showWireDropList(items, pos);
+	}
+	void Object::showSoundInputList(SoundWire* wire, vec2 pos){
+		// TODO
+	}
+	void Object::showSoundOutputList(SoundWire* wire, vec2 pos){
+		// TODO
+	}
 
 
 	// Container
@@ -164,6 +199,7 @@ namespace fui {
 	// NumberInput
 	NumberInput::NumberInput(musical::NumberInput* _target, Object* _parent, const std::string& _caption)
 		: target(_target), owner_object(_parent) {
+		caption_str = _caption;
 		size = {30, 30};
 		owner_object->number_inputs.push_back(this);
 		wire_in = nullptr;
@@ -241,11 +277,15 @@ namespace fui {
 			wire->dragTail();
 		}
 	}
+	const std::string& NumberInput::getCaption() const {
+		return caption_str;
+	}
 
 
 	// NumberOutput
 	NumberOutput::NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption)
 		: target(_target), owner_object(_parent) {
+		caption_str = _caption;
 		size = {30, 30};
 		owner_object->number_outputs.push_back(this);
 		addChildWindow(caption = new ui::Text(_caption, fui::getFont()));
@@ -328,6 +368,9 @@ namespace fui {
 		this->owner_object->getContainer()->addObject(wire);
 		wire->ConnectTailTo(this);
 		wire->dragHead();
+	}
+	const std::string& NumberOutput::getCaption() const {
+		return caption_str;
 	}
 
 
@@ -637,20 +680,48 @@ namespace fui {
 	}
 	bool ProcessingObject::onDropDragWindow(Window* window){
 		if (NumberWire::Head* wirehead = dynamic_cast<NumberWire::Head*>(window)){
-			// TODO: show all the number inputs
-			return true;
+			if (number_inputs.size() == 0){
+				return false;
+			} else if (number_inputs.size() == 1){
+				wirehead->wire->ConnectHeadTo(number_inputs[0]);
+				return true;
+			} else {
+				showNumberInputList(wirehead->wire, localMousePos());
+				return true;
+			}
 		}
 		if (NumberWire::Tail* wiretail = dynamic_cast<NumberWire::Tail*>(window)){
-			// TODO: show all the number outputs
-			return true;
+			if (number_outputs.size() == 0){
+				return false;
+			} else if (number_outputs.size() == 1){
+				wiretail->wire->ConnectTailTo(number_outputs[0]);
+				return true;
+			} else {
+				showNumberOutputList(wiretail->wire, localMousePos());
+				return true;
+			}
 		}
 		if (SoundWire::Head* wirehead = dynamic_cast<SoundWire::Head*>(window)){
-			// TODO: show all the sound inputs
-			return true;
+			if (sound_inputs.size() == 0){
+				return false;
+			} else if (sound_inputs.size() == 1){
+				wirehead->wire->ConnectHeadTo(sound_inputs[0]);
+				return true;
+			} else {
+				showSoundInputList(wirehead->wire, localMousePos());
+				return true;
+			}
 		}
 		if (SoundWire::Tail* wiretail = dynamic_cast<SoundWire::Tail*>(window)){
-			// TODO: show all the sound outputs
-			return true;
+			if (sound_outputs.size() == 0){
+				return false;
+			} else if (sound_outputs.size() == 1){
+				wiretail->wire->ConnectTailTo(sound_outputs[0]);
+				return true;
+			} else {
+				showSoundOutputList(wiretail->wire, localMousePos());
+				return true;
+			}
 		}
 		return false;
 	}
