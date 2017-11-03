@@ -762,15 +762,15 @@ namespace ui {
 		for (int i = childwindows.size() - 1; i >= 0; i -= 1){
 			if (childwindows[i]->visible){
 				if (childwindows[i]->clipping){
+					Context::translateView(childwindows[i]->pos);
 
 					sf::FloatRect rect = Context::getClipRect();
 					vec2 pos = Context::getViewOffset();
 					Context::intersectClipRect(sf::FloatRect(-pos, childwindows[i]->size));
-					Context::translateView(childwindows[i]->pos);
 					Context::updateView();
 					childwindows[i]->render(renderwindow);
-					Context::translateView(-childwindows[i]->pos);
 					Context::setClipRect(rect);
+					Context::translateView(-childwindows[i]->pos);
 					Context::updateView();
 				} else {
 					Context::translateView(childwindows[i]->pos);
