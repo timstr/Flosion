@@ -15,8 +15,12 @@
 #include "samplerUI.h"
 #include "ensembleUI.h"
 #include "splineUI.h"
+#include "filterUI.h"
 
 #include <iostream>
+#include <iomanip>
+
+#include "fft.h"
 
 // TODO: synchronize this stuff
 // TODO: cache things
@@ -30,7 +34,7 @@ int main(){
 
 	srand(unsigned(time(nullptr)));
 
-	ui::init({1000, 700}, "Oy Oy Oy Oh My Oy", 30);
+	ui::init({1000, 700}, "Flosion", 30);
 
 	fui::MasterContainer* container = new fui::MasterContainer();
 

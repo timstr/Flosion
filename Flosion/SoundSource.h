@@ -189,15 +189,17 @@ namespace musical {
 		}
 
 		// NumberSource for querying state variables
+		template <typename SoundSourceType = SoundSource>
 		struct StateNumberSource : NumberSource {
-			StateNumberSource(SoundSource* _owner) : NumberSource(_owner){
-				owner = _owner;
+			StateNumberSource(SoundSourceType* _parentsoundsource)
+				: NumberSource(_parentsoundsource), parentsoundsource(_parentsoundsource){
+				
 			}
 
 			float evaluate(State* state) const override {
 				State* context = state;
 				while (state){
-					if (state->getOwner() == owner){
+					if (state->getOwner() == parentsoundsource){
 #ifdef _DEBUG
 						if (StateType* s = dynamic_cast<StateType*>(state)){
 							return getValue(s, context);
@@ -215,11 +217,12 @@ namespace musical {
 
 			virtual float getValue(StateType* state, State* context) const = 0;
 
-			private:
-			SoundSource* owner;
+			protected:
+			SoundSourceType* const parentsoundsource;
 		};
 
 		// MultiInput struct
+		// TODO: can SoundSourceType be make SoundSourceTemplate<StateType> by default?
 		template <class InputStateType, class KeyType, class SoundSourceType = SoundSourceTemplate<StateType>>
 		struct MultiInput : SoundInput {
 			MultiInput(SoundSourceType* _parent) : SoundInput(_parent), parentsoundsource(_parent) {

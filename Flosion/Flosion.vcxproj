@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DAC.cpp" />
+    <ClCompile Include="hannwindow.cpp" />
     <ClCompile Include="Flosion.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="gui.cpp" />
@@ -172,12 +173,16 @@
     <ClInclude Include="dacUI.h" />
     <ClInclude Include="ensemble.h" />
     <ClInclude Include="ensembleUI.h" />
+    <ClInclude Include="fft.h" />
+    <ClInclude Include="filterUI.h" />
+    <ClInclude Include="hannwindow.h" />
     <ClInclude Include="filebrowser.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="functions.h" />
     <ClInclude Include="functionsUI.h" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="guihelpers.h" />
+    <ClInclude Include="filter.h" />
     <ClInclude Include="musical.h" />
     <ClInclude Include="NumberInput.h" />
     <ClInclude Include="NumberResult.h" />
