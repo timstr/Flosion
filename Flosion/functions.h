@@ -68,4 +68,23 @@ namespace musical {
 			}
 		}
 	};
+
+	struct Gaussian : PureFunction {
+		Gaussian() : x(this), center(this), width(this), height(this) {
+
+		}
+
+		float evaluate(State* state) const override {
+			float xval = x.getValue(state, 0.0f);
+			float centerval = center.getValue(state, 0.0f);
+			float widthval = width.getValue(state, 1.0f);
+			float heightval = height.getValue(state, 1.0f);
+			return exp(-pow(xval - centerval, 2.0f) / (2.0f * widthval * widthval)) * heightval;
+		}
+
+		NumberInput x;
+		NumberInput center;
+		NumberInput width;
+		NumberInput height;
+	};
 }

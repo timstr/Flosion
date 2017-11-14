@@ -135,6 +135,29 @@ namespace fui {
 	fuiRegisterObject(SquareWaveObject, "square wave", "pulse wave");
 
 
+	struct GaussianObject : ProcessingObject {
+		GaussianObject(){
+			size = {100, 150};
+			addChildWindow(new NumberInput(&gaussian.x, this, "X"), leftOf(this), insideTop(this));
+
+			auto heightinput = new NumberInput(&gaussian.height, this, "Height");
+			auto widthinput = new NumberInput(&gaussian.width, this, "Width");
+			auto centerinput = new NumberInput(&gaussian.center, this, "Center");
+			
+			addChildWindow(heightinput, leftOf(this), insideBottom(this));
+			addChildWindow(widthinput, leftOf(this), above(heightinput, 5.0f));
+			addChildWindow(centerinput, leftOf(this), above(widthinput, 5.0f));
+
+			addChildWindow(new NumberOutput(&gaussian, this, "Output"), rightOf(this), middleOfY(this));
+
+			addChildWindow(new ui::Text("Gaussian", getFont()), middleOfX(this), middleOfY(this));
+		}
+
+		private:
+		musical::Gaussian gaussian;
+	};
+	fuiRegisterObject(GaussianObject, "gaussian", "bell curve");
+
 
 	struct DisplayObject : ProcessingObject {
 		DisplayObject() : numres(nullptr) {
