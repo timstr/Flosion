@@ -160,10 +160,10 @@ namespace fui {
 
 		void setWireIn(NumberWire* wire);
 
-		bool onDropDragWindow(Window* window) override;
+		bool onDropWindow(Window* window) override;
 
 		void onHover() override;
-		void onHoverWithDrag(Window* win) override;
+		void onHoverWithWindow(Window* win) override;
 
 		void render(sf::RenderWindow& rw) override;
 
@@ -194,10 +194,10 @@ namespace fui {
 
 		void render(sf::RenderWindow& rw) override;
 
-		bool onDropDragWindow(Window* window) override;
+		bool onDropWindow(Window* window) override;
 
 		void onHover() override;
-		void onHoverWithDrag(Window* win) override;
+		void onHoverWithWindow(Window* win) override;
 
 		void onLeftClick(int clicks) override;
 
@@ -220,11 +220,13 @@ namespace fui {
 		struct Head : ui::Window {
 			Head(NumberWire* _wire);
 			void onLeftClick(int clicks);
+			bool onDropWindow(Window* window) override;
 			NumberWire* wire;
 		};
 		struct Tail : ui::Window {
 			Tail(NumberWire* _wire);
 			void onLeftClick(int clicks);
+			bool onDropWindow(Window* window) override;
 			NumberWire* wire;
 		};
 
@@ -260,7 +262,7 @@ namespace fui {
 
 		void setWireIn(SoundWire* wire);
 
-		bool onDropDragWindow(Window* window) override;
+		bool onDropWindow(Window* window) override;
 
 		void render(sf::RenderWindow& rw) override;
 
@@ -285,7 +287,7 @@ namespace fui {
 
 		void render(sf::RenderWindow& rw) override;
 
-		bool onDropDragWindow(Window* window) override;
+		bool onDropWindow(Window* window) override;
 
 		void onLeftClick(int clicks) override;
 
@@ -303,11 +305,13 @@ namespace fui {
 		struct Head : ui::Window {
 			Head(SoundWire* _wire);
 			void onLeftClick(int clicks);
+			bool onDropWindow(Window* window) override;
 			SoundWire* wire;
 		};
 		struct Tail : ui::Window {
 			Tail(SoundWire* _wire);
 			void onLeftClick(int clicks);
+			bool onDropWindow(Window* window) override;
 			SoundWire* wire;
 		};
 
@@ -341,7 +345,7 @@ namespace fui {
 
 		void onRightClick(int clicks) override;
 
-		bool onDropDragWindow(Window* window) override;
+		bool onDropWindow(Window* window) override;
 	};
 
 

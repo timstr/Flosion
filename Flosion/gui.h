@@ -137,10 +137,10 @@ namespace ui {
 		virtual void onDrag();
 
 		virtual void onHover();
-		virtual void onHoverWithDrag(Window *drag_window);
+		virtual void onHoverWithWindow(Window *drag_window);
 
 		// shall return false if the parent's method is to be invoked
-		virtual bool onDropDragWindow(Window *window);
+		virtual bool onDropWindow(Window *window);
 
 		virtual void onFocus();
 		bool isFocused();

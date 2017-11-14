@@ -57,7 +57,11 @@ namespace musical {
 			// do filtering here
 
 			// silly testing below //////////////////////
-			for (int i = size / 32; i < size; i++){
+			for (int i = 0; i < halfsize; i++){
+				state->phase1_l[i] *= 2.0f;
+				state->phase1_r[i] *= 2.0f;
+			}
+			for (int i = halfsize; i < size; i++){
 				state->phase1_l[i] = 0.0f;
 				state->phase1_r[i] = 0.0f;
 			}
@@ -97,7 +101,11 @@ namespace musical {
 			// also do filtering here
 			
 			// silly testing below //////////////////////
-			for (int i = size / 32; i < size; i++){
+			for (int i = 0; i < halfsize; i++){
+				state->phase2_l[i] *= 2.0f;
+				state->phase2_r[i] *= 2.0f;
+			}
+			for (int i = halfsize; i < size; i++){
 				state->phase2_l[i] = 0.0f;
 				state->phase2_r[i] = 0.0f;
 			}

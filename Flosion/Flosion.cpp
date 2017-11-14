@@ -30,6 +30,7 @@
 // TODO: filter
 // TODO: distortion
 // TODO: feedback
+// TODO: high-performance approximations of costly functions (exp, sin, cos...)?
 int main(){
 
 	srand(unsigned(time(nullptr)));

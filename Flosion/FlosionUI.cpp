@@ -245,9 +245,22 @@ namespace fui {
 			wire->ConnectHeadTo(this);
 		}
 	}
-	bool NumberInput::onDropDragWindow(Window* window) {
+	bool NumberInput::onDropWindow(Window* window) {
 		if (NumberWire::Head* wirehead = dynamic_cast<NumberWire::Head*>(window)){
 			if (wirehead->wire->safeToConnect(this)){
+				if (wire_in){
+					NumberWire* oldwire = wire_in;
+					setWireIn(nullptr);
+
+					vec2 start = oldwire->head->pos;
+					vec2 diff = oldwire->head->pos - oldwire->tail->pos;
+					vec2 end = vec2(sf::Vector2i(oldwire->head->pos - (diff * (float)(50 / hypot(diff.x, diff.y)))));
+
+					oldwire->head->startTransition(0.25, [=](double x){
+						oldwire->head->pos = start + (end - start) * (float)sin(x * PI / 2);
+					});
+				}
+
 				wirehead->wire->ConnectHeadTo(this);
 			} else {
 				vec2 start = wirehead->pos;
@@ -262,7 +275,7 @@ namespace fui {
 		}
 		return false;
 	}
-	void NumberInput::onHoverWithDrag(Window* win){
+	void NumberInput::onHoverWithWindow(Window* win){
 		if (dynamic_cast<NumberWire::Head*>(win)){
 			hover_timestamp = ui::getProgramTime();
 		}
@@ -341,7 +354,7 @@ namespace fui {
 			}
 		}
 	}
-	bool NumberOutput::onDropDragWindow(Window* window){
+	bool NumberOutput::onDropWindow(Window* window){
 		if (NumberWire::Tail* wiretail = dynamic_cast<NumberWire::Tail*>(window)){
 			if (wiretail->wire->safeToConnect(this)){
 				wiretail->wire->ConnectTailTo(this);
@@ -358,7 +371,7 @@ namespace fui {
 		}
 		return false;
 	}
-	void NumberOutput::onHoverWithDrag(Window* win){
+	void NumberOutput::onHoverWithWindow(Window* win){
 		if (dynamic_cast<NumberWire::Tail*>(win)){
 			hover_timestamp = ui::getProgramTime();
 		}
@@ -383,6 +396,12 @@ namespace fui {
 		wire->ConnectHeadTo(nullptr);
 		startDrag();
 	}
+	bool NumberWire::Head::onDropWindow(Window* window){
+		if (wire->dst){
+			return wire->dst->onDropWindow(window);
+		}
+		return false;
+	}
 	// NumberWire Tail
 	NumberWire::Tail::Tail(NumberWire* _wire){
 		wire = _wire;
@@ -391,6 +410,12 @@ namespace fui {
 	void NumberWire::Tail::onLeftClick(int clicks){
 		wire->ConnectTailTo(nullptr);
 		startDrag();
+	}
+	bool NumberWire::Tail::onDropWindow(Window* window){
+		if (wire->src){
+			return wire->src->onDropWindow(window);
+		}
+		return false;
 	}
 	// NumberWire
 	NumberWire::NumberWire(){
@@ -512,8 +537,21 @@ namespace fui {
 			wire->ConnectHeadTo(this);
 		}
 	}
-	bool SoundInput::onDropDragWindow(Window* window) {
+	bool SoundInput::onDropWindow(Window* window) {
 		if (SoundWire::Head* wirehead = dynamic_cast<SoundWire::Head*>(window)){
+			if (wire_in){
+				SoundWire* oldwire = wire_in;
+				setWireIn(nullptr);
+
+				vec2 start = oldwire->head->pos;
+				vec2 diff = oldwire->head->pos - oldwire->tail->pos;
+				vec2 end = vec2(sf::Vector2i(oldwire->head->pos - (diff * (float)(50 / hypot(diff.x, diff.y)))));
+
+				oldwire->head->startTransition(0.25, [=](double x){
+					oldwire->head->pos = start + (end - start) * (float)sin(x * PI / 2);
+				});
+			}
+
 			wirehead->wire->ConnectHeadTo(this);
 			return true;
 		}
@@ -573,7 +611,7 @@ namespace fui {
 			}
 		}
 	}
-	bool SoundOutput::onDropDragWindow(Window* window){
+	bool SoundOutput::onDropWindow(Window* window){
 		if (SoundWire::Tail* wiretail = dynamic_cast<SoundWire::Tail*>(window)){
 			wiretail->wire->ConnectTailTo(this);
 			return true;
@@ -597,6 +635,12 @@ namespace fui {
 		wire->ConnectHeadTo(nullptr);
 		startDrag();
 	}
+	bool SoundWire::Head::onDropWindow(Window* window){
+		if (wire->dst){
+			return wire->dst->onDropWindow(window);
+		}
+		return false;
+	}
 	// SoundWire Tail
 	SoundWire::Tail::Tail(SoundWire* _wire){
 		wire = _wire;
@@ -605,6 +649,12 @@ namespace fui {
 	void SoundWire::Tail::onLeftClick(int clicks){
 		wire->ConnectTailTo(nullptr);
 		startDrag();
+	}
+	bool SoundWire::Tail::onDropWindow(Window* window){
+		if (wire->src){
+			return wire->src->onDropWindow(window);
+		}
+		return false;
 	}
 	// SoundWire
 	SoundWire::SoundWire(){
@@ -678,7 +728,7 @@ namespace fui {
 	void ProcessingObject::onRightClick(int clicks){
 		startDrag();
 	}
-	bool ProcessingObject::onDropDragWindow(Window* window){
+	bool ProcessingObject::onDropWindow(Window* window){
 		if (NumberWire::Head* wirehead = dynamic_cast<NumberWire::Head*>(window)){
 			if (number_inputs.size() == 0){
 				return false;
