@@ -12,6 +12,7 @@ namespace musical {
 		using State::State;
 
 		void reset() override {
+			frequency_index = 0.0f;
 			for (unsigned int i = 0; i < musical::CHUNK_SIZE; i++){
 				phase1_l[i] = 0.0f;
 				phase1_r[i] = 0.0f;
@@ -20,6 +21,8 @@ namespace musical {
 				buffer[i] = Sample(0.0f, 0.0f);
 			}
 		}
+
+		float frequency_index;
 
 		complex phase1_l[musical::CHUNK_SIZE];
 		complex phase1_r[musical::CHUNK_SIZE];
@@ -30,7 +33,7 @@ namespace musical {
 
 
 	struct Filter : SoundSourceTemplate<FilterState> {
-		Filter() : input(this) {
+		Filter() : input(this), frequency_out(this), amplitude_in(this) {
 
 		}
 		~Filter(){
@@ -54,12 +57,12 @@ namespace musical {
 
 			state->skipTime(halfsize);
 
-			// do filtering here
-
 			// silly testing below //////////////////////
 			for (int i = 0; i < halfsize; i++){
-				state->phase1_l[i] *= 2.0f;
-				state->phase1_r[i] *= 2.0f;
+				state->frequency_index = i;
+				float amplitude = amplitude_in.getValue(state, 1.0f) * 2.0f;
+				state->phase1_l[i] *= amplitude;
+				state->phase1_r[i] *= amplitude;
 			}
 			for (int i = halfsize; i < size; i++){
 				state->phase1_l[i] = 0.0f;
@@ -97,13 +100,13 @@ namespace musical {
 			fft(state->phase2_r, size);
 
 			state->skipTime(halfsize);
-
-			// also do filtering here
 			
 			// silly testing below //////////////////////
 			for (int i = 0; i < halfsize; i++){
-				state->phase2_l[i] *= 2.0f;
-				state->phase2_r[i] *= 2.0f;
+				state->frequency_index = i;
+				float amplitude = amplitude_in.getValue(state, 1.0f) * 2.0f;
+				state->phase2_l[i] *= amplitude;
+				state->phase2_r[i] *= amplitude;
 			}
 			for (int i = halfsize; i < size; i++){
 				state->phase2_l[i] = 0.0f;
@@ -122,6 +125,22 @@ namespace musical {
 			state->commitTime();
 		}
 
+		static float getFrequencyFromIndex(unsigned int index){
+			return index * SFREQ / (float)musical::CHUNK_SIZE;
+		}
+		static int getIndexFromFrequency(float frequency){
+			return frequency * musical::CHUNK_SIZE / (float)SFREQ;
+		}
+
 		SingleInput input;
+
+		struct FrequencyOut : StateNumberSource<Filter> {
+			using StateNumberSource::StateNumberSource;
+			float getValue(FilterState* state, State* context) const {
+				return getFrequencyFromIndex(state->frequency_index);
+			}
+		} frequency_out;
+
+		NumberResult amplitude_in;
 	};
 }
