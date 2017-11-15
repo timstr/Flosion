@@ -3,6 +3,7 @@
 #include "FlosionUI.h"
 #include "functions.h"
 #include "NumberResult.h"
+#include "stringhelpers.h"
 
 namespace fui {
 
@@ -167,7 +168,7 @@ namespace fui {
 		}
 
 		void render(sf::RenderWindow& rw) override {
-			text->setText(std::to_string(numres.getValue(nullptr, 0)));
+			text->setText(toString(numres.getValue(nullptr, 0)));
 			ProcessingObject::render(rw);
 		}
 

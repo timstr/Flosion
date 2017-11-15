@@ -65,6 +65,9 @@
     <ClCompile Include="hannwindow.cpp">
       <Filter>Musical Extensions</Filter>
     </ClCompile>
+    <ClCompile Include="stringhelpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="musical.h">
@@ -168,6 +171,9 @@
     </ClInclude>
     <ClInclude Include="filterUI.h">
       <Filter>FlosionUI</Filter>
+    </ClInclude>
+    <ClInclude Include="stringhelpers.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

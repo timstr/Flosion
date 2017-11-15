@@ -2,6 +2,8 @@
 
 #include "spline.h"
 #include "FlosionUI.h"
+#include "guihelpers.h"
+#include "stringhelpers.h"
 
 namespace fui {
 
@@ -25,13 +27,19 @@ namespace fui {
 		}
 
 		void onLeftClick(int clicks) override {
-			vec2 mousepos = localMousePos();
-			vec2 pos = toSplinePoint(mousepos);
-			musical::Spline::Point* point = spline.addPoint(pos.x, pos.y);
-			PointHandle* handle = new PointHandle(this, point);
-			addChildWindow(handle);
-			handle->pos = mousepos - handle->size * 0.5f;
-			handle->startDrag();
+			if (keyDown(sf::Keyboard::LShift) || keyDown(sf::Keyboard::RShift)){
+				auto menu = new Menu(this);
+				addChildWindow(menu, middleOfX(this), middleOfY(this));
+				menu->grabFocus();
+			} else {
+				vec2 mousepos = localMousePos();
+				vec2 pos = toSplinePoint(mousepos);
+				musical::Spline::Point* point = spline.addPoint(pos.x, pos.y);
+				PointHandle* handle = new PointHandle(this, point);
+				addChildWindow(handle);
+				handle->pos = mousepos - handle->size * 0.5f;
+				handle->startDrag();
+			}
 		}
 
 		struct PointHandle : ui::Window {
@@ -94,6 +102,85 @@ namespace fui {
 
 		private:
 
+		musical::Spline spline;
+
+		struct Menu : ui::Window {
+			Menu(SplineObject* _splineobject) : splineobject(_splineobject) {
+				size = splineobject->size + vec2(50, 50);
+
+				std::function<bool(const std::string&)> validate = [](const std::string& str){
+					return !std::isnan(stringToFloat(str));
+				};
+
+				auto minyfield = new ui::TextEntryHelper(
+					toString(splineobject->spline.getMinY()),
+					getFont(),
+					[this](const std::string& str){
+						float val = stringToFloat(str);
+						if (!std::isnan(val)){
+							splineobject->spline.setMinY(val);
+						}
+					},
+					validate
+				);
+
+				auto maxyfield = new ui::TextEntryHelper(
+					toString(splineobject->spline.getMaxY()),
+					getFont(),
+					[this](const std::string& str){
+						float val = stringToFloat(str);
+						if (!std::isnan(val)){
+							splineobject->spline.setMaxY(val);
+						}
+					},
+					validate
+				);
+
+				auto minxfield = new ui::TextEntryHelper(
+					toString(splineobject->spline.getMinX()),
+					getFont(),
+					[this](const std::string& str){
+						float val = stringToFloat(str);
+						if (!std::isnan(val)){
+							splineobject->spline.setMinX(val);
+						}
+					},
+					validate
+				);
+
+				auto maxxfield = new ui::TextEntryHelper(
+					toString(splineobject->spline.getMaxX()),
+					getFont(),
+					[this](const std::string& str){
+						float val = stringToFloat(str);
+						if (!std::isnan(val)){
+							splineobject->spline.setMaxX(val);
+						}
+					},
+					validate
+				);
+				
+
+				addChildWindow(minyfield, 100, insideTop(this, 5.0f));
+				addChildWindow(new ui::Text("Min Y:", getFont()), leftOf(minyfield, 5.0f), insideTop(this, 5.0f));
+
+				addChildWindow(maxyfield, 100, below(minyfield, 5.0f));
+				addChildWindow(new ui::Text("Max Y:", getFont()), leftOf(maxyfield, 5.0f), below(minyfield, 5.0f));
+
+				addChildWindow(minxfield, 100, below(maxyfield, 5.0f));
+				addChildWindow(new ui::Text("Min X:", getFont()), leftOf(minxfield, 5.0f), below(maxyfield, 5.0f));
+
+				addChildWindow(maxxfield, 100, below(minxfield, 5.0f));
+				addChildWindow(new ui::Text("Max X:", getFont()), leftOf(maxyfield, 5.0f), below(minxfield, 5.0f));
+			}
+
+			void onLoseFocus() override {
+				close();
+			}
+
+			SplineObject* const splineobject;
+		};
+
 		void calculateRenderPoints(){
 			int n = size.x;
 			renderpoints.resize(n);
@@ -105,7 +192,6 @@ namespace fui {
 			}
 		}
 
-		musical::Spline spline;
 		std::vector<sf::Vertex> renderpoints;
 	};
 	fuiRegisterObject(SplineObject, "spline");

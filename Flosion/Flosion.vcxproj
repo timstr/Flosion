@@ -164,6 +164,7 @@
     <ClCompile Include="SoundResult.cpp" />
     <ClCompile Include="SoundSource.cpp" />
     <ClCompile Include="Stateful.cpp" />
+    <ClCompile Include="stringhelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio.h" />
@@ -196,6 +197,7 @@
     <ClInclude Include="spline.h" />
     <ClInclude Include="splineUI.h" />
     <ClInclude Include="Stateful.h" />
+    <ClInclude Include="stringhelpers.h" />
     <ClInclude Include="timestretch.h" />
     <ClInclude Include="timestretchUI.h" />
     <ClInclude Include="wavegen.h" />
