@@ -876,11 +876,11 @@ namespace ui {
 	sf::Color TextEntry::getBackGroundColor() const {
 		return background_color;
 	}
-	void TextEntry::setCharacterSize(float size){
+	void TextEntry::setCharacterSize(unsigned int size){
 		text.setCharacterSize(size);
 		updateSize();
 	}
-	float TextEntry::getCharacterSize() const {
+	unsigned int TextEntry::getCharacterSize() const {
 		return text.getCharacterSize();
 	}
 	void TextEntry::onReturn(const std::string& entered_text){
@@ -913,11 +913,13 @@ namespace ui {
 		beginTyping();
 	}
 	void TextEntry::write(char ch){
-		std::string oldstring = text.getString();
-		text.setString(oldstring.substr(0, cursor_index) + ch + oldstring.substr(cursor_index, oldstring.size() - 1));
-		cursor_index += 1;
-		updateSize();
-		onType(text.getString());
+		if (ch != '\n' && ch != '\r'){
+			std::string oldstring = text.getString();
+			text.setString(oldstring.substr(0, cursor_index) + ch + oldstring.substr(cursor_index, oldstring.size() - 1));
+			cursor_index += 1;
+			updateSize();
+			onType(text.getString());
+		}
 	}
 	void TextEntry::onBackspace(){
 		if (!text.getString().isEmpty() && cursor_index > 0){
@@ -960,11 +962,9 @@ namespace ui {
 	}
 	void TextEntry::updateSize(){
 		sf::FloatRect rect = text.getLocalBounds();
-		if (rect.width <= 1){
-			size = vec2(text.getCharacterSize(), text.getCharacterSize());
-		} else {
-			size = vec2(rect.width, text.getCharacterSize());
-		}
+		const float minwidth = text.getCharacterSize() * 5.0f;
+		size.x = std::max(rect.width, minwidth);
+		size.y = text.getCharacterSize();
 		cursor_pos = text.findCharacterPos(cursor_index).x;
 		if (cursor_index == text.getString().getSize()){
 			cursor_width = text.getCharacterSize() * 0.5f;

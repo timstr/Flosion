@@ -256,6 +256,7 @@ namespace ui {
 		sf::Text text;
 	};
 
+	// TODO: this should derive from Text
 	struct TextEntry : Window {
 		TextEntry(const sf::Font& font, int charsize = 15);
 		TextEntry(const std::string& str, const sf::Font& font, int charsize = 15, sf::Color _text_color = sf::Color(0xFF), sf::Color _bg_color = sf::Color(0xFFFFFFFF));
@@ -273,8 +274,8 @@ namespace ui {
 		void setBackGroundColor(sf::Color color);
 		sf::Color getBackGroundColor() const;
 
-		void setCharacterSize(float size);
-		float getCharacterSize() const;
+		void setCharacterSize(unsigned int size);
+		unsigned int getCharacterSize() const;
 
 		//to be overridden and used to deal with submission of newly typed text
 		virtual void onReturn(const std::string& entered_text);
