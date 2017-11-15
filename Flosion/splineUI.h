@@ -12,7 +12,7 @@ namespace fui {
 			size = {200, 100};
 			addChildWindow(new NumberInput(&spline.input, this, "Input"), leftOf(this), middleOfY(this));
 			addChildWindow(new NumberOutput(&spline, this, "Output"), rightOf(this), middleOfY(this));
-			calculateRenderPoints();
+			redraw();
 		}
 
 		void render(sf::RenderWindow& rw) override {
@@ -42,15 +42,29 @@ namespace fui {
 			}
 		}
 
+		void updateHandles(){
+			for (PointHandle* ph : pointhandles){
+				ph->update();
+			}
+			redraw();
+		}
+
 		struct PointHandle : ui::Window {
-			PointHandle(SplineObject* _parent, musical::Spline::Point* _point){
-				parent = _parent;
-				point = _point;
+			PointHandle(SplineObject* _parent, musical::Spline::Point* _point) : parent(_parent), point(_point) {
+				parent->pointhandles.push_back(this);
 				point->setOnDestroy([this]{
-					parent->calculateRenderPoints();
+					parent->redraw();
 					close();
 				});
 				size = {10, 10};
+			}
+			~PointHandle(){
+				for (auto it = parent->pointhandles.begin(); it != parent->pointhandles.end(); it++){
+					if (*it == this){
+						parent->pointhandles.erase(it);
+						return;
+					}
+				}
 			}
 
 			void render(sf::RenderWindow& rw) override {
@@ -62,7 +76,7 @@ namespace fui {
 			}
 			void onRightClick(int clicks) override {
 				point->toggleInterpolationMethod();
-				parent->calculateRenderPoints();
+				parent->redraw();
 			}
 			void onLeftClick(int clicks) override {
 				if (clicks == 1){
@@ -70,7 +84,7 @@ namespace fui {
 				} else if (clicks == 2){
 					SplineObject* so = parent;
 					parent->spline.removePoint(point);
-					so->calculateRenderPoints();
+					so->redraw();
 				}
 			}
 			void onDrag() override {
@@ -80,11 +94,15 @@ namespace fui {
 				p.x = point->getX();
 				p.y = point->getY();
 				pos = parent->toScreenPoint(p) - (size * 0.5f);
-				parent->calculateRenderPoints();
+				parent->redraw();
 			}
 
-			SplineObject* parent;
-			musical::Spline::Point* point;
+			void update(){
+				pos = parent->toScreenPoint(vec2(point->getX(), point->getY())) - (size * 0.5f);
+			}
+
+			SplineObject* const parent;
+			musical::Spline::Point* const point;
 		};
 
 		vec2 toScreenPoint(vec2 spline_point){
@@ -119,6 +137,7 @@ namespace fui {
 						float val = stringToFloat(str);
 						if (!std::isnan(val)){
 							splineobject->spline.setMinY(val);
+							splineobject->updateHandles();
 						}
 					},
 					validate
@@ -131,6 +150,7 @@ namespace fui {
 						float val = stringToFloat(str);
 						if (!std::isnan(val)){
 							splineobject->spline.setMaxY(val);
+							splineobject->updateHandles();
 						}
 					},
 					validate
@@ -143,6 +163,7 @@ namespace fui {
 						float val = stringToFloat(str);
 						if (!std::isnan(val)){
 							splineobject->spline.setMinX(val);
+							splineobject->updateHandles();
 						}
 					},
 					validate
@@ -155,6 +176,7 @@ namespace fui {
 						float val = stringToFloat(str);
 						if (!std::isnan(val)){
 							splineobject->spline.setMaxX(val);
+							splineobject->updateHandles();
 						}
 					},
 					validate
@@ -181,7 +203,7 @@ namespace fui {
 			SplineObject* const splineobject;
 		};
 
-		void calculateRenderPoints(){
+		void redraw(){
 			int n = size.x;
 			renderpoints.resize(n);
 			for (int i = 0; i < n; i++){
@@ -193,6 +215,7 @@ namespace fui {
 		}
 
 		std::vector<sf::Vertex> renderpoints;
+		std::vector<PointHandle*> pointhandles;
 	};
 	fuiRegisterObject(SplineObject, "spline");
 };

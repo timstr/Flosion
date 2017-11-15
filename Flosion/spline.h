@@ -214,18 +214,29 @@ namespace musical {
 
 		void setMinX(float x){
 			min_x = x;
+			updatePoints();
 		}
 		void setMaxX(float x){
 			max_x = x;
+			updatePoints();
 		}
 		void setMinY(float y){
 			min_y = y;
+			updatePoints();
 		}
 		void setMaxY(float y){
 			max_y = y;
+			updatePoints();
 		}
 
 		private:
+
+		void updatePoints(){
+			for (Point* p : points){
+				p->setX(std::min(std::max(p->x, min_x), max_x));
+				p->setY(std::min(std::max(p->y, min_y), max_y));
+			}
+		}
 
 		float min_x = 0;
 		float max_x = 1;
