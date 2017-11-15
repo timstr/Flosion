@@ -876,6 +876,13 @@ namespace ui {
 	sf::Color TextEntry::getBackGroundColor() const {
 		return background_color;
 	}
+	void TextEntry::setCharacterSize(float size){
+		text.setCharacterSize(size);
+		updateSize();
+	}
+	float TextEntry::getCharacterSize() const {
+		return text.getCharacterSize();
+	}
 	void TextEntry::onReturn(const std::string& entered_text){
 		
 	}

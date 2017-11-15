@@ -269,8 +269,12 @@ namespace ui {
 
 		void setTextColor(sf::Color color);
 		sf::Color getTextColor() const;
+
 		void setBackGroundColor(sf::Color color);
 		sf::Color getBackGroundColor() const;
+
+		void setCharacterSize(float size);
+		float getCharacterSize() const;
 
 		//to be overridden and used to deal with submission of newly typed text
 		virtual void onReturn(const std::string& entered_text);
