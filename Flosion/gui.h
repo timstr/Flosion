@@ -207,11 +207,13 @@ namespace ui {
 		static YAlignment insideBottom(Window* window, float margin = 0.0f);
 		static YAlignment middleOfY(Window* window);
 
-		void addChildWindow(Window *window);
-		void addChildWindow(Window *window, vec2 pos);
-		void addChildWindow(Window *window, XAlignment xalignment);
-		void addChildWindow(Window *window, YAlignment yalignment);
-		void addChildWindow(Window *window, XAlignment xalignment, YAlignment yalignment);
+		void addChildWindow(Window* window);
+		void addChildWindow(Window* window, vec2 pos);
+		void addChildWindow(Window* window, XAlignment xalignment);
+		void addChildWindow(Window* window, YAlignment yalignment);
+		void addChildWindow(Window* window, XAlignment xalignment, YAlignment yalignment);
+		void addChildWindow(Window* window, float xpos, YAlignment yalignment);
+		void addChildWindow(Window* window, XAlignment xalignment, float ypos);
 		void releaseChildWindow(Window* window);
 		void bringToFront();
 		void clear();

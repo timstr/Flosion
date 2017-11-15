@@ -603,7 +603,6 @@ namespace ui {
 	}
 	void Window::alignChildren(){
 		std::set<Window*> remaining;
-		std::vector<Window*> ordered;
 
 		for (Window* w : childwindows){
 			remaining.insert(w);
@@ -615,7 +614,7 @@ namespace ui {
 				Window* xwin = (*it)->xalign.relative_to;
 				Window* ywin = (*it)->yalign.relative_to;
 				if ((!xwin || (remaining.find(xwin) == remaining.end())) && (!ywin || (remaining.find(ywin) == remaining.end()))){
-					ordered.push_back(*it);
+					(*it)->align();
 					remaining.erase(it);
 					found = true;
 					break;
@@ -624,10 +623,6 @@ namespace ui {
 			if (!found){
 				throw std::runtime_error("The relative alignments are cyclical");
 			}
-		}
-
-		for (Window* w : ordered){
-			w->align();
 		}
 	}
 	
@@ -690,6 +685,16 @@ namespace ui {
 		addChildWindow(window);
 		window->setXAlign(xalignment);
 		window->setYAlign(yalignment);
+	}
+	void Window::addChildWindow(Window* window, float xpos, YAlignment yalignment){
+		addChildWindow(window);
+		window->pos.x = xpos;
+		window->setYAlign(yalignment);
+	}
+	void Window::addChildWindow(Window* window, XAlignment xalignment, float ypos){
+		addChildWindow(window);
+		window->setXAlign(xalignment);
+		window->pos.y = ypos;
 	}
 	void Window::releaseChildWindow(Window* window){
 		for (int i = 0; i < childwindows.size(); i++){
