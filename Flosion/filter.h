@@ -13,7 +13,7 @@ namespace musical {
 
 		void reset() override {
 			frequency_index = 0.0f;
-			for (unsigned int i = 0; i < musical::CHUNK_SIZE; i++){
+			for (unsigned int i = 0; i < CHUNK_SIZE; i++){
 				phase1_l[i] = 0.0f;
 				phase1_r[i] = 0.0f;
 				phase2_l[i] = 0.0f;
@@ -24,11 +24,11 @@ namespace musical {
 
 		float frequency_index;
 
-		complex phase1_l[musical::CHUNK_SIZE];
-		complex phase1_r[musical::CHUNK_SIZE];
-		complex phase2_l[musical::CHUNK_SIZE];
-		complex phase2_r[musical::CHUNK_SIZE];
-		Sample buffer[musical::CHUNK_SIZE];
+		complex phase1_l[CHUNK_SIZE];
+		complex phase1_r[CHUNK_SIZE];
+		complex phase2_l[CHUNK_SIZE];
+		complex phase2_r[CHUNK_SIZE];
+		Sample buffer[CHUNK_SIZE];
 	};
 
 
@@ -41,7 +41,7 @@ namespace musical {
 		}
 
 		void renderChunk(Sample* buffer, FilterState* state) override {
-			const unsigned int size = musical::CHUNK_SIZE;
+			const unsigned int size = CHUNK_SIZE;
 			const unsigned int halfsize = size / 2;
 
 			input.getNextChunk(state->buffer, state);
@@ -126,10 +126,10 @@ namespace musical {
 		}
 
 		static float getFrequencyFromIndex(unsigned int index){
-			return index * SFREQ / (float)musical::CHUNK_SIZE;
+			return index * SFREQ / (float)CHUNK_SIZE;
 		}
 		static int getIndexFromFrequency(float frequency){
-			return frequency * musical::CHUNK_SIZE / (float)SFREQ;
+			return frequency * CHUNK_SIZE / (float)SFREQ;
 		}
 
 		SingleInput input;
