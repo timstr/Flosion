@@ -175,5 +175,11 @@
     <ClInclude Include="stringhelpers.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="phasevocoder.h">
+      <Filter>Musical Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="phasevocoderUI.h">
+      <Filter>FlosionUI</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -189,6 +189,8 @@
     <ClInclude Include="NumberResult.h" />
     <ClInclude Include="NumberSource.h" />
     <ClInclude Include="FlosionUI.h" />
+    <ClInclude Include="phasevocoder.h" />
+    <ClInclude Include="phasevocoderUI.h" />
     <ClInclude Include="Sample.h" />
     <ClInclude Include="sampler.h" />
     <ClInclude Include="samplerUI.h" />

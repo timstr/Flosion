@@ -16,6 +16,7 @@
 #include "ensembleUI.h"
 #include "splineUI.h"
 #include "filterUI.h"
+#include "phasevocoderUI.h"
 
 #include <iostream>
 #include <iomanip>
