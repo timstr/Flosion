@@ -5,6 +5,8 @@
 #include "musical.h"
 #include <thread>
 
+// TODO: very strange bugs here when musical::CHUNK_SIZE != 1024
+
 namespace musical {
 
 	struct DAC : private sf::SoundStream {
@@ -24,8 +26,8 @@ namespace musical {
 
 		private:
 
-		Sample inbuffer[CHUNK_SIZE];
-		int16_t outbuffer[CHUNK_SIZE * 2];
+		std::vector<Sample> inbuffer;
+		std::vector<int16_t> outbuffer;
 
 		// sf::SoundStream overrides
 

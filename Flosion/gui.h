@@ -8,9 +8,6 @@ extern const double PI;
 
 typedef sf::Vector2f vec2;
 
-// TODO: add convenient way to align child windows relative to each other
-// centering, left-align, right-align
-
 namespace ui {
 
 	struct Window;
@@ -224,8 +221,6 @@ namespace ui {
 		void renderChildWindows(sf::RenderWindow& renderwindow);
 
 		void startTransition(double duration, const std::function<void(double)> transitionFn, const std::function<void()>& onComplete = {});
-
-		// TODO: think of good ideas for this alignment business
 
 		const std::vector<Window*>& getChildWindows() const;
 		Window* getParent() const;

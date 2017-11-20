@@ -6,6 +6,8 @@ namespace musical {
 
 	DAC::DAC(){
 		initialize(2, SFREQ);
+		inbuffer.resize(CHUNK_SIZE);
+		outbuffer.resize(CHUNK_SIZE * 2);
 	}
 	DAC::~DAC(){
 		pause();
@@ -33,8 +35,8 @@ namespace musical {
 			double lsum = 0;
 			double rsum = 0;
 			for (int i = 0; i < CHUNK_SIZE; i++){
-				lsum += abs(inbuffer[i].l);
-				rsum += abs(inbuffer[i].r);
+				lsum += abs(inbuffer.at(i).l);
+				rsum += abs(inbuffer.at(i).r);
 			}
 			return Sample(lsum / CHUNK_SIZE, rsum / CHUNK_SIZE);
 		} else {
@@ -43,14 +45,14 @@ namespace musical {
 	}
 
 	bool DAC::onGetData(Chunk& data){
-		input.getNextChunk(inbuffer);
+		input.getNextChunk(inbuffer.data());
 
 		// format and write the chunk data
 		for (int i = 0; i < CHUNK_SIZE; i++){
-			outbuffer[2 * i]		= inbuffer[i].l * INT16_MAX;
-			outbuffer[2 * i + 1]	= inbuffer[i].r * INT16_MAX;
+			outbuffer.at(2 * i)		= inbuffer.at(i).l * INT16_MAX;
+			outbuffer.at(2 * i + 1)	= inbuffer.at(i).r * INT16_MAX;
 		}
-		data.samples = outbuffer;
+		data.samples = outbuffer.data();
 		data.sampleCount = CHUNK_SIZE * 2;
 
 		return true;

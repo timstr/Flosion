@@ -3,7 +3,6 @@
 #include "FlosionUI.h"
 #include "sampler.h"
 
-// TODO: spline interface for note parameters
 // TODO: editor for parameter name / range
 
 namespace fui {

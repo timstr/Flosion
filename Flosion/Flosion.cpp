@@ -25,7 +25,6 @@
 
 // TODO: synchronize this stuff
 // TODO: cache things
-// TODO: Phase vocoder
 // TODO: scatter
 // TODO: ring mod
 // TODO: filter
