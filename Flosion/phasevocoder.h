@@ -122,81 +122,29 @@ namespace musical {
 				state->prev_phase_diffs[i] = state->next_phase_diffs[i];
 			}
 
-			if (state->phase == 0){
-				for (int i = 0; i < CHUNK_SIZE; i++){
-					state->next[i] = state->inbuffer1[i].l * getHannWindow(i);
-				}
 
-				state->phase = 1;
-			} else if (state->phase == 1){
-				for (int i = 0; i < CHUNK_SIZE * 3 / 4; i++){
-					state->next[i] = state->inbuffer1[i + CHUNK_SIZE / 4].l * getHannWindow(i);
-				}
-				input.getNextChunk(state->inbuffer2, state);
-				for (int i = 0; i < CHUNK_SIZE / 4; i++){
-					state->next[i + CHUNK_SIZE * 3 / 4] = state->inbuffer2[i].l * getHannWindow(i + CHUNK_SIZE * 3 / 4);
-				}
-
-				state->phase = 2;
-			} else if (state->phase == 2){
-				for (int i = 0; i < CHUNK_SIZE / 2; i++){
-					state->next[i] = state->inbuffer1[i + CHUNK_SIZE / 2].l * getHannWindow(i);
-				}
-				for (int i = 0; i < CHUNK_SIZE / 2; i++){
-					state->next[i + CHUNK_SIZE / 2] = state->inbuffer2[i].l * getHannWindow(i + CHUNK_SIZE / 2);
-				}
-
-				state->phase = 3;
-			} else if (state->phase == 3){
-				for (int i = 0; i < CHUNK_SIZE / 4; i++){
-					state->next[i] = state->inbuffer1[i + CHUNK_SIZE * 3 / 4].l * getHannWindow(i);
-				}
-				for (int i = 0; i < CHUNK_SIZE * 3 / 4; i++){
-					state->next[i + CHUNK_SIZE / 4] = state->inbuffer2[i].l * getHannWindow(i + CHUNK_SIZE / 4);
-				}
-
-				state->phase = 4;
-			} else if (state->phase == 4){
-				for (int i = 0; i < CHUNK_SIZE; i++){
-					state->next[i] = state->inbuffer2[i].l * getHannWindow(i);
-				}
-
-				state->phase = 5;
-			} else if (state->phase == 5){
-				for (int i = 0; i < CHUNK_SIZE * 3 / 4; i++){
-					state->next[i] = state->inbuffer2[i + CHUNK_SIZE / 4].l * getHannWindow(i);
-				}
-				input.getNextChunk(state->inbuffer1, state);
-				for (int i = 0; i < CHUNK_SIZE / 4; i++){
-					state->next[i + CHUNK_SIZE * 3 / 4] = state->inbuffer1[i].l * getHannWindow(i + CHUNK_SIZE * 3 / 4);
-				}
-
-				state->phase = 6;
-			} else if (state->phase == 6){
-				for (int i = 0; i < CHUNK_SIZE / 2; i++){
-					state->next[i] = state->inbuffer2[i + CHUNK_SIZE / 2].l * getHannWindow(i);
-				}
-				for (int i = 0; i < CHUNK_SIZE / 2; i++){
-					state->next[i + CHUNK_SIZE / 2] = state->inbuffer1[i].l * getHannWindow(i + CHUNK_SIZE / 2);
-				}
-
-				state->phase = 7;
-			} else if (state->phase == 7){
-				for (int i = 0; i < CHUNK_SIZE / 4; i++){
-					state->next[i] = state->inbuffer2[i + CHUNK_SIZE * 3 / 4].l * getHannWindow(i);
-				}
-				for (int i = 0; i < CHUNK_SIZE * 3 / 4; i++){
-					state->next[i + CHUNK_SIZE / 4] = state->inbuffer1[i].l * getHannWindow(i + CHUNK_SIZE / 4);
-				}
-
-				state->phase = 0;
+			Sample* bufferA;
+			Sample* bufferB;
+			if (state->phase < 4){
+				bufferA = state->inbuffer1;
+				bufferB = state->inbuffer2;
+			} else {
+				bufferA = state->inbuffer2;
+				bufferB = state->inbuffer1;
 			}
+			if (state->phase % 4 == 1){
+				input.getNextChunk(bufferB, state);
+			}
+			int carryover = CHUNK_SIZE * (state->phase % 4) / 4;
+			for (int i = 0; i < CHUNK_SIZE - carryover; i++){
+				state->next[i] = bufferA[i + carryover].l * getHannWindow(i);
+			}
+			for (int i = 0; i < carryover; i++){
+				state->next[i + CHUNK_SIZE - carryover] = bufferB[i].l * getHannWindow(i + CHUNK_SIZE - carryover);
+			}
+			state->phase = (state->phase + 1) % 8;
 
-
-
-
-
-
+			
 			fft(state->next, CHUNK_SIZE);
 			// cyclic shift
 			for (int i = 1; i < CHUNK_SIZE; i += 2){
