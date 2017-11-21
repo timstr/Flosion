@@ -20,8 +20,10 @@ namespace musical {
 				inbuffer2[i] = Sample(0, 0);
 				prev[i] = 0.0f;
 				next[i]= 0.0f;
-				phase_diffs[i] = 0.0f;
-				phase_acc[i] = 0.0f;
+				prev_phase_diffs[i] = 0.0f;
+				next_phase_diffs[i] = 0.0f;
+				prev_phase_acc[i] = 0.0f;
+				next_phase_acc[i] = 0.0f;
 				outbuffer[i] = 0.0f;
 				carryover[i] = Sample(0, 0);
 			}
@@ -36,8 +38,10 @@ namespace musical {
 
 
 		// for re-synthesis
-		float phase_diffs[CHUNK_SIZE];
-		float phase_acc[CHUNK_SIZE];
+		float prev_phase_diffs[CHUNK_SIZE];
+		float next_phase_diffs[CHUNK_SIZE];
+		float prev_phase_acc[CHUNK_SIZE];
+		float next_phase_acc[CHUNK_SIZE];
 		complex outbuffer[CHUNK_SIZE];
 		Sample carryover[CHUNK_SIZE];
 
@@ -106,9 +110,16 @@ namespace musical {
 			}
 		}
 
+		SingleInput input;
+		NumberResult timespeed;
+
+		private:
+
 		void swap(PhaseVocoderState* state){
 			for (int i = 0; i < CHUNK_SIZE; i++){
 				state->prev[i] = state->next[i];
+				state->prev_phase_acc[i] = state->next_phase_acc[i];
+				state->prev_phase_diffs[i] = state->next_phase_diffs[i];
 			}
 
 			if (state->phase == 0){
@@ -192,7 +203,7 @@ namespace musical {
 				state->next[i] *= -1.0f;
 			}
 			for (int i = 0; i < CHUNK_SIZE; i++){
-				state->phase_diffs[i] = std::arg(state->next[i]) - std::arg(state->prev[i]);
+				state->next_phase_diffs[i] = std::arg(state->next[i]) - std::arg(state->prev[i]);
 			}
 		}
 
@@ -204,13 +215,14 @@ namespace musical {
 			}
 
 			for (int i = 0; i < CHUNK_SIZE; i++){
-				// interpolate magnitudes from prev to next
-				float mag = std::abs(state->prev[i]) * (1.0f - state->offset) + std::abs(state->next[i]) * state->offset;
 
-				// accumulate phases
-				state->phase_acc[i] = fmod(state->phase_acc[i] + state->phase_diffs[i], 2.0f * 3.141592654f);
+				state->prev_phase_acc[i] = fmod(state->prev_phase_acc[i] + state->prev_phase_diffs[i], 2.0f * 3.141592654f);
+				state->next_phase_acc[i] = fmod(state->next_phase_acc[i] + state->next_phase_diffs[i], 2.0f * 3.141592654f);
 
-				state->outbuffer[i] = mag * complex(cos(state->phase_acc[i]), sin(state->phase_acc[i]));
+				complex prev = std::abs(state->prev[i]) * complex(cos(state->prev_phase_acc[i]), sin(state->prev_phase_acc[i]));
+				complex next = std::abs(state->next[i]) * complex(cos(state->next_phase_acc[i]), sin(state->next_phase_acc[i]));
+
+				state->outbuffer[i] = prev * (1.0f - state->offset) + next * state->offset;
 			}
 
 			// cyclic shift
@@ -221,9 +233,6 @@ namespace musical {
 
 			state->offset += speed;
 		}
-
-		SingleInput input;
-		NumberResult timespeed;
 	};
 
 }
