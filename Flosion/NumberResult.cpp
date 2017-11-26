@@ -7,6 +7,9 @@ namespace musical {
 	NumberResult::NumberResult(Stateful* owner) : input(nullptr, owner) {
 
 	}
+	NumberResult::NumberResult(Stateful* owner, float minimum, float maximum) : input(nullptr, minimum, maximum, owner) {
+
+	}
 	float NumberResult::getValue(State* state, float default_value){
 		return input.getValue(state, default_value);
 	}

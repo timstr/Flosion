@@ -193,7 +193,11 @@ namespace musical {
 		struct StateNumberSource : NumberSource {
 			StateNumberSource(SoundSourceType* _parentsoundsource)
 				: NumberSource(_parentsoundsource), parentsoundsource(_parentsoundsource){
-				
+
+			}
+			StateNumberSource(SoundSourceType* _parentsoundsource, float minimum, float maximum)
+				: NumberSource(_parentsoundsource, minimum, maximum), parentsoundsource(_parentsoundsource){
+
 			}
 
 			float evaluate(State* state) const override {
@@ -458,7 +462,12 @@ namespace musical {
 
 			// NumberSource for querying state variables
 			struct StateNumberSource : NumberSource {
-				StateNumberSource(MultiInput<InputStateType, KeyType, SoundSourceType>* _owner) : NumberSource(_owner), parentmultiinput(_owner) {
+				StateNumberSource(MultiInput<InputStateType, KeyType, SoundSourceType>* _owner)
+					: NumberSource(_owner), parentmultiinput(_owner) {
+
+				}
+				StateNumberSource(MultiInput<InputStateType, KeyType, SoundSourceType>* _owner, float minimum, float maximum)
+					: NumberSource(_owner, minimum, maximum), parentmultiinput(_owner) {
 
 				}
 

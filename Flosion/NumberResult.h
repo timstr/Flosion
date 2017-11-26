@@ -12,6 +12,7 @@ namespace musical {
 	// is stateless (and may only have global sources)
 	struct NumberResult {
 		NumberResult(Stateful* owner);
+		NumberResult(Stateful* owner, float minimum, float maximum);
 
 		float getValue(State* state, float default_value = 0.0);
 

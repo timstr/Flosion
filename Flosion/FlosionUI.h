@@ -42,11 +42,15 @@ namespace fui {
 				close();
 			}
 
+			void render(sf::RenderWindow& rw) override {
+				renderChildWindows(rw);
+			}
+
 			struct ListItem : ui::Window {
 				ListItem(WireDropList* _parent, const std::function<void()>& fn, const std::string& str) : callback(fn), parent(_parent) {
 					clipping = true;
 					size = vec2(200.0f, 30.0f);
-					addChildWindow(new ui::Text(str, getFont(), sf::Color(0xFFFFFFFF), 20), insideLeft(this, 5.0f), middleOfY(this));
+					addChildWindow(new ui::Text(str, getFont(), sf::Color(0xFFFFFFFF), 20), insideLeft(this, 5.0f), insideTop(this, 0.0f));
 				}
 
 				void onLeftClick(int clicks) override {
@@ -59,7 +63,7 @@ namespace fui {
 					rect.setSize(size);
 					rect.setFillColor(sf::Color(0x000000C0));
 					rect.setOutlineColor(sf::Color(0x80808080));
-					rect.setOutlineThickness(1.0f);
+					rect.setOutlineThickness(1.0f); // TODO: why doesn't this outline appear?
 					rw.draw(rect);
 					renderChildWindows(rw);
 				}
@@ -155,7 +159,7 @@ namespace fui {
 	// the destination for a numberwire
 	// corresponds to the input of a processing object
 	struct NumberInput : ui::Window {
-		NumberInput(musical::NumberInput* _target, Object* _parent, const std::string& _caption = "");
+		NumberInput(musical::NumberInput* _target, Object* _parent, const std::string& _caption = "", const std::function<void(NumberOutput*)>& _onConnect = {});
 		~NumberInput();
 
 		void setWireIn(NumberWire* wire);
@@ -171,6 +175,8 @@ namespace fui {
 
 		const std::string& getCaption() const;
 
+		const musical::NumberInput* getInput() const;
+
 		private:
 		Object* const owner_object;
 		musical::NumberInput* const target;
@@ -178,6 +184,7 @@ namespace fui {
 		ui::Text* caption;
 		std::string caption_str;
 		double hover_timestamp;
+		std::function<void(NumberOutput*)> onConnect;
 
 		friend struct NumberWire;
 	};
@@ -186,7 +193,7 @@ namespace fui {
 	// the source of a numberwire
 	// corresponds to a number source
 	struct NumberOutput : ui::Window {
-		NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption = "");
+		NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption = "", const std::function<void(NumberInput*)>& _onConnect = {});
 		~NumberOutput();
 
 		void addWireOut(NumberWire* wire);
@@ -203,6 +210,8 @@ namespace fui {
 
 		const std::string& getCaption() const;
 
+		const musical::NumberSource* getSource() const;
+
 		private:
 		Object* const owner_object;
 		musical::NumberSource* const target;
@@ -210,6 +219,7 @@ namespace fui {
 		ui::Text* caption;
 		std::string caption_str;
 		double hover_timestamp;
+		std::function<void(NumberInput*)> onConnect;
 
 		friend struct NumberWire;
 	};

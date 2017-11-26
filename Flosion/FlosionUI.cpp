@@ -197,7 +197,7 @@ namespace fui {
 
 
 	// NumberInput
-	NumberInput::NumberInput(musical::NumberInput* _target, Object* _parent, const std::string& _caption)
+	NumberInput::NumberInput(musical::NumberInput* _target, Object* _parent, const std::string& _caption, const std::function<void(NumberOutput*)>& _onConnect)
 		: target(_target), owner_object(_parent) {
 		caption_str = _caption;
 		size = {30, 30};
@@ -207,6 +207,7 @@ namespace fui {
 		caption->pos.x = -5 - caption->size.x;
 		caption->pos.y = 0;
 		hover_timestamp = ui::getProgramTime() - 1;
+		onConnect = _onConnect;
 	}
 	NumberInput::~NumberInput(){
 		if (wire_in){
@@ -293,10 +294,12 @@ namespace fui {
 	const std::string& NumberInput::getCaption() const {
 		return caption_str;
 	}
-
+	const musical::NumberInput* NumberInput::getInput() const {
+		return target;
+	}
 
 	// NumberOutput
-	NumberOutput::NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption)
+	NumberOutput::NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption, const std::function<void(NumberInput*)>& _onConnect)
 		: target(_target), owner_object(_parent) {
 		caption_str = _caption;
 		size = {30, 30};
@@ -305,6 +308,7 @@ namespace fui {
 		caption->pos.x = 0;
 		caption->pos.y = -30;
 		hover_timestamp = ui::getProgramTime() - 1;
+		onConnect = _onConnect;
 	}
 	NumberOutput::~NumberOutput(){
 		while (wires_out.size() > 0){
@@ -385,7 +389,9 @@ namespace fui {
 	const std::string& NumberOutput::getCaption() const {
 		return caption_str;
 	}
-
+	const musical::NumberSource* NumberOutput::getSource() const {
+		return target;
+	}
 
 	// NumberWire Head
 	NumberWire::Head::Head(NumberWire* _wire){
@@ -459,6 +465,12 @@ namespace fui {
 			dst->setWireIn(this);
 			if (src){
 				dst->target->setSource(src->target);
+				if (src->onConnect){
+					src->onConnect(dst);
+				}
+				if (dst->onConnect){
+					dst->onConnect(src);
+				}
 			}
 		}
 	}
@@ -471,6 +483,12 @@ namespace fui {
 			src->addWireOut(this);
 			if (dst){
 				dst->target->setSource(src->target);
+				if (src->onConnect){
+					src->onConnect(dst);
+				}
+				if (dst->onConnect){
+					dst->onConnect(src);
+				}
 			}
 		} else {
 			if (dst){

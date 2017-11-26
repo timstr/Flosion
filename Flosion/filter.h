@@ -33,7 +33,7 @@ namespace musical {
 
 
 	struct Filter : SoundSourceTemplate<FilterState> {
-		Filter() : input(this), frequency_out(this), amplitude_in(this) {
+		Filter() : input(this), frequency_out(this, 0, SFREQ / 2.0f), amplitude_in(this) {
 
 		}
 		~Filter(){

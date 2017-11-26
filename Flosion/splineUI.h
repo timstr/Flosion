@@ -10,8 +10,24 @@ namespace fui {
 	struct SplineObject : ProcessingObject {
 		SplineObject(){
 			size = {200, 100};
-			addChildWindow(new NumberInput(&spline.input, this, "Input"), leftOf(this), middleOfY(this));
-			addChildWindow(new NumberOutput(&spline, this, "Output"), rightOf(this), middleOfY(this));
+			NumberInput* input = new NumberInput(&spline.input, this, "Input", [this](NumberOutput* no){
+				const musical::NumberSource* source = no->getSource();
+				if (source->hasRange()){
+					spline.setMinX(source->getMinimum());
+					spline.setMaxX(source->getMaximum());
+					updateHandles();
+				}
+			});
+			NumberOutput* output = new NumberOutput(&spline, this, "Output", [this](NumberInput* ni){
+				const musical::NumberInput* input = ni->getInput();
+				if (input->hasRange()){
+					spline.setMinY(input->getMinimum());
+					spline.setMaxY(input->getMaximum());
+					updateHandles();
+				}
+			});
+			addChildWindow(input, leftOf(this), middleOfY(this));
+			addChildWindow(output, rightOf(this), middleOfY(this));
 			redraw();
 		}
 
@@ -208,7 +224,8 @@ namespace fui {
 			renderpoints.resize(n);
 			for (int i = 0; i < n; i++){
 				renderpoints[i].position.x = i;
-				float mag = (spline.getValueAt(i / (float)n) - spline.getMinY()) / (spline.getMaxY() - spline.getMinY());
+				float x = (i * (spline.getMaxX() - spline.getMinX()) / (float)n) + spline.getMinX();
+				float mag = (spline.getValueAt(x) - spline.getMinY()) / (spline.getMaxY() - spline.getMinY());
 				renderpoints[i].position.y = size.y * (1 - mag);
 				renderpoints[i].color = sf::Color(0xFFFFFFFF);
 			}

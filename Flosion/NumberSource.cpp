@@ -5,8 +5,13 @@
 namespace musical {
 
 	NumberSource::NumberSource(Stateful* _parent){
-			parent = _parent;
-		}
+		parent = _parent;
+		has_range = false;
+	}
+	NumberSource::NumberSource(Stateful* _parent, float minimum, float maximum)
+		: NumberSource(_parent) {
+		setRange(minimum, maximum);
+	}
 	NumberSource::~NumberSource(){
 		for (int i = 0; i < dsts.size(); i++){
 			dsts[i]->setSource(nullptr);
@@ -14,6 +19,20 @@ namespace musical {
 		for (int i = 0; i < inputs.size(); i++){
 			inputs[i]->setSource(nullptr);
 		}
+	}
+	void NumberSource::setRange(float minimum, float maximum){
+		has_range = true;
+		range_minimum = minimum;
+		range_maximum = maximum;
+	}
+	bool NumberSource::hasRange() const {
+		return has_range;
+	}
+	float NumberSource::getMinimum() const {
+		return range_minimum;
+	}
+	float NumberSource::getMaximum() const {
+		return range_maximum;
 	}
 	void NumberSource::addDstInput(NumberInput* dst){
 		for (int i = 0; i < dsts.size(); i++){

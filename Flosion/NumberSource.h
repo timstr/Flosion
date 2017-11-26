@@ -19,8 +19,14 @@ namespace musical {
 
 	struct NumberSource {
 		NumberSource(Stateful* _parent);
+		NumberSource(Stateful* _parent, float minimum, float maximum);
 		virtual ~NumberSource();
 		virtual float evaluate(State* state) const = 0;
+
+		void setRange(float minimum, float maximum);
+		bool hasRange() const;
+		float getMinimum() const;
+		float getMaximum() const;
 
 		private:
 
@@ -39,6 +45,10 @@ namespace musical {
 		Stateful* parent;
 		std::vector<NumberInput*> dsts;
 		std::vector<NumberInput*> inputs;
+
+		bool has_range;
+		float range_minimum;
+		float range_maximum;
 
 		friend struct NumberInput;
 	};

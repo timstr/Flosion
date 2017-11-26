@@ -147,7 +147,7 @@ namespace musical {
 		};
 
 		struct SamplerInput : MultiInput<InputState, Note*, Sampler> {
-			SamplerInput(Sampler* parent) : MultiInput(parent), frequency(this), amplitude(this), notetime(this), noteprogress(this) {
+			SamplerInput(Sampler* parent) : MultiInput(parent), frequency(this), amplitude(this), notetime(this), noteprogress(this, 0, 1) {
 
 			}
 

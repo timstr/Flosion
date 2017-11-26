@@ -24,6 +24,9 @@
     <Filter Include="UI Core">
       <UniqueIdentifier>{f6a7e845-d808-4763-a216-7d379cd2d3f1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{0b0ee018-8889-4f08-922f-404e0d9a4429}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Flosion.cpp">
@@ -62,11 +65,11 @@
     <ClCompile Include="Font.cpp">
       <Filter>UI Core</Filter>
     </ClCompile>
-    <ClCompile Include="hannwindow.cpp">
-      <Filter>Musical Extensions</Filter>
-    </ClCompile>
     <ClCompile Include="stringhelpers.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="hannwindow.cpp">
+      <Filter>Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -163,23 +166,23 @@
     <ClInclude Include="filter.h">
       <Filter>Musical Extensions</Filter>
     </ClInclude>
-    <ClInclude Include="fft.h">
-      <Filter>Musical Extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="hannwindow.h">
-      <Filter>Musical Extensions</Filter>
-    </ClInclude>
     <ClInclude Include="filterUI.h">
       <Filter>FlosionUI</Filter>
-    </ClInclude>
-    <ClInclude Include="stringhelpers.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="phasevocoder.h">
       <Filter>Musical Extensions</Filter>
     </ClInclude>
     <ClInclude Include="phasevocoderUI.h">
       <Filter>FlosionUI</Filter>
+    </ClInclude>
+    <ClInclude Include="stringhelpers.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="fft.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="hannwindow.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

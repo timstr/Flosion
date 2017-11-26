@@ -13,7 +13,7 @@ namespace musical {
 	};
 
 	struct WaveGen : SoundSourceTemplate<WaveGenState> {
-		WaveGen() : phase(this), wavefunction(this), frequency(this) {
+		WaveGen() : phase(this, 0, 1), wavefunction(this, -1, 1), frequency(this) {
 
 		}
 

@@ -14,6 +14,11 @@ namespace musical {
 		}
 		owner = _owner;
 		source = nullptr;
+		has_range = false;
+	}
+	NumberInput::NumberInput(NumberSource* _parent, float minimum, float maximum, Stateful* _owner)
+		: NumberInput(_parent, _owner) {
+		setRange(minimum, maximum);
 	}
 	NumberInput::~NumberInput(){
 		if (source){
@@ -83,6 +88,20 @@ namespace musical {
 		} else {
 			return true;
 		}
+	}
+	void NumberInput::setRange(float minimum, float maximum){
+		has_range = true;
+		range_minimum = minimum;
+		range_maximum = maximum;
+	}
+	bool NumberInput::hasRange() const {
+		return has_range;
+	}
+	float NumberInput::getMinimum() const {
+		return range_minimum;
+	}
+	float NumberInput::getMaximum() const {
+		return range_maximum;
 	}
 
 	// state shall be the current contextual state chain
