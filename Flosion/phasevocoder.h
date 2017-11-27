@@ -18,13 +18,20 @@ namespace musical {
 			for (int i = 0; i < CHUNK_SIZE; i++){
 				inbuffer1[i] = Sample(0, 0);
 				inbuffer2[i] = Sample(0, 0);
-				prev[i] = 0.0f;
-				next[i]= 0.0f;
-				prev_phase_diffs[i] = 0.0f;
-				next_phase_diffs[i] = 0.0f;
-				prev_phase_acc[i] = 0.0f;
-				next_phase_acc[i] = 0.0f;
-				outbuffer[i] = 0.0f;
+				prev_l[i] = 0.0f;
+				prev_r[i] = 0.0f;
+				next_l[i]= 0.0f;
+				next_r[i]= 0.0f;
+				prev_phase_diffs_l[i] = 0.0f;
+				prev_phase_diffs_r[i] = 0.0f;
+				next_phase_diffs_l[i] = 0.0f;
+				next_phase_diffs_r[i] = 0.0f;
+				prev_phase_acc_l[i] = 0.0f;
+				prev_phase_acc_r[i] = 0.0f;
+				next_phase_acc_l[i] = 0.0f;
+				next_phase_acc_r[i] = 0.0f;
+				outbuffer_l[i] = 0.0f;
+				outbuffer_r[i] = 0.0f;
 				carryover[i] = Sample(0, 0);
 			}
 		}
@@ -33,16 +40,23 @@ namespace musical {
 		int phase;
 		Sample inbuffer1[CHUNK_SIZE];	// for input audio data
 		Sample inbuffer2[CHUNK_SIZE];	// for input audio data
-		complex prev[CHUNK_SIZE];	// phase/amp of last window
-		complex next[CHUNK_SIZE];	// phase/amp of next window
+		complex prev_l[CHUNK_SIZE];	// phase/amp of last window, left channel
+		complex prev_r[CHUNK_SIZE];	// phase/amp of last window, right channel
+		complex next_l[CHUNK_SIZE];	// phase/amp of next window, left channel
+		complex next_r[CHUNK_SIZE];	// phase/amp of next window, right channel
 
 
 		// for re-synthesis
-		float prev_phase_diffs[CHUNK_SIZE];
-		float next_phase_diffs[CHUNK_SIZE];
-		float prev_phase_acc[CHUNK_SIZE];
-		float next_phase_acc[CHUNK_SIZE];
-		complex outbuffer[CHUNK_SIZE];
+		float prev_phase_diffs_l[CHUNK_SIZE];
+		float prev_phase_diffs_r[CHUNK_SIZE];
+		float next_phase_diffs_l[CHUNK_SIZE];
+		float next_phase_diffs_r[CHUNK_SIZE];
+		float prev_phase_acc_l[CHUNK_SIZE];
+		float prev_phase_acc_r[CHUNK_SIZE];
+		float next_phase_acc_l[CHUNK_SIZE];
+		float next_phase_acc_r[CHUNK_SIZE];
+		complex outbuffer_l[CHUNK_SIZE];
+		complex outbuffer_r[CHUNK_SIZE];
 		Sample carryover[CHUNK_SIZE];
 
 		float offset;
@@ -64,49 +78,42 @@ namespace musical {
 			// 0
 			getNextFrame(speed, state);
 			for (int i = 0; i < CHUNK_SIZE; i++){
-				float val = state->outbuffer[i].real() * getHannWindow(i);
-				buffer[i].l += val;
-				buffer[i].r += val;
+				buffer[i].l += state->outbuffer_l[i].real() * getHannWindow(i);
+				buffer[i].r += state->outbuffer_r[i].real() * getHannWindow(i);
 				state->carryover[i] = Sample(0, 0);
 			}
 			
 			// 1
 			getNextFrame(speed, state);
 			for (int i = 0; i < CHUNK_SIZE * 3 / 4; i++){
-				float val = state->outbuffer[i].real() * getHannWindow(i);
-				buffer[i + CHUNK_SIZE / 4].l += val;
-				buffer[i + CHUNK_SIZE / 4].r += val;
+				buffer[i + CHUNK_SIZE / 4].l += state->outbuffer_l[i].real() * getHannWindow(i);
+				buffer[i + CHUNK_SIZE / 4].r += state->outbuffer_r[i].real() * getHannWindow(i);
 			}
 			for (int i = 0; i < CHUNK_SIZE / 4; i++){
-				float val = state->outbuffer[i + CHUNK_SIZE * 3 / 4].real() * getHannWindow(i + CHUNK_SIZE * 3 / 4);
-				state->carryover[i].l += val;
-				state->carryover[i].r += val;
+				state->carryover[i].l += state->outbuffer_l[i + CHUNK_SIZE * 3 / 4].real() * getHannWindow(i + CHUNK_SIZE * 3 / 4);
+				state->carryover[i].r += state->outbuffer_r[i + CHUNK_SIZE * 3 / 4].real() * getHannWindow(i + CHUNK_SIZE * 3 / 4);
 			}
 
 			// 2
 			getNextFrame(speed, state);
 			for (int i = 0; i < CHUNK_SIZE / 2; i++){
-				float val = state->outbuffer[i].real() * getHannWindow(i);
-				buffer[i + CHUNK_SIZE / 2].l += val;
-				buffer[i + CHUNK_SIZE / 2].r += val;
+				buffer[i + CHUNK_SIZE / 2].l += state->outbuffer_l[i].real() * getHannWindow(i);
+				buffer[i + CHUNK_SIZE / 2].r += state->outbuffer_r[i].real() * getHannWindow(i);
 			}
 			for (int i = 0; i < CHUNK_SIZE / 2; i++){
-				float val = state->outbuffer[i + CHUNK_SIZE / 2].real() * getHannWindow(i + CHUNK_SIZE / 2);
-				state->carryover[i].l += val;
-				state->carryover[i].r += val;
+				state->carryover[i].l += state->outbuffer_l[i + CHUNK_SIZE / 2].real() * getHannWindow(i + CHUNK_SIZE / 2);
+				state->carryover[i].r += state->outbuffer_r[i + CHUNK_SIZE / 2].real() * getHannWindow(i + CHUNK_SIZE / 2);
 			}
 
 			// 3
 			getNextFrame(speed, state);
 			for (int i = 0; i < CHUNK_SIZE / 4; i++){
-				float val = state->outbuffer[i].real() * getHannWindow(i);
-				buffer[i + CHUNK_SIZE * 3 / 4].l += val;
-				buffer[i + CHUNK_SIZE * 3 / 4].r += val;
+				buffer[i + CHUNK_SIZE * 3 / 4].l += state->outbuffer_l[i].real() * getHannWindow(i);
+				buffer[i + CHUNK_SIZE * 3 / 4].r += state->outbuffer_r[i].real() * getHannWindow(i);
 			}
 			for (int i = 0; i < CHUNK_SIZE * 3 / 4; i++){
-				float val = state->outbuffer[i + CHUNK_SIZE / 4].real() * getHannWindow(i + CHUNK_SIZE / 4);
-				state->carryover[i].l += val;
-				state->carryover[i].r += val;
+				state->carryover[i].l += state->outbuffer_l[i + CHUNK_SIZE / 4].real() * getHannWindow(i + CHUNK_SIZE / 4);
+				state->carryover[i].r += state->outbuffer_r[i + CHUNK_SIZE / 4].real() * getHannWindow(i + CHUNK_SIZE / 4);
 			}
 		}
 
@@ -117,9 +124,12 @@ namespace musical {
 
 		void swap(PhaseVocoderState* state){
 			for (int i = 0; i < CHUNK_SIZE; i++){
-				state->prev[i] = state->next[i];
-				state->prev_phase_acc[i] = state->next_phase_acc[i];
-				state->prev_phase_diffs[i] = state->next_phase_diffs[i];
+				state->prev_l[i] = state->next_l[i];
+				state->prev_r[i] = state->next_r[i];
+				state->prev_phase_acc_l[i] = state->next_phase_acc_l[i];
+				state->prev_phase_acc_r[i] = state->next_phase_acc_r[i];
+				state->prev_phase_diffs_l[i] = state->next_phase_diffs_l[i];
+				state->prev_phase_diffs_r[i] = state->next_phase_diffs_r[i];
 			}
 
 
@@ -137,21 +147,26 @@ namespace musical {
 			}
 			int carryover = CHUNK_SIZE * (state->phase % 4) / 4;
 			for (int i = 0; i < CHUNK_SIZE - carryover; i++){
-				state->next[i] = bufferA[i + carryover].l * getHannWindow(i);
+				state->next_l[i] = bufferA[i + carryover].l * getHannWindow(i);
+				state->next_r[i] = bufferA[i + carryover].r * getHannWindow(i);
 			}
 			for (int i = 0; i < carryover; i++){
-				state->next[i + CHUNK_SIZE - carryover] = bufferB[i].l * getHannWindow(i + CHUNK_SIZE - carryover);
+				state->next_l[i + CHUNK_SIZE - carryover] = bufferB[i].l * getHannWindow(i + CHUNK_SIZE - carryover);
+				state->next_r[i + CHUNK_SIZE - carryover] = bufferB[i].r * getHannWindow(i + CHUNK_SIZE - carryover);
 			}
 			state->phase = (state->phase + 1) % 8;
 
-			
-			fft(state->next, CHUNK_SIZE);
+
+			fft(state->next_l, CHUNK_SIZE);
+			fft(state->next_r, CHUNK_SIZE);
 			// cyclic shift
 			for (int i = 1; i < CHUNK_SIZE; i += 2){
-				state->next[i] *= -1.0f;
+				state->next_l[i] *= -1.0f;
+				state->next_r[i] *= -1.0f;
 			}
 			for (int i = 0; i < CHUNK_SIZE; i++){
-				state->next_phase_diffs[i] = std::arg(state->next[i]) - std::arg(state->prev[i]);
+				state->next_phase_diffs_l[i] = std::arg(state->next_l[i]) - std::arg(state->prev_l[i]);
+				state->next_phase_diffs_r[i] = std::arg(state->next_r[i]) - std::arg(state->prev_r[i]);
 			}
 		}
 
@@ -164,20 +179,27 @@ namespace musical {
 
 			for (int i = 0; i < CHUNK_SIZE; i++){
 
-				state->prev_phase_acc[i] = fmod(state->prev_phase_acc[i] + state->prev_phase_diffs[i], 2.0f * 3.141592654f);
-				state->next_phase_acc[i] = fmod(state->next_phase_acc[i] + state->next_phase_diffs[i], 2.0f * 3.141592654f);
+				state->prev_phase_acc_l[i] = fmod(state->prev_phase_acc_l[i] + state->prev_phase_diffs_l[i], 2.0f * 3.141592654f);
+				state->prev_phase_acc_r[i] = fmod(state->prev_phase_acc_r[i] + state->prev_phase_diffs_r[i], 2.0f * 3.141592654f);
+				state->next_phase_acc_l[i] = fmod(state->next_phase_acc_l[i] + state->next_phase_diffs_l[i], 2.0f * 3.141592654f);
+				state->next_phase_acc_r[i] = fmod(state->next_phase_acc_r[i] + state->next_phase_diffs_r[i], 2.0f * 3.141592654f);
 
-				complex prev = std::abs(state->prev[i]) * complex(cos(state->prev_phase_acc[i]), sin(state->prev_phase_acc[i]));
-				complex next = std::abs(state->next[i]) * complex(cos(state->next_phase_acc[i]), sin(state->next_phase_acc[i]));
+				complex prev_l = std::abs(state->prev_l[i]) * complex(cos(state->prev_phase_acc_l[i]), sin(state->prev_phase_acc_l[i]));
+				complex prev_r = std::abs(state->prev_r[i]) * complex(cos(state->prev_phase_acc_r[i]), sin(state->prev_phase_acc_r[i]));
+				complex next_l = std::abs(state->next_l[i]) * complex(cos(state->next_phase_acc_l[i]), sin(state->next_phase_acc_l[i]));
+				complex next_r = std::abs(state->next_r[i]) * complex(cos(state->next_phase_acc_r[i]), sin(state->next_phase_acc_r[i]));
 
-				state->outbuffer[i] = prev * (1.0f - state->offset) + next * state->offset;
+				state->outbuffer_l[i] = prev_l * (1.0f - state->offset) + next_l * state->offset;
+				state->outbuffer_r[i] = prev_r * (1.0f - state->offset) + next_r * state->offset;
 			}
 
 			// cyclic shift
 			for (int i = 1; i < CHUNK_SIZE; i += 2){
-				state->outbuffer[i] *= -1.0f;
+				state->outbuffer_l[i] *= -1.0f;
+				state->outbuffer_r[i] *= -1.0f;
 			}
-			ifft(state->outbuffer, CHUNK_SIZE);
+			ifft(state->outbuffer_l, CHUNK_SIZE);
+			ifft(state->outbuffer_r, CHUNK_SIZE);
 
 			state->offset += speed;
 		}
