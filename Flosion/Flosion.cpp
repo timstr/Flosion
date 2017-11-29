@@ -1,10 +1,11 @@
+#include "musical.h"
+
 #include <SFML/Graphics.hpp>
 #include <math.h>
 #include "filebrowser.h"
+#include <chrono>
 
 #include "gui.h"
-
-#define MUSICAL_CHUNK_SIZE 1024;
 
 #include "constantUI.h"
 #include "functionsUI.h"

@@ -184,5 +184,8 @@
     <ClInclude Include="hannwindow.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="convolver.h">
+      <Filter>Musical Extensions</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
