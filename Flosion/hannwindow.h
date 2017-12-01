@@ -2,4 +2,4 @@
 
 #include "musical.h"
 
-float getHannWindow(unsigned int x);
+float getHannWindow(unsigned int x, unsigned int windowsize);
