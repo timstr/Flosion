@@ -74,8 +74,8 @@ namespace musical {
 			ifft(state->phase1_r, size);
 
 			for (unsigned int i = 0; i < size; i++){
-				buffer[i].l = state->phase1_l[i].real() * getHannWindow(i);
-				buffer[i].r = state->phase1_r[i].real() * getHannWindow(i);
+				buffer[i].l = state->phase1_l[i].real() * getHannWindow(i, CHUNK_SIZE);
+				buffer[i].r = state->phase1_r[i].real() * getHannWindow(i, CHUNK_SIZE);
 			}
 
 			// 2
@@ -86,8 +86,8 @@ namespace musical {
 
 			// 3
 			for (unsigned int i = 0; i < halfsize; i++){
-				buffer[i].l += state->phase2_l[i + halfsize].real() * getHannWindow(i + halfsize);
-				buffer[i].r += state->phase2_r[i + halfsize].real() * getHannWindow(i + halfsize);
+				buffer[i].l += state->phase2_l[i + halfsize].real() * getHannWindow(i + halfsize, CHUNK_SIZE);
+				buffer[i].r += state->phase2_r[i + halfsize].real() * getHannWindow(i + halfsize, CHUNK_SIZE);
 			}
 
 			// 4
@@ -118,8 +118,8 @@ namespace musical {
 			ifft(state->phase2_r, size);
 
 			for (unsigned int i = 0; i < halfsize; i++){
-				buffer[i + halfsize].l += state->phase2_l[i].real() * getHannWindow(i);
-				buffer[i + halfsize].r += state->phase2_r[i].real() * getHannWindow(i);
+				buffer[i + halfsize].l += state->phase2_l[i].real() * getHannWindow(i, CHUNK_SIZE);
+				buffer[i + halfsize].r += state->phase2_r[i].real() * getHannWindow(i, CHUNK_SIZE);
 			}
 
 			state->commitTime();

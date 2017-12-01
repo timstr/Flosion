@@ -32,6 +32,7 @@
 // TODO: distortion
 // TODO: feedback
 // TODO: high-performance approximations of costly functions (exp, sin, cos...)?
+// TODO: make window sizes customizable for filter and phase vocoder
 int main(){
 
 	srand(unsigned(time(nullptr)));
