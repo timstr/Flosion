@@ -104,9 +104,8 @@ namespace musical {
 		}
 
 		void renderChunk(Sample* buffer, PhaseVocoderState* state){
-			float speed = timespeed.getValue(state, 1.0f);
 			checkWindowChange(window_size, state);
-			fillOutBuffer(buffer, window_size, speed, state); // TODO
+			fillOutBuffer(buffer, window_size, state); // TODO
 		}
 
 		void setWindowSize(unsigned int size){
@@ -154,7 +153,7 @@ namespace musical {
 		}
 
 		// write spectrum to outbuffer
-		void getNextFrame(float speed, PhaseVocoderState* state, unsigned int windowsize){
+		void getNextFrame(PhaseVocoderState* state, unsigned int windowsize){
 			while (state->offset > 1.0f){
 				swap(state, windowsize);
 				state->offset -= 1.0f;
@@ -172,8 +171,11 @@ namespace musical {
 				complex next_l = std::abs(state->next_l[i]) * complex(cos(state->next_phase_acc_l[i]), sin(state->next_phase_acc_l[i]));
 				complex next_r = std::abs(state->next_r[i]) * complex(cos(state->next_phase_acc_r[i]), sin(state->next_phase_acc_r[i]));
 
-				state->outbuffer_l[i] = prev_l * (1.0f - state->offset) + next_l * state->offset;
-				state->outbuffer_r[i] = prev_r * (1.0f - state->offset) + next_r * state->offset;
+				float amp_prev = pow(cos(state->offset * 3.141592654f / 2.0f), 2.0f);
+				float amp_next = pow(cos((1.0f - state->offset) * 3.141592654f / 2.0f), 2.0f);
+
+				state->outbuffer_l[i] = prev_l * amp_prev + next_l * amp_next;
+				state->outbuffer_r[i] = prev_r * amp_prev + next_r * amp_next;
 			}
 
 			// cyclic shift
@@ -184,7 +186,7 @@ namespace musical {
 			ifft(state->outbuffer_l, windowsize);
 			ifft(state->outbuffer_r, windowsize);
 
-			state->offset += speed;
+			state->offset += timespeed.getValue(state, 1.0f);
 		}
 
 		// get next input from input queue, advance input queue
@@ -232,11 +234,11 @@ namespace musical {
 			}
 		}
 
-		void fillOutBuffer(Sample* buffer, unsigned int windowsize, float speed, PhaseVocoderState* state){
+		void fillOutBuffer(Sample* buffer, unsigned int windowsize, PhaseVocoderState* state){
 			const unsigned int hopsize = windowsize / 4;
 			
 			while (state->qout_offset < CHUNK_SIZE){
-				getNextFrame(speed, state, windowsize);
+				getNextFrame(state, windowsize);
 				addOutputBuffer(windowsize, state);
 				state->qout_offset += hopsize;
 			}
