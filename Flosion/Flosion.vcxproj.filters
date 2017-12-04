@@ -187,5 +187,8 @@
     <ClInclude Include="convolver.h">
       <Filter>Musical Extensions</Filter>
     </ClInclude>
+    <ClInclude Include="SoundQueue.h">
+      <Filter>Musical Extensions</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -72,7 +72,8 @@ namespace fui {
 				const std::function<void()> callback;
 			};
 		};
-
+		
+		// TODO: hide invalid inputs/outputs
 		void showNumberInputList(NumberWire* wire, vec2 pos);
 		void showNumberOutputList(NumberWire* wire, vec2 pos);
 		void showSoundInputList(SoundWire* wire, vec2 pos);

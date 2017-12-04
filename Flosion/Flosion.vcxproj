@@ -195,6 +195,7 @@
     <ClInclude Include="Sample.h" />
     <ClInclude Include="sampler.h" />
     <ClInclude Include="samplerUI.h" />
+    <ClInclude Include="SoundQueue.h" />
     <ClInclude Include="SoundResult.h" />
     <ClInclude Include="SoundSource.h" />
     <ClInclude Include="spline.h" />
