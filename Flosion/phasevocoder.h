@@ -8,18 +8,18 @@
 
 namespace musical {
 
-	const unsigned int max_window_size = 1 << 12;
+	const unsigned int max_window_size = 1 << 13;
 
 	struct PhaseVocoderState : State {
-		PhaseVocoderState(State* parent, Stateful* owner) : State(parent, owner), queue_in(max_window_size), queue_out(max_window_size) {
+		PhaseVocoderState(State* parent, Stateful* owner) : State(parent, owner), queue_in(max_window_size + CHUNK_SIZE), queue_out(max_window_size + CHUNK_SIZE) {
 			last_window_size = max_window_size;
 		}
 
 		void reset() override {
 			offset = 0.0f;
-			phase = 0;
-			frames = 0;
-			// TODO: clear queues
+			frame_position = 0;
+			queue_in.clear();
+			queue_out.clear();
 			clearSpectra();
 		}
 
@@ -43,7 +43,6 @@ namespace musical {
 		}
 
 		// for analysis
-		int phase; // TODO: remove?
 		complex prev_l[max_window_size];	// phase/amp of last window, left channel
 		complex prev_r[max_window_size];	// phase/amp of last window, right channel
 		complex next_l[max_window_size];	// phase/amp of next window, left channel
@@ -67,7 +66,7 @@ namespace musical {
 		SoundQueue queue_in;
 		SoundQueue queue_out;
 
-		unsigned int frames;
+		unsigned int frame_position;
 
 		unsigned int last_window_size;
 	};
@@ -83,7 +82,7 @@ namespace musical {
 		}
 
 		void setWindowSize(unsigned int size){
-			if (size == 256 || size == 512 || size == 1024 || size == 2048 || size == 4096){
+			if (size == 256 || size == 512 || size == 1024 || size == 2048 || size == 4096 || size == 8192){
 				window_size = size;
 			}
 		}
@@ -108,10 +107,7 @@ namespace musical {
 				state->prev_phase_diffs_r[i] = state->next_phase_diffs_r[i];
 			}
 
-
 			getNextInput(windowsize, state);
-			state->phase = (state->phase + 1) % 8;
-
 
 			fft(state->next_l, windowsize);
 			fft(state->next_r, windowsize);
@@ -176,30 +172,32 @@ namespace musical {
 			}
 		}
 
-		// add next output to output queue, advance output queue
+		// add next output to output queue
 		void addOutputBuffer(unsigned int windowsize, PhaseVocoderState* state){
 			const unsigned int hopsize = windowsize / 4;
-			state->queue_out.advance(hopsize);
 			for (int i = 0; i < windowsize; i++){
 				float window = getHannWindow(i, windowsize);
-				state->queue_out[i].l += state->outbuffer_l[i].real() * window;
-				state->queue_out[i].r += state->outbuffer_r[i].real() * window;
+				state->queue_out[i + state->frame_position].l += state->outbuffer_l[i].real() * window;
+				state->queue_out[i + state->frame_position].r += state->outbuffer_r[i].real() * window;
 			}
 		}
 
 		void fillOutBuffer(Sample* buffer, unsigned int windowsize, PhaseVocoderState* state){
+
 			const unsigned int hopsize = windowsize / 4;
 			
-			while (state->frames < CHUNK_SIZE){
+			while (state->frame_position < CHUNK_SIZE){
 				getNextFrame(state, windowsize);
 				addOutputBuffer(windowsize, state);
-				state->frames += hopsize;
+				state->frame_position += hopsize;
 			}
-			state->frames -= CHUNK_SIZE;
+			state->frame_position -= CHUNK_SIZE;
 
 			for (int i = 0; i < CHUNK_SIZE; i++){
 				buffer[i] = state->queue_out[i];
 			}
+
+			state->queue_out.advance(CHUNK_SIZE);
 		}
 
 		void checkWindowChange(unsigned int windowsize, PhaseVocoderState* state){

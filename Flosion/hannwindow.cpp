@@ -6,6 +6,7 @@ float hannwindow_512[512];
 float hannwindow_1024[1024];
 float hannwindow_2048[2048];
 float hannwindow_4096[4096];
+float hannwindow_8192[8192];
 
 float getHannWindow(unsigned int x, unsigned int windowsize){
 	switch (windowsize){
@@ -19,6 +20,8 @@ float getHannWindow(unsigned int x, unsigned int windowsize){
 			return hannwindow_2048[x];
 		case 4096:
 			return hannwindow_4096[x];
+		case 8192:
+			return hannwindow_8192[x];
 	}
 	return 1.0f;
 }
@@ -30,6 +33,7 @@ struct HannWindowInit {
 		init(hannwindow_1024, 1024);
 		init(hannwindow_2048, 2048);
 		init(hannwindow_4096, 4096);
+		init(hannwindow_8192, 8192);
 	}
 
 	void init(float* window, unsigned int size){

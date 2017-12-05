@@ -41,11 +41,13 @@ namespace fui {
 				auto b3 = new Button(this, 1024);
 				auto b4 = new Button(this, 2048);
 				auto b5 = new Button(this, 4096);
+				auto b6 = new Button(this, 8192);
 				addChildWindow(b1, insideLeft(this, 5.0f), below(caption, 5.0f));
 				addChildWindow(b2, rightOf(b1, 5.0f), below(caption, 5.0f));
 				addChildWindow(b3, rightOf(b2, 5.0f), below(caption, 5.0f));
 				addChildWindow(b4, insideLeft(this, 5.0f), below(b1, 5.0f));
 				addChildWindow(b5, rightOf(b4, 5.0f), below(b1, 5.0f));
+				addChildWindow(b6, rightOf(b5, 5.0f), below(b1, 5.0f));
 			}
 
 			void onLoseFocus() override {

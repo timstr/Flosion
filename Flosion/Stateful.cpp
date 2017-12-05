@@ -56,6 +56,7 @@ namespace musical {
 			}
 			s = s->parent;
 		}
+		return 0.0;
 	}
 	long double State::getGlobalTime(){
 		State* s = this;
