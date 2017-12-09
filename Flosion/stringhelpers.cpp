@@ -44,19 +44,19 @@ double stringToDouble(const std::string& str){
 	stream.clear();
 	double x;
 	stream >> x;
-	if (!stream.fail()){
+	if (!stream.fail() && stream.eof()){
 		return x;
 	} else {
 		return std::numeric_limits<double>::quiet_NaN();
 	}
 }
 
-int stringToInt(const std::string& str, int default_value = 0){
+int stringToInt(const std::string& str, int default_value){
 	stream.str(str);
 	stream.clear();
 	int x;
 	stream >> x;
-	if (!stream.fail()){
+	if (!stream.fail() && stream.eof()){
 		return x;
 	} else {
 		return default_value;
