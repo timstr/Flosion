@@ -18,6 +18,7 @@
 #include "splineUI.h"
 #include "filterUI.h"
 #include "phasevocoderUI.h"
+#include "convolverUI.h"
 
 #include <iostream>
 #include <iomanip>

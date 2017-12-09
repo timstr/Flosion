@@ -190,5 +190,11 @@
     <ClInclude Include="SoundQueue.h">
       <Filter>Musical Extensions</Filter>
     </ClInclude>
+    <ClInclude Include="convolverUI.h">
+      <Filter>FlosionUI</Filter>
+    </ClInclude>
+    <ClInclude Include="distortion.h">
+      <Filter>Musical Extensions</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

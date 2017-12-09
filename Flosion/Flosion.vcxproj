@@ -171,8 +171,10 @@
     <ClInclude Include="audioUI.h" />
     <ClInclude Include="constantUI.h" />
     <ClInclude Include="convolver.h" />
+    <ClInclude Include="convolverUI.h" />
     <ClInclude Include="DAC.h" />
     <ClInclude Include="dacUI.h" />
+    <ClInclude Include="distortion.h" />
     <ClInclude Include="ensemble.h" />
     <ClInclude Include="ensembleUI.h" />
     <ClInclude Include="fft.h" />
