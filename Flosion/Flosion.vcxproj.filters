@@ -196,5 +196,8 @@
     <ClInclude Include="distortion.h">
       <Filter>Musical Extensions</Filter>
     </ClInclude>
+    <ClInclude Include="distortionUI.h">
+      <Filter>FlosionUI</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

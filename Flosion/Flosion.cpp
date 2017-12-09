@@ -19,6 +19,7 @@
 #include "filterUI.h"
 #include "phasevocoderUI.h"
 #include "convolverUI.h"
+#include "distortionUI.h"
 
 #include <iostream>
 #include <iomanip>

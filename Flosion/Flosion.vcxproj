@@ -175,6 +175,7 @@
     <ClInclude Include="DAC.h" />
     <ClInclude Include="dacUI.h" />
     <ClInclude Include="distortion.h" />
+    <ClInclude Include="distortionUI.h" />
     <ClInclude Include="ensemble.h" />
     <ClInclude Include="ensembleUI.h" />
     <ClInclude Include="fft.h" />
