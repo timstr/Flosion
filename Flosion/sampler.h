@@ -9,46 +9,56 @@ namespace musical {
 		using State::State;
 
 		void reset() override {
-
+			time = 0;
 		}
+
+		uint32_t time;
 	};
 
 	struct Sampler : SoundSourceTemplate<SamplerState> {
 		Sampler() : input(this) {
-
+			length = SFREQ * 4;
 		}
 
 		void renderChunk(Sample* buffer, SamplerState* state) override {
-			double sampler_time = state->getTime();
-			const double delta = CHUNK_SIZE / (double)SFREQ;
+			unsigned int sample = 0;
 
-			for (auto it = input.begin(state); it != input.end(state); it++){
-				Note* note = it.key();
-				// if the note is playing now
-				// specifically, if the note both begins before the end of the chunk and ends after the beginning of the chunk
-				if (note->start_time < (sampler_time + delta) && (note->start_time + note->length) >= sampler_time){
-					int carryover = (uint32_t)(note->start_time * SFREQ) % CHUNK_SIZE;
+			while (sample < CHUNK_SIZE){
+				unsigned int len = std::min(CHUNK_SIZE, length - state->time);
+				for (auto it = input.begin(state); it != input.end(state); it++){
+					Note* note = it.key();
+					// if the note is playing now
+					// specifically, if the note both begins before the end of the chunk and ends after the beginning of the chunk
+					if (note->start_time * SFREQ < (state->time + CHUNK_SIZE) && (note->start_time + note->length) * SFREQ >= state->time){
+						unsigned int carryover = (uint32_t)(note->start_time * SFREQ) % CHUNK_SIZE;
 
-					// if this is the note's first time playing...
-					if (note->start_time >= sampler_time){
-						// reset it
-						input.resetState(it);
-					} else {
-						// add the trailing part of its buffer
-						for (int i = 0; i < carryover; i++){
-							buffer[i] += it.state().buffer[CHUNK_SIZE - carryover + i] * 0.1; // TODO: perform some kind of mixing/compression here instead of quieting
+						// if this is the note's first time playing...
+						if (note->start_time * SFREQ >= state->time){
+							// reset it
+							input.resetState(it);
+							it.state().performReset();
+						} else {
+							// add the trailing part of its buffer
+							for (int i = sample; i < std::min(carryover, len + sample); i++){
+								buffer[i] += it.state().buffer[CHUNK_SIZE - carryover + i] * 0.1; // TODO: perform some kind of mixing/compression here instead of quieting
+							}
+						}
+						// get the next chunk for the note
+						input.getNextChunk(it.state().buffer, it);
+						// write its first part to the output buffer
+						for (int i = std::max(carryover, sample); i < std::min(CHUNK_SIZE, len + sample); i++){
+							buffer[i] += it.state().buffer[i - carryover] * 0.1; // TODO: see above
 						}
 					}
-					// get the next chunk for the note
-					input.getNextChunk(it.state().buffer, it);
-					// write its first part to the output buffer
-					for (int i = carryover; i < CHUNK_SIZE; i++){
-						buffer[i] += it.state().buffer[i - carryover] * 0.1; // TODO: see above
-					}
+				}
+				state->skipTime(len);
+
+				sample += len;
+				state->time += len;
+				if (len < CHUNK_SIZE){
+					state->time = 0;
 				}
 			}
-
-			state->skipTime(CHUNK_SIZE);
 		}
 
 		struct Note {
@@ -134,6 +144,13 @@ namespace musical {
 			throw std::runtime_error("The Note could not be found");
 		}
 
+		void setLength(double len){
+			length = std::max(0.0, len * SFREQ);
+		}
+		double getLength() const {
+			return length / (double)SFREQ;
+		}
+
 		struct InputState : MultiInputState<Note*> {
 			using MultiInputState::MultiInputState;
 
@@ -141,9 +158,11 @@ namespace musical {
 				for (int i = 0; i < CHUNK_SIZE; i++){
 					buffer[i] = {0, 0};
 				}
+				time_zero = 0.0;
 			}
 
 			Sample buffer[CHUNK_SIZE];
+			double time_zero;
 		};
 
 		struct SamplerInput : MultiInput<InputState, Note*, Sampler> {
@@ -198,7 +217,7 @@ namespace musical {
 				float getValue(InputState* state, State* context) const override {
 					return state->key->amplitude;
 				}
-			} amplitude;
+			} amplitude; // TODO: keep or remove?
 
 			struct NoteTime : StateNumberSource {
 				using StateNumberSource::StateNumberSource;
@@ -237,6 +256,7 @@ namespace musical {
 		private:
 		std::vector<Note*> notes;
 		std::set<int> parameter_ids;
+		uint32_t length;
 	};
 
 }

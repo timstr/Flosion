@@ -10,6 +10,9 @@ namespace musical {
 
 	const unsigned int max_window_size = 1 << 13;
 
+	// TODO: override time speed function
+	// TODO: phase locking
+
 	struct PhaseVocoderState : State {
 		PhaseVocoderState(State* parent, Stateful* owner) : State(parent, owner), queue_in(max_window_size + CHUNK_SIZE), queue_out(max_window_size + CHUNK_SIZE) {
 			last_window_size = max_window_size;

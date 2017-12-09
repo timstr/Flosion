@@ -146,7 +146,7 @@ namespace fui {
 					return !std::isnan(stringToFloat(str));
 				};
 
-				auto minyfield = new ui::TextEntryHelper(
+				auto minyfield = new ui::helpers::TextEntryHelper(
 					toString(splineobject->spline.getMinY()),
 					getFont(),
 					[this](const std::string& str){
@@ -159,7 +159,7 @@ namespace fui {
 					validate
 				);
 
-				auto maxyfield = new ui::TextEntryHelper(
+				auto maxyfield = new ui::helpers::TextEntryHelper(
 					toString(splineobject->spline.getMaxY()),
 					getFont(),
 					[this](const std::string& str){
@@ -172,7 +172,7 @@ namespace fui {
 					validate
 				);
 
-				auto minxfield = new ui::TextEntryHelper(
+				auto minxfield = new ui::helpers::TextEntryHelper(
 					toString(splineobject->spline.getMinX()),
 					getFont(),
 					[this](const std::string& str){
@@ -185,7 +185,7 @@ namespace fui {
 					validate
 				);
 
-				auto maxxfield = new ui::TextEntryHelper(
+				auto maxxfield = new ui::helpers::TextEntryHelper(
 					toString(splineobject->spline.getMaxX()),
 					getFont(),
 					[this](const std::string& str){

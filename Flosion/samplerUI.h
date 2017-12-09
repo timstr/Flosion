@@ -2,8 +2,11 @@
 
 #include "FlosionUI.h"
 #include "sampler.h"
+#include "guihelpers.h"
 
 // TODO: editor for parameter name / range
+// TODO: make horizontal size depend on sampler length and vertical size depend on frequency range
+// TODO: make xscale and yscale dynamic
 
 namespace fui {
 
@@ -25,6 +28,7 @@ namespace fui {
 			addChildWindow(addparambtn = new AddParamBtn(this), rightOf(noteprogress, 5.0), above(this));
 			addChildWindow(notecontainer = new NoteContainer(this));
 			next_param_id = 1;
+			updateSize();
 		}
 
 		void render(sf::RenderWindow& rw) override {
@@ -39,6 +43,10 @@ namespace fui {
 
 		void onLoseFocus() override {
 			hideParameters();
+		}
+
+		void updateSize(){
+			notecontainer->updateSize();
 		}
 
 		const static double pixels_per_second;
@@ -110,10 +118,8 @@ namespace fui {
 				container->removeNote(notewin);
 			}
 
-			void resize(float width, float height){
-				size.x = width;
-				size.y = height;
-
+			void updateSize(){
+				container->updateSize();
 				size.x = std::min(std::max(100.0f, size.x), container->size.x);
 				size.y = std::min(std::max(100.0f, size.y), container->size.y);
 
@@ -132,6 +138,12 @@ namespace fui {
 				sampler_object->alignChildren();
 			}
 
+			void resize(float width, float height){
+				size.x = width;
+				size.y = height;
+				updateSize();
+			}
+
 			void render(sf::RenderWindow& rw){
 				renderChildWindows(rw);
 			}
@@ -143,13 +155,21 @@ namespace fui {
 			struct Container : ui::Window {
 				Container(NoteContainer* _parent){
 					parent = _parent;
-					size = {800, 800};
+					float maxnote = parent->sampler_object->noteFromFreq(20000.0f);
+					size.y = ceil(maxnote) * pixels_per_note;
+					updateSize();
 					pos = vec2(0.0f, parent->size.y - size.y);
+				}
+
+				void updateSize(){
+					size.x = parent->sampler_object->sampler.getLength() * pixels_per_second;
 				}
 
 				void onLeftClick(int clicks) override {
 					if (keyDown(sf::Keyboard::LShift) || keyDown(sf::Keyboard::RShift)){
 						startDrag();
+					} else if (keyDown(sf::Keyboard::LControl) || keyDown(sf::Keyboard::RControl)){
+						parent->sampler_object->showMenu(parent->sampler_object->localMousePos());
 					} else if (clicks == 2){
 						parent->sampler_object->hideParameters();
 						vec2 mousepos = localMousePos();
@@ -399,6 +419,8 @@ namespace fui {
 				sampler_object->hideParameters();
 				if (keyDown(sf::Keyboard::LShift) || keyDown(sf::Keyboard::RShift)){
 					container->startDrag();
+				} else if (keyDown(sf::Keyboard::LControl) || keyDown(sf::Keyboard::RControl)){
+					sampler_object->showMenu(sampler_object->localMousePos());
 				} else if (clicks == 1){
 					beginDragging();
 				} else if (clicks == 2){
@@ -993,6 +1015,31 @@ namespace fui {
 			SamplerObject* parent;
 			const ParameterData& param_data;
 			NumberOutput* numberoutput;
+		};
+
+		void showMenu(vec2 pos){
+			Menu* menu = new Menu(this);
+			addChildWindow(menu, pos - menu->size * 0.5f);
+			menu->grabFocus();
+		}
+
+		struct Menu : ui::Window {
+			Menu(SamplerObject* parent) : samplerobject(parent) {
+				size = {100, 100};
+				auto lenlbl = new ui::Text("Length:", getFont());
+				auto lenfld = new ui::helpers::NumberTextEntry(samplerobject->sampler.getLength(), 0.0, 3000.0, [this](double val){
+					samplerobject->sampler.setLength(val);
+				}, getFont());
+				addChildWindow(lenlbl, insideLeft(this, 5), insideTop(this, 5));
+				addChildWindow(lenfld, rightOf(lenlbl, 5), insideTop(this, 5));
+			}
+
+			void onLoseFocus() override {
+				close();
+			}
+
+			private:
+			SamplerObject* const samplerobject;
 		};
 
 		std::set<ParameterData> paramdata;
