@@ -49,8 +49,8 @@ namespace musical {
 
 		// format and write the chunk data
 		for (int i = 0; i < CHUNK_SIZE; i++){
-			outbuffer.at(2 * i)		= inbuffer.at(i).l * INT16_MAX;
-			outbuffer.at(2 * i + 1)	= inbuffer.at(i).r * INT16_MAX;
+			outbuffer.at(2 * i)		= std::min(std::max(inbuffer.at(i).l, -1.0f), 1.0f) * INT16_MAX;
+			outbuffer.at(2 * i + 1)	= std::min(std::max(inbuffer.at(i).r, -1.0f), 1.0f) * INT16_MAX;
 		}
 		data.samples = outbuffer.data();
 		data.sampleCount = CHUNK_SIZE * 2;
