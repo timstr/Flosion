@@ -10,7 +10,7 @@ typedef std::complex<float> complex;
 void fft(complex* x, unsigned int size){
 	unsigned int N = size;
 	unsigned int k = N;
-	float thetaT = 3.141592654 / N;
+	float thetaT = 3.141592654f / (float)N;
 	complex phiT = complex(cos(thetaT), -sin(thetaT));
 
 	while (k > 1){

@@ -15,7 +15,7 @@ namespace musical {
 			pos_carryover = 0;
 		}
 		uint64_t pos;
-		double pos_carryover;
+		float pos_carryover;
 	};
 
 	struct Audio : SoundSourceTemplate<AudioState> {
@@ -54,15 +54,15 @@ namespace musical {
 					}
 
 					buffer[i].l = soundbuffer.getSamples()[state->pos] / (float)UINT16_MAX;
-					state->pos_carryover += sfreq / (double)SFREQ;
-					int trunc = floor(state->pos_carryover);
+					state->pos_carryover += sfreq / (float)SFREQ;
+					float trunc = floor(state->pos_carryover);
 
 					if (channels == 1){
 						buffer[i].r = buffer[i].l;
-						state->pos += trunc;
+						state->pos += (int)trunc;
 					} else if (channels == 2){
 						buffer[i].r = soundbuffer.getSamples()[state->pos + 1] / (float)UINT16_MAX;
-						state->pos += 2 * trunc;
+						state->pos += 2 * (int)trunc;
 					}
 
 					state->pos_carryover -= trunc;

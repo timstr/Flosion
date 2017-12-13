@@ -101,7 +101,7 @@ namespace musical {
 		unsigned int window_size;
 
 		void swap(PhaseVocoderState* state, unsigned int windowsize){
-			for (int i = 0; i < windowsize; i++){
+			for (size_t i = 0; i < windowsize; i++){
 				state->prev_l[i] = state->next_l[i];
 				state->prev_r[i] = state->next_r[i];
 				state->prev_phase_acc_l[i] = state->next_phase_acc_l[i];
@@ -115,11 +115,11 @@ namespace musical {
 			fft(state->next_l, windowsize);
 			fft(state->next_r, windowsize);
 			// cyclic shift
-			for (int i = 1; i < windowsize; i += 2){
+			for (size_t i = 1; i < windowsize; i += 2){
 				state->next_l[i] *= -1.0f;
 				state->next_r[i] *= -1.0f;
 			}
-			for (int i = 0; i < windowsize; i++){
+			for (size_t i = 0; i < windowsize; i++){
 				state->next_phase_diffs_l[i] = std::arg(state->next_l[i]) - std::arg(state->prev_l[i]);
 				state->next_phase_diffs_r[i] = std::arg(state->next_r[i]) - std::arg(state->prev_r[i]);
 			}
@@ -132,7 +132,7 @@ namespace musical {
 				state->offset -= 1.0f;
 			}
 
-			for (int i = 0; i < windowsize; i++){
+			for (size_t i = 0; i < windowsize; i++){
 
 				state->prev_phase_acc_l[i] = fmod(state->prev_phase_acc_l[i] + state->prev_phase_diffs_l[i], 2.0f * 3.141592654f);
 				state->prev_phase_acc_r[i] = fmod(state->prev_phase_acc_r[i] + state->prev_phase_diffs_r[i], 2.0f * 3.141592654f);
@@ -152,7 +152,7 @@ namespace musical {
 			}
 
 			// cyclic shift
-			for (int i = 1; i < windowsize; i += 2){
+			for (unsigned int i = 1; i < windowsize; i += 2){
 				state->outbuffer_l[i] *= -1.0f;
 				state->outbuffer_r[i] *= -1.0f;
 			}
@@ -168,7 +168,7 @@ namespace musical {
 
 			state->queue_in.advance(hopsize, input, state);
 
-			for (int i = 0; i < windowsize; i++){
+			for (unsigned int i = 0; i < windowsize; i++){
 				float window = getHannWindow(i, windowsize);
 				state->next_l[i] = state->queue_in[i].l * window;
 				state->next_r[i] = state->queue_in[i].r * window;
@@ -178,7 +178,7 @@ namespace musical {
 		// add next output to output queue
 		void addOutputBuffer(unsigned int windowsize, PhaseVocoderState* state){
 			const unsigned int hopsize = windowsize / 4;
-			for (int i = 0; i < windowsize; i++){
+			for (unsigned int i = 0; i < windowsize; i++){
 				float window = getHannWindow(i, windowsize);
 				state->queue_out[i + state->frame_position].l += state->outbuffer_l[i].real() * window;
 				state->queue_out[i + state->frame_position].r += state->outbuffer_r[i].real() * window;

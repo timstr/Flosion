@@ -43,10 +43,10 @@ namespace musical {
 		time += time_offset;
 		time_offset = 0;
 	}
-	long double State::getTime() const{
+	float State::getTime() const{
 		return (time + time_offset) / (long double)SFREQ;
 	}
-	long double State::getTimeAt(Stateful* stateful){
+	float State::getTimeAt(Stateful* stateful){
 		State* s = this;
 		double offset = time_offset;
 		while (s){
@@ -58,7 +58,7 @@ namespace musical {
 		}
 		return 0.0;
 	}
-	long double State::getGlobalTime(){
+	float State::getGlobalTime(){
 		State* s = this;
 		double offset = time_offset;
 		while (true){

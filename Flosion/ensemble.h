@@ -16,7 +16,7 @@ namespace musical {
 	};
 
 	struct Ensemble : SoundSourceTemplate<EnsembleState> {
-		Ensemble() : input(this), num_voices(this, 1, max_voices), frequency(this), frequency_spread(this) {
+		Ensemble() : input(this), num_voices(this, 1, (float)max_voices), frequency(this), frequency_spread(this) {
 			for (int i = 0; i < max_voices; i++){
 				input.addKey(i);
 			}
@@ -27,7 +27,7 @@ namespace musical {
 			for (int i = 0; i < nvoices; i++){
 				input.getNextChunk(state->buffer, state, i);
 				for (int s = 0; s < CHUNK_SIZE; s++){
-					buffer[s] += state->buffer[s] / (double)nvoices;
+					buffer[s] += state->buffer[s] / (float)nvoices;
 				}
 			}
 		}
@@ -39,11 +39,11 @@ namespace musical {
 		struct InputState : MultiInputState<int> {
 			using MultiInputState::MultiInputState;
 			void reset() override {
-				static std::uniform_real_distribution<double> gen(0.0, 1.0);
+				static std::uniform_real_distribution<float> gen(0.0, 1.0);
 				static std::default_random_engine eng;
 				rand_value = gen(eng);
 			}
-			double rand_value;
+			float rand_value;
 			private:
 		};
 
@@ -55,9 +55,9 @@ namespace musical {
 			struct Frequency : StateNumberSource {
 				using StateNumberSource::StateNumberSource;
 				float getValue(InputState* state, State* context) const override {
-					double freq = parentmultiinput->parentsoundsource->frequency.getValue(state);
-					double spread = parentmultiinput->parentsoundsource->frequency_spread.getValue(state);
-					return freq * (1.0 + spread * state->rand_value);
+					float freq = parentmultiinput->parentsoundsource->frequency.getValue(state);
+					float spread = parentmultiinput->parentsoundsource->frequency_spread.getValue(state);
+					return freq * (1.0f + spread * state->rand_value);
 				}
 			} frequency;
 

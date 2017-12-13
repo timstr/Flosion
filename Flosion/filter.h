@@ -12,7 +12,7 @@ namespace musical {
 		using State::State;
 
 		void reset() override {
-			frequency_index = 0.0f;
+			frequency_index = 0;
 			for (unsigned int i = 0; i < CHUNK_SIZE; i++){
 				phase1_l[i] = 0.0f;
 				phase1_r[i] = 0.0f;
@@ -22,7 +22,7 @@ namespace musical {
 			}
 		}
 
-		float frequency_index;
+		int frequency_index;
 
 		complex phase1_l[CHUNK_SIZE];
 		complex phase1_r[CHUNK_SIZE];
@@ -57,7 +57,6 @@ namespace musical {
 
 			state->skipTime(halfsize);
 
-			// silly testing below //////////////////////
 			for (int i = 0; i < halfsize; i++){
 				state->frequency_index = i;
 				float amplitude = amplitude_in.getValue(state, 1.0f) * 2.0f;
@@ -68,7 +67,6 @@ namespace musical {
 				state->phase1_l[i] = 0.0f;
 				state->phase1_r[i] = 0.0f;
 			}
-			/////////////////////////////////////////////
 
 			ifft(state->phase1_l, size);
 			ifft(state->phase1_r, size);
@@ -101,7 +99,6 @@ namespace musical {
 
 			state->skipTime(halfsize);
 			
-			// silly testing below //////////////////////
 			for (int i = 0; i < halfsize; i++){
 				state->frequency_index = i;
 				float amplitude = amplitude_in.getValue(state, 1.0f) * 2.0f;
@@ -112,7 +109,6 @@ namespace musical {
 				state->phase2_l[i] = 0.0f;
 				state->phase2_r[i] = 0.0f;
 			}
-			/////////////////////////////////////////////
 
 			ifft(state->phase2_l, size);
 			ifft(state->phase2_r, size);
@@ -129,7 +125,7 @@ namespace musical {
 			return index * SFREQ / (float)CHUNK_SIZE;
 		}
 		static int getIndexFromFrequency(float frequency){
-			return frequency * CHUNK_SIZE / (float)SFREQ;
+			return (int)(frequency * CHUNK_SIZE / (float)SFREQ);
 		}
 
 		SingleInput input;

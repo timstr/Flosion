@@ -30,11 +30,8 @@
 // TODO: cache things
 // TODO: scatter
 // TODO: ring mod
-// TODO: filter
-// TODO: distortion
 // TODO: feedback
-// TODO: high-performance approximations of costly functions (exp, sin, cos...)?
-// TODO: make window sizes customizable for filter and phase vocoder
+// TODO: make window sizes customizable for filter
 int main(){
 
 	srand(unsigned(time(nullptr)));
@@ -43,10 +40,10 @@ int main(){
 
 	fui::MasterContainer* container = new fui::MasterContainer();
 
-	container->addObject(new fui::SliderObject(0, 1000));
-	container->addObject(new fui::SliderObject(0, 1000));
-	container->addObject(new fui::SliderObject(0, 2));
-	container->addObject(new fui::SliderObject(0, 0.1));
+	container->addObject(new fui::SliderObject(0.0f, 1000.0f));
+	container->addObject(new fui::SliderObject(0.0f, 1000.0f));
+	container->addObject(new fui::SliderObject(0.0f, 2.0f));
+	container->addObject(new fui::SliderObject(0.0f, 0.1f));
 
 	ui::root()->addChildWindow(container);
 

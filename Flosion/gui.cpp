@@ -363,7 +363,7 @@ namespace ui {
 	std::map<std::pair<sf::Keyboard::Key, std::vector<sf::Keyboard::Key>>, void (*)()> Context::commands;
 	bool (*Context::quit_handler)() = nullptr;
 	const int Context::doubleclicktime = 250;
-	uint32_t Context::click_timestamp;
+	int32_t Context::click_timestamp;
 	sf::Mouse::Button Context::click_button;
 	Window* Context::click_window;
 	sf::FloatRect Context::clip_rect;

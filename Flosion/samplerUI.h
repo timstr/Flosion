@@ -49,30 +49,30 @@ namespace fui {
 			notecontainer->updateSize();
 		}
 
-		const static double pixels_per_second;
-		const static double pixels_per_note;
+		const static float pixels_per_second;
+		const static float pixels_per_note;
 
 		private:
 
-		static double freqFromNote(float note){
-			return 16.3516 * exp2(note / 12.0);
+		static float freqFromNote(float note){
+			return 16.3516f * exp2(note / 12.0f);
 		}
-		static double NoteFromYPos(float pos, float ysize){
+		static float NoteFromYPos(float pos, float ysize){
 			return (ysize - pos) / pixels_per_note;
 		}
-		static double freqFromYPos(float pos, float ysize){
+		static float freqFromYPos(float pos, float ysize){
 			return freqFromNote(NoteFromYPos(pos, ysize));
 		}
-		static double noteFromFreq(float freq){
-			return log2(freq / 16.3516) * 12.0;
+		static float noteFromFreq(float freq){
+			return log2(freq / 16.3516f) * 12.0f;
 		}
-		static double yPosFromNote(float note, float ysize){
+		static float yPosFromNote(float note, float ysize){
 			return ysize - (note * pixels_per_note);
 		}
-		static double yPosFromFreq(float freq, float ysize){
+		static float yPosFromFreq(float freq, float ysize){
 			return yPosFromNote(noteFromFreq(freq), ysize);
 		}
-		static double timeFromXPos(float pos){
+		static float timeFromXPos(float pos){
 			return pos / pixels_per_second;
 		}
 
@@ -431,21 +431,21 @@ namespace fui {
 			
 			void updateNote(){
 				note->start_time = timeFromXPos(pos.x);
-				note->length = size.x / 100.0;
+				note->length = size.x / 100.0f;
 			}
 			
 			void redraw(){
-				int width = note->length * pixels_per_second;
+				int width = (int)(note->length * pixels_per_second);
 				musical::Spline& spline = note->frequency.getSpline();
-				size.x = width;
+				size.x = (float)width;
 				vertices.resize(width * 2 + 2);
 				for (int x = 0; x < width + 1; x++){
-					double y = yPosFromFreq(spline.getValueAt(x / (double)width), size.y);
+					float y = yPosFromFreq(spline.getValueAt(x / (float)width), size.y);
 					sf::Color color = sf::Color(0xFF);
 					vertices[2 * x].color = color;
-					vertices[2 * x].position = vec2(x, y);
+					vertices[2 * x].position = vec2((float)x, y);
 					vertices[2 * x + 1].color = color;
-					vertices[2 * x + 1].position = vec2(x, y + pixels_per_note);
+					vertices[2 * x + 1].position = vec2((float)x, y + pixels_per_note);
 				}
 				lengthbtn->pos = vertices[width * 2].position;
 				for (FreqSplineBtn* btn : splinebuttons){
@@ -659,15 +659,15 @@ namespace fui {
 
 				void redrawSpline(){
 					size.x = notewin->size.x;
-					int width = size.x;
+					int width = (int)size.x;
 					vertices.resize(width * 2 + 2);
 					float minY = paramdata.min_value;
 					float maxY = paramdata.max_value;
 					for (int i = 0; i <= width; i++){
-						double y = size.y * (1 - (parameter.getSpline().getValueAt(i / (double)width) - minY) / (maxY - minY));
-						vertices[2 * i].position = vec2(i, y);
+						float y = size.y * (1 - (parameter.getSpline().getValueAt(i / (float)width) - minY) / (maxY - minY));
+						vertices[2 * i].position = vec2((float)i, y);
 						vertices[2 * i].color = paramdata.display_color;
-						vertices[2 * i + 1].position = vec2(i, size.y);
+						vertices[2 * i + 1].position = vec2((float)i, size.y);
 						vertices[2 * i + 1].color = sf::Color(paramdata.display_color.r / 2, paramdata.display_color.g / 2, paramdata.display_color.b / 2, 0xFF);
 					}
 				}
@@ -684,7 +684,7 @@ namespace fui {
 						float time = mousepos.x / size.x;
 						float maxY = paramdata.max_value;
 						float minY = paramdata.min_value;
-						float val = minY + (maxY - minY) * (1.0 - (mousepos.y / size.y));
+						float val = minY + (maxY - minY) * (1.0f - (mousepos.y / size.y));
 						auto point = parameter.getSpline().addPoint(time, val);
 						SplineButton* btn = new SplineButton(this, point);
 						addChildWindow(btn, mousepos - btn->size * 0.5f);
@@ -699,7 +699,7 @@ namespace fui {
 					rect.setSize(size);
 					rect.setOutlineColor(sf::Color(0xFF));
 					rect.setOutlineThickness(1.0f);
-					rect.setFillColor(sf::Color(paramdata.display_color.r * 0.25, paramdata.display_color.g * 0.25, paramdata.display_color.b * 0.25, 0xC0));
+					rect.setFillColor(sf::Color(paramdata.display_color.r / 4, paramdata.display_color.g / 4, paramdata.display_color.b / 4, 0xC0));
 					rw.draw(rect);
 					if (spline_mode){
 						rw.draw(vertices.data(), vertices.size(), sf::PrimitiveType::TrianglesStrip);
@@ -745,7 +745,7 @@ namespace fui {
 					}
 
 					void render(sf::RenderWindow& rw) override {
-						sf::CircleShape circle(size.x * 0.5);
+						sf::CircleShape circle(size.x * 0.5f);
 						circle.setFillColor(paramwindow->paramdata.display_color);
 						circle.setOutlineColor(sf::Color(0xFF));
 						circle.setOutlineThickness(1.0f);
@@ -780,7 +780,7 @@ namespace fui {
 						float time = (pos.x + size.x * 0.5f) / paramwindow->size.x;
 						float maxY = paramwindow->paramdata.max_value;
 						float minY = paramwindow->paramdata.min_value;
-						float val = minY + (maxY - minY) * (1.0 - ((pos.y + size.y * 0.5f) / paramwindow->size.y));
+						float val = minY + (maxY - minY) * (1.0f - ((pos.y + size.y * 0.5f) / paramwindow->size.y));
 						point->setX(time);
 						point->setY(val);
 						paramwindow->redrawSpline();
@@ -807,7 +807,7 @@ namespace fui {
 						pos.y = std::min(std::max(pos.y, 0.0f), paramwindow->size.y);
 						float minv = paramwindow->paramdata.min_value;
 						float maxv = paramwindow->paramdata.max_value;
-						double val = minv + (maxv - minv) * (1.0f - (pos.y / paramwindow->size.y));
+						float val = minv + (maxv - minv) * (1.0f - (pos.y / paramwindow->size.y));
 						paramwindow->parameter.getConstant().setValue(val);
 						paramwindow->update();
 						paramwindow->notewin->redrawParameterGraph(paramwindow);
@@ -866,7 +866,7 @@ namespace fui {
 			}
 
 			void redrawParameterGraph(ParamWindow* pw){
-				int width = size.x;
+				int width = (int)size.x;
 				std::vector<sf::Vertex>& vertices = param_graphs[pw];
 				vertices.resize(width);
 				float minv = pw->paramdata.min_value;
@@ -874,7 +874,7 @@ namespace fui {
 				for (int x = 0; x < width; x++){
 					float ymin = yPosFromFreq(note->frequency.getValue(x / (float)width), size.y);
 					float val = (pw->parameter.getValue(x / (float)width) - minv) / (maxv - minv);
-					vertices[x].position = vec2(x, ymin + (1.0f - val) * pixels_per_note);
+					vertices[x].position = vec2((float)x, ymin + (1.0f - val) * pixels_per_note);
 					vertices[x].color = pw->paramdata.display_color;
 				}
 			}
@@ -890,7 +890,7 @@ namespace fui {
 		};
 
 		NoteWindow* addNote(float freq, float time, float length){
-			NoteWindow* notewin = new NoteWindow(this, sampler.addNote(freq, 0.1, time, length));
+			NoteWindow* notewin = new NoteWindow(this, sampler.addNote(freq, 0.1f, time, length));
 			for (const ParameterData& pd : paramdata){
 				notewin->addParameter(pd);
 			}
@@ -920,7 +920,7 @@ namespace fui {
 				pd.visible = pd.id == id;
 			}
 			for (ParamHandle* ph : param_handles){
-				ph->size.y = ph->getParamId() == id ? 60 : 45;
+				ph->size.y = ph->getParamId() == id ? 60.0f : 45.0f;
 			}
 		}
 		void hideParameters(){
@@ -995,7 +995,7 @@ namespace fui {
 				if (param_data.visible){
 					rect.setFillColor(param_data.display_color);
 				} else {
-					rect.setFillColor(sf::Color(param_data.display_color.r * 0.5, param_data.display_color.g * 0.5, param_data.display_color.b * 0.5, 255));
+					rect.setFillColor(sf::Color(param_data.display_color.r / 2, param_data.display_color.g / 2, param_data.display_color.b / 2, 255));
 				}
 				rect.setOutlineColor(sf::Color(0xFF));
 				rect.setOutlineThickness(1.0f);
@@ -1027,7 +1027,7 @@ namespace fui {
 			Menu(SamplerObject* parent) : samplerobject(parent) {
 				size = {100, 100};
 				auto lenlbl = new ui::Text("Length:", getFont());
-				auto lenfld = new ui::helpers::NumberTextEntry(samplerobject->sampler.getLength(), 0.0, 3000.0, [this](double val){
+				auto lenfld = new ui::helpers::NumberTextEntry(samplerobject->sampler.getLength(), 0.0, 3000.0, [this](float val){
 					samplerobject->sampler.setLength(val);
 				}, getFont());
 				addChildWindow(lenlbl, insideLeft(this, 5), insideTop(this, 5));
@@ -1050,7 +1050,7 @@ namespace fui {
 		musical::Sampler sampler;
 		int next_param_id;
 	};
-	const double SamplerObject::pixels_per_second = 100.0;
-	const double SamplerObject::pixels_per_note = 10.0;
+	const float SamplerObject::pixels_per_second = 100.0;
+	const float SamplerObject::pixels_per_note = 10.0;
 	fuiRegisterObject(SamplerObject, "sampler");
 }

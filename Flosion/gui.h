@@ -95,7 +95,7 @@ namespace ui {
 
 			static const int doubleclicktime;
 
-			static uint32_t click_timestamp;
+			static int32_t click_timestamp;
 			static sf::Mouse::Button click_button;
 			static Window* click_window;
 			static sf::FloatRect clip_rect;

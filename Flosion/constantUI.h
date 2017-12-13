@@ -80,7 +80,7 @@ namespace fui {
 				if (pos.x > parent->size.x - size.x){
 					pos.x = parent->size.x - size.x;
 				}
-				double val = parent->min_value + (parent->max_value - parent->min_value) * (pos.x / (parent->size.x - size.x));
+				float val = parent->min_value + (parent->max_value - parent->min_value) * (pos.x / (parent->size.x - size.x));
 				parent->value.setValue(val);
 				parent->updateCaption();
 				startDrag();
@@ -100,7 +100,7 @@ namespace fui {
 					pos.x = parent->size.x - size.x;
 				}
 
-				double val = parent->min_value + (parent->max_value - parent->min_value) * (pos.x / (parent->size.x - size.x));
+				float val = parent->min_value + (parent->max_value - parent->min_value) * (pos.x / (parent->size.x - size.x));
 
 				parent->value.setValue(val);
 				parent->updateCaption();

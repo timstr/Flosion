@@ -19,10 +19,10 @@ namespace musical {
 
 		void renderChunk(Sample* buffer, WaveGenState* state) override {
 			for (int i = 0; i < CHUNK_SIZE; i++){
-				buffer[i].l = wavefunction.getValue(state, i);
+				buffer[i].l = wavefunction.getValue(state);
 				buffer[i].r = buffer[i].l;
 
-				state->phase += frequency.getValue(state, 250) / (double)SFREQ;
+				state->phase += frequency.getValue(state, 250) / (float)SFREQ;
 				state->phase -= floor(state->phase);
 				state->tick();
 			}

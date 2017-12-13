@@ -50,8 +50,8 @@ namespace fui {
 
 				musical::Sample ampl = parent->dac.getCurrentAmp();
 
-				double lheight = ampl.l * size.y;
-				double rheight = ampl.r * size.y;
+				float lheight = ampl.l * size.y;
+				float rheight = ampl.r * size.y;
 
 				rect.setSize(vec2(20, lheight));
 				rect.setPosition(vec2(0, size.y - lheight));

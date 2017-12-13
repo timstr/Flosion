@@ -255,9 +255,9 @@ namespace musical {
 				case Interpolation::Sinusoid:
 					return l + (r - l) * (0.5f - 0.5f * cos(x * 3.1415927f));
 				case Interpolation::EaseIn:
-					return l + (r - l) * pow(x, 4.0);
+					return l + (r - l) * pow(x, 4.0f);
 				case Interpolation::EaseOut:
-					return l + (r - l) * (1.0 - pow(1.0 - x, 4));
+					return l + (r - l) * (1.0f - pow(1.0f - x, 4.0f));
 				default:
 					return l;
 			}

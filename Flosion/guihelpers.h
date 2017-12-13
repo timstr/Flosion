@@ -17,7 +17,7 @@ namespace ui {
 		};
 
 		struct ToggleButton : Window {
-			ToggleButton(bool& _target, unsigned int _size = 20) : target(_target) {
+			ToggleButton(bool& _target, float _size = 20.0f) : target(_target) {
 				size = vec2(_size, _size);
 			}
 
@@ -32,8 +32,8 @@ namespace ui {
 				rw.draw(circle);
 				if (target){
 					circle.setFillColor(sf::Color(0xFF));
-					circle.setRadius(size.x * 0.45);
-					circle.setPosition(vec2(size.x * 0.05, size.x * 0.05));
+					circle.setRadius(size.x * 0.45f);
+					circle.setPosition(vec2(size.x * 0.05f, size.x * 0.05f));
 					rw.draw(circle);
 				}
 			}
@@ -99,7 +99,7 @@ namespace ui {
 		};
 
 		struct NumberTextEntry : TextEntry {
-			NumberTextEntry(double default, double _min, double _max, const std::function<void(double)>& _callback, const sf::Font& font)
+			NumberTextEntry(float default, float _min, float _max, const std::function<void(float)>& _callback, const sf::Font& font)
 				: TextEntry(toString(default), font), value(default), min(_min), max(_max), callback(_callback) {
 				setBackGroundColor(sf::Color(0xFFFFFFFF));
 				setTextColor(sf::Color(0xFF));
@@ -107,7 +107,7 @@ namespace ui {
 
 			void onReturn(const std::string& entered_text) override {
 				if (validate(entered_text) && callback){
-					double val = stringToDouble(entered_text);
+					float val = stringToFloat(entered_text);
 					callback(val);
 				}
 			}
@@ -121,13 +121,13 @@ namespace ui {
 			}
 
 			private:
-			double value;
-			const double min;
-			const double max;
-			std::function<void(double)> callback;
+			float value;
+			const float min;
+			const float max;
+			std::function<void(float)> callback;
 
 			bool validate(const std::string& text){
-				double val = stringToDouble(text);
+				float val = stringToFloat(text);
 				return !std::isnan(val);
 			}
 		};

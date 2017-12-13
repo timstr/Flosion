@@ -7,6 +7,7 @@
 
 namespace fui {
 
+	// add
 	struct AddObject : ProcessingObject {
 		AddObject(){
 			size = {75, 75};
@@ -19,14 +20,15 @@ namespace fui {
 
 			addChildWindow(new NumberOutput(&add, this, "Output"), rightOf(this), insideTop(this));
 
-			addChildWindow(new ui::Text("Add", getFont()), {30, 5});
+			addChildWindow(new ui::Text("Add", getFont()), middleOfX(this), middleOfY(this));
 		}
 
 		private:
-		musical::Add add;
+		musical::functions::Add add;
 	}; 
 	fuiRegisterObject(AddObject, "add", "+", "plus");
 
+	// subtract
 	struct SubtractObject : ProcessingObject {
 		SubtractObject(){
 			size = {75, 75};
@@ -43,10 +45,11 @@ namespace fui {
 		}
 
 		private:
-		musical::Subtract subtract;
+		musical::functions::Subtract subtract;
 	}; 
 	fuiRegisterObject(SubtractObject, "subtract", "-", "minus");
 
+	// multiply
 	struct MultiplyObject : ProcessingObject {
 		MultiplyObject(){
 			size = {75, 75};
@@ -63,16 +66,17 @@ namespace fui {
 		}
 
 		private:
-		musical::Multiply multiply;
+		musical::functions::Multiply multiply;
 	}; 
 	fuiRegisterObject(MultiplyObject, "multiply", "*", "x");
 
+	// divide
 	struct DivideObject : ProcessingObject {
 		DivideObject(){
 			size = {75, 75};
 
-			auto in1 = new NumberInput(&divide.input1, this, "Input A");
-			auto in2 = new NumberInput(&divide.input2, this, "Input B");
+			auto in1 = new NumberInput(&divide.numerator, this, "Numerator");
+			auto in2 = new NumberInput(&divide.denominator, this, "Denominator");
 
 			addChildWindow(in1, leftOf(this), insideTop(this));
 			addChildWindow(in2, leftOf(this), below(in1, 5));
@@ -83,10 +87,11 @@ namespace fui {
 		}
 
 		private:
-		musical::Divide divide;
+		musical::functions::Divide divide;
 	}; 
 	fuiRegisterObject(DivideObject, "divide", "/");
 
+	// unit sine
 	struct UnitSineObject : ProcessingObject {
 		UnitSineObject(){
 			size = {250, 50};
@@ -99,10 +104,11 @@ namespace fui {
 		}
 
 		private:
-		musical::UnitSine usine;
+		musical::functions::UnitSine usine;
 	}; 
 	fuiRegisterObject(UnitSineObject, "usin", "unit sine");
 
+	// saw wave
 	struct SawWaveObject : ProcessingObject {
 		SawWaveObject(){
 			size = {250, 50};
@@ -115,10 +121,11 @@ namespace fui {
 		}
 
 		private:
-		musical::SawWave saw;
+		musical::functions::SawWave saw;
 	}; 
 	fuiRegisterObject(SawWaveObject, "saw", "saw wave");
 
+	// square wave
 	struct SquareWaveObject : ProcessingObject {
 		SquareWaveObject(){
 			size = {250, 50};
@@ -131,11 +138,11 @@ namespace fui {
 		}
 
 		private:
-		musical::SquareWave square;
+		musical::functions::SquareWave square;
 	}; 
 	fuiRegisterObject(SquareWaveObject, "square wave", "pulse wave");
 
-
+	// gaussian bell curve
 	struct GaussianObject : ProcessingObject {
 		GaussianObject(){
 			size = {100, 150};
@@ -155,10 +162,218 @@ namespace fui {
 		}
 
 		private:
-		musical::Gaussian gaussian;
+		musical::functions::Gaussian gaussian;
 	};
 	fuiRegisterObject(GaussianObject, "gaussian", "bell curve");
 
+	// natural log
+	struct NaturalLogObject : ProcessingObject {
+		NaturalLogObject(){
+			size = {50, 30};
+
+			addChildWindow(new NumberInput(&nlog.input, this, "Input"), leftOf(this), middleOfY(this));
+
+			addChildWindow(new NumberOutput(&nlog, this, "Output"), rightOf(this), middleOfY(this));
+
+			addChildWindow(new ui::Text("Log", getFont()), middleOfX(this), middleOfY(this));
+		}
+
+		private:
+		musical::functions::NaturalLog nlog;
+	}; 
+	fuiRegisterObject(NaturalLogObject, "ln", "logarithm", "natural logarithm");
+
+	// exponential
+	struct ExponentialObject : ProcessingObject {
+		ExponentialObject(){
+			size = {50, 30};
+
+			addChildWindow(new NumberInput(&exponential.input, this, "Input"), leftOf(this), middleOfY(this));
+
+			addChildWindow(new NumberOutput(&exponential, this, "Output"), rightOf(this), middleOfY(this));
+
+			addChildWindow(new ui::Text("Exp", getFont()), middleOfX(this), middleOfY(this));
+		}
+
+		private:
+		musical::functions::Exponential exponential;
+	}; 
+	fuiRegisterObject(ExponentialObject, "exponential");
+
+	// minimum
+	struct MinimumObject : ProcessingObject {
+		MinimumObject(){
+			size = {50, 50};
+
+			auto in1 = new NumberInput(&minimum.input1, this, "Input A");
+			auto in2 = new NumberInput(&minimum.input2, this, "Input B");
+
+			addChildWindow(in1, leftOf(this), insideTop(this));
+			addChildWindow(in2, leftOf(this), below(in1, 5));
+
+			addChildWindow(new NumberOutput(&minimum, this, "Output"), rightOf(this), insideTop(this));
+
+			addChildWindow(new ui::Text("Min", getFont()), middleOfX(this), middleOfY(this));
+		}
+
+		private:
+		musical::functions::Minimum minimum;
+	}; 
+	fuiRegisterObject(MinimumObject, "minimum");
+
+	// maximum
+	struct MaximumObject : ProcessingObject {
+		MaximumObject(){
+			size = {50, 50};
+
+			auto in1 = new NumberInput(&maximum.input1, this, "Input A");
+			auto in2 = new NumberInput(&maximum.input2, this, "Input B");
+
+			addChildWindow(in1, leftOf(this), insideTop(this));
+			addChildWindow(in2, leftOf(this), below(in1, 5));
+
+			addChildWindow(new NumberOutput(&maximum, this, "Output"), rightOf(this), insideTop(this));
+
+			addChildWindow(new ui::Text("Max", getFont()), middleOfX(this), middleOfY(this));
+		}
+
+		private:
+		musical::functions::Maximum maximum;
+	}; 
+	fuiRegisterObject(MaximumObject, "maximum");
+
+	// clamp
+	struct ClampObject : ProcessingObject {
+		ClampObject(){
+			size = {75, 50};
+
+			auto in1 = new NumberInput(&clamp.input, this, "Input");
+			auto in2 = new NumberInput(&clamp.minimum, this, "Minimum");
+			auto in3 = new NumberInput(&clamp.maximum, this, "Maximum");
+
+			addChildWindow(in1, leftOf(this), insideTop(this));
+			addChildWindow(in2, leftOf(this), below(in1, 5));
+			addChildWindow(in3, leftOf(this), below(in2, 5));
+
+			addChildWindow(new NumberOutput(&clamp, this, "Output"), rightOf(this), insideTop(this));
+
+			addChildWindow(new ui::Text("Clamp", getFont()), middleOfX(this), middleOfY(this));
+		}
+
+		private:
+		musical::functions::Clamp clamp;
+	}; 
+	fuiRegisterObject(ClampObject, "clamp");
+
+	// phase
+	struct PhaseObject : ProcessingObject {
+		PhaseObject(){
+			size = {50, 50};
+
+			auto in1 = new NumberInput(&phase.x, this, "X");
+			auto in2 = new NumberInput(&phase.y, this, "Y");
+
+			addChildWindow(in1, leftOf(this), insideTop(this));
+			addChildWindow(in2, leftOf(this), below(in1, 5));
+
+			addChildWindow(new NumberOutput(&phase, this, "Output"), rightOf(this), insideTop(this));
+
+			addChildWindow(new ui::Text("Phase", getFont()), middleOfX(this), middleOfY(this));
+		}
+
+		private:
+		musical::functions::Phase phase;
+	}; 
+	fuiRegisterObject(PhaseObject, "phase");
+
+	// abs
+	struct AbsoluteValueObject : ProcessingObject {
+		AbsoluteValueObject(){
+			size = {75, 30};
+
+			addChildWindow(new NumberInput(&absval.input, this, "Input"), leftOf(this), middleOfY(this));
+
+			addChildWindow(new NumberOutput(&absval, this, "Output"), rightOf(this), middleOfY(this));
+
+			addChildWindow(new ui::Text("Abs", getFont()), middleOfX(this), middleOfY(this));
+		}
+
+		private:
+		musical::functions::AbsoluteValue absval;
+	}; 
+	fuiRegisterObject(AbsoluteValueObject, "absolute value");
+
+	// hypotenuse
+	struct HypotenuseObject : ProcessingObject {
+		HypotenuseObject(){
+			size = {50, 50};
+
+			auto in1 = new NumberInput(&hypotenuse.input1, this, "Input A");
+			auto in2 = new NumberInput(&hypotenuse.input2, this, "Input B");
+
+			addChildWindow(in1, leftOf(this), insideTop(this));
+			addChildWindow(in2, leftOf(this), below(in1, 5));
+
+			addChildWindow(new NumberOutput(&hypotenuse, this, "Output"), rightOf(this), insideTop(this));
+
+			addChildWindow(new ui::Text("Hypot", getFont()), middleOfX(this), middleOfY(this));
+		}
+
+		private:
+		musical::functions::Hypotenuse hypotenuse;
+	}; 
+	fuiRegisterObject(HypotenuseObject, "hypotenuse");
+
+	// sine
+	struct SineObject : ProcessingObject {
+		SineObject(){
+			size = {50, 30};
+
+			addChildWindow(new NumberInput(&sine.input, this, "Input"), leftOf(this), middleOfY(this));
+
+			addChildWindow(new NumberOutput(&sine, this, "Output"), rightOf(this), middleOfY(this));
+
+			addChildWindow(new ui::Text("Sin", getFont()), middleOfX(this), middleOfY(this));
+		}
+
+		private:
+		musical::functions::Sine sine;
+	}; 
+	fuiRegisterObject(SineObject, "sine");
+
+	// cosine
+	struct CosineObject : ProcessingObject {
+		CosineObject(){
+			size = {50, 30};
+
+			addChildWindow(new NumberInput(&cosine.input, this, "Input"), leftOf(this), middleOfY(this));
+
+			addChildWindow(new NumberOutput(&cosine, this, "Output"), rightOf(this), middleOfY(this));
+
+			addChildWindow(new ui::Text("Cos", getFont()), middleOfX(this), middleOfY(this));
+		}
+
+		private:
+		musical::functions::Cosine cosine;
+	}; 
+	fuiRegisterObject(CosineObject, "cosine");
+
+	//tangent
+	struct TangentObject : ProcessingObject {
+		TangentObject(){
+			size = {50, 30};
+
+			addChildWindow(new NumberInput(&tangent.input, this, "Input"), leftOf(this), middleOfY(this));
+
+			addChildWindow(new NumberOutput(&tangent, this, "Output"), rightOf(this), middleOfY(this));
+
+			addChildWindow(new ui::Text("Tan", getFont()), middleOfX(this), middleOfY(this));
+		}
+
+		private:
+		musical::functions::Tangent tangent;
+	}; 
+	fuiRegisterObject(TangentObject, "tangent");
 
 	struct DisplayObject : ProcessingObject {
 		DisplayObject() : numres(nullptr) {

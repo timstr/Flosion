@@ -17,11 +17,11 @@ namespace musical {
 			speed = 1.0f;
 		}
 
-		Sample advanceAndGetSample(double delta, SingleInput& input, State* statechain){
+		Sample advanceAndGetSample(float delta, SingleInput& input, State* statechain){
 			// carryover will always be less than 1 from previous call
-			double x0 = carryover;
+			float x0 = carryover;
 			carryover += delta;
-			double x1 = carryover;
+			float x1 = carryover;
 
 			// x0 is initial position from beginning of 'prev' sample
 			// x1 is final position from beginning of 'prev' sample
@@ -37,7 +37,7 @@ namespace musical {
 			} else {
 				// integrate the right part of the previous sample
 				Sample area = F(prev, next, 1) - F(prev, next, x0);
-				double length = (1 - x0);
+				float length = (1 - x0);
 
 				// integrate fully over every whole sample in the middle (if any)
 				while (x1 >= 1){
@@ -71,15 +71,15 @@ namespace musical {
 			}
 		}
 
-		inline Sample F(Sample prev, Sample next, double x) const {
-			return prev * x + (next - prev) * (x * x / 2.0);
+		inline Sample F(Sample prev, Sample next, float x) const {
+			return prev * x + (next - prev) * (x * x / 2.0f);
 		}
 
 		Sample buffer[CHUNK_SIZE];
 		Sample prev;
 		Sample next;
 		unsigned int bufferpos;
-		double carryover;
+		float carryover;
 		float speed;
 	};
 

@@ -25,7 +25,7 @@ namespace musical {
 			input.getNextChunk(buffer, state);
 			for (int i = 0; i < CHUNK_SIZE; i++){
 				float h = hardness.getValue(state, 0.0f);
-				float g = gain.getValue(state, 1.0f);
+				float g = gain.getValue(state, 0.0f);
 				buffer[i].l = std::min(std::max(distort(buffer[i].l, g, h), -1.0f), 1.0f);
 				buffer[i].r = std::min(std::max(distort(buffer[i].r, g, h), -1.0f), 1.0f);
 			}

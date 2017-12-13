@@ -39,15 +39,15 @@ namespace musical {
 							it.state().performReset();
 						} else {
 							// add the trailing part of its buffer
-							for (int i = sample; i < std::min(carryover, len + sample); i++){
-								buffer[i] += it.state().buffer[CHUNK_SIZE - carryover + i] * 0.1; // TODO: perform some kind of mixing/compression here instead of quieting
+							for (size_t i = sample; i < std::min(carryover, len + sample); i++){
+								buffer[i] += it.state().buffer[CHUNK_SIZE - carryover + i] * 0.1f; // TODO: perform some kind of mixing/compression here instead of quieting
 							}
 						}
 						// get the next chunk for the note
 						input.getNextChunk(it.state().buffer, it);
 						// write its first part to the output buffer
-						for (int i = std::max(carryover, sample); i < std::min(CHUNK_SIZE, len + sample); i++){
-							buffer[i] += it.state().buffer[i - carryover] * 0.1; // TODO: see above
+						for (size_t i = std::max(carryover, sample); i < std::min(CHUNK_SIZE, len + sample); i++){
+							buffer[i] += it.state().buffer[i - carryover] * 0.1f; // TODO: see above
 						}
 					}
 				}
@@ -61,8 +61,9 @@ namespace musical {
 			}
 		}
 
+		// TODO: switch start time and length to integer sample counts
 		struct Note {
-			Note(double _frequency, double _amplitude, double _start_time, double _length){
+			Note(float _frequency, float _amplitude, float _start_time, float _length){
 				frequency.useConstant();
 				frequency.getConstant().setValue(_frequency);
 				frequency.getSpline().setMinX(0.0f);
@@ -114,16 +115,16 @@ namespace musical {
 				parameters.erase(id);
 			}
 
-			double amplitude;
-			double start_time;
-			double length;
+			float amplitude;
+			float start_time;
+			float length;
 			Parameter frequency;
 
 			private:
 			std::map<int, Parameter> parameters;
 		};
 
-		Note* addNote(double frequency, double amplitude, double start_time, double length){
+		Note* addNote(float frequency, float amplitude, float start_time, float length){
 			Note* note = new Note(frequency, amplitude, start_time, length);
 			for (int id : parameter_ids){
 				note->addParameter(id);
@@ -144,11 +145,11 @@ namespace musical {
 			throw std::runtime_error("The Note could not be found");
 		}
 
-		void setLength(double len){
-			length = std::max(0.0, len * SFREQ);
+		void setLength(float len){
+			length = std::max(0u, (uint32_t)(len * SFREQ));
 		}
-		double getLength() const {
-			return length / (double)SFREQ;
+		float getLength() const {
+			return length / (float)SFREQ;
 		}
 
 		struct InputState : MultiInputState<Note*> {

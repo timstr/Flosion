@@ -31,9 +31,9 @@ namespace musical {
 		void tick();
 		void skipTime(uint32_t t);
 		void commitTime();
-		long double getTime() const;
-		long double getTimeAt(Stateful* stateful);
-		long double getGlobalTime();
+		float getTime() const; // TODO: return integer sample count?
+		float getTimeAt(Stateful* stateful);
+		float getGlobalTime();
 
 		protected:
 		virtual void reset() = 0;

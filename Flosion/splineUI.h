@@ -220,10 +220,10 @@ namespace fui {
 		};
 
 		void redraw(){
-			int n = size.x;
+			int n = (int)size.x;
 			renderpoints.resize(n);
 			for (int i = 0; i < n; i++){
-				renderpoints[i].position.x = i;
+				renderpoints[i].position.x = (float)i;
 				float x = (i * (spline.getMaxX() - spline.getMinX()) / (float)n) + spline.getMinX();
 				float mag = (spline.getValueAt(x) - spline.getMinY()) / (spline.getMaxY() - spline.getMinY());
 				renderpoints[i].position.y = size.y * (1 - mag);
