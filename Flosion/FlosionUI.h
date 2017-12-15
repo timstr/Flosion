@@ -10,7 +10,7 @@
 namespace fui {
 
 	struct Object;
-	struct Container;
+	struct Container; // TODO: I think this should be called Box
 	struct NumberInput;
 	struct NumberOutput;
 	struct NumberWire;
@@ -60,7 +60,8 @@ namespace fui {
 
 				void render(sf::RenderWindow& rw) override {
 					sf::RectangleShape rect;
-					rect.setSize(size);
+					rect.setPosition(vec2(1.0f, 1.0f));
+					rect.setSize(size - vec2(2.0f, 2.0f));
 					rect.setFillColor(sf::Color(0x000000C0));
 					rect.setOutlineColor(sf::Color(0x80808080));
 					rect.setOutlineThickness(1.0f); // TODO: why doesn't this outline appear?
