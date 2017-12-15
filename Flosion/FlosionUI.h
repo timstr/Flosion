@@ -64,7 +64,7 @@ namespace fui {
 					rect.setSize(size - vec2(2.0f, 2.0f));
 					rect.setFillColor(sf::Color(0x000000C0));
 					rect.setOutlineColor(sf::Color(0x80808080));
-					rect.setOutlineThickness(1.0f); // TODO: why doesn't this outline appear?
+					rect.setOutlineThickness(1.0f);
 					rw.draw(rect);
 					renderChildWindows(rw);
 				}

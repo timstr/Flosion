@@ -223,14 +223,14 @@ namespace musical {
 			struct NoteTime : StateNumberSource {
 				using StateNumberSource::StateNumberSource;
 				float getValue(InputState* state, State* context) const override {
-					return context->getTimeAt(parentmultiinput);
+					return context->getTimeAt(parentmultiinput) / (float)SFREQ;
 				}
 			} notetime;
 
 			struct NoteProgress : StateNumberSource {
 				using StateNumberSource::StateNumberSource;
 				float getValue(InputState* state, State* context) const override {
-					return context->getTimeAt(parentmultiinput) / state->key->length;
+					return context->getTimeAt(parentmultiinput) / (float)SFREQ / state->key->length;
 				}
 			} noteprogress;
 

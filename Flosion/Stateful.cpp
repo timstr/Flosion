@@ -43,31 +43,32 @@ namespace musical {
 		time += time_offset;
 		time_offset = 0;
 	}
-	float State::getTime() const{
-		return (time + time_offset) / (long double)SFREQ;
+	uint32_t State::getTime() const{
+		return time + time_offset;
 	}
-	float State::getTimeAt(Stateful* stateful){
+	uint32_t State::getTimeAt(Stateful* stateful){
 		State* s = this;
-		double offset = time_offset;
+		long double offset = time_offset;
 		while (s){
 			offset /= s->owner->getTimeSpeed(s);
 			if (s->owner == stateful){
-				return (s->time + offset) / (long double)SFREQ;
+				return s->time + (uint32_t)offset;
 			}
 			s = s->parent;
 		}
-		return 0.0;
+		return 0;
 	}
-	float State::getGlobalTime(){
+	uint32_t State::getGlobalTime(){
 		State* s = this;
-		double offset = time_offset;
+		long double offset = time_offset;
 		while (true){
 			offset /= s->owner->getTimeSpeed(s);
 			if (s->parent == nullptr){
-				return (s->time + offset) / (long double)SFREQ;
+				return s->time + (uint32_t)offset;
 			}
 			s = s->parent;
 		}
+		return 0;
 	}
 
 }

@@ -37,7 +37,7 @@ int main(){
 
 	srand(unsigned(time(nullptr)));
 
-	ui::init({1000, 700}, "Flosion", 30);
+	ui::init(1000, 700, "Flosion", 30);
 
 	fui::MasterContainer* container = new fui::MasterContainer();
 

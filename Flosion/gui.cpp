@@ -36,13 +36,11 @@ namespace ui {
 	}
 
 	// Context
-	void Context::init(vec2 size, std::string title, double _render_delay){
-		width = size.x;
-		height = size.y;
+	void Context::init(unsigned width, unsigned height, std::string title, double _render_delay){
 		render_delay = _render_delay;
 		sf::ContextSettings settings;
 		settings.antialiasingLevel = 8;
-		Context::getRenderWindow().create(sf::VideoMode(size.x, size.y), title, sf::Style::Default, settings);
+		Context::getRenderWindow().create(sf::VideoMode(width, height), title, sf::Style::Default, settings);
 		resetView();
 		Context::current_window = root();
 		Context::clock.restart();
@@ -208,7 +206,7 @@ namespace ui {
 	}
 	void Context::handleKeyPress(sf::Keyboard::Key key){
 		auto it = commands.begin();
-		int max = 0;
+		size_t max = 0;
 		auto current_it = commands.end();
 		while (it != commands.end()){
 			if (it->first.first == key){
@@ -764,7 +762,7 @@ namespace ui {
 			alignChildren();
 			children_aligned = true;
 		}
-		for (int i = childwindows.size() - 1; i >= 0; i -= 1){
+		for (int i = (int)childwindows.size() - 1; i >= 0; i -= 1){
 			if (childwindows[i]->visible){
 				if (childwindows[i]->clipping){
 					Context::translateView(childwindows[i]->pos);
@@ -809,7 +807,7 @@ namespace ui {
 		text.setString(_text);
 		updateSize();
 	}
-	const std::string& Text::getText(){
+	std::string Text::getText(){
 		return text.getString();
 	}
 	void Text::render(sf::RenderWindow& renderwin){
@@ -850,7 +848,7 @@ namespace ui {
 				return;
 			}
 		}
-		cursor_index = text.getString().getSize();
+		cursor_index = (unsigned)text.getString().getSize();
 		updateSize();
 	}
 	void TextEntry::setText(const std::string& str){
@@ -895,12 +893,12 @@ namespace ui {
 		renderwindow.draw(rect);
 		renderwindow.draw(text);
 		if (Context::getTextEntry() == this){
-			sf::RectangleShape rect2(vec2(cursor_width, text.getCharacterSize()));
+			sf::RectangleShape rect2(vec2(cursor_width, (float)text.getCharacterSize()));
 			rect2.setFillColor(sf::Color(
-				text.getColor().r,
-				text.getColor().g,
-				text.getColor().b,
-				128 * (0.5 + 0.5 * sin(getProgramTime() * PI * 2))));
+				text.getFillColor().r,
+				text.getFillColor().g,
+				text.getFillColor().b,
+				(uint8_t)(128 * (0.5 + 0.5 * sin(getProgramTime() * PI * 2.0)))));
 			rect2.setPosition(vec2(cursor_pos, 0));
 			renderwindow.draw(rect2);
 		}
@@ -957,14 +955,14 @@ namespace ui {
 		updateSize();
 	}
 	void TextEntry::onEnd(){
-		cursor_index = text.getString().getSize();
+		cursor_index = (unsigned)text.getString().getSize();
 		updateSize();
 	}
 	void TextEntry::updateSize(){
 		sf::FloatRect rect = text.getLocalBounds();
 		const float minwidth = text.getCharacterSize() * 5.0f;
 		size.x = std::max(rect.width, minwidth);
-		size.y = text.getCharacterSize();
+		size.y = (float)text.getCharacterSize();
 		cursor_pos = text.findCharacterPos(cursor_index).x;
 		if (cursor_index == text.getString().getSize()){
 			cursor_width = text.getCharacterSize() * 0.5f;
@@ -998,8 +996,8 @@ namespace ui {
 		return vec2(sf::Mouse::getPosition(Context::getRenderWindow()));
 	}
 
-	void init(vec2 size, std::string title, int target_fps){
-		Context::init(size, title, 1.0 / target_fps);
+	void init(unsigned width, unsigned height, std::string title, int target_fps){
+		Context::init(width, height, title, 1.0 / target_fps);
 	}
 	void quit(bool force){
 		Context::handleQuit(force);
@@ -1071,11 +1069,11 @@ namespace ui {
 						break;
 					case sf::Event::MouseButtonPressed:
 					{
-						Context::handleMouseDown(event.mouseButton.button, vec2(event.mouseButton.x, event.mouseButton.y));
+						Context::handleMouseDown(event.mouseButton.button, vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
 						break;
 					}
 					case sf::Event::MouseButtonReleased:
-						Context::handleMouseUp(event.mouseButton.button, vec2(event.mouseButton.x, event.mouseButton.y));
+						Context::handleMouseUp(event.mouseButton.button, vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
 						break;
 					case sf::Event::MouseWheelScrolled:
 						if (Context::getCurrentWindow()){

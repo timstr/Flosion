@@ -5,8 +5,6 @@
 #include "musical.h"
 #include <thread>
 
-// TODO: very strange bugs here when musical::CHUNK_SIZE != 1024
-
 namespace musical {
 
 	struct DAC : private sf::SoundStream {

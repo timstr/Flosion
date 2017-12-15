@@ -226,8 +226,7 @@ namespace musical {
 		};
 
 		// MultiInput struct
-		// TODO: can SoundSourceType be make SoundSourceTemplate<StateType> by default?
-		template <class InputStateType, class KeyType, class SoundSourceType = SoundSourceTemplate<StateType>>
+		template <class InputStateType, class KeyType, class SoundSourceType = SoundSource>
 		struct MultiInput : SoundInput {
 			MultiInput(SoundSourceType* _parent) : SoundInput(_parent), parentsoundsource(_parent) {
 				static_assert(std::is_base_of<MultiInputState<KeyType>, InputStateType>::value, "The InputStateType must derive from MultiInputState<KeyType>");

@@ -127,7 +127,7 @@ namespace fui {
 		}
 		listitems.clear();
 		auto& objmap = Factory::getObjectMap();
-		int y = size.y;
+		float y = size.y;
 		int count = 0;
 		const int max_items = 10;
 		for (auto it = objmap.begin(); it != objmap.end() && count < max_items; it++){

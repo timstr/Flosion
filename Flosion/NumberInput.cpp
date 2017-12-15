@@ -34,7 +34,7 @@ namespace musical {
 		}
 
 		std::vector<Stateful*> stateful_sources;
-		src->findAllStatefulSources(stateful_sources); // TODO: exception here when connecting custom parameter in Sampler
+		src->findAllStatefulSources(stateful_sources);
 		if (stateful_sources.size() == 0){
 			return true;
 		} else {

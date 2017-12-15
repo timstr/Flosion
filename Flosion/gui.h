@@ -34,7 +34,7 @@ namespace ui {
 		};
 
 		struct Context {
-			static void init(vec2 size, std::string title, double _render_delay);
+			static void init(unsigned width, unsigned height, std::string title, double _render_delay);
 
 			static void addTransition(const Transition& transition);
 			static void applyTransitions();
@@ -240,7 +240,7 @@ namespace ui {
 		Text(const std::string& _text, const sf::Font& _font, sf::Color color = sf::Color(0xFF), int charsize = 15);
 
 		void setText(const std::string& _text);
-		const std::string& getText();
+		std::string getText();
 
 		void render(sf::RenderWindow& renderwin) override;
 
@@ -295,7 +295,7 @@ namespace ui {
 
 		sf::Color background_color;
 		sf::Text text;
-		int cursor_index = 0;
+		unsigned cursor_index = 0;
 		float cursor_pos;
 		float cursor_width;
 
@@ -314,7 +314,7 @@ namespace ui {
 
 	vec2 getMousePos();
 
-	void init(vec2 size = vec2(500, 500), std::string title = "Behold", int target_fps = 30);
+	void init(unsigned width = 500, unsigned height = 400, std::string title = "Behold", int target_fps = 30);
 
 	void quit(bool force = false);
 

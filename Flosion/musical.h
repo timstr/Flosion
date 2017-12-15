@@ -1,6 +1,6 @@
 #pragma once
 
-// TODO: add facility for precomputed functions
+// TODO: add facility for precomputed functions?
 // i.e. for fft window, bell curve, to-amplitude function, sin, cos, log, etc
 
 namespace musical {
