@@ -199,5 +199,11 @@
     <ClInclude Include="distortionUI.h">
       <Filter>FlosionUI</Filter>
     </ClInclude>
+    <ClInclude Include="wavetable.h">
+      <Filter>Mathematical Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="wavetableUI.h">
+      <Filter>FlosionUI</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

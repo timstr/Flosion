@@ -6,6 +6,7 @@
 
 namespace musical {
 
+	// TODO: allow resizing with and without scaling points
 	struct Spline : PureFunction {
 		Spline() : input(this){
 

@@ -209,6 +209,8 @@
     <ClInclude Include="timestretchUI.h" />
     <ClInclude Include="wavegen.h" />
     <ClInclude Include="wavegenUI.h" />
+    <ClInclude Include="wavetable.h" />
+    <ClInclude Include="wavetableUI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

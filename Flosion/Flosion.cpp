@@ -20,6 +20,7 @@
 #include "phasevocoderUI.h"
 #include "convolverUI.h"
 #include "distortionUI.h"
+#include "wavetableUI.h"
 
 #include <iostream>
 #include <iomanip>
