@@ -93,6 +93,10 @@ namespace musical {
 			return window_size;
 		}
 
+		float getTimeSpeed(State* state) override {
+			return timespeed.getValue(state);
+		}
+
 		SingleInput input;
 		NumberResult timespeed;
 
