@@ -814,12 +814,13 @@ namespace ui {
 		renderwin.draw(text);
 	}
 	void Text::updateSize(){
+		sf::FloatRect bounds = text.getGlobalBounds();
 		if (text.getString().isEmpty()){
-			size.x = 0;
+			size.x = (float)text.getCharacterSize();
 			size.y = (float)text.getCharacterSize();
 		} else {
-			size.x = text.getLocalBounds().width;
-			size.y = text.getLocalBounds().height;
+			size.x = bounds.width + bounds.left;
+			size.y = bounds.height + bounds.top;
 		}
 	}
 

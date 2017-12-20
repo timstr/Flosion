@@ -33,6 +33,7 @@
 // TODO: ring mod
 // TODO: feedback
 // TODO: make window sizes customizable for filter
+
 int main(){
 
 	srand(unsigned(time(nullptr)));

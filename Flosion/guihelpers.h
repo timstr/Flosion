@@ -13,7 +13,30 @@ namespace ui {
 		// tab navigation, space/enter toggling, automatic alignment and sizing
 
 		struct CallbackButton : Window {
-		
+			CallbackButton(const std::string& label, const std::function<void()>& _onClick) : onClick(_onClick) {
+				auto text = new Text(label, fui::getFont());
+				addChildWindow(text, vec2(0, 0));
+				size = text->size;
+			}
+
+			void onLeftClick(int clicks) override {
+				if (onClick){
+					onClick();
+				}
+			}
+
+			void render(sf::RenderWindow& rw) override {
+				sf::RectangleShape rect;
+				rect.setSize(size);
+				rect.setFillColor(sf::Color(0xCCCCCCFF));
+				rect.setOutlineColor(sf::Color(0xFF));
+				rect.setOutlineThickness(1);
+				rw.draw(rect);
+				renderChildWindows(rw);
+			}
+
+			private:
+			std::function<void()> onClick;
 		};
 
 		struct ToggleButton : Window {
@@ -132,11 +155,6 @@ namespace ui {
 			}
 		};
 	
-		template<typename Model>
-		struct Form : ui::Window {
-			Form(){
-
-			}
-		};
+		
 	}
 }

@@ -180,6 +180,9 @@
     <ClInclude Include="ensembleUI.h" />
     <ClInclude Include="fft.h" />
     <ClInclude Include="filterUI.h" />
+    <ClInclude Include="guiforms.h" />
+    <ClInclude Include="guiformscontrol.h" />
+    <ClInclude Include="guiformsmodel.h" />
     <ClInclude Include="hannwindow.h" />
     <ClInclude Include="filebrowser.h" />
     <ClInclude Include="Font.h" />

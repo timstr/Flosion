@@ -205,5 +205,14 @@
     <ClInclude Include="wavetableUI.h">
       <Filter>FlosionUI</Filter>
     </ClInclude>
+    <ClInclude Include="guiforms.h">
+      <Filter>UI Core</Filter>
+    </ClInclude>
+    <ClInclude Include="guiformsmodel.h">
+      <Filter>UI Core</Filter>
+    </ClInclude>
+    <ClInclude Include="guiformscontrol.h">
+      <Filter>UI Core</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

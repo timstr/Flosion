@@ -3,6 +3,7 @@
 #include "musical.h"
 #include "FlosionUI.h"
 #include "Font.h"
+#include "guiforms.h"
 
 namespace fui {
 
@@ -21,9 +22,6 @@ namespace fui {
 
 	// TODO: add menu similar to spline menu
 	struct SliderObject : ProcessingObject {
-		SliderObject(float minval, float maxval) : SliderObject() {
-			setRange(minval, maxval);
-		}
 		SliderObject(){
 			size = {300, 30};
 			addChildWindow(slider = new Slider(this));
@@ -40,9 +38,16 @@ namespace fui {
 
 			updateCaption();
 		}
+		SliderObject(float minval, float maxval) : SliderObject() {
+			setRange(minval, maxval);
+		}
 
 		void onLeftClick(int clicks) override {
-			slider->jumpToCursor();
+			if (keyDown(sf::Keyboard::LShift) || keyDown(sf::Keyboard::RShift)){
+				showMenu(localMousePos());
+			} else {
+				slider->jumpToCursor();
+			}
 		}
 		void onRightClick(int clicks) override {
 			startDrag();
@@ -55,6 +60,21 @@ namespace fui {
 			value.setValue(std::min(std::max(value.getValue(), min_value), max_value));
 			updateCaption();
 		}
+
+		void showMenu(vec2 center){
+			ui::forms::Model model;
+			model["name"] = ui::forms::StringProperty("name");
+
+			ui::forms::Form* form = new ui::forms::Form(model);
+
+			form->onSubmit([this](ui::forms::Model m){
+				std::cout << (std::string)m["name"] << '\n';
+			});
+
+			addChildWindow(form, center - form->size * 0.5f);
+			form->pos = vec2(floor(form->pos.x), floor(form->pos.y));
+		}
+
 
 		private:
 

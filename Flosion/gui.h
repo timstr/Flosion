@@ -105,7 +105,7 @@ namespace ui {
 		};
 	}
 
-
+	// TODO: automatic sizing based on child windows
 	struct Window {
 		bool disabled = false;
 		bool visible = true;
