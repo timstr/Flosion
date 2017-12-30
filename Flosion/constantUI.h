@@ -65,7 +65,7 @@ namespace fui {
 			ui::forms::Model model;
 			model["name"] = ui::forms::StringProperty("name");
 
-			ui::forms::Form* form = new ui::forms::Form(model);
+			ui::forms::Form* form = new ui::forms::Form(model, getFont());
 
 			form->onSubmit([this](ui::forms::Model m){
 				std::cout << (std::string)m["name"] << '\n';

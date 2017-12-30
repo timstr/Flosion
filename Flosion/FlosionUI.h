@@ -1,5 +1,5 @@
 #pragma once
-#include "gui.h"
+#include <gui.h>
 #include "NumberSource.h"
 #include "SoundSource.h"
 #include <functional>

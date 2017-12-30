@@ -56,17 +56,11 @@
     <ClCompile Include="DAC.cpp">
       <Filter>Musical Core</Filter>
     </ClCompile>
-    <ClCompile Include="gui.cpp">
-      <Filter>UI Core</Filter>
-    </ClCompile>
     <ClCompile Include="FlosionUI.cpp">
       <Filter>UI Core</Filter>
     </ClCompile>
     <ClCompile Include="Font.cpp">
       <Filter>UI Core</Filter>
-    </ClCompile>
-    <ClCompile Include="stringhelpers.cpp">
-      <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="hannwindow.cpp">
       <Filter>Utility</Filter>
@@ -151,16 +145,10 @@
     <ClInclude Include="splineUI.h">
       <Filter>FlosionUI</Filter>
     </ClInclude>
-    <ClInclude Include="gui.h">
-      <Filter>UI Core</Filter>
-    </ClInclude>
     <ClInclude Include="Font.h">
       <Filter>UI Core</Filter>
     </ClInclude>
     <ClInclude Include="FlosionUI.h">
-      <Filter>UI Core</Filter>
-    </ClInclude>
-    <ClInclude Include="guihelpers.h">
       <Filter>UI Core</Filter>
     </ClInclude>
     <ClInclude Include="filter.h">
@@ -174,9 +162,6 @@
     </ClInclude>
     <ClInclude Include="phasevocoderUI.h">
       <Filter>FlosionUI</Filter>
-    </ClInclude>
-    <ClInclude Include="stringhelpers.h">
-      <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="fft.h">
       <Filter>Utility</Filter>
@@ -204,15 +189,6 @@
     </ClInclude>
     <ClInclude Include="wavetableUI.h">
       <Filter>FlosionUI</Filter>
-    </ClInclude>
-    <ClInclude Include="guiforms.h">
-      <Filter>UI Core</Filter>
-    </ClInclude>
-    <ClInclude Include="guiformsmodel.h">
-      <Filter>UI Core</Filter>
-    </ClInclude>
-    <ClInclude Include="guiformscontrol.h">
-      <Filter>UI Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

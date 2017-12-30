@@ -12,4 +12,4 @@ float stringToFloat(const std::string& str);
 
 double stringToDouble(const std::string& str);
 
-int stringToInt(const std::string& str, int default_value = 0);
+int stringToInt(const std::string& str, int default_value);
