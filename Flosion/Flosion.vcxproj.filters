@@ -190,5 +190,8 @@
     <ClInclude Include="wavetableUI.h">
       <Filter>FlosionUI</Filter>
     </ClInclude>
+    <ClInclude Include="pi.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

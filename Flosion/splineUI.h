@@ -2,7 +2,7 @@
 
 #include "spline.h"
 #include "FlosionUI.h"
-#include "guihelpers.h"
+#include <gui/helpers.h>
 #include "stringhelpers.h"
 
 namespace fui {

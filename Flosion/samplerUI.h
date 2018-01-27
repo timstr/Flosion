@@ -2,7 +2,7 @@
 
 #include "FlosionUI.h"
 #include "sampler.h"
-#include "guihelpers.h"
+#include <gui/helpers.h>
 
 // TODO: editor for parameter name / range
 // TODO: make horizontal size depend on sampler length and vertical size depend on frequency range

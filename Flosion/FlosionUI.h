@@ -1,5 +1,5 @@
 #pragma once
-#include <gui.h>
+#include <gui/gui.h>
 #include "NumberSource.h"
 #include "SoundSource.h"
 #include <functional>
@@ -141,8 +141,8 @@ namespace fui {
 			std::vector<ListItem*> listitems;
 			struct TextField : ui::TextEntry {
 				TextField(Menu* _menu);
-				void onType(const std::string& text) override;
-				void onReturn(const std::string& text) override;
+				void onType(std::string text) override;
+				void onReturn(std::string text) override;
 				void onKeyDown(sf::Keyboard::Key key) override;
 				Menu* menu;
 			}* textentry;

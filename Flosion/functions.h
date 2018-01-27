@@ -2,6 +2,7 @@
 
 #include "musical.h"
 #include <math.h>
+#include "pi.h"
 
 namespace musical {
 
@@ -9,7 +10,7 @@ namespace musical {
 
 		struct UnaryPureFunction : PureFunction {
 			UnaryPureFunction() : input(this) {
-
+				
 			}
 
 			NumberInput input;
@@ -55,7 +56,7 @@ namespace musical {
 
 		struct UnitSine : UnaryPureFunction {
 			float evaluate(State* state) const override {
-				return sin(input.getValue(state) * 2 * (float)PI);
+				return sin(input.getValue(state) * 2 * pi<float>);
 			}
 		};
 

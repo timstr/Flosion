@@ -1,7 +1,10 @@
 #include "FlosionUI.h"
 #include "Font.h"
+#include "pi.h"
 
 namespace fui {
+
+	
 
 	// Object
 	Object::Object(){
@@ -144,10 +147,10 @@ namespace fui {
 	Container::Menu::TextField::TextField(Menu* _menu) : TextEntry("", getFont(), 15, sf::Color(0xFFFFFFFF), sf::Color(0x0)){
 		menu = _menu;
 	}
-	void Container::Menu::TextField::onType(const std::string& text){
+	void Container::Menu::TextField::onType(std::string text){
 		menu->refreshList(text);
 	}
-	void Container::Menu::TextField::onReturn(const std::string& text){
+	void Container::Menu::TextField::onReturn(std::string text){
 		menu->createObject(text);
 		menu->close();
 	}
@@ -258,7 +261,7 @@ namespace fui {
 					vec2 end = vec2(sf::Vector2i(oldwire->head->pos - (diff * (float)(50 / hypot(diff.x, diff.y)))));
 
 					oldwire->head->startTransition(0.25, [=](double x){
-						oldwire->head->pos = start + (end - start) * (float)sin(x * PI / 2);
+						oldwire->head->pos = start + (end - start) * (float)sin(x * pi<double> / 2);
 					});
 				}
 
@@ -269,7 +272,7 @@ namespace fui {
 				vec2 end = vec2(sf::Vector2i(wirehead->pos - (diff * (float)(50 / hypot(diff.x, diff.y)))));
 
 				wirehead->startTransition(0.25, [=](double x){
-					wirehead->pos = start + (end - start) * (float)sin(x * PI / 2);
+					wirehead->pos = start + (end - start) * (float)sin(x * pi<double> / 2);
 				});
 			}
 			return true;
@@ -368,7 +371,7 @@ namespace fui {
 				vec2 end = vec2(sf::Vector2i(wiretail->pos - (diff * (float)(50 / hypot(diff.x, diff.y)))));
 
 				wiretail->startTransition(0.25, [=](double x){
-					wiretail->pos = start + (end - start) * (float)sin(x * PI / 2);
+					wiretail->pos = start + (end - start) * (float)sin(x * pi<double> / 2);
 				});
 			}
 			return true;
@@ -566,7 +569,7 @@ namespace fui {
 				vec2 end = vec2(sf::Vector2i(oldwire->head->pos - (diff * (float)(50 / hypot(diff.x, diff.y)))));
 
 				oldwire->head->startTransition(0.25, [=](double x){
-					oldwire->head->pos = start + (end - start) * (float)sin(x * PI / 2);
+					oldwire->head->pos = start + (end - start) * (float)sin(x * pi<double> / 2);
 				});
 			}
 

@@ -5,7 +5,7 @@
 #include "filebrowser.h"
 #include <chrono>
 
-#include <gui.h>
+#include <gui/gui.h>
 
 #include "constantUI.h"
 #include "functionsUI.h"

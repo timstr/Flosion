@@ -3,7 +3,7 @@
 #include "musical.h"
 #include "FlosionUI.h"
 #include "Font.h"
-#include "guiforms.h"
+#include <gui/forms.h>
 
 namespace fui {
 
