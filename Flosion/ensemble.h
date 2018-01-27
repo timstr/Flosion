@@ -12,7 +12,7 @@ namespace musical {
 				buffer[i] = {0, 0};
 			}
 		}
-		Sample buffer[CHUNK_SIZE];
+		Buffer buffer;
 	};
 
 	struct Ensemble : SoundSourceTemplate<EnsembleState> {
@@ -22,7 +22,7 @@ namespace musical {
 			}
 		}
 
-		void renderChunk(Sample* buffer, EnsembleState* state) override {
+		void renderChunk(Buffer& buffer, EnsembleState* state) override {
 			int nvoices = std::min(std::max(1, (int)num_voices.getValue(state, 0)), max_voices);
 			for (int i = 0; i < nvoices; i++){
 				input.getNextChunk(state->buffer, state, i);

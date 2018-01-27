@@ -20,7 +20,7 @@ namespace musical {
 			length = SFREQ * 4;
 		}
 
-		void renderChunk(Sample* buffer, SamplerState* state) override {
+		void renderChunk(Buffer& buffer, SamplerState* state) override {
 			unsigned int sample = 0;
 
 			while (sample < CHUNK_SIZE){
@@ -162,7 +162,7 @@ namespace musical {
 				time_zero = 0.0;
 			}
 
-			Sample buffer[CHUNK_SIZE];
+			Buffer buffer;
 			double time_zero;
 		};
 

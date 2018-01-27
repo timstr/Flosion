@@ -40,7 +40,7 @@ namespace musical {
 			loader_thread = std::thread(loadFile, this, filename);
 		}
 
-		void renderChunk(Sample* buffer, AudioState* state) override {
+		void renderChunk(Buffer& buffer, AudioState* state) override {
 			if (soundbuffer.getSampleCount() == 0 || !loaded){
 				for (int i = 0; i < CHUNK_SIZE; i++){
 					buffer[i] = {0, 0};

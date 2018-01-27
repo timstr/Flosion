@@ -43,7 +43,7 @@ namespace musical {
 	SingleInput::~SingleInput(){
 		setSource(nullptr);
 	}
-	void SingleInput::getNextChunk(Sample* buffer, State* state){
+	void SingleInput::getNextChunk(Buffer& buffer, State* state){
 		for (int i = 0; i < CHUNK_SIZE; i++){
 			buffer[i] = {0, 0};
 		}

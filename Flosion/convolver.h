@@ -38,7 +38,7 @@ namespace musical {
 
 		}
 
-		void renderChunk(Sample* buffer, ConvolverState* state) override {
+		void renderChunk(Buffer& buffer, ConvolverState* state) override {
 			state->length = std::min(std::max(0u, (unsigned)(function_length.getValue(state) * SFREQ)), max_convolution_length);
 			for (unsigned int i = 0; i < state->length; i++){
 				state->position = i;

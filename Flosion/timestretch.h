@@ -75,7 +75,7 @@ namespace musical {
 			return prev * x + (next - prev) * (x * x / 2.0f);
 		}
 
-		Sample buffer[CHUNK_SIZE];
+		Buffer buffer;
 		Sample prev;
 		Sample next;
 		unsigned int bufferpos;
@@ -88,7 +88,7 @@ namespace musical {
 
 		}
 
-		void renderChunk(Sample* buffer, TimeStretchState* state) override {
+		void renderChunk(Buffer& buffer, TimeStretchState* state) override {
 			for (int i = 0; i < CHUNK_SIZE; i++){
 				state->speed = speed.getValue(state, 1);
 				if (state->speed <= 0.001){

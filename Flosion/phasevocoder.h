@@ -79,7 +79,7 @@ namespace musical {
 			window_size = max_window_size;
 		}
 
-		void renderChunk(Sample* buffer, PhaseVocoderState* state){
+		void renderChunk(Buffer& buffer, PhaseVocoderState* state){
 			checkWindowChange(window_size, state);
 			fillOutBuffer(buffer, window_size, state);
 		}
@@ -189,7 +189,7 @@ namespace musical {
 			}
 		}
 
-		void fillOutBuffer(Sample* buffer, unsigned int windowsize, PhaseVocoderState* state){
+		void fillOutBuffer(Buffer& buffer, unsigned int windowsize, PhaseVocoderState* state){
 
 			const unsigned int hopsize = windowsize / 4;
 			

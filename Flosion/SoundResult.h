@@ -8,7 +8,7 @@ namespace musical {
 		SoundResult();
 		~SoundResult();
 
-		void getNextChunk(Sample* buffer);
+		void getNextChunk(Buffer& buffer);
 
 		void reset();
 

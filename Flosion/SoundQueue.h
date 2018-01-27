@@ -1,7 +1,6 @@
 #pragma once
 
 #include "musical.h"
-#include "Sample.h"
 #include <vector>
 #include "SoundSource.h"
 
@@ -76,7 +75,7 @@ namespace musical {
 				}
 			}
 
-			Sample data[CHUNK_SIZE];
+			Buffer data;
 		};
 
 		std::vector<Chunk*> chunks;

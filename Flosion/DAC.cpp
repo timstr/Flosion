@@ -6,8 +6,6 @@ namespace musical {
 
 	DAC::DAC(){
 		initialize(2, SFREQ);
-		inbuffer.resize(CHUNK_SIZE);
-		outbuffer.resize(CHUNK_SIZE * 2);
 	}
 	DAC::~DAC(){
 		pause();
@@ -45,7 +43,7 @@ namespace musical {
 	}
 
 	bool DAC::onGetData(Chunk& data){
-		input.getNextChunk(inbuffer.data());
+		input.getNextChunk(inbuffer);
 
 		// format and write the chunk data
 		for (int i = 0; i < CHUNK_SIZE; i++){

@@ -28,7 +28,7 @@ namespace musical {
 		complex phase1_r[CHUNK_SIZE];
 		complex phase2_l[CHUNK_SIZE];
 		complex phase2_r[CHUNK_SIZE];
-		Sample buffer[CHUNK_SIZE];
+		Buffer buffer;
 	};
 
 
@@ -40,7 +40,7 @@ namespace musical {
 
 		}
 
-		void renderChunk(Sample* buffer, FilterState* state) override {
+		void renderChunk(Buffer& buffer, FilterState* state) override {
 			const unsigned int size = CHUNK_SIZE;
 			const unsigned int halfsize = size / 2;
 

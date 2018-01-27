@@ -21,7 +21,7 @@ namespace musical {
 
 		}
 
-		void renderChunk(Sample* buffer, DistortionState* state) override {
+		void renderChunk(Buffer& buffer, DistortionState* state) override {
 			input.getNextChunk(buffer, state);
 			for (int i = 0; i < CHUNK_SIZE; i++){
 				float h = hardness.getValue(state, 0.0f);

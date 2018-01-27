@@ -24,8 +24,8 @@ namespace musical {
 
 		private:
 
-		std::vector<Sample> inbuffer;
-		std::vector<int16_t> outbuffer;
+		Buffer inbuffer;
+		std::array<int16_t, CHUNK_SIZE * 2> outbuffer;
 
 		// sf::SoundStream overrides
 

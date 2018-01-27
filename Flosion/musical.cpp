@@ -1,6 +1,4 @@
-#pragma once
-
-#include "Sample.h"
+#include "musical.h"
 
 namespace musical {
 
@@ -47,4 +45,5 @@ namespace musical {
 	Sample operator/(const Sample& s, float v){
 		return Sample(s.l / v, s.r / v);
 	}
+
 }

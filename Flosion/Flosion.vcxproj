@@ -157,11 +157,11 @@
     <ClCompile Include="hannwindow.cpp" />
     <ClCompile Include="Flosion.cpp" />
     <ClCompile Include="Font.cpp" />
+    <ClCompile Include="musical.cpp" />
     <ClCompile Include="NumberInput.cpp" />
     <ClCompile Include="NumberResult.cpp" />
     <ClCompile Include="NumberSource.cpp" />
     <ClCompile Include="FlosionUI.cpp" />
-    <ClCompile Include="Sample.cpp" />
     <ClCompile Include="SoundResult.cpp" />
     <ClCompile Include="SoundSource.cpp" />
     <ClCompile Include="Stateful.cpp" />
@@ -194,7 +194,6 @@
     <ClInclude Include="phasevocoder.h" />
     <ClInclude Include="phasevocoderUI.h" />
     <ClInclude Include="pi.h" />
-    <ClInclude Include="Sample.h" />
     <ClInclude Include="sampler.h" />
     <ClInclude Include="samplerUI.h" />
     <ClInclude Include="SoundQueue.h" />

@@ -11,7 +11,7 @@ namespace musical {
 
 	}
 
-	void SoundResult::getNextChunk(Sample* buffer){
+	void SoundResult::getNextChunk(Buffer& buffer){
 		input.getNextChunk(buffer, nullptr);
 	}
 

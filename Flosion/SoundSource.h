@@ -1,7 +1,6 @@
 #pragma once
 
 #include "musical.h"
-#include "Sample.h"
 #include "Stateful.h"
 #include <vector>
 #include <unordered_map>
@@ -44,7 +43,7 @@ namespace musical {
 		// buffer is assumed to be of length musical::CHUNK_SIZE
 		// state is to be the state provided to the current renderChunk function
 		//-------------------------------------------------------------------
-		void getNextChunk(Sample* buffer, State* state);
+		void getNextChunk(Buffer& buffer, State* state);
 
 		//if an input is connected, tell it to add a new state for the given parent state
 		void addState(State* parent_state) override;
@@ -72,7 +71,7 @@ namespace musical {
 	struct SoundSource : Stateful {
 		~SoundSource();
 
-		virtual void getNextChunk(Sample* buffer, State* parent_state, SoundInput* dst) = 0;
+		virtual void getNextChunk(Buffer& buffer, State* parent_state, SoundInput* dst) = 0;
 
 		void addDstInput(SoundInput* input);
 
@@ -114,7 +113,7 @@ namespace musical {
 		// overrides base function, delegates rendering to renderChunk()
 		// and passes corresponding local state
 		//-------------------------------------------------------------------
-		void getNextChunk(Sample* buffer, State* parent_state, SoundInput* dst) override {
+		void getNextChunk(Buffer& buffer, State* parent_state, SoundInput* dst) override {
 			StateType* state = lookupState(parent_state, dst);
 			renderChunk(buffer, state);
 			state->commitTime();
@@ -124,7 +123,7 @@ namespace musical {
 		// chunk of audio data and modify state appropriately
 		// all statefull information should be kept in state to guarantee thread safety
 		//-------------------------------------------------------------------
-		virtual void renderChunk(Sample* buffer, StateType* state) = 0;
+		virtual void renderChunk(Buffer& buffer, StateType* state) = 0;
 
 		protected:
 
@@ -297,7 +296,7 @@ namespace musical {
 			// buffer is assumed to be of length musical::CHUNK_SIZE
 			// state is to be the state provided to the current renderChunk function
 			//-------------------------------------------------------------------
-			void getNextChunk(Sample* buffer, State* state, KeyType key){
+			void getNextChunk(Buffer& buffer, State* state, KeyType key){
 				if (source){
 					auto it = state_map.find({key, state});
 					if (it == state_map.end()){
@@ -314,7 +313,7 @@ namespace musical {
 				state->commitTime();
 			}
 
-			void getNextChunk(Sample* buffer, const iterator& it){
+			void getNextChunk(Buffer& buffer, const iterator& it){
 				for (int i = 0; i < CHUNK_SIZE; i++){
 					buffer[i] = Sample(0, 0);
 				}
