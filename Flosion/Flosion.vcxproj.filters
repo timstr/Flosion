@@ -21,11 +21,11 @@
     <Filter Include="Mathematical Extensions">
       <UniqueIdentifier>{c7b89f5f-f3b8-44fa-800d-47d34c11c3b5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="UI Core">
-      <UniqueIdentifier>{f6a7e845-d808-4763-a216-7d379cd2d3f1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Utility">
       <UniqueIdentifier>{0b0ee018-8889-4f08-922f-404e0d9a4429}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Flosion UI Core">
+      <UniqueIdentifier>{f6a7e845-d808-4763-a216-7d379cd2d3f1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -54,16 +54,40 @@
       <Filter>Musical Core</Filter>
     </ClCompile>
     <ClCompile Include="FlosionUI.cpp">
-      <Filter>UI Core</Filter>
+      <Filter>Flosion UI Core</Filter>
     </ClCompile>
     <ClCompile Include="Font.cpp">
-      <Filter>UI Core</Filter>
+      <Filter>Flosion UI Core</Filter>
     </ClCompile>
     <ClCompile Include="hannwindow.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="musical.cpp">
       <Filter>Musical Core</Filter>
+    </ClCompile>
+    <ClCompile Include="numberwireUI.cpp">
+      <Filter>Flosion UI Core</Filter>
+    </ClCompile>
+    <ClCompile Include="numberoutputUI.cpp">
+      <Filter>Flosion UI Core</Filter>
+    </ClCompile>
+    <ClCompile Include="numberinputUI.cpp">
+      <Filter>Flosion UI Core</Filter>
+    </ClCompile>
+    <ClCompile Include="boxUI.cpp">
+      <Filter>Flosion UI Core</Filter>
+    </ClCompile>
+    <ClCompile Include="soundinputUI.cpp">
+      <Filter>Flosion UI Core</Filter>
+    </ClCompile>
+    <ClCompile Include="soundoutputUI.cpp">
+      <Filter>Flosion UI Core</Filter>
+    </ClCompile>
+    <ClCompile Include="soundwireUI.cpp">
+      <Filter>Flosion UI Core</Filter>
+    </ClCompile>
+    <ClCompile Include="objectUI.cpp">
+      <Filter>Flosion UI Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -99,9 +123,6 @@
     </ClInclude>
     <ClInclude Include="ensembleUI.h">
       <Filter>FlosionUI</Filter>
-    </ClInclude>
-    <ClInclude Include="wavegen.h">
-      <Filter>Musical Extensions</Filter>
     </ClInclude>
     <ClInclude Include="sampler.h">
       <Filter>Musical Extensions</Filter>
@@ -143,10 +164,10 @@
       <Filter>FlosionUI</Filter>
     </ClInclude>
     <ClInclude Include="Font.h">
-      <Filter>UI Core</Filter>
+      <Filter>Flosion UI Core</Filter>
     </ClInclude>
     <ClInclude Include="FlosionUI.h">
-      <Filter>UI Core</Filter>
+      <Filter>Flosion UI Core</Filter>
     </ClInclude>
     <ClInclude Include="filter.h">
       <Filter>Musical Extensions</Filter>
@@ -189,6 +210,36 @@
     </ClInclude>
     <ClInclude Include="pi.h">
       <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="sstreamutil.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="wavegen.h">
+      <Filter>Musical Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="numberinputUI.h">
+      <Filter>Flosion UI Core</Filter>
+    </ClInclude>
+    <ClInclude Include="numberoutputUI.h">
+      <Filter>Flosion UI Core</Filter>
+    </ClInclude>
+    <ClInclude Include="numberwireUI.h">
+      <Filter>Flosion UI Core</Filter>
+    </ClInclude>
+    <ClInclude Include="boxUI.h">
+      <Filter>Flosion UI Core</Filter>
+    </ClInclude>
+    <ClInclude Include="soundinputUI.h">
+      <Filter>Flosion UI Core</Filter>
+    </ClInclude>
+    <ClInclude Include="soundoutputUI.h">
+      <Filter>Flosion UI Core</Filter>
+    </ClInclude>
+    <ClInclude Include="soundwireUI.h">
+      <Filter>Flosion UI Core</Filter>
+    </ClInclude>
+    <ClInclude Include="objectUI.h">
+      <Filter>Flosion UI Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

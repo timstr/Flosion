@@ -3,7 +3,6 @@
 #include "FlosionUI.h"
 #include "functions.h"
 #include "NumberResult.h"
-#include "stringhelpers.h"
 
 namespace fui {
 

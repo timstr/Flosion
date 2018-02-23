@@ -27,6 +27,7 @@
 
 #include "fft.h"
 
+// TODO: optimize for RVO and move semantics
 // TODO: synchronize this stuff
 // TODO: cache things
 // TODO: scatter

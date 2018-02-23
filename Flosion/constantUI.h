@@ -5,18 +5,60 @@
 #include "Font.h"
 #include <gui/forms.h>
 
+// TODO: remove
+#include <iostream>
+
 namespace fui {
 
 	struct ConstantObject : ProcessingObject {
 		ConstantObject(float value = 1.0f){
 			size = {100, 30};
-			addChildWindow(new ui::Text(std::to_string(value), getFont()));
+			addChildWindow(caption = new ui::Text(toString(value), getFont()));
 			addChildWindow(new NumberOutput(&constant, this, "Value"), rightOf(this));
 			constant.setValue(value);
 		}
 
+		void onLeftClick(int clicks) override {
+			showMenu(localMousePos());
+		}
+
+		void updateCaption(){
+			caption->setText(toString(constant.getValue()));
+		}
+
+		void showMenu(vec2 center){
+			ui::forms::Model model;
+			model["Name"] = std::string("your name here");
+			model["Value"] = constant.getValue();
+			model["Pease Porridge"] = ui::forms::PullDownProperty<int>({
+				{1, "Hot"},
+				{2, "Cold"},
+				{3, "In the pot, nine days old"}
+			}, 0);
+
+			ui::forms::Form* form = new ui::forms::Form(model, getFont());
+
+			form->onSubmit([this](ui::forms::Model m){
+				std::cout << "Name: " << (std::string)m["Name"] << std::endl;
+				std::cout << "Value: " << (float)m["Value"] << std::endl;
+				std::cout << "Pease Porridge: " << (int)m["Pease Porridge"] << std::endl;
+
+				/*float val = m["Value"];
+				if (!std::isnan(val)){
+					constant.setValue(val);
+					updateCaption();
+				}*/
+			});
+
+
+			addChildWindow(form);
+			form->pos = center - form->size * 0.5f;
+			form->pos = vec2(floor(form->pos.x), floor(form->pos.y));
+		}
+
 		private:
 		musical::Constant constant;
+		ui::Text* caption;
 	};
 	fuiRegisterObject(ConstantObject, "constant", "value", "number");
 
@@ -54,21 +96,31 @@ namespace fui {
 		}
 		
 		void setRange(float minimum, float maximum){
-			min_value = minimum;
-			max_value = maximum;
+			min_value = std::min(minimum, maximum);
+			max_value = std::max(minimum, maximum);
 			value.setRange(minimum, maximum);
 			value.setValue(std::min(std::max(value.getValue(), min_value), max_value));
 			updateCaption();
+			updateSlider();
+		}
+
+		void updateSlider(){
+			slider->pos.y = 0.0f;
+			slider->pos.x = (size.x - slider->size.x) * ((value.getValue() - min_value) / (max_value - min_value));
 		}
 
 		void showMenu(vec2 center){
 			ui::forms::Model model;
-			model["name"] = ui::forms::StringProperty("name");
+			model["Minimum"] = min_value;
+			model["Maximum"] = max_value;
+			model["Value"] = value.getValue();
+			model["Name"] = std::string("your name here");
 
 			ui::forms::Form* form = new ui::forms::Form(model, getFont());
 
 			form->onSubmit([this](ui::forms::Model m){
-				std::cout << (std::string)m["name"] << '\n';
+				value.setValue(m["Value"]);
+				setRange(m["Minimum"], m["Maximum"]);
 			});
 
 			addChildWindow(form, center - form->size * 0.5f);
@@ -84,7 +136,7 @@ namespace fui {
 		float max_value = 10.0f;
 
 		void updateCaption(){
-			caption->setText(std::to_string(value.getValue()));
+			caption->setText(toString(value.getValue()));
 		}
 
 		struct Slider : ui::Window {

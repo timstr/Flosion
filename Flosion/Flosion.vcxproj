@@ -153,22 +153,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="boxUI.cpp" />
     <ClCompile Include="DAC.cpp" />
     <ClCompile Include="hannwindow.cpp" />
     <ClCompile Include="Flosion.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="musical.cpp" />
     <ClCompile Include="NumberInput.cpp" />
+    <ClCompile Include="numberinputUI.cpp" />
+    <ClCompile Include="numberoutputUI.cpp" />
     <ClCompile Include="NumberResult.cpp" />
     <ClCompile Include="NumberSource.cpp" />
     <ClCompile Include="FlosionUI.cpp" />
+    <ClCompile Include="numberwireUI.cpp" />
+    <ClCompile Include="objectUI.cpp" />
+    <ClCompile Include="soundinputUI.cpp" />
+    <ClCompile Include="soundoutputUI.cpp" />
     <ClCompile Include="SoundResult.cpp" />
     <ClCompile Include="SoundSource.cpp" />
+    <ClCompile Include="soundwireUI.cpp" />
     <ClCompile Include="Stateful.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio.h" />
     <ClInclude Include="audioUI.h" />
+    <ClInclude Include="boxUI.h" />
     <ClInclude Include="constantUI.h" />
     <ClInclude Include="convolver.h" />
     <ClInclude Include="convolverUI.h" />
@@ -188,20 +197,28 @@
     <ClInclude Include="filter.h" />
     <ClInclude Include="musical.h" />
     <ClInclude Include="NumberInput.h" />
+    <ClInclude Include="numberinputUI.h" />
+    <ClInclude Include="numberoutputUI.h" />
     <ClInclude Include="NumberResult.h" />
     <ClInclude Include="NumberSource.h" />
     <ClInclude Include="FlosionUI.h" />
+    <ClInclude Include="numberwireUI.h" />
+    <ClInclude Include="objectUI.h" />
     <ClInclude Include="phasevocoder.h" />
     <ClInclude Include="phasevocoderUI.h" />
     <ClInclude Include="pi.h" />
     <ClInclude Include="sampler.h" />
     <ClInclude Include="samplerUI.h" />
+    <ClInclude Include="soundinputUI.h" />
+    <ClInclude Include="soundoutputUI.h" />
     <ClInclude Include="SoundQueue.h" />
     <ClInclude Include="SoundResult.h" />
     <ClInclude Include="SoundSource.h" />
+    <ClInclude Include="soundwireUI.h" />
     <ClInclude Include="spline.h" />
     <ClInclude Include="splineUI.h" />
     <ClInclude Include="Stateful.h" />
+    <ClInclude Include="sstreamutil.h" />
     <ClInclude Include="timestretch.h" />
     <ClInclude Include="timestretchUI.h" />
     <ClInclude Include="wavegen.h" />

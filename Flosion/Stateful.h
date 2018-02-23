@@ -28,6 +28,7 @@ namespace musical {
 		State* getParentState() const;
 		Stateful* getOwner() const;
 
+		// TODO: improve
 		void tick();
 		void skipTime(uint32_t t);
 		void commitTime();

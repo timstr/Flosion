@@ -3,6 +3,7 @@
 #include "FlosionUI.h"
 #include "sampler.h"
 #include <gui/helpers.h>
+#include <gui/forms.h>
 
 // TODO: editor for parameter name / range
 // TODO: make horizontal size depend on sampler length and vertical size depend on frequency range
@@ -1018,29 +1019,19 @@ namespace fui {
 		};
 
 		void showMenu(vec2 pos){
-			Menu* menu = new Menu(this);
-			addChildWindow(menu, pos - menu->size * 0.5f);
-			menu->grabFocus();
+			ui::forms::Model model;
+			model["Length"] = sampler.getLength();
+
+			ui::forms::Form* form = new ui::forms::Form(model, getFont());
+
+			form->onSubmit([this](ui::forms::Model m){
+				sampler.setLength(m["Length"]);
+			});
+
+			addChildWindow(form);
+			form->pos = pos - form->size * 0.5f;
+			form->pos = vec2(round(form->pos.x), round(form->pos.y));
 		}
-
-		struct Menu : ui::Window {
-			Menu(SamplerObject* parent) : samplerobject(parent) {
-				size = {100, 100};
-				auto lenlbl = new ui::Text("Length:", getFont());
-				auto lenfld = new ui::helpers::NumberTextEntry(samplerobject->sampler.getLength(), 0.0, 3000.0, [this](float val){
-					samplerobject->sampler.setLength(val);
-				}, getFont());
-				addChildWindow(lenlbl, insideLeft(this, 5), insideTop(this, 5));
-				addChildWindow(lenfld, rightOf(lenlbl, 5), insideTop(this, 5));
-			}
-
-			void onLoseFocus() override {
-				close();
-			}
-
-			private:
-			SamplerObject* const samplerobject;
-		};
 
 		std::set<ParameterData> paramdata;
 		NumberOutput* notefrequency;

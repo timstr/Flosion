@@ -8,7 +8,7 @@
 
 namespace musical {
 
-	// TODO: why is this so terribly slow?
+	// TODO: implement using FFT
 
 	const unsigned int max_convolution_length = SFREQ;
 

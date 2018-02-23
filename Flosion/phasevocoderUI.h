@@ -2,6 +2,7 @@
 
 #include "FlosionUI.h"
 #include "phasevocoder.h"
+#include "gui/forms.h"
 
 namespace fui {
 
@@ -23,55 +24,36 @@ namespace fui {
 
 		void onLeftClick(int clicks) override {
 			if (keyDown(sf::Keyboard::LShift) || keyDown(sf::Keyboard::RShift)){
-				auto menu = new Menu(this);
-				addChildWindow(menu, middleOfX(this), middleOfY(this));
-				menu->grabFocus();
+				showMenu(localMousePos());
 			}
 		}
 
+		void showMenu(vec2 center){
+			ui::forms::Model model;
+
+			model["Window Size"] = ui::forms::PullDownProperty<unsigned>(
+				{
+					{256, "256"},
+					{512, "512"},
+					{1024, "1024"},
+					{2048, "2048"},
+					{4096, "4096"},
+					{8192, "8192"},
+				},
+				phasevocoder.getWindowSize());
+
+			ui::forms::Form* form = new ui::forms::Form(model, getFont());
+
+			form->onSubmit([this](ui::forms::Model m){
+				phasevocoder.setWindowSize(m["Window Size"]);
+			});
+
+			addChildWindow(form);
+			form->pos = center - form->size * 0.5f;
+			form->pos = vec2(round(form->pos.x), round(form->pos.y));
+		}
+
 		private:
-
-		struct Menu : ui::Window {
-			Menu(PhaseVocoderObject* _parent) : parent(_parent) {
-				size = {200, 200};
-				auto caption = new ui::Text("Window Size:", getFont());
-				addChildWindow(caption, middleOfX(this), insideTop(this, 5.0f));
-				auto b1 = new Button(this, 256);
-				auto b2 = new Button(this, 512);
-				auto b3 = new Button(this, 1024);
-				auto b4 = new Button(this, 2048);
-				auto b5 = new Button(this, 4096);
-				auto b6 = new Button(this, 8192);
-				addChildWindow(b1, insideLeft(this, 5.0f), below(caption, 5.0f));
-				addChildWindow(b2, rightOf(b1, 5.0f), below(caption, 5.0f));
-				addChildWindow(b3, rightOf(b2, 5.0f), below(caption, 5.0f));
-				addChildWindow(b4, insideLeft(this, 5.0f), below(b1, 5.0f));
-				addChildWindow(b5, rightOf(b4, 5.0f), below(b1, 5.0f));
-				addChildWindow(b6, rightOf(b5, 5.0f), below(b1, 5.0f));
-			}
-
-			void onLoseFocus() override {
-				close();
-			}
-
-			struct Button : ui::Window {
-				Button(Menu* _menu, unsigned int _windowsize) : menu(_menu), windowsize(_windowsize) {
-					size = {50, 30};
-					addChildWindow(new ui::Text(std::to_string(windowsize), getFont()), middleOfX(this), middleOfY(this));
-				}
-
-				void onLeftClick(int clicks) override {
-					menu->parent->phasevocoder.setWindowSize(windowsize);
-					menu->close();
-				}
-
-				Menu* const menu;
-				const unsigned int windowsize;
-			};
-
-			PhaseVocoderObject* const parent;
-		};
-
 
 		musical::PhaseVocoder phasevocoder;
 	};
