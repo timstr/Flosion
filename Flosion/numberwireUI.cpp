@@ -9,7 +9,7 @@ namespace fui {
 		size = {20, 20};
 	}
 	void NumberWire::Head::onLeftClick(int clicks){
-		wire->ConnectHeadTo(nullptr);
+		wire->connectHeadTo(nullptr);
 		startDrag();
 	}
 	bool NumberWire::Head::onDropWindow(Window* window){
@@ -24,7 +24,7 @@ namespace fui {
 		size = {20, 20};
 	}
 	void NumberWire::Tail::onLeftClick(int clicks){
-		wire->ConnectTailTo(nullptr);
+		wire->connectTailTo(nullptr);
 		startDrag();
 	}
 	bool NumberWire::Tail::onDropWindow(Window* window){
@@ -42,8 +42,8 @@ namespace fui {
 		src = nullptr;
 	}
 	NumberWire::~NumberWire(){
-		ConnectHeadTo(nullptr);
-		ConnectTailTo(nullptr);
+		connectHeadTo(nullptr);
+		connectTailTo(nullptr);
 	}
 	bool NumberWire::safeToConnect(NumberInput* input) const {
 		if (!src){
@@ -63,7 +63,7 @@ namespace fui {
 		}
 		return dst->target->isSafeSource(output->target);
 	}
-	void NumberWire::ConnectHeadTo(NumberInput* input){
+	void NumberWire::connectHeadTo(NumberInput* input){
 		if (dst){
 			NumberInput* temp = dst;
 			dst = nullptr;
@@ -84,7 +84,7 @@ namespace fui {
 			}
 		}
 	}
-	void NumberWire::ConnectTailTo(NumberOutput* output){
+	void NumberWire::connectTailTo(NumberOutput* output){
 		if (src){
 			src->removeWireOut(this);
 		}
@@ -112,12 +112,12 @@ namespace fui {
 		renderChildWindows(rw);
 	}
 	void NumberWire::dragHead(){
-		ConnectHeadTo(nullptr);
+		connectHeadTo(nullptr);
 		head->pos = ui::getMousePos() - this->absPos();
 		head->startDrag();
 	}
 	void NumberWire::dragTail(){
-		ConnectTailTo(nullptr);
+		connectTailTo(nullptr);
 		tail->pos = ui::getMousePos() - this->absPos();
 		tail->startDrag();
 	}

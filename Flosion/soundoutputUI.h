@@ -11,7 +11,7 @@ namespace fui {
 	// the source of a sound wire
 	// corresponds to a sound source
 	struct SoundOutput : ui::Window {
-		SoundOutput(musical::SoundSource* _target, Object* _parent);
+		SoundOutput(musical::SoundSource* _target, Object* _parent, std::string _caption = "Sound Output");
 		~SoundOutput();
 
 		void addWireOut(SoundWire* wire);
@@ -21,7 +21,14 @@ namespace fui {
 
 		bool onDropWindow(Window* window) override;
 
+		void onHover() override;
+		void onHoverWithWindow(Window* win) override;
+
 		void onLeftClick(int clicks) override;
+
+		std::string getCaption() const;
+
+		musical::SoundSource* getSource();
 
 		vec2 getWireDirection() const;
 
@@ -29,6 +36,8 @@ namespace fui {
 		Object* const owner_object;
 		musical::SoundSource* const target;
 		std::vector<SoundWire*> wires_out;
+		ui::Text* caption;
+		double hover_timestamp;
 
 		friend struct SoundWire;
 	};

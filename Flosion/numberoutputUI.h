@@ -11,7 +11,7 @@ namespace fui {
 	// the source of a numberwire
 	// corresponds to a number source
 	struct NumberOutput : ui::Window {
-		NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption = "", const std::function<void(NumberInput*)>& _onConnect = {});
+		NumberOutput(musical::NumberSource* _target, Object* _parent, std::string _caption = "Number Output", std::function<void(NumberInput*)> _onConnect = {});
 		~NumberOutput();
 
 		void addWireOut(NumberWire* wire);
@@ -26,9 +26,9 @@ namespace fui {
 
 		void onLeftClick(int clicks) override;
 
-		const std::string& getCaption() const;
+		std::string getCaption() const;
 
-		const musical::NumberSource* getSource() const;
+		musical::NumberSource* getSource() const;
 
 		vec2 getWireDirection() const;
 
@@ -37,9 +37,8 @@ namespace fui {
 		musical::NumberSource* const target;
 		std::vector<NumberWire*> wires_out;
 		ui::Text* caption;
-		std::string caption_str;
 		double hover_timestamp;
-		std::function<void(NumberInput*)> onConnect;
+		std::function<void(NumberInput*)> onConnect; // TODO: be suspicious of and reconsider
 
 		friend struct NumberWire;
 	};

@@ -22,8 +22,8 @@ namespace fui {
 
 		SoundWire();
 
-		void ConnectHeadTo(SoundInput* input);
-		void ConnectTailTo(SoundOutput* output);
+		void connectHeadTo(SoundInput* input);
+		void connectTailTo(SoundOutput* output);
 
 		void render(sf::RenderWindow& rw) override;
 

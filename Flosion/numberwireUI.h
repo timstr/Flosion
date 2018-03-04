@@ -27,8 +27,8 @@ namespace fui {
 
 		bool safeToConnect(NumberInput* input) const;
 		bool safeToConnect(NumberOutput* output) const;
-		void ConnectHeadTo(NumberInput* input);
-		void ConnectTailTo(NumberOutput* output);
+		void connectHeadTo(NumberInput* input);
+		void connectTailTo(NumberOutput* output);
 
 		void render(sf::RenderWindow& rw) override;
 

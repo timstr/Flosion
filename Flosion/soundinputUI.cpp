@@ -3,15 +3,20 @@
 #include "soundwireUI.h"
 #include "pi.h"
 #include "boxUI.h"
+#include "Font.h"
 
 namespace fui {
 
 	// SoundInput
-	SoundInput::SoundInput(musical::SoundInput* _target, Object* _parent)
+	SoundInput::SoundInput(musical::SoundInput* _target, Object* _parent, std::string _caption)
 		: target(_target), owner_object(_parent) {
 		size = {30, 30};
 		owner_object->sound_inputs.push_back(this);
 		wire_in = nullptr;
+		addChildWindow(caption = new ui::Text(_caption, fui::getFont()));
+		caption->pos.x = -5 - caption->size.x;
+		caption->pos.y = 0;
+		hover_timestamp = ui::getProgramTime() - 1;
 	}
 	SoundInput::~SoundInput(){
 		for (auto it = owner_object->sound_inputs.begin(); it != owner_object->sound_inputs.end(); it++){
@@ -28,14 +33,16 @@ namespace fui {
 		rect.setOutlineColor(sf::Color(0x000000FF));
 		rect.setOutlineThickness(1);
 		rw.draw(rect);
+		caption->visible = (ui::getProgramTime() - hover_timestamp < 0.25);
+		renderChildWindows(rw);
 	}
 	void SoundInput::setWireIn(SoundWire* wire){
 		if (wire_in){
-			wire_in->ConnectHeadTo(nullptr);
+			wire_in->connectHeadTo(nullptr);
 		}
 		wire_in = wire;
 		if (wire && wire->dst != this){
-			wire->ConnectHeadTo(this);
+			wire->connectHeadTo(this);
 		}
 	}
 	bool SoundInput::onDropWindow(Window* window) {
@@ -53,10 +60,18 @@ namespace fui {
 				});
 			}
 
-			wirehead->wire->ConnectHeadTo(this);
+			wirehead->wire->connectHeadTo(this);
 			return true;
 		}
 		return false;
+	}
+	void SoundInput::onHover(){
+		hover_timestamp = ui::getProgramTime();
+	}
+	void SoundInput::onHoverWithWindow(Window* win){
+		if (dynamic_cast<SoundWire::Head*>(win)){
+			hover_timestamp = ui::getProgramTime();
+		}
 	}
 	void SoundInput::onLeftClick(int clicks){
 		if (wire_in){
@@ -64,9 +79,17 @@ namespace fui {
 		} else {
 			SoundWire* wire = new SoundWire;
 			this->owner_object->getBox()->addObject(wire);
-			wire->ConnectHeadTo(this);
+			wire->connectHeadTo(this);
 			wire->dragTail();
 		}
+	}
+
+	std::string SoundInput::getCaption() const {
+		return caption->getText();
+	}
+
+	musical::SoundInput* SoundInput::getInput() const {
+		return target;
 	}
 
 	vec2 SoundInput::getWireDirection() const {

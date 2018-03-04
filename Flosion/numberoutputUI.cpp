@@ -6,9 +6,8 @@
 
 namespace fui {
 
-	NumberOutput::NumberOutput(musical::NumberSource* _target, Object* _parent, const std::string& _caption, const std::function<void(NumberInput*)>& _onConnect)
+	NumberOutput::NumberOutput(musical::NumberSource* _target, Object* _parent, std::string _caption, std::function<void(NumberInput*)> _onConnect)
 		: target(_target), owner_object(_parent) {
-		caption_str = _caption;
 		size = {30, 30};
 		owner_object->number_outputs.push_back(this);
 		addChildWindow(caption = new ui::Text(_caption, fui::getFont()));
@@ -35,11 +34,7 @@ namespace fui {
 		rect.setOutlineColor(sf::Color(0x000000FF));
 		rect.setOutlineThickness(1);
 		rw.draw(rect);
-		if (ui::getProgramTime() - hover_timestamp < 0.25){
-			caption->visible = true;
-		} else {
-			caption->visible = false;
-		}
+		caption->visible = (ui::getProgramTime() - hover_timestamp < 0.25);
 		renderChildWindows(rw);
 	}
 	void NumberOutput::onHover(){
@@ -53,14 +48,14 @@ namespace fui {
 		}
 		wires_out.push_back(wire);
 		if (wire->src != this){
-			wire->ConnectTailTo(this);
+			wire->connectTailTo(this);
 		}
 	}
 	void NumberOutput::removeWireOut(NumberWire* wire){
 		for (auto it = wires_out.begin(); it != wires_out.end(); it++){
 			if (*it == wire){
 				wires_out.erase(it);
-				wire->ConnectTailTo(nullptr);
+				wire->connectTailTo(nullptr);
 				return;
 			}
 		}
@@ -68,7 +63,7 @@ namespace fui {
 	bool NumberOutput::onDropWindow(Window* window){
 		if (NumberWire::Tail* wiretail = dynamic_cast<NumberWire::Tail*>(window)){
 			if (wiretail->wire->safeToConnect(this)){
-				wiretail->wire->ConnectTailTo(this);
+				wiretail->wire->connectTailTo(this);
 			} else {
 				vec2 start = wiretail->pos;
 				vec2 diff = wiretail->pos - wiretail->wire->head->pos;
@@ -90,13 +85,13 @@ namespace fui {
 	void NumberOutput::onLeftClick(int clicks){
 		NumberWire* wire = new NumberWire;
 		this->owner_object->getBox()->addObject(wire);
-		wire->ConnectTailTo(this);
+		wire->connectTailTo(this);
 		wire->dragHead();
 	}
-	const std::string& NumberOutput::getCaption() const {
-		return caption_str;
+	std::string NumberOutput::getCaption() const {
+		return caption->getText();
 	}
-	const musical::NumberSource* NumberOutput::getSource() const {
+	musical::NumberSource* NumberOutput::getSource() const {
 		return target;
 	}
 

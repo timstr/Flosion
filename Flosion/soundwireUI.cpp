@@ -11,7 +11,7 @@ namespace fui {
 		size = {20, 20};
 	}
 	void SoundWire::Head::onLeftClick(int clicks){
-		wire->ConnectHeadTo(nullptr);
+		wire->connectHeadTo(nullptr);
 		startDrag();
 	}
 	bool SoundWire::Head::onDropWindow(Window* window){
@@ -26,7 +26,7 @@ namespace fui {
 		size = {20, 20};
 	}
 	void SoundWire::Tail::onLeftClick(int clicks){
-		wire->ConnectTailTo(nullptr);
+		wire->connectTailTo(nullptr);
 		startDrag();
 	}
 	bool SoundWire::Tail::onDropWindow(Window* window){
@@ -43,7 +43,7 @@ namespace fui {
 		dst = nullptr;
 		src = nullptr;
 	}
-	void SoundWire::ConnectHeadTo(SoundInput* input){
+	void SoundWire::connectHeadTo(SoundInput* input){
 		if (dst){
 			SoundInput* temp = dst;
 			dst = nullptr;
@@ -58,7 +58,7 @@ namespace fui {
 			}
 		}
 	}
-	void SoundWire::ConnectTailTo(SoundOutput* output){
+	void SoundWire::connectTailTo(SoundOutput* output){
 		if (src){
 			src->removeWireOut(this);
 		}
@@ -82,12 +82,12 @@ namespace fui {
 		renderChildWindows(rw);
 	}
 	void SoundWire::dragHead(){
-		ConnectHeadTo(nullptr);
+		connectHeadTo(nullptr);
 		head->pos = ui::getMousePos() - this->absPos();
 		head->startDrag();
 	}
 	void SoundWire::dragTail(){
-		ConnectTailTo(nullptr);
+		connectTailTo(nullptr);
 		tail->pos = ui::getMousePos() - this->absPos();
 		tail->startDrag();
 	}

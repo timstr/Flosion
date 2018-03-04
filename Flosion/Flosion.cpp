@@ -41,7 +41,7 @@ int main(){
 
 	ui::init(1000, 700, "Flosion", 30);
 
-	fui::MasterBox * box = new fui::MasterBox();
+	fui::MasterBox* box = new fui::MasterBox();
 
 	box->addObject(new fui::SliderObject(0.0f, 1000.0f));
 	box->addObject(new fui::SliderObject(0.0f, 1000.0f));

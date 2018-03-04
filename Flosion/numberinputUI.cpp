@@ -4,9 +4,8 @@
 
 namespace fui {
 
-	NumberInput::NumberInput(musical::NumberInput* _target, Object* _parent, const std::string& _caption, const std::function<void(NumberOutput*)>& _onConnect)
+	NumberInput::NumberInput(musical::NumberInput* _target, Object* _parent, std::string _caption, std::function<void(NumberOutput*)> _onConnect)
 		: target(_target), owner_object(_parent) {
-		caption_str = _caption;
 		size = {30, 30};
 		owner_object->number_inputs.push_back(this);
 		wire_in = nullptr;
@@ -30,6 +29,11 @@ namespace fui {
 	void NumberInput::onHover(){
 		hover_timestamp = ui::getProgramTime();
 	}
+	void NumberInput::onHoverWithWindow(Window* win){
+		if (dynamic_cast<NumberWire::Head*>(win)){
+			hover_timestamp = ui::getProgramTime();
+		}
+	}
 	void NumberInput::render(sf::RenderWindow& rw){
 		sf::RectangleShape rect;
 		rect.setFillColor(sf::Color(0x4040FF80));
@@ -37,20 +41,16 @@ namespace fui {
 		rect.setOutlineColor(sf::Color(0x000000FF));
 		rect.setOutlineThickness(1);
 		rw.draw(rect);
-		if (ui::getProgramTime() - hover_timestamp < 0.25){
-			caption->visible = true;
-		} else {
-			caption->visible = false;
-		}
+		caption->visible = (ui::getProgramTime() - hover_timestamp < 0.25);
 		renderChildWindows(rw);
 	}
 	void NumberInput::setWireIn(NumberWire* wire){
 		if (wire_in){
-			wire_in->ConnectHeadTo(nullptr);
+			wire_in->connectHeadTo(nullptr);
 		}
 		wire_in = wire;
 		if (wire && wire->dst != this){
-			wire->ConnectHeadTo(this);
+			wire->connectHeadTo(this);
 		}
 	}
 	bool NumberInput::onDropWindow(Window* window) {
@@ -69,7 +69,7 @@ namespace fui {
 					});
 				}
 
-				wirehead->wire->ConnectHeadTo(this);
+				wirehead->wire->connectHeadTo(this);
 			} else {
 				vec2 start = wirehead->pos;
 				vec2 diff = wirehead->pos - wirehead->wire->tail->pos;
@@ -83,25 +83,20 @@ namespace fui {
 		}
 		return false;
 	}
-	void NumberInput::onHoverWithWindow(Window* win){
-		if (dynamic_cast<NumberWire::Head*>(win)){
-			hover_timestamp = ui::getProgramTime();
-		}
-	}
 	void NumberInput::onLeftClick(int clicks){
 		if (wire_in){
 			wire_in->dragHead();
 		} else {
 			NumberWire* wire = new NumberWire;
 			this->owner_object->getBox()->addObject(wire);
-			wire->ConnectHeadTo(this);
+			wire->connectHeadTo(this);
 			wire->dragTail();
 		}
 	}
-	const std::string& NumberInput::getCaption() const {
-		return caption_str;
+	std::string NumberInput::getCaption() const {
+		return caption->getText();
 	}
-	const musical::NumberInput* NumberInput::getInput() const {
+	musical::NumberInput* NumberInput::getInput() const {
 		return target;
 	}
 
