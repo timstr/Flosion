@@ -89,7 +89,7 @@ namespace fui {
 	}
 	void NumberOutput::onLeftClick(int clicks){
 		NumberWire* wire = new NumberWire;
-		this->owner_object->getContainer()->addObject(wire);
+		this->owner_object->getBox()->addObject(wire);
 		wire->ConnectTailTo(this);
 		wire->dragHead();
 	}

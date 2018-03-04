@@ -93,7 +93,7 @@ namespace fui {
 			wire_in->dragHead();
 		} else {
 			NumberWire* wire = new NumberWire;
-			this->owner_object->getContainer()->addObject(wire);
+			this->owner_object->getBox()->addObject(wire);
 			wire->ConnectHeadTo(this);
 			wire->dragTail();
 		}

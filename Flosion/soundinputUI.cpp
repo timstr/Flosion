@@ -63,7 +63,7 @@ namespace fui {
 			wire_in->dragHead();
 		} else {
 			SoundWire* wire = new SoundWire;
-			this->owner_object->getContainer()->addObject(wire);
+			this->owner_object->getBox()->addObject(wire);
 			wire->ConnectHeadTo(this);
 			wire->dragTail();
 		}

@@ -11,14 +11,14 @@ namespace fui {
 	struct SoundInput;
 	struct SoundOutput;
 	struct SoundWire;
-	struct Container;
+	struct Box;
 
 	// Object is the base class to all gui components representing sound and
 	// numerical processing, and their related components
 	struct Object : ui::Window {
 		Object();
 
-		Container* getContainer();
+		Box* getBox();
 
 		private:
 
@@ -80,13 +80,13 @@ namespace fui {
 
 		// the FUI container that holds the current object
 		// or if this is the master container should this ever be null
-		Container* container;
+		Box* container;
 		std::vector<SoundInput*> sound_inputs;
 		std::vector<SoundOutput*> sound_outputs;
 		std::vector<NumberInput*> number_inputs;
 		std::vector<NumberOutput*> number_outputs;
 
-		friend struct Container;
+		friend struct Box;
 		friend struct SoundInput;
 		friend struct SoundOutput;
 		friend struct NumberInput;

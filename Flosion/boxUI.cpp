@@ -5,13 +5,13 @@
 
 namespace fui {
 
-	// Container
-	void Container::addObject(Object* obj){
+	// Box
+	void Box::addObject(Object* obj){
 		addChildWindow(obj);
 		objects.push_back(obj);
 		obj->container = this;
 	}
-	void Container::releaseObject(Object* obj){
+	void Box::releaseObject(Object* obj){
 		releaseChildWindow(obj);
 		for (int i = 0; i < objects.size(); i++){
 			if (objects[i] == obj){
@@ -21,13 +21,13 @@ namespace fui {
 		}
 		obj->container = nullptr;
 	}
-	void Container::collapse(){
+	void Box::collapse(){
 		// TODO
 	}
-	void Container::expand(){
+	void Box::expand(){
 		// TODO
 	}
-	void Container::render(sf::RenderWindow& rw){
+	void Box::render(sf::RenderWindow& rw){
 		sf::Vertex vertices[] = {
 			sf::Vertex({0, 0}, sf::Color(0x404040FF)),
 			sf::Vertex({size.x, 0}, sf::Color(0x404040FF)),
@@ -37,7 +37,7 @@ namespace fui {
 		rw.draw(vertices, 4, sf::PrimitiveType::Quads);
 		renderChildWindows(rw);
 	}
-	void Container::onLeftClick(int clicks){
+	void Box::onLeftClick(int clicks){
 		if (clicks == 2){
 			Menu* menu = new Menu(this);
 			addChildWindow(menu);
@@ -45,18 +45,18 @@ namespace fui {
 			menu->beginTyping();
 		}
 	}
-	Container::Menu::Menu(Container* _container){
+	Box::Menu::Menu(Box* _container){
 		container = _container;
 		size = {100, 20};
 		addChildWindow(textentry = new TextField(this));
 	}
-	void Container::Menu::beginTyping(){
+	void Box::Menu::beginTyping(){
 		textentry->grabFocus();
 	}
-	void Container::Menu::onLoseFocus(){
+	void Box::Menu::onLoseFocus(){
 		close();
 	}
-	Object* Container::Menu::createObject(const std::string& str){
+	Object* Box::Menu::createObject(const std::string& str){
 		Object* obj;
 
 		obj = createConstant(str);
@@ -71,7 +71,7 @@ namespace fui {
 			return obj;
 		}
 	}
-	Object* Container::Menu::createConstant(const std::string& str){
+	Object* Box::Menu::createConstant(const std::string& str){
 		std::stringstream stream;
 
 		float val1, val2;
@@ -99,13 +99,13 @@ namespace fui {
 			return nullptr;
 		}
 	}
-	void Container::Menu::addObject(Object* obj){
+	void Box::Menu::addObject(Object* obj){
 		if (obj){
 			obj->pos = vec2(sf::Vector2i(pos + size * 0.5f - obj->size * 0.5f));
 			container->addObject(obj);
 		}
 	}
-	void Container::Menu::render(sf::RenderWindow& rw){
+	void Box::Menu::render(sf::RenderWindow& rw){
 		sf::RectangleShape rect;
 		rect.setFillColor(sf::Color(0x404040FF));
 		rect.setSize(size);
@@ -114,7 +114,7 @@ namespace fui {
 		rw.draw(rect);
 		renderChildWindows(rw);
 	}
-	void Container::Menu::refreshList(const std::string& text){
+	void Box::Menu::refreshList(const std::string& text){
 		for (ListItem* li : listitems){
 			li->close();
 		}
@@ -134,34 +134,34 @@ namespace fui {
 			}
 		}
 	}
-	Container::Menu::TextField::TextField(Menu* _menu) : TextEntry("", getFont(), 15, sf::Color(0xFFFFFFFF), sf::Color(0x0)){
+	Box::Menu::TextField::TextField(Menu* _menu) : TextEntry("", getFont(), 15, sf::Color(0xFFFFFFFF), sf::Color(0x0)){
 		menu = _menu;
 	}
-	void Container::Menu::TextField::onType(std::string text){
+	void Box::Menu::TextField::onType(std::string text){
 		menu->refreshList(text);
 	}
-	void Container::Menu::TextField::onReturn(std::string text){
+	void Box::Menu::TextField::onReturn(std::string text){
 		menu->addObject(menu->createObject(text));
 		menu->close();
 	}
-	void Container::Menu::TextField::onKeyDown(sf::Keyboard::Key key){
+	void Box::Menu::TextField::onKeyDown(sf::Keyboard::Key key){
 		if (key == sf::Keyboard::Down){
 			focusToNextWindow();
 		} else if (key == sf::Keyboard::Up){
 			focusToPreviousWindow();
 		}
 	}
-	Container::Menu::ListItem::ListItem(Menu* _menu, const std::string& _str){
+	Box::Menu::ListItem::ListItem(Menu* _menu, const std::string& _str){
 		menu = _menu;
 		str = _str;
 		size = {100, 20};
 		addChildWindow(new ui::Text(str, getFont(), sf::Color(0xFFFFFFFF), 15));
 	}
-	void Container::Menu::ListItem::onLeftClick(int clicks){
+	void Box::Menu::ListItem::onLeftClick(int clicks){
 		menu->addObject(menu->createObject(str));
 		menu->close();
 	}
-	void Container::Menu::ListItem::onKeyDown(sf::Keyboard::Key key){
+	void Box::Menu::ListItem::onKeyDown(sf::Keyboard::Key key){
 		if (key == sf::Keyboard::Return){
 			menu->addObject(menu->createObject(str));
 			menu->close();
@@ -171,7 +171,7 @@ namespace fui {
 			focusToPreviousWindow();
 		}
 	}
-	void Container::Menu::ListItem::render(sf::RenderWindow& rw){
+	void Box::Menu::ListItem::render(sf::RenderWindow& rw){
 		sf::RectangleShape rect;
 		rect.setFillColor(sf::Color(isFocused() ? 0x808000FF : 0xFF));
 		rect.setSize(size);
@@ -181,11 +181,11 @@ namespace fui {
 		renderChildWindows(rw);
 	}
 
-	// Master Container
-	void MasterContainer::render(sf::RenderWindow& rw){
+	// Master Box
+	void MasterBox::render(sf::RenderWindow& rw){
 		pos = {0, 0};
 		size = ui::getScreenSize();
-		Container::render(rw);
+		Box::render(rw);
 	}
 
 } // namespace fui

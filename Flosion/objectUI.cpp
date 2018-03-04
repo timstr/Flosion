@@ -11,7 +11,7 @@ namespace fui {
 		size = {100, 100};
 		bring_to_front = true;
 	}
-	Container* Object::getContainer(){
+	Box* Object::getBox(){
 		return container;
 	}
 	void Object::showWireDropList(const std::vector<std::pair<std::function<void()>, std::string>>& items, vec2 pos){

@@ -56,7 +56,7 @@ namespace fui {
 	}
 	void SoundOutput::onLeftClick(int clicks){
 		SoundWire* wire = new SoundWire;
-		this->owner_object->getContainer()->addObject(wire);
+		this->owner_object->getBox()->addObject(wire);
 		wire->ConnectTailTo(this);
 		wire->dragHead();
 	}

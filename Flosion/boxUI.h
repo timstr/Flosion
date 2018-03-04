@@ -4,14 +4,12 @@
 #include "objectUI.h"
 
 namespace fui {
-
-	// TODO: rename to 'Box'
 	
-	// Container is what holds all objects
+	// Box is what holds all objects
 	// allows convenient clustering of objects and collapsing into a more compact view
 	// TODO:
 	// Enable selections
-	struct Container : Object {
+	struct Box : Object {
 
 		// add a new object
 		void addObject(Object* obj);
@@ -32,7 +30,7 @@ namespace fui {
 		std::vector<Object*> objects;
 
 		struct Menu : ui::Window {
-			Menu(Container* _container);
+			Menu(Box* _container);
 			void beginTyping();
 			void onLoseFocus() override;
 			void render(sf::RenderWindow& rw) override;
@@ -54,7 +52,7 @@ namespace fui {
 				void onKeyDown(sf::Keyboard::Key key) override;
 				Menu* menu;
 			}* textentry;
-			Container* container;
+			Box* container;
 			Object* createObject(const std::string& str);
 			Object* createConstant(const std::string& str);
 			void addObject(Object* obj);
@@ -64,7 +62,7 @@ namespace fui {
 	};
 
 	// MasterContainer is the singleton-intended container that holds everything in the current work area
-	struct MasterContainer : Container {
+	struct MasterBox : Box {
 		void render(sf::RenderWindow& renderwin) override;
 	};
 

@@ -41,14 +41,14 @@ int main(){
 
 	ui::init(1000, 700, "Flosion", 30);
 
-	fui::MasterContainer* container = new fui::MasterContainer();
+	fui::MasterBox * box = new fui::MasterBox();
 
-	container->addObject(new fui::SliderObject(0.0f, 1000.0f));
-	container->addObject(new fui::SliderObject(0.0f, 1000.0f));
-	container->addObject(new fui::SliderObject(0.0f, 2.0f));
-	container->addObject(new fui::SliderObject(0.0f, 0.1f));
+	box->addObject(new fui::SliderObject(0.0f, 1000.0f));
+	box->addObject(new fui::SliderObject(0.0f, 1000.0f));
+	box->addObject(new fui::SliderObject(0.0f, 2.0f));
+	box->addObject(new fui::SliderObject(0.0f, 0.1f));
 
-	ui::root()->addChildWindow(container);
+	ui::root()->addChildWindow(box);
 
 	ui::run();
 
