@@ -25,8 +25,8 @@ namespace fui {
 		NumberWire();
 		~NumberWire();
 
-		bool safeToConnect(NumberInput* input);
-		bool safeToConnect(NumberOutput* output);
+		bool safeToConnect(NumberInput* input) const;
+		bool safeToConnect(NumberOutput* output) const;
 		void ConnectHeadTo(NumberInput* input);
 		void ConnectTailTo(NumberOutput* output);
 
@@ -35,11 +35,14 @@ namespace fui {
 		void dragHead();
 		void dragTail();
 
+		void update();
+
 		private:
 		NumberInput* dst;
 		NumberOutput* src;
 		Head* head;
 		Tail* tail;
+		std::vector<sf::Vertex> vertices;
 
 		friend struct NumberInput;
 		friend struct NumberOutput;

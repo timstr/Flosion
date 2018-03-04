@@ -30,6 +30,8 @@ namespace fui {
 
 		const musical::NumberSource* getSource() const;
 
+		vec2 getWireDirection() const;
+
 		private:
 		Object* const owner_object;
 		musical::NumberSource* const target;

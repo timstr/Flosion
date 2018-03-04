@@ -61,4 +61,8 @@ namespace fui {
 		wire->dragHead();
 	}
 
+	vec2 SoundOutput::getWireDirection() const {
+		return vec2(1.0f, 0.0f); // TODO: make customizable or automatic
+	}
+
 } // namespace fui

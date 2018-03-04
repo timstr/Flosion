@@ -30,11 +30,14 @@ namespace fui {
 		void dragHead();
 		void dragTail();
 
+		void update();
+
 		private:
 		SoundInput* dst;
 		SoundOutput* src;
 		Head* head;
 		Tail* tail;
+		std::vector<sf::Vertex> vertices;
 
 		friend struct SoundInput;
 		friend struct SoundOutput;

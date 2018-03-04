@@ -29,6 +29,8 @@ namespace fui {
 
 		const musical::NumberInput* getInput() const;
 
+		vec2 getWireDirection() const;
+
 		private:
 		Object* const owner_object;
 		musical::NumberInput* const target;

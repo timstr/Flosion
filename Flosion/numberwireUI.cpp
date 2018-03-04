@@ -1,4 +1,5 @@
 #include "numberwireUI.h"
+#include "pi.h"
 
 namespace fui {
 
@@ -44,7 +45,7 @@ namespace fui {
 		ConnectHeadTo(nullptr);
 		ConnectTailTo(nullptr);
 	}
-	bool NumberWire::safeToConnect(NumberInput* input){
+	bool NumberWire::safeToConnect(NumberInput* input) const {
 		if (!src){
 			return true;
 		}
@@ -53,7 +54,7 @@ namespace fui {
 		}
 		return input->target->isSafeSource(src->target);
 	}
-	bool NumberWire::safeToConnect(NumberOutput* output){
+	bool NumberWire::safeToConnect(NumberOutput* output) const {
 		if (!dst){
 			return true;
 		}
@@ -106,18 +107,8 @@ namespace fui {
 		}
 	}
 	void NumberWire::render(sf::RenderWindow& rw){
-		if (dst){
-			head->pos = dst->absPos() - absPos();
-		}
-		if (src){
-			tail->pos = src->absPos() - absPos();
-		}
-
-		sf::Vertex line[] = {
-			sf::Vertex(head->pos + vec2(10, 10), sf::Color(0x0000FFFF)),
-			sf::Vertex(tail->pos + vec2(10, 10), sf::Color(0xFF))
-		};
-		rw.draw(line, 2, sf::Lines);
+		update();
+		rw.draw(vertices.data(), vertices.size(), sf::LineStrip);
 		renderChildWindows(rw);
 	}
 	void NumberWire::dragHead(){
@@ -129,6 +120,49 @@ namespace fui {
 		ConnectTailTo(nullptr);
 		tail->pos = ui::getMousePos() - this->absPos();
 		tail->startDrag();
+	}
+
+	void NumberWire::update(){
+		if (dst) {
+			head->pos = dst->absPos() - absPos();
+		}
+		if (src) {
+			tail->pos = src->absPos() - absPos();
+		}
+
+		float dist = hypot(head->pos.x - tail->pos.x, head->pos.y - tail->pos.y);
+
+		vertices.resize((size_t)dist);
+
+		float phase = 2.0f * (float)ui::getProgramTime();
+		vec2 headdir = dst->getWireDirection();
+		vec2 taildir = src->getWireDirection();
+
+		headdir /= hypot(headdir.x, headdir.y);
+		taildir /= hypot(taildir.x, taildir.y);
+
+		vec2 A = head->pos + head->size * 0.5f;
+		vec2 B = head->pos + head->size * 0.5f + headdir * dist * 0.5f;
+		vec2 C = tail->pos + tail->size * 0.5f + taildir * dist * 0.5f;
+		vec2 D = tail->pos + tail->size * 0.5f;
+
+		for (int v = 0; v < vertices.size(); v++){
+			const float t = (float)v / (float)(vertices.size() - 1);
+			const float omt = 1.0f - t;
+
+			vec2 P =
+				A * omt * omt * omt +
+				B * 3.0f * omt * omt * t +
+				C * 3.0f * omt * t * t +
+				D * t * t * t;
+
+			vertices[v].position = P;
+
+			vertices[v].color = sf::Color(
+				0,
+				0,
+				(uint8_t)(255.0f * (0.5f + 0.5f * sin((phase * pi<float> * 2.0f) + (t * dist * 0.1f)))));
+		}
 	}
 
 } // namespace fui

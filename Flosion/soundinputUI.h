@@ -22,6 +22,8 @@ namespace fui {
 
 		void onLeftClick(int clicks) override;
 
+		vec2 getWireDirection() const;
+
 		private:
 		Object* const owner_object;
 		musical::SoundInput* const target;
