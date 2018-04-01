@@ -29,6 +29,10 @@ namespace fui {
 		private:
 		std::vector<Object*> objects;
 
+		void startSelecting();
+
+		void makeSelection(sf::FloatRect rect);
+
 		struct Menu : ui::Window {
 			Menu(Box* _container);
 			void beginTyping();
@@ -59,6 +63,7 @@ namespace fui {
 		};
 
 		friend struct Object;
+		friend struct SelectionBox;
 	};
 
 	// MasterContainer is the singleton-intended container that holds everything in the current work area

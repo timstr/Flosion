@@ -34,6 +34,8 @@
 // TODO: ring mod
 // TODO: feedback
 // TODO: make window sizes customizable for filter
+// TODO: clipboard
+// TODO: serialization and file loading/saving
 
 int main(){
 

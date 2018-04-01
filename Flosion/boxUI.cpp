@@ -2,14 +2,120 @@
 #include <sstream>
 #include "constantUI.h"
 #include "sstreamutil.h"
+#include "pi.h"
 
 namespace fui {
 
-	// Box
+	struct SelectionBox : ui::Window {
+		SelectionBox(Box* _box) : box(_box), dragger(new Dragger(this)){
+
+		}
+
+		void startSelecting(vec2 _pos){
+			pos = _pos;
+			dragger->pos = {0, 0};
+			dragger->startDrag();
+		}
+
+		void stopSelecting(){
+			sf::FloatRect rect;
+			rect.left = std::min(pos.x, pos.x + size.x);
+			rect.top = std::min(pos.y, pos.y + size.y);
+			rect.width = abs(size.x);
+			rect.height = abs(size.y);
+			box->makeSelection(rect);
+			close();
+		}
+
+		void render(sf::RenderWindow& rw) override {
+			sf::RectangleShape rect;
+			rect.setSize(size);
+			rect.setFillColor(sf::Color(0xFFFF0020));
+			rect.setOutlineColor(sf::Color(0xFFFF0080));
+			rect.setOutlineThickness(1.0f);
+			rw.draw(rect);
+		}
+
+		struct Dragger : ui::Window {
+			Dragger(SelectionBox* _selectbox) : selectbox(_selectbox) {
+
+			}
+
+			void onDrag() override {
+				selectbox->size = pos;
+			}
+
+			void onLeftRelease() override {
+				selectbox->stopSelecting();
+			}
+
+			void render(sf::RenderWindow& rw) override {
+
+			}
+
+			SelectionBox* const selectbox;
+		};
+
+		Dragger* const dragger;
+		Box* const box;
+	};
+
+	struct SelectionWindow : ui::Window {
+		SelectionWindow(Box* _box, std::vector<Object*>&& _objects) : box(_box), objects(std::move(_objects)) {
+			size = {0, 0};
+			positions.reserve(objects.size());
+			for (Object* obj : objects){
+				obj->pos -= pos;
+				obj->disabled = true;
+				box->releaseObject(obj);
+				addChildWindow(obj);
+				positions.push_back(obj->pos);
+			}
+		}
+
+		void onRightClick(int clicks) override {
+			startDrag(); // TODO: make dragging possible
+		}
+
+		void onLoseFocus() override {
+			for (int i = 0; i < objects.size(); i++){
+				releaseChildWindow(objects[i]);
+				box->addObject(objects[i]);
+				objects[i]->pos = positions[i] + pos;
+				objects[i]->disabled = false;
+			}
+
+			close();
+		}
+
+		void onKeyDown(sf::Keyboard::Key key) override {
+			if (key == sf::Keyboard::Delete){
+				close();
+			}
+		}
+
+		void render(sf::RenderWindow& rw) override {
+			float phase = (float)ui::getProgramTime() * pi<float> * 2.0f;
+
+			for (int i = 0; i < objects.size(); i++){
+				float phase_offset = (float)(i % 3) / 3.0f * 2.0f * pi<float>;
+
+				objects[i]->pos.x = positions[i].x + 20.0f * sin(phase_offset + phase);
+				objects[i]->pos.y = positions[i].y + 10.0f * cos(phase_offset + 2.0f * phase);
+			}
+
+			renderChildWindows(rw);
+		}
+
+		Box* const box;
+		std::vector<Object*> objects;
+		std::vector<vec2> positions;
+	};
+
 	void Box::addObject(Object* obj){
 		addChildWindow(obj);
 		objects.push_back(obj);
-		obj->container = this;
+		obj->box = this;
 	}
 	void Box::releaseObject(Object* obj){
 		releaseChildWindow(obj);
@@ -19,7 +125,7 @@ namespace fui {
 				break;
 			}
 		}
-		obj->container = nullptr;
+		obj->box = nullptr;
 	}
 	void Box::collapse(){
 		// TODO
@@ -38,12 +144,35 @@ namespace fui {
 		renderChildWindows(rw);
 	}
 	void Box::onLeftClick(int clicks){
-		if (clicks == 2){
+		if (clicks == 1){
+			startSelecting();
+		} else if (clicks == 2){
 			Menu* menu = new Menu(this);
 			addChildWindow(menu);
 			menu->pos = localMousePos() - menu->size * 0.5f;
 			menu->beginTyping();
 		}
+	}
+	void Box::startSelecting(){
+		SelectionBox* sbox = new SelectionBox(this);
+		addChildWindow(sbox);
+		sbox->startSelecting(localMousePos());
+	}
+	void Box::makeSelection(sf::FloatRect rect){
+		std::vector<Object*> selected;
+
+		for (Object* obj : objects){
+			if (obj->pos.x > rect.left &&
+				obj->pos.y > rect.top &&
+				obj->pos.x + obj->size.x < rect.left + rect.width &&
+				obj->pos.y + obj->size.y < rect.top + rect.height){
+				selected.push_back(obj);
+			}
+		}
+
+		SelectionWindow* selectwin = new SelectionWindow(this, std::move(selected));
+		addChildWindow(selectwin);
+		selectwin->grabFocus();
 	}
 	Box::Menu::Menu(Box* _container){
 		container = _container;

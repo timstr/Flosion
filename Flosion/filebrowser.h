@@ -37,7 +37,7 @@ std::string openFileDialog(const wchar_t* filter, const wchar_t* default_ext = n
 
 	std::wstring wfilename = std::wstring(ofn.lpstrFile);
 	std::string filename = std::string(wfilename.begin(), wfilename.end());
-	return(filename);
+	return filename;
 }
 
 /*
@@ -76,12 +76,10 @@ std::string saveFileDialog(const wchar_t* filter, const wchar_t* default_ext = n
 	if (GetSaveFileName(&ofn)){
 		std::wstring wfname = std::wstring(ofn.lpstrFile);
 		std::string fname = std::string(wfname.begin(), wfname.end());
-		return(fname);
-
 		SetCurrentDirectory(exepath);
+		return fname;
 	} else {
-
 		SetCurrentDirectory(exepath);
-		return("");
+		return "";
 	}
 }

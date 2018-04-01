@@ -32,7 +32,7 @@ namespace fui {
 
 		// the FUI container that holds the current object
 		// or if this is the master container should this ever be null
-		Box* container;
+		Box* box;
 		std::vector<SoundInput*> sound_inputs;
 		std::vector<SoundOutput*> sound_outputs;
 		std::vector<NumberInput*> number_inputs;

@@ -10,12 +10,12 @@ namespace fui {
 
 	// Object
 	Object::Object(){
-		container = nullptr;
+		box = nullptr;
 		size = {100, 100};
 		bring_to_front = true;
 	}
 	Box* Object::getBox(){
-		return container;
+		return box;
 	}
 
 	struct WireDropList : ui::Window {
