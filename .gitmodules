@@ -1,0 +1,3 @@
+[submodule "tims-gui"]
+	path = tims-gui
+	url = https://github.com/timstr/tims-gui.git
