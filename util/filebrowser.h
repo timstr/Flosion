@@ -1,5 +1,7 @@
 #pragma once
 
+#define UNICODE
+
 #include <windows.h>
 #include <Commdlg.h>
 #include <string>
@@ -18,6 +20,7 @@ will accept image files of type .jpg, .png and .bmp, or text files of type .txt
 
 default_ext is automatically appended (first 3 characters only) if no extension is provided, and should look like L"txt"
 */
+// TODO: yuck
 std::string openFileDialog(const wchar_t* filter, const wchar_t* default_ext = nullptr){
 	OPENFILENAME ofn;
 	wchar_t szFile[MAX_PATH];
@@ -25,11 +28,11 @@ std::string openFileDialog(const wchar_t* filter, const wchar_t* default_ext = n
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = nullptr;
-	ofn.lpstrFile = (LPSTR)szFile;
+	ofn.lpstrFile = szFile;
 	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = MAX_PATH;
-	ofn.lpstrFilter = (LPSTR)filter;
-	ofn.lpstrDefExt = (LPSTR)default_ext;
+	ofn.lpstrFilter = filter;
+	ofn.lpstrDefExt = default_ext;
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFileTitle = nullptr;
 	ofn.nMaxFileTitle = 0;
@@ -38,7 +41,7 @@ std::string openFileDialog(const wchar_t* filter, const wchar_t* default_ext = n
 
 	GetOpenFileName(&ofn);
 
-	std::wstring wfilename = std::wstring((wchar_t*)ofn.lpstrFile);
+	std::wstring wfilename = std::wstring(ofn.lpstrFile);
 	std::string filename = std::string(wfilename.begin(), wfilename.end());
 	return filename;
 }
@@ -56,7 +59,7 @@ default_ext is automatically appended (first 3 characters only) if no extension 
 */
 std::string saveFileDialog(const wchar_t* filter, const wchar_t* default_ext = nullptr){
 	wchar_t exepath[MAX_PATH];
-	GetCurrentDirectory(MAX_PATH, (LPSTR)exepath);
+	GetCurrentDirectory(MAX_PATH, exepath);
 
 	OPENFILENAME ofn;
 	wchar_t szFile[MAX_PATH];
@@ -65,11 +68,11 @@ std::string saveFileDialog(const wchar_t* filter, const wchar_t* default_ext = n
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = hwnd;
-	ofn.lpstrFile = (LPSTR)szFile;
+	ofn.lpstrFile = szFile;
 	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = (LPSTR)filter;
-	ofn.lpstrDefExt = (LPSTR)default_ext;
+	ofn.lpstrFilter = filter;
+	ofn.lpstrDefExt = default_ext;
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFileTitle = nullptr;
 	ofn.nMaxFileTitle = 0;
@@ -79,10 +82,10 @@ std::string saveFileDialog(const wchar_t* filter, const wchar_t* default_ext = n
 	if (GetSaveFileName(&ofn)){
 		std::wstring wfname = std::wstring((wchar_t*)ofn.lpstrFile);
 		std::string fname = std::string(wfname.begin(), wfname.end());
-		SetCurrentDirectory((LPSTR)exepath);
+		SetCurrentDirectory(exepath);
 		return fname;
 	} else {
-		SetCurrentDirectory((LPSTR)exepath);
+		SetCurrentDirectory(exepath);
 		return "";
 	}
 }
