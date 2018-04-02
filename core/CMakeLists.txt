@@ -12,14 +12,13 @@ set(flosion-core-headers
 )
 
 set(flosion-core-srcs
-	musical.h
-	NumberInput.h
-	NumberResult.h
-	NumberSource.h
-	SoundQueue.h
-	SoundResult.h
-	SoundSource.h
-	Stateful.h
+	musical.cpp
+	NumberInput.cpp
+	NumberResult.cpp
+	NumberSource.cpp
+	SoundResult.cpp
+	SoundSource.cpp
+	Stateful.cpp
 )
 
 add_library(flosion-core STATIC ${flosion-core-headers} ${flosion-core-srcs})

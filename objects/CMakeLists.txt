@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.9.0)
 
 add_library(flosion-objects INTERFACE)
 
+# list of all sub-libraries
 set(flosion-objects-libraries
 	audio
 	constants
@@ -19,12 +20,19 @@ set(flosion-objects-libraries
 	wavetable
 )
 
-# TODO: add each of the above as a subdirectory and as a dependency
+# of the above sub-libraries, those that aren't header-only and thus need to be linked
+set(flosion-objects-link-libraries
+	dac
+)
+
 
 foreach(objlib ${flosion-objects-libraries})
 	add_subdirectory(${objlib})
-	target_link_libraries(flosion-objects INTERFACE ${objlib})
 	target_include_directories(flosion-objects INTERFACE ${objlib})
+endforeach(objlib)
+
+foreach(objlib ${flosion-objects-link-libraries})
+	target_link_libraries(flosion-objects INTERFACE ${objlib})
 endforeach(objlib)
 
 target_include_directories(flosion-objects
