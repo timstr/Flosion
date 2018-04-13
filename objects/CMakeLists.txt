@@ -1,13 +1,19 @@
 cmake_minimum_required(VERSION 3.9.0)
 
 add_library(flosion-objects INTERFACE)
+add_library(flosion-objects-base INTERFACE)
 
-# list of all sub-libraries
-set(flosion-objects-libraries
+target_link_libraries(flosion-objects-base
+	INTERFACE flosion-core
+	INTERFACE flosion-ui
+	INTERFACE flosion-util
+)
+
+# list of all header-only sub-libraries
+set(flosion-objects-header-libraries
 	audio
 	constants
 	convolver
-	dac
 	distortion
 	ensemble
 	filter
@@ -20,27 +26,20 @@ set(flosion-objects-libraries
 	wavetable
 )
 
-# of the above sub-libraries, those that aren't header-only and thus need to be linked
+# list of all compiled libraries that need to be linked to
 set(flosion-objects-link-libraries
 	dac
 )
 
-
-foreach(objlib ${flosion-objects-libraries})
+# include every header-only library and give it access to required headers
+foreach(objlib ${flosion-objects-header-libraries})
 	add_subdirectory(${objlib})
 	target_include_directories(flosion-objects INTERFACE ${objlib})
 endforeach(objlib)
 
+# include and link to every compiled library and give it required headers
 foreach(objlib ${flosion-objects-link-libraries})
+	add_subdirectory(${objlib})
 	target_link_libraries(flosion-objects INTERFACE ${objlib})
+	target_include_directories(flosion-objects INTERFACE ${objlib})
 endforeach(objlib)
-
-target_include_directories(flosion-objects
-	INTERFACE ${flosion-ui_SOURCE_DIR}
-	INTERFACE ${flosion-core_SOURCE_DIR}
-)
-
-target_link_libraries(flosion-objects
-	INTERFACE flosion-ui
-	INTERFACE flosion-core
-)

@@ -6,24 +6,16 @@ add_executable(flosion Flosion.cpp)
 
 add_subdirectory(tims-gui)
 add_subdirectory(core)
-add_subdirectory(objects)
 add_subdirectory(ui)
 add_subdirectory(util)
+add_subdirectory(objects)
 
 target_link_libraries(flosion
 	tims-gui
 	flosion-core
-	flosion-objects
 	flosion-ui
 	flosion-util
-)
-
-target_include_directories(flosion
-	PUBLIC tims-gui
-	PUBLIC flosion-core
-	PUBLIC flosion-objects
-	PUBLIC flosion-ui
-	PUBLIC flosion-util
+	flosion-objects
 )
 
 # copy fonts to current build directory

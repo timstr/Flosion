@@ -1,12 +1,10 @@
 cmake_minimum_required(VERSION 3.9.0)
 
-set(functions-headers
+set(functions-srcs
 	functions.h
 	functionsUI.h
 )
 
-add_library(functions STATIC ${functions-headers})
+add_library(functions STATIC ${functions-srcs})
 
 set_target_properties(functions PROPERTIES LINKER_LANGUAGE CXX)
-
-target_include_directories(functions PUBLIC ".")

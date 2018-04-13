@@ -7,7 +7,7 @@
 
 #include <gui/gui.h>
 
-#include "constantUI.h"
+#include "constantsUI.h"
 #include "functionsUI.h"
 #include "dacUI.h"
 #include "audioUI.h"

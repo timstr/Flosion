@@ -1,12 +1,10 @@
 cmake_minimum_required(VERSION 3.9.0)
 
-set(distortion-headers
+set(distortion-srcs
 	distortion.h
 	distortionUI.h
 )
 
-add_library(distortion STATIC ${distortion-headers})
+add_library(distortion STATIC ${distortion-srcs})
 
 set_target_properties(distortion PROPERTIES LINKER_LANGUAGE CXX)
-
-target_include_directories(distortion PUBLIC ".")

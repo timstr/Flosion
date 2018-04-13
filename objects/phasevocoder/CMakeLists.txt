@@ -1,12 +1,10 @@
 cmake_minimum_required(VERSION 3.9.0)
 
-set(phasevocoder-headers
+set(phasevocoder-srcs
 	phasevocoder.h
 	phasevocoderUI.h
 )
 
-add_library(phasevocoder STATIC ${phasevocoder-headers})
+add_library(phasevocoder STATIC ${phasevocoder-srcs})
 
 set_target_properties(phasevocoder PROPERTIES LINKER_LANGUAGE CXX)
-
-target_include_directories(phasevocoder PUBLIC ".")

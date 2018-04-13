@@ -7,7 +7,6 @@
 
 // TODO: remove
 #include <iostream>
-// TODO: change this file's name to "constants"
 
 namespace fui {
 
