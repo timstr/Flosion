@@ -7,3 +7,5 @@ set(constants-srcs
 add_library(constants STATIC ${constants-srcs})
 
 set_target_properties(constants PROPERTIES LINKER_LANGUAGE CXX)
+
+target_link_libraries(constants PUBLIC flosion-objects-base)

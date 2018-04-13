@@ -8,3 +8,5 @@ set(sampler-srcs
 add_library(sampler STATIC ${sampler-srcs})
 
 set_target_properties(sampler PROPERTIES LINKER_LANGUAGE CXX)
+
+target_link_libraries(sampler PUBLIC flosion-objects-base)

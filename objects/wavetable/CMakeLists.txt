@@ -8,3 +8,5 @@ set(wavetable-srcs
 add_library(wavetable STATIC ${wavetable-srcs})
 
 set_target_properties(wavetable PROPERTIES LINKER_LANGUAGE CXX)
+
+target_link_libraries(wavetable PUBLIC flosion-objects-base)

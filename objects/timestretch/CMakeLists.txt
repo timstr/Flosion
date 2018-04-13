@@ -8,3 +8,5 @@ set(timestretch-srcs
 add_library(timestretch STATIC ${timestretch-srcs})
 
 set_target_properties(timestretch PROPERTIES LINKER_LANGUAGE CXX)
+
+target_link_libraries(timestretch PUBLIC flosion-objects-base)

@@ -8,3 +8,5 @@ set(distortion-srcs
 add_library(distortion STATIC ${distortion-srcs})
 
 set_target_properties(distortion PROPERTIES LINKER_LANGUAGE CXX)
+
+target_link_libraries(distortion PUBLIC flosion-objects-base)

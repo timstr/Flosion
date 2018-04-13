@@ -8,3 +8,5 @@ set(spline-srcs
 add_library(spline STATIC ${spline-srcs})
 
 set_target_properties(spline PROPERTIES LINKER_LANGUAGE CXX)
+
+target_link_libraries(spline PUBLIC flosion-objects-base)

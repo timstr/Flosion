@@ -8,3 +8,5 @@ set(wavegen-srcs
 add_library(wavegen STATIC ${wavegen-srcs})
 
 set_target_properties(wavegen PROPERTIES LINKER_LANGUAGE CXX)
+
+target_link_libraries(wavegen PUBLIC flosion-objects-base)
