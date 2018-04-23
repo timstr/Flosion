@@ -177,7 +177,7 @@ namespace musical {
 				}
 				float getValue(InputState* state, State* context) const override {
 					Note* note = state->key;
-					float progress = context->getTimeAt(parentmultiinput) / state->key->length;
+					float progress = (context->getTimeAt(parentmultiinput) / (float)SFREQ) / state->key->length;
 					return note->getParameter(id).getValue(progress);
 				}
 				int id;
@@ -208,7 +208,7 @@ namespace musical {
 				using StateNumberSource::StateNumberSource;
 				float getValue(InputState* state, State* context) const override {
 					Note* note = state->key;
-					float progress = context->getTimeAt(parentmultiinput) / state->key->length;
+					float progress = (context->getTimeAt(parentmultiinput) / (float)SFREQ) / state->key->length;
 					return note->frequency.getValue(progress);
 				}
 			} frequency;
