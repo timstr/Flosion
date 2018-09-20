@@ -8,6 +8,8 @@ namespace musical {
 
 	struct NumberInput;
 
+	// TODO: cleanup API between this and NumberInput
+
 	// NumberSource represents the source of a numerical value
 	// Extended classes of NumberSource may be constant variables or functions of
 	// other NumberSources using the NumberInput class as interfaces to these
@@ -18,52 +20,38 @@ namespace musical {
 	//					variable or pure math function, the parent shall be null
 
 	struct NumberSource {
-		NumberSource(Stateful* _parent);
-		NumberSource(Stateful* _parent, float minimum, float maximum);
-		virtual ~NumberSource();
-		virtual float evaluate(State* state) const = 0;
+		NumberSource(Stateful* _parent) noexcept;
 
-		void setRange(float minimum, float maximum);
-		bool hasRange() const;
-		float getMinimum() const;
-		float getMaximum() const;
+		virtual ~NumberSource() noexcept;
 
-		private:
+		virtual float evaluate(const State* state) const noexcept = 0;
+		
+	private:
 
-		void addDstInput(NumberInput* dst);
-		void removeDstInput(NumberInput* dst);
+		void findAllStatefulSources(std::vector<const Stateful*>& sources) const noexcept;
 
-		void addInput(NumberInput* input);
-		void removeInput(NumberInput* input);
+		void findAllStatefulDests(std::vector<const Stateful*>& dests) const noexcept;
 
-		void findAllStatefulSources(std::vector<Stateful*>& sources) const;
+		bool findStatelessDest() const noexcept;
 
-		void findAllStatefulDests(std::vector<Stateful*>& dests) const;
-
-		bool findStatelessDest() const;
-
-		Stateful* parent;
-		std::vector<NumberInput*> dsts;
+		Stateful* const parent;
+		std::vector<NumberInput*> dependants;
 		std::vector<NumberInput*> inputs;
-
-		bool has_range;
-		float range_minimum;
-		float range_maximum;
 
 		friend struct NumberInput;
 	};
 
 	struct PureFunction : NumberSource {
-		PureFunction();
+		PureFunction() noexcept;
 	};
 
 	struct Constant : PureFunction {
-		Constant(float _value = 0.0);
+		Constant(float _value = 0.0) noexcept;
 
-		void setValue(float val);
-		float getValue() const;
+		void setValue(float val) noexcept;
+		float getValue() const noexcept;
 
-		float evaluate(State* state) const override;
+		float evaluate(const State* state) const noexcept override;
 
 		private:
 		float value;

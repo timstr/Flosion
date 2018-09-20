@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9.0)
+cmake_minimum_required(VERSION 3.10.0)
 
 set(flosion-ui-headers
 	boxUI.h
@@ -11,6 +11,7 @@ set(flosion-ui-headers
 	soundinputUI.h
 	soundoutputUI.h
 	soundwireUI.h
+	WireBase.h
 )
 
 set(flosion-ui-srcs
@@ -24,6 +25,7 @@ set(flosion-ui-srcs
 	soundinputUI.cpp
 	soundoutputUI.cpp
 	soundwireUI.cpp
+	WireBase.cpp
 )
 
 add_library(flosion-ui STATIC ${flosion-ui-headers} ${flosion-ui-srcs})

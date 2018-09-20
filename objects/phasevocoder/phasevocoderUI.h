@@ -12,7 +12,7 @@ namespace fui {
 
 			auto soundin = new SoundInput(&phasevocoder.input, this);
 			auto soundout = new SoundOutput(&phasevocoder, this);
-			auto timespeed = new NumberInput(&phasevocoder.timespeed.input, this, "Time Speed");
+			auto timespeed = new NumberInput(&phasevocoder.timespeed, this, "Time Speed");
 
 			addChildWindow(timespeed, leftOf(this), insideTop(this));
 

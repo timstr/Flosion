@@ -2,13 +2,14 @@
 
 #include "spline.h"
 #include "musical.h"
+#include "MultiInput.h"
 
 namespace musical {
 
 	struct SamplerState : State {
 		using State::State;
 
-		void reset() override {
+		void reset() noexcept override {
 			time = 0;
 		}
 
@@ -20,20 +21,20 @@ namespace musical {
 			length = SFREQ * 4;
 		}
 
-		void renderChunk(Buffer& buffer, SamplerState* state) override {
+		void renderChunk(SoundChunk& buffer, SamplerState& state) override {
 			unsigned int sample = 0;
 
 			while (sample < CHUNK_SIZE){
-				unsigned int len = std::min(CHUNK_SIZE, length - state->time);
-				for (auto it = input.begin(state); it != input.end(state); it++){
+				unsigned int len = std::min((uint32_t)CHUNK_SIZE, length - state.time);
+				for (auto it = input.begin(&state), end = input.end(&state); it != end; it++){
 					Note* note = it.key();
 					// if the note is playing now
 					// specifically, if the note both begins before the end of the chunk and ends after the beginning of the chunk
-					if (note->start_time * SFREQ < (state->time + CHUNK_SIZE) && (note->start_time + note->length) * SFREQ >= state->time){
+					if (note->start_time * SFREQ < (state.time + CHUNK_SIZE) && (note->start_time + note->length) * SFREQ >= state.time){
 						unsigned int carryover = (uint32_t)(note->start_time * SFREQ) % CHUNK_SIZE;
 
 						// if this is the note's first time playing...
-						if (note->start_time * SFREQ >= state->time){
+						if (note->start_time * SFREQ >= state.time){
 							// reset it
 							input.resetState(it);
 							it.state().performReset();
@@ -46,17 +47,19 @@ namespace musical {
 						// get the next chunk for the note
 						input.getNextChunk(it.state().buffer, it);
 						// write its first part to the output buffer
-						for (size_t i = std::max(carryover, sample); i < std::min(CHUNK_SIZE, len + sample); i++){
+						for (size_t i = std::max(carryover, sample); i < std::min((uint32_t)CHUNK_SIZE, len + sample); i++){
 							buffer[i] += it.state().buffer[i - carryover] * 0.1f; // TODO: see above
 						}
 					}
 				}
-				state->skipTime(len);
+
+				state.advanceTime(len);
+				state.saveTime();
 
 				sample += len;
-				state->time += len;
+				state.time += len;
 				if (len < CHUNK_SIZE){
-					state->time = 0;
+					state.time = 0;
 				}
 			}
 		}
@@ -105,7 +108,6 @@ namespace musical {
 			};
 
 			Parameter& addParameter(int id){
-				parameters[id] = Parameter();
 				return parameters[id];
 			}
 			Parameter& getParameter(int id){
@@ -155,19 +157,19 @@ namespace musical {
 		struct InputState : MultiInputState<Note*> {
 			using MultiInputState::MultiInputState;
 
-			void reset() override {
+			void reset() noexcept override {
 				for (int i = 0; i < CHUNK_SIZE; i++){
 					buffer[i] = {0, 0};
 				}
 				time_zero = 0.0;
 			}
 
-			Buffer buffer;
+			SoundChunk buffer;
 			double time_zero;
 		};
 
 		struct SamplerInput : MultiInput<InputState, Note*, Sampler> {
-			SamplerInput(Sampler* parent) : MultiInput(parent), frequency(this), amplitude(this), notetime(this), noteprogress(this, 0, 1) {
+			SamplerInput(Sampler* parent) : MultiInput(parent), frequency(this), amplitude(this), notetime(this), noteprogress(this) {
 
 			}
 
@@ -175,9 +177,9 @@ namespace musical {
 				ParameterFunction(int _id, SamplerInput* samplerinput) : StateNumberSource(samplerinput) {
 					id = _id;
 				}
-				float getValue(InputState* state, State* context) const override {
-					Note* note = state->key;
-					float progress = (context->getTimeAt(parentmultiinput) / (float)SFREQ) / state->key->length;
+				float getValue(const InputState& state, const State* context) const noexcept override {
+					Note* note = state.key;
+					float progress = (context->getTimeAt(parentmultiinput) / (float)SFREQ) / state.key->length;
 					return note->getParameter(id).getValue(progress);
 				}
 				int id;
@@ -206,31 +208,31 @@ namespace musical {
 
 			struct Frequency : StateNumberSource {
 				using StateNumberSource::StateNumberSource;
-				float getValue(InputState* state, State* context) const override {
-					Note* note = state->key;
-					float progress = (context->getTimeAt(parentmultiinput) / (float)SFREQ) / state->key->length;
+				float getValue(const InputState& state, const State* context) const noexcept override {
+					Note* note = state.key;
+					float progress = (context->getTimeAt(parentmultiinput) / (float)SFREQ) / state.key->length;
 					return note->frequency.getValue(progress);
 				}
 			} frequency;
 
 			struct Amplitude : StateNumberSource {
 				using StateNumberSource::StateNumberSource;
-				float getValue(InputState* state, State* context) const override {
-					return state->key->amplitude;
+				float getValue(const InputState& state, const State* context) const noexcept override {
+					return state.key->amplitude;
 				}
 			} amplitude; // TODO: keep or remove?
 
 			struct NoteTime : StateNumberSource {
 				using StateNumberSource::StateNumberSource;
-				float getValue(InputState* state, State* context) const override {
+				float getValue(const InputState& state, const State* context) const noexcept override {
 					return context->getTimeAt(parentmultiinput) / (float)SFREQ;
 				}
 			} notetime;
 
 			struct NoteProgress : StateNumberSource {
 				using StateNumberSource::StateNumberSource;
-				float getValue(InputState* state, State* context) const override {
-					return context->getTimeAt(parentmultiinput) / (float)SFREQ / state->key->length;
+				float getValue(const InputState& state, const State* context) const noexcept override {
+					return context->getTimeAt(parentmultiinput) / (float)SFREQ / state.key->length;
 				}
 			} noteprogress;
 

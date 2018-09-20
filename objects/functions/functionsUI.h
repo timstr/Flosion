@@ -2,7 +2,6 @@
 
 #include "FlosionUI.h"
 #include "functions.h"
-#include "NumberResult.h"
 
 namespace fui {
 
@@ -378,7 +377,7 @@ namespace fui {
 		DisplayObject() : numres(nullptr) {
 			size = {100, 30};
 			addChildWindow(text = new ui::Text("-", getFont()), middleOfX(this), middleOfY(this));
-			addChildWindow(new NumberInput(&numres.input, this, "Input"), leftOf(this), middleOfY(this));
+			addChildWindow(new NumberInput(&numres, this, "Input"), leftOf(this), middleOfY(this));
 		}
 
 		void render(sf::RenderWindow& rw) override {
@@ -387,7 +386,7 @@ namespace fui {
 		}
 
 		private:
-		musical::NumberResult numres;
+		musical::NumberInput numres;
 		ui::Text* text;
 	};
 	fuiRegisterObject(DisplayObject, "display", "d0");

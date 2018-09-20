@@ -1,32 +1,93 @@
 #pragma once
 
 #include <array>
-
-// TODO: add facility for precomputed functions?
-// i.e. for fft window, bell curve, to-amplitude function, sin, cos, log, etc
+#include <stdexcept>
+#include <cassert>
 
 namespace musical {
-	const unsigned int CHUNK_SIZE = 1 << 10;
-	const unsigned int SFREQ = 44100;
+
+	constexpr std::size_t CHUNK_SIZE = 1 << 10;
+	constexpr std::size_t SFREQ = 44100;
 
 	struct Sample {
 		float l, r;
 
-		Sample();
-		Sample(float _l, float _r);
+		constexpr Sample() noexcept :
+			l(0.0f), r(0.0f) {
 
-		Sample& operator+=(const Sample& s);
-		Sample& operator-=(const Sample& s);
-		Sample& operator*=(float v);
-		Sample& operator/=(float v);
+		}
+		constexpr Sample(float _l, float _r) noexcept :
+			l(_l), r(_r) {
+		}
 	};
 
-	Sample operator+(const Sample& a, const Sample& b);
-	Sample operator-(const Sample& a, const Sample& b);
-	Sample operator-(const Sample& s);
-	Sample operator*(const Sample& s, float v);
-	Sample operator*(float v, const Sample& s);
-	Sample operator/(const Sample& s, float v);
+	constexpr Sample& operator+=(Sample& l, const Sample& r) noexcept {
+		l.l += r.l;
+		l.r += r.r;
+		return l;
+	}
+	constexpr Sample& operator-=(Sample& l, const Sample& r) noexcept {
+		l.l -= r.l;
+		l.r -= r.r;
+		return l;
+	}
+	constexpr Sample& operator*=(Sample& l, float r) noexcept {
+		l.l *= r;
+		l.r *= r;
+		return l;
+	}
+	constexpr Sample& operator/=(Sample& l, float r) noexcept {
+		l.l /= r;
+		l.r /= r;
+		return l;
+	}
 
-	typedef std::array<Sample, CHUNK_SIZE> Buffer;
+	constexpr Sample operator+(const Sample& l, const Sample& r) noexcept {
+		return Sample(l.l + r.l, l.r + r.r);
+	}
+	constexpr Sample operator-(const Sample& l, const Sample& r) noexcept {
+		return Sample(l.l - r.l, l.r - r.r);
+	}
+	constexpr Sample operator-(const Sample& s) noexcept {
+		return Sample(-s.l, -s.r);
+	}
+	constexpr Sample operator*(const Sample& l, float r) noexcept {
+		return Sample(l.l * r, l.r * r);
+	}
+	constexpr Sample operator*(float l, const Sample& r) noexcept {
+		return Sample(l * r.l, l * r.r);
+	}
+	constexpr Sample operator/(const Sample& l, float r) noexcept {
+		return Sample(l.l / r, l.r / r);
+	}
+
+	struct SoundChunk {
+		constexpr SoundChunk() noexcept  {
+			silence();
+		}
+
+		constexpr Sample& operator[](size_t i) noexcept {
+			assert(i < size());
+			return data[i];
+		}
+
+		constexpr const Sample& operator[](size_t i) const noexcept {
+			assert(i < size());
+			return data[i];
+		}
+
+		constexpr void silence() noexcept {
+			for (Sample& s : data){
+				s = Sample(0.0f, 0.0f);
+			}
+		}
+
+		constexpr std::size_t size() const noexcept {
+			return CHUNK_SIZE;
+		}
+
+	private:
+
+		Sample data[CHUNK_SIZE];
+	};
 }

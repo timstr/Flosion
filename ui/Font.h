@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gui/gui.h>
+#include <GUI/GUI.hpp>
 
 namespace fui {
 

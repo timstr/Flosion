@@ -1,10 +1,12 @@
-cmake_minimum_required(VERSION 3.9.0)
+cmake_minimum_required(VERSION 3.10.0)
 
 set(flosion-core-headers
 	musical.h
+	MultiInput.h
 	NumberInput.h
-	NumberResult.h
 	NumberSource.h
+	SingleInput.h
+	SoundInput.h
 	SoundQueue.h
 	SoundResult.h
 	SoundSource.h
@@ -12,10 +14,11 @@ set(flosion-core-headers
 )
 
 set(flosion-core-srcs
-	musical.cpp
 	NumberInput.cpp
-	NumberResult.cpp
 	NumberSource.cpp
+	SingleInput.cpp
+	SoundInput.cpp
+	SoundQueue.cpp
 	SoundResult.cpp
 	SoundSource.cpp
 	Stateful.cpp

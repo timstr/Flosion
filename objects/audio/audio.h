@@ -10,7 +10,7 @@ namespace musical {
 	struct AudioState : State {
 		using State::State;
 
-		void reset() override {
+		void reset() noexcept override {
 			pos = 0;
 			pos_carryover = 0;
 		}
@@ -40,32 +40,30 @@ namespace musical {
 			loader_thread = std::thread(loadFile, this, filename);
 		}
 
-		void renderChunk(Buffer& buffer, AudioState* state) override {
+		void renderChunk(SoundChunk& chunk, AudioState& state) override {
 			if (soundbuffer.getSampleCount() == 0 || !loaded){
-				for (int i = 0; i < CHUNK_SIZE; i++){
-					buffer[i] = {0, 0};
-				}
+				chunk.silence();
 			} else {
 				int channels = soundbuffer.getChannelCount();
 				int sfreq = soundbuffer.getSampleRate();
 				for (int i = 0; i < CHUNK_SIZE; i++){
-					if (state->pos > soundbuffer.getSampleCount()){
-						state->pos = 0;
+					if (state.pos > soundbuffer.getSampleCount()){
+						state.pos = 0;
 					}
 
-					buffer[i].l = soundbuffer.getSamples()[state->pos] / (float)UINT16_MAX;
-					state->pos_carryover += sfreq / (float)SFREQ;
-					float trunc = floor(state->pos_carryover);
+					chunk[i].l = soundbuffer.getSamples()[state.pos] / (float)UINT16_MAX;
+					state.pos_carryover += sfreq / (float)SFREQ;
+					float trunc = floor(state.pos_carryover);
 
 					if (channels == 1){
-						buffer[i].r = buffer[i].l;
-						state->pos += (int)trunc;
+						chunk[i].r = chunk[i].l;
+						state.pos += (int)trunc;
 					} else if (channels == 2){
-						buffer[i].r = soundbuffer.getSamples()[state->pos + 1] / (float)UINT16_MAX;
-						state->pos += 2 * (int)trunc;
+						chunk[i].r = soundbuffer.getSamples()[state.pos + 1] / (float)UINT16_MAX;
+						state.pos += 2 * (int)trunc;
 					}
 
-					state->pos_carryover -= trunc;
+					state.pos_carryover -= trunc;
 				}
 			}
 		}

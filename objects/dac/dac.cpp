@@ -33,8 +33,8 @@ namespace musical {
 			double lsum = 0;
 			double rsum = 0;
 			for (int i = 0; i < CHUNK_SIZE; i++){
-				lsum += abs(inbuffer.at(i).l);
-				rsum += abs(inbuffer.at(i).r);
+				lsum += abs(inbuffer[i].l);
+				rsum += abs(inbuffer[i].r);
 			}
 			return Sample((float)(lsum / CHUNK_SIZE), (float)(rsum / CHUNK_SIZE));
 		} else {
@@ -47,8 +47,8 @@ namespace musical {
 
 		// format and write the chunk data
 		for (int i = 0; i < CHUNK_SIZE; i++){
-			outbuffer.at(2 * i)		= uint32_t(std::min(std::max(inbuffer.at(i).l, -1.0f), 1.0f) * INT16_MAX);
-			outbuffer.at(2 * i + 1)	= uint32_t(std::min(std::max(inbuffer.at(i).r, -1.0f), 1.0f) * INT16_MAX);
+			outbuffer.at(2 * i)		= uint32_t(std::min(std::max(inbuffer[i].l, -1.0f), 1.0f) * INT16_MAX);
+			outbuffer.at(2 * i + 1)	= uint32_t(std::min(std::max(inbuffer[i].r, -1.0f), 1.0f) * INT16_MAX);
 		}
 		data.samples = outbuffer.data();
 		data.sampleCount = CHUNK_SIZE * 2;

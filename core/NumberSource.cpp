@@ -4,70 +4,19 @@
 
 namespace musical {
 
-	NumberSource::NumberSource(Stateful* _parent){
-		parent = _parent;
-		has_range = false;
+	NumberSource::NumberSource(Stateful* _parent) noexcept
+		: parent(_parent) {
+		
 	}
-	NumberSource::NumberSource(Stateful* _parent, float minimum, float maximum)
-		: NumberSource(_parent) {
-		setRange(minimum, maximum);
-	}
-	NumberSource::~NumberSource(){
-		for (int i = 0; i < dsts.size(); i++){
-			dsts[i]->setSource(nullptr);
+	NumberSource::~NumberSource() noexcept {
+		for (auto& d : dependants){
+			d->setSource(nullptr);
 		}
-		for (int i = 0; i < inputs.size(); i++){
-			inputs[i]->setSource(nullptr);
+		for (auto& in : inputs){
+			in->setSource(nullptr);
 		}
 	}
-	void NumberSource::setRange(float minimum, float maximum){
-		has_range = true;
-		range_minimum = minimum;
-		range_maximum = maximum;
-	}
-	bool NumberSource::hasRange() const {
-		return has_range;
-	}
-	float NumberSource::getMinimum() const {
-		return range_minimum;
-	}
-	float NumberSource::getMaximum() const {
-		return range_maximum;
-	}
-	void NumberSource::addDstInput(NumberInput* dst){
-		for (int i = 0; i < dsts.size(); i++){
-			if (dsts[i] == dst){
-				return;
-			}
-		}
-		dsts.push_back(dst);
-	}
-	void NumberSource::removeDstInput(NumberInput* dst){
-		for (int i = 0; i < dsts.size(); i++){
-			if (dsts[i] == dst){
-				dsts.erase(dsts.begin() + i);
-				dst->setSource(nullptr);
-				return;
-			}
-		}
-	}
-	void NumberSource::addInput(NumberInput* input){
-		for (int i = 0; i < inputs.size(); i++){
-			if (inputs[i] == input){
-				return;
-			}
-		}
-		inputs.push_back(input);
-	}
-	void NumberSource::removeInput(NumberInput* input){
-		for (int i = 0; i < inputs.size(); i++){
-			if (inputs[i] == input){
-				inputs.erase(inputs.begin() + i);
-				return;
-			}
-		}
-	}
-	void NumberSource::findAllStatefulSources(std::vector<Stateful*>& sources) const {
+	void NumberSource::findAllStatefulSources(std::vector<const Stateful*>& sources) const noexcept {
 		if (parent){
 			sources.push_back(parent);
 		}
@@ -75,34 +24,34 @@ namespace musical {
 			inputs[i]->findAllStatefulSources(sources);
 		}
 	}
-	void NumberSource::findAllStatefulDests(std::vector<Stateful*>& dests) const {
-		for (int i = 0; i < dsts.size(); i++){
-			dsts[i]->findAllStatefulDests(dests);
+	void NumberSource::findAllStatefulDests(std::vector<const Stateful*>& dests) const noexcept {
+		for (int i = 0; i < dependants.size(); i++){
+			dependants[i]->findAllStatefulDests(dests);
 		}
 	}
-	bool NumberSource::findStatelessDest() const {
-		for (int i = 0; i < dsts.size(); i++){
-			if (dsts[i]->findStatelessDest()){
+	bool NumberSource::findStatelessDest() const noexcept {
+		for (int i = 0; i < dependants.size(); i++){
+			if (dependants[i]->findStatelessDest()){
 				return true;
 			}
 		}
 		return false;
 	}
 
-	PureFunction::PureFunction() : NumberSource(nullptr){
+	PureFunction::PureFunction() noexcept : NumberSource(nullptr){
 
 	}
 
-	Constant::Constant(float _value){
+	Constant::Constant(float _value) noexcept {
 		value = _value;
 	}
-	void Constant::setValue(float val){
+	void Constant::setValue(float val) noexcept {
 		value = val;
 	}
-	float Constant::getValue() const {
+	float Constant::getValue() const noexcept {
 		return value;
 	}
-	float Constant::evaluate(State* state) const {
+	float Constant::evaluate(const State* state) const noexcept {
 		return value;
 	}
 }

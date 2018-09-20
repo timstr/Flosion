@@ -9,8 +9,8 @@ namespace fui {
 		DistortionObject(){
 			size = {150, 150};
 
-			auto ampin = new NumberInput(&distortion.gain.input, this, "Gain");
-			auto roundin = new NumberInput(&distortion.hardness.input, this, "Hardness");
+			auto ampin = new NumberInput(&distortion.gain, this, "Gain");
+			auto roundin = new NumberInput(&distortion.hardness, this, "Hardness");
 			auto soundin = new SoundInput(&distortion.input, this);
 			auto soundout = new SoundOutput(&distortion, this);
 

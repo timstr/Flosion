@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SoundSource.h"
-#include "NumberResult.h"
 #include "SoundResult.h"
 #include "SoundQueue.h"
 #include <algorithm>
@@ -13,12 +12,12 @@ namespace musical {
 	const unsigned int max_convolution_length = SFREQ;
 
 	struct ConvolverState : State {
-		ConvolverState(State* parent, Stateful* owner)
+		ConvolverState(const State* parent, const Stateful* owner)
 			: State(parent, owner), queue(max_convolution_length + CHUNK_SIZE) {
 
 		}
 
-		void reset() override {
+		void reset() noexcept override {
 			position = 0;
 			length = max_convolution_length;
 			queue.clear();
@@ -34,30 +33,31 @@ namespace musical {
 	};
 
 	struct Convolver : SoundSourceTemplate<ConvolverState> {
-		Convolver() : function(this, -1, 1), function_length(this, 0, 1), input(this) {
+		Convolver() : function(this), function_length(this), input(this) {
 
 		}
 
-		void renderChunk(Buffer& buffer, ConvolverState* state) override {
-			state->length = std::min(std::max(0u, (unsigned)(function_length.getValue(state) * SFREQ)), max_convolution_length);
-			for (unsigned int i = 0; i < state->length; i++){
-				state->position = i;
-				state->conv[i] = function.getValue(state);
+		void renderChunk(SoundChunk& buffer, ConvolverState& state) override {
+			state.length = std::min(std::max(0u, (unsigned)(function_length.getValue(&state) * SFREQ)), max_convolution_length);
+			for (unsigned int i = 0; i < state.length; i++){
+				state.position = i;
+				state.conv[i] = function.getValue(&state);
 			}
 
-			state->queue.advance(CHUNK_SIZE, input, state);
+			state.queue.advance(CHUNK_SIZE, input, &state);
 			for (size_t i = 0; i < CHUNK_SIZE; i++){
 				Sample s = Sample(0, 0);
-				for (size_t j = 0; j < state->length; j++){
-					s += state->queue[i + j] * state->conv[j];
+				for (size_t j = 0; j < state.length; j++){
+					s += state.queue[i + j] * state.conv[j];
 				}
 				buffer[i] = s / (float)SFREQ;
 			}
 		}
 
 
-		NumberResult function;
-		NumberResult function_length;
+		NumberInput function;
+		NumberInput function_length;
+
 		struct Input : SingleInput {
 			Input(Convolver* parent) : SingleInput(parent), position(parent) {
 
@@ -66,8 +66,8 @@ namespace musical {
 			struct Position : StateNumberSource<Convolver> {
 				using StateNumberSource::StateNumberSource;
 
-				float getValue(ConvolverState* state, State* context) const {
-					return state->position / (float)state->length;
+				float getValue(const ConvolverState& state, const State* context) const noexcept override {
+					return state.position / (float)state.length;
 				}
 			} position;
 		} input;

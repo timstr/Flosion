@@ -9,22 +9,8 @@ namespace fui {
 	struct SplineObject : ProcessingObject {
 		SplineObject(){
 			size = {200, 100};
-			NumberInput* input = new NumberInput(&spline.input, this, "Input", [this](NumberOutput* no){
-				const musical::NumberSource* source = no->getSource();
-				if (source->hasRange()){
-					spline.setMinX(source->getMinimum());
-					spline.setMaxX(source->getMaximum());
-					updateHandles();
-				}
-			});
-			NumberOutput* output = new NumberOutput(&spline, this, "Output", [this](NumberInput* ni){
-				const musical::NumberInput* input = ni->getInput();
-				if (input->hasRange()){
-					spline.setMinY(input->getMinimum());
-					spline.setMaxY(input->getMaximum());
-					updateHandles();
-				}
-			});
+			NumberInput* input = new NumberInput(&spline.input, this, "Input");
+			NumberOutput* output = new NumberOutput(&spline, this, "Output");
 			addChildWindow(input, leftOf(this), middleOfY(this));
 			addChildWindow(output, rightOf(this), middleOfY(this));
 			redraw();

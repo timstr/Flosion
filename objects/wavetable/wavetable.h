@@ -19,7 +19,7 @@ namespace musical {
 			interpolate = true;
 		}
 
-		float evaluate(State* state) const override {
+		float evaluate(const State* state) const noexcept override {
 			return getValueAt(input.getValue(state));
 		}
 

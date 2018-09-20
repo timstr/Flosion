@@ -1,88 +1,48 @@
 #pragma once
 
 #include "musical.h"
-#include <vector>
 #include "SoundSource.h"
+#include "SingleInput.h"
+#include <vector>
+#include <memory>
 
 namespace musical {
 
-	// TODO: add 'prefill' function that fills queue with data to avoid initial delay
-
+	// a SoundQueue can be used with a SingleInput to create a queue of
+	// sound data, which is useful for cases where more sound data than
+	// that of a single SoundChunk is needed.
+	// a SoundQueue does not own the SingleInput it uses so that it can
+	// be used in the State of a SoundSource
 	struct SoundQueue {
-		SoundQueue(size_t num_samples) : nsamples(num_samples) {
-			offset = 0;
-			chunk_index = 0;
-			size_t nchunks = (num_samples / CHUNK_SIZE) + 1;
-			chunks.resize(nchunks);
-			for (int i = 0; i < nchunks; i++){
-				chunks[i] = new Chunk();
-			}
-		};
-		~SoundQueue(){
-			for (int i = 0; i < chunks.size(); i++){
-				delete chunks[i];
-			}
-			chunks.clear();
-		}
+		// construct a queue with capacity for 'num_samples' samples
+		SoundQueue(size_t num_samples) noexcept;
 
 		// advance queue, bring in silence
-		inline void advance(size_t num_samples){
-			offset += num_samples;
-			while (offset >= CHUNK_SIZE){
-				chunks[chunk_index]->clear();
-				chunk_index = (chunk_index + 1) % chunks.size();
-				offset -= CHUNK_SIZE;
-			}
-		}
+		void advance(std::size_t num_samples) noexcept;
 
 		// advance queue, bring in data from sound input
-		inline void advance(size_t num_samples, SingleInput& input, State* input_state){
-			offset += num_samples;
-			while (offset >= CHUNK_SIZE){
-				input.getNextChunk(chunks[chunk_index]->data, input_state);
-				chunk_index = (chunk_index + 1) % chunks.size();
-				offset -= CHUNK_SIZE;
-			}
-		}
+		// to be used in place of 'input.getNextChunk(..., state);`
+		void advance(std::size_t num_samples, SingleInput& input, const State* state) noexcept;
 
-		void clear(){
-			for (int i = 0; i < chunks.size(); i++){
-				chunks[i]->clear();
-			}
-		}
+		// initializes the queue with a single SoundChunk's worth of sound
+		// This should be done at the beginning of reading from the SoundInput
+		// to prevent a delay of one SoundChunk, which will happen otherwise.
+		void prefill(SingleInput& input, const State* state) noexcept;
 
-		inline Sample& operator[](size_t index){
-			size_t i = index + offset;
-			size_t c = ((i / CHUNK_SIZE) + chunk_index) % chunks.size();
-			size_t s = i % CHUNK_SIZE;
-			return chunks[c]->data[s];
-		}
+		// silence and reset the queue
+		void clear() noexcept;
 
-		size_t size() const {
-			return nsamples;
-		}
+		Sample& operator[](std::size_t index) noexcept;
+
+		std::size_t size() const noexcept;
 
 		private:
 
-		struct Chunk {
-			Chunk(){
-				clear();
-			}
+		std::vector<SoundChunk> chunks;
 
-			void clear(){
-				for (int i = 0; i < CHUNK_SIZE; i++){
-					data[i] = Sample(0, 0);
-				}
-			}
-
-			Buffer data;
-		};
-
-		std::vector<Chunk*> chunks;
-
-		size_t offset;
-		size_t chunk_index;
-		const size_t nsamples;
+		std::size_t offset;
+		std::size_t chunk_index;
+		const std::size_t nsamples;
 	};
 
 };

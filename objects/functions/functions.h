@@ -25,19 +25,19 @@ namespace musical {
 		};
 
 		struct Add : BinaryPureFunction {
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return (input1.getValue(state, 0) + input2.getValue(state, 0));
 			}
 		};
 
 		struct Subtract : BinaryPureFunction {
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return (input1.getValue(state, 0) - input2.getValue(state, 0));
 			}
 		};
 
 		struct Multiply : BinaryPureFunction {
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return (input1.getValue(state, 1) * input2.getValue(state, 1));
 			}
 		};
@@ -47,7 +47,7 @@ namespace musical {
 
 			}
 
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return (numerator.getValue(state, 1) / denominator.getValue(state, 1));
 			}
 
@@ -55,20 +55,20 @@ namespace musical {
 		};
 
 		struct UnitSine : UnaryPureFunction {
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return sin(input.getValue(state) * 2 * pi<float>);
 			}
 		};
 
 		struct SawWave : UnaryPureFunction {
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				float val = input.getValue(state, 0.5);
 				return (val - floor(val)) * 2 - 1;
 			}
 		};
 
 		struct SquareWave : UnaryPureFunction {
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				float val = input.getValue(state, 0.5);
 				if ((val - floor(val)) < 0.5){
 					return -1;
@@ -83,7 +83,7 @@ namespace musical {
 
 			}
 
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				float xval = x.getValue(state, 0.0f);
 				float centerval = center.getValue(state, 0.0f);
 				float widthval = width.getValue(state, 1.0f);
@@ -98,25 +98,25 @@ namespace musical {
 		};
 
 		struct NaturalLog : UnaryPureFunction {
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return log(input.getValue(state));
 			}
 		};
 
 		struct Exponential : UnaryPureFunction {
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return exp(input.getValue(state));
 			}
 		};
 
 		struct Minimum : BinaryPureFunction {
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return std::min(input1.getValue(state), input2.getValue(state));
 			}
 		};
 
 		struct Maximum : BinaryPureFunction {
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return std::max(input1.getValue(state), input2.getValue(state));
 			}
 		};
@@ -126,7 +126,7 @@ namespace musical {
 			
 			}
 
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return std::min(std::max(input.getValue(state), minimum.getValue(state)), maximum.getValue(state));
 			}
 
@@ -138,7 +138,7 @@ namespace musical {
 
 			}
 
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return atan2(y.getValue(state), x.getValue(state));
 			}
 
@@ -146,32 +146,32 @@ namespace musical {
 		};
 
 		struct AbsoluteValue : UnaryPureFunction {
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return abs(input.getValue(state));
 			}
 		};
 
 		struct Hypotenuse : BinaryPureFunction {
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return hypot(input1.getValue(state), input2.getValue(state));
 			}
 		};
 
 		struct Sine : UnaryPureFunction {
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return sin(input.getValue(state));
 			}
 		};
 
 		struct Cosine : UnaryPureFunction {
-			float evaluate(State* state) const override {
+			float evaluate(const State* state) const noexcept override {
 				return cos(input.getValue(state));
 			}
 		};
 
 		struct Tangent : UnaryPureFunction {
-			float evaluate(State* state) const override {
-				return cos(input.getValue(state));
+			float evaluate(const State* state) const noexcept override {
+				return tan(input.getValue(state));
 			}
 		};
 

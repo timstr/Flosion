@@ -1,12 +1,13 @@
 #pragma once
 
 #include "musical.h"
+#include "SingleInput.h"
 
 namespace musical {
 
 	struct TimeStretchState : State {
 		using State::State;
-		void reset() override {
+		void reset() noexcept override {
 			for (int i = 0; i < CHUNK_SIZE; i++){
 				buffer[i] = {0, 0};
 			}
@@ -18,6 +19,8 @@ namespace musical {
 		}
 
 		Sample advanceAndGetSample(float delta, SingleInput& input, State* statechain){
+			advanceTime(1);
+
 			// carryover will always be less than 1 from previous call
 			float x0 = carryover;
 			carryover += delta;
@@ -71,11 +74,11 @@ namespace musical {
 			}
 		}
 
-		inline Sample F(Sample prev, Sample next, float x) const {
+		static constexpr Sample F(Sample prev, Sample next, float x) noexcept {
 			return prev * x + (next - prev) * (x * x / 2.0f);
 		}
 
-		Buffer buffer;
+		SoundChunk buffer;
 		Sample prev;
 		Sample next;
 		unsigned int bufferpos;
@@ -88,29 +91,30 @@ namespace musical {
 
 		}
 
-		void renderChunk(Buffer& buffer, TimeStretchState* state) override {
+		void renderChunk(SoundChunk& buffer, TimeStretchState& state) override {
 			for (int i = 0; i < CHUNK_SIZE; i++){
-				state->speed = speed.getValue(state, 1);
-				if (state->speed <= 0.001){
+				state.speed = speed.getValue(&state, 1);
+				if (state.speed <= 0.001){
 					buffer[i] = {0, 0};
 				} else {
-					if (state->speed > 16){
-						state->speed = 16;
+					if (state.speed > 16){
+						state.speed = 16;
 					}
-					buffer[i] = state->advanceAndGetSample(state->speed, input, state);
+					buffer[i] = state.advanceAndGetSample(state.speed, input, &state);
 				}
-				state->tick();
 			}
 		}
 
-		float getTimeSpeed(State* s) override {
-			if (s->getOwner() != this){
-				throw std::runtime_error("Bad things have happened");
-			}
+		double getTimeSpeed(const State* s) const noexcept override {
+			// TODO: this is terrifying
+			// add a utility function like template<typename StateType> findOwnStateIn(State* state_chain) and use it here
+			//	if (s->getOwner() != this){
+			//		throw std::runtime_error("Bad things have happened");
+			//	}
 			return ((TimeStretchState*)s)->speed;
 		}
 
-		NumberResult speed;
+		NumberInput speed;
 
 		SingleInput input;
 	};

@@ -1,14 +1,23 @@
-cmake_minimum_required(VERSION 3.9.0)
+cmake_minimum_required(VERSION 3.10.0)
 
 project(flosion C CXX)
 
 add_executable(flosion Flosion.cpp)
+
+set_property(TARGET flosion PROPERTY CXX_STANDARD 17)
+
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT flosion)
+
+if(MSVC)
+	add_definitions("/diagnostics:caret")
+endif()
 
 add_subdirectory(tims-gui)
 add_subdirectory(core)
 add_subdirectory(ui)
 add_subdirectory(util)
 add_subdirectory(objects)
+add_subdirectory(test)
 
 target_link_libraries(flosion
 	tims-gui
@@ -41,3 +50,7 @@ if(WIN32)
 	)
 endif()
 
+if(WIN32)
+	# turn warning C4715 ("not all control paths return a value") into an error
+	add_definitions(/we4715)
+endif()

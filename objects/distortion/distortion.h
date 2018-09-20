@@ -2,16 +2,16 @@
 
 #include "musical.h"
 #include "SoundSource.h"
-#include "NumberResult.h"
 #include <math.h>
 #include <algorithm>
+#include "SingleInput.h"
 
 namespace musical {
 
 	struct DistortionState : State {
 		using State::State;
 
-		void reset() override {
+		void reset() noexcept override {
 
 		}
 	};
@@ -21,19 +21,19 @@ namespace musical {
 
 		}
 
-		void renderChunk(Buffer& buffer, DistortionState* state) override {
-			input.getNextChunk(buffer, state);
+		void renderChunk(SoundChunk& buffer, DistortionState& state) override {
+			input.getNextChunk(buffer, &state);
 			for (int i = 0; i < CHUNK_SIZE; i++){
-				float h = hardness.getValue(state, 0.0f);
-				float g = gain.getValue(state, 0.0f);
+				float h = hardness.getValue(&state, 0.0f);
+				float g = gain.getValue(&state, 0.0f);
 				buffer[i].l = std::min(std::max(distort(buffer[i].l, g, h), -1.0f), 1.0f);
 				buffer[i].r = std::min(std::max(distort(buffer[i].r, g, h), -1.0f), 1.0f);
 			}
 		}
 
 		SingleInput input;
-		NumberResult gain;
-		NumberResult hardness;
+		NumberInput gain;
+		NumberInput hardness;
 
 		private:
 		

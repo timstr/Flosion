@@ -13,8 +13,8 @@ namespace fui {
 			auto sout = new SoundOutput(&convolver, this);
 
 			auto pos = new NumberOutput(&convolver.input.position, this, "Position");
-			auto fn = new NumberInput(&convolver.function.input, this, "Function");
-			auto len = new NumberInput(&convolver.function_length.input, this, "Function Length");
+			auto fn = new NumberInput(&convolver.function, this, "Function");
+			auto len = new NumberInput(&convolver.function_length, this, "Function Length");
 
 			addChildWindow(pos, insideLeft(this, 5), above(this));
 			addChildWindow(fn, leftOf(this), insideTop(this, 5));

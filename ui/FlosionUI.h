@@ -12,18 +12,7 @@
 
 namespace fui {
 
-	// ProcessingObject is the base class to all further-defined sound and number processing objects
-	// defines functionality for adding/removing sound/number inputs/outputs
-	// each sound/number input/output must be added when it is desired to be used in the current project
-	// either in the constructor or dynamically
-	// 
-	struct ProcessingObject : Object {
-
-		void onRightClick(int clicks) override;
-
-		bool onDropWindow(Window* window) override;
-	};
-
+	// TODO: make safe for new ui
 	// factory for creating Objects from strings
 	struct Factory {
 		template<class ObjectType>

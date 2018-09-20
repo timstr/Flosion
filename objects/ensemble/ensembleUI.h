@@ -8,9 +8,9 @@ namespace fui {
 	struct EnsembleObject : ProcessingObject {
 		EnsembleObject(){
 			size = {150, 145};
-			auto numv = new NumberInput(&ensemble.num_voices.input, this, "Number of Voices");
-			auto freq = new NumberInput(&ensemble.frequency.input, this, "Frequency");
-			auto fspr = new NumberInput(&ensemble.frequency_spread.input, this, "Frequency Spread");
+			auto numv = new NumberInput(&ensemble.num_voices, this, "Number of Voices");
+			auto freq = new NumberInput(&ensemble.frequency, this, "Frequency");
+			auto fspr = new NumberInput(&ensemble.frequency_spread, this, "Frequency Spread");
 			auto soundin = new SoundInput(&ensemble.input, this);
 
 

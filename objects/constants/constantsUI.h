@@ -69,12 +69,7 @@ namespace fui {
 			addChildWindow(slider = new Slider(this));
 			addChildWindow(caption = new ui::Text("", fui::getFont()));
 
-			NumberOutput* output = new NumberOutput(&value, this, "Value", [this](NumberInput* ni){
-				const musical::NumberInput* input = ni->getInput();
-				if (input->hasRange()){
-					setRange(input->getMinimum(), input->getMaximum());
-				}
-			});
+			NumberOutput* output = new NumberOutput(&value, this, "Value");
 
 			addChildWindow(output, rightOf(this));
 
@@ -98,7 +93,6 @@ namespace fui {
 		void setRange(float minimum, float maximum){
 			min_value = std::min(minimum, maximum);
 			max_value = std::max(minimum, maximum);
-			value.setRange(minimum, maximum);
 			value.setValue(std::min(std::max(value.getValue(), min_value), max_value));
 			updateCaption();
 			updateSlider();
