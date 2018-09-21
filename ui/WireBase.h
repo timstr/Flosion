@@ -71,6 +71,7 @@ namespace fui {
 				newwire->head()->connectTo(self);
 				newwire->tail()->startDrag();
 			}
+			return true;
 		}
 
 		bool onDrop(const ui::Ref<Element>& element) override {
@@ -81,7 +82,9 @@ namespace fui {
 					oldwire->disconnectFrom(self);
 				}
 				wirehead->connectTo(self);
+				return true;
 			}
+			return false;
 		}
 
 		ui::WeakRef<Object> m_parentobject;
@@ -139,6 +142,7 @@ namespace fui {
 				newwire->tail()->connectTo(self);
 				newwire->head()->startDrag();
 			}
+			return true;
 		}
 
 		bool onDrop(const ui::Ref<Element>& element) override {
@@ -147,7 +151,9 @@ namespace fui {
 				auto self = thisAs<OutputType>();
 				wiretail->connectTo(self);
 				m_wiretailsout.push_back(wiretail);
+				return true;
 			}
+			return false;
 		}
 
 		ui::WeakRef<Object> m_parentobject;

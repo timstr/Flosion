@@ -32,6 +32,8 @@ namespace musical {
 		// will not throw if given nullptr
 		void setSource(NumberSource* _source);
 
+		NumberSource* getSource() const;
+
 		// state shall be the current contextual state chain
 		// any allowable values shall come from global constants which are not stateful
 		// or from sound processing objects, which shall be found as parents of some state

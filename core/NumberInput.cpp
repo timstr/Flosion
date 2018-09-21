@@ -1,3 +1,4 @@
+#include "NumberInput.h"
 #pragma once
 
 #include "NumberInput.h"
@@ -74,6 +75,9 @@ namespace musical {
 		if (source){
 			source->dependants.push_back(this);
 		}
+	}
+	NumberSource* NumberInput::getSource() const {
+		return source;
 	}
 	void NumberInput::findAllStatefulSources(std::vector<const Stateful*>& sources) const noexcept {
 		if (source){

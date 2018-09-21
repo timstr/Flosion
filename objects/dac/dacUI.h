@@ -4,63 +4,65 @@
 
 namespace fui {
 
-	struct DACObject : ProcessingObject {
+	struct DACObject : Object {
 		DACObject(){
-			size = {150, 150};
-			addChildWindow(new ui::Text("DAC", getFont()));
-			addChildWindow(new SoundInput(&dac.input.input, this), leftOf(this), middleOfY(this));
-			addChildWindow(new PlayButton(this), {25, 20});
-			addChildWindow(new AmpMeter(this), {90, 10});
+			setMinSize({150, 150});
+			write("DAC", getFont());
+			add<SoundInput>(thisAs<Object>(), dac.input.input, "Sound Input");
+			add<PlayButton>(*this);
+			add<AmpMeter>(*this);
 		}
 
-		private:
-		struct PlayButton : ui::Window {
-			PlayButton(DACObject* _parent){
-				parent = _parent;
-				size = {50, 50};
-				addChildWindow(caption = new ui::Text("Play", getFont()));
+	private:
+
+		struct PlayButton : ui::InlineElement {
+			PlayButton(DACObject& _parent) :
+				parent(_parent) {
+				setMinSize({50, 50});
+				caption = add<ui::Text>("Play", getFont());
 			}
 
-			void onLeftClick(int clicks) override {
-				if (parent->dac.isPlaying()){
-					parent->dac.pause();
+			bool onLeftClick(int clicks) override {
+				if (parent.dac.isPlaying()){
+					parent.dac.pause();
 					caption->setText("Play");
 				} else {
-					parent->dac.play();
+					parent.dac.play();
 					caption->setText("Pause");
 				}
+				return true;
 			}
 
 			private:
-			ui::Text* caption;
-			DACObject* parent;
+			ui::Ref<ui::Text> caption;
+			DACObject& parent;
 		};
 
-		struct AmpMeter : ui::Window {
-			AmpMeter(DACObject* _parent) : parent(_parent){
-				size = {50, 100};
+		struct AmpMeter : ui::InlineElement {
+			AmpMeter(DACObject& _parent) : parent(_parent){
+				setSize({50, 100});
 			}
 			void render(sf::RenderWindow& rw) override {
 				sf::RectangleShape rect;
-				rect.setSize(size);
+				rect.setSize(size());
 				rect.setFillColor(sf::Color(0xFF));
 				rect.setOutlineColor(sf::Color(0xFF));
 				rect.setOutlineThickness(1);
 				rw.draw(rect);
 
-				musical::Sample ampl = parent->dac.getCurrentAmp();
+				musical::Sample ampl = parent.dac.getCurrentAmp();
 
-				float lheight = ampl.l * size.y;
-				float rheight = ampl.r * size.y;
+				float lheight = ampl.l * top();
+				float rheight = ampl.r * top();
 
 				rect.setSize(vec2(20, lheight));
-				rect.setPosition(vec2(0, size.y - lheight));
+				rect.setPosition(vec2(0, top() - lheight));
 				rect.setFillColor(getColor(ampl.l));
 				rect.setOutlineThickness(0);
 				rw.draw(rect);
 
 				rect.setSize(vec2(20, rheight));
-				rect.setPosition(vec2(30, size.y - rheight));
+				rect.setPosition(vec2(30, top() - rheight));
 				rect.setFillColor(getColor(ampl.r));
 				rw.draw(rect);
 			}
@@ -75,10 +77,10 @@ namespace fui {
 				}
 			}
 			private:
-			DACObject* parent;
+			DACObject& parent;
 		};
 
 		musical::DAC dac;
 	};
-	fuiRegisterObject(DACObject, "dac");
+	RegisterFactoryObject(DACObject, "dac");
 }

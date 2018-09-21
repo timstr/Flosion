@@ -5,40 +5,29 @@
 
 namespace fui {
 
-	struct AudioObject : ProcessingObject {
+	struct AudioObject : Object {
 		AudioObject(){
-			size = {150, 150};
-			addChildWindow(new ui::Text("Audio Clip", getFont()));
-			addChildWindow(new SoundOutput(&audio, this), rightOf(this), insideTop(this, 20));
-			addChildWindow(new LoadButton(this), insideLeft(this, 20), insideTop(this, 20));
-			addChildWindow(caption = new ui::Text("-", fui::getFont()), insideRight(this, 5), insideBottom(this, 5));
-		}
+			write("Audio Clip", getFont());
+			add<SoundOutput>(thisAs<Object>(), audio, "Sound Output");
 
-		private:
-		struct LoadButton : ui::Window {
-			LoadButton(AudioObject* _parent){
-				parent = _parent;
-				size = {50, 50};
-				addChildWindow(new ui::Text("Load", getFont()));
-			}
-
-			void onLeftClick(int clicks) override {
+			add<ui::CallbackButton>("load", getFont(), [this](){
 				std::string filename = openFileDialog(L"audio files\0*.ogg;*.wav;*.flac;*.aiff\0\0");
-				parent->audio.loadFromFile(filename);
+				audio.loadFromFile(filename);
 				if (filename != ""){
 					size_t pos = filename.find_last_of('\\'); 
 					std::string shortname = filename.substr(pos + 1);
-					parent->caption->setText(shortname);
-					parent->alignChildren();
+					caption->clear();
+					caption->write(shortname, getFont());
 				}
-			}
+			});
 
-			private:
-			AudioObject* parent;
-		};
+			caption = add<ui::BlockElement>();
+		}
+
+		private:
 
 		musical::Audio audio;
-		ui::Text* caption;
+		ui::Ref<ui::Element> caption;
 	};
-	fuiRegisterObject(AudioObject, "sound", "audioclip");
+	RegisterFactoryObject(AudioObject, "sound", "audioclip");
 }

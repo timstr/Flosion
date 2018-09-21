@@ -5,23 +5,22 @@
 
 namespace fui {
 
-	struct FilterObject : ProcessingObject {
+	struct FilterObject : Object {
 		FilterObject(){
-			size = {150, 150};
+			auto self = thisAs<Object>();
+			add<SoundInput>(self, filter.input, "Sound Input");
+			add<SoundOutput>(self, filter, "SoundOutput");
 
-			addChildWindow(new SoundInput(&filter.input, this), leftOf(this), middleOfY(this));
-			addChildWindow(new SoundOutput(&filter, this), rightOf(this), middleOfY(this));
+			add<NumberOutput>(self, filter.frequency_out, "Frequency Out");
+			add<NumberInput>(self, filter.amplitude_in, "Amplitude In");
 
-			addChildWindow(new NumberOutput(&filter.frequency_out, this, "Frequency Out"), insideLeft(this), above(this));
-			addChildWindow(new NumberInput(&filter.amplitude_in, this, "Amplitude In"), leftOf(this), insideTop(this));
-
-			addChildWindow(new ui::Text("Filter", getFont()), middleOfX(this), middleOfY(this));
+			write("Filter", getFont());
 		}
 
 		private:
 
 		musical::Filter filter;
 	};
-	fuiRegisterObject(FilterObject, "filter", "eq");
+	RegisterFactoryObject(FilterObject, "filter", "eq");
 
 }

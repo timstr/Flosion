@@ -5,18 +5,18 @@
 
 namespace fui {
 
-	struct TimeStretchObject : ProcessingObject {
+	struct TimeStretchObject : Object {
 		TimeStretchObject(){
-			size = {150, 150};
-			addChildWindow(new NumberInput(&timestretch.speed, this, "Speed Ratio"), leftOf(this), insideTop(this));
-			addChildWindow(new SoundInput(&timestretch.input, this), leftOf(this), middleOfY(this));
-			addChildWindow(new SoundOutput(&timestretch, this), rightOf(this), middleOfY(this));
-			addChildWindow(new ui::Text("TimeStretch", fui::getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, timestretch.speed, "Speed");
+			add<SoundInput>(self, timestretch.input, "Sound Input");
+			add<SoundOutput>(self, timestretch, "Sound Output");
+			write("TimeStretch", getFont());
 		}
 
 		private:
 
 		musical::TimeStretch timestretch;
 	};
-	fuiRegisterObject(TimeStretchObject, "timestretch", "stretch");
+	RegisterFactoryObject(TimeStretchObject, "timestretch", "stretch");
 }

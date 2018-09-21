@@ -10,9 +10,13 @@ namespace fui {
 
 		bool onLeftClick(int clicks) override;
 
+		void addObject(ui::Ref<Object> object);
+
+		void releaseObject(ui::Ref<Object> object);
+
+		// TODO: does a box need to be aware of its contained wires?
+
 	private:
-
-
 
 		std::vector<ui::Ref<Object>> m_objects;
 	};
@@ -24,12 +28,13 @@ namespace fui {
 
 		void expand();
 
+		// TODO: put wire inputs/outputs on the edges of collapsible boxes
+		// for wires leaving and entering the box
 	};
 
 	// MainBox is the singleton-intended container that holds everything in the current work area
 	struct MainBox : Box {
-
-		// TODO
+		MainBox();
 
 	};
 

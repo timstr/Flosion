@@ -73,14 +73,7 @@ int main() {
 
 	ui::init(1000, 700, "Flosion", 30);
 
-	fui::MainBox* box = new fui::MainBox();
-
-	box->addObject(new fui::SliderObject(0.0f, 1000.0f));
-	box->addObject(new fui::SliderObject(0.0f, 1000.0f));
-	box->addObject(new fui::SliderObject(0.0f, 2.0f));
-	box->addObject(new fui::SliderObject(0.0f, 0.1f));
-
-	ui::root()->addChildWindow(box);
+	ui::root().add<fui::FlosionUI>();
 
 	ui::run();
 

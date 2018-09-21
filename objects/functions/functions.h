@@ -79,19 +79,19 @@ namespace musical {
 		};
 
 		struct Gaussian : PureFunction {
-			Gaussian() : x(this), center(this), width(this), height(this) {
+			Gaussian() : input(this), center(this), width(this), height(this) {
 
 			}
 
 			float evaluate(const State* state) const noexcept override {
-				float xval = x.getValue(state, 0.0f);
+				float xval = input.getValue(state, 0.0f);
 				float centerval = center.getValue(state, 0.0f);
 				float widthval = width.getValue(state, 1.0f);
 				float heightval = height.getValue(state, 1.0f);
 				return exp(-pow(xval - centerval, 2.0f) / (2.0f * widthval * widthval)) * heightval;
 			}
 
-			NumberInput x;
+			NumberInput input;
 			NumberInput center;
 			NumberInput width;
 			NumberInput height;
@@ -133,8 +133,8 @@ namespace musical {
 			NumberInput input, minimum, maximum;
 		};
 
-		struct Phase : PureFunction {
-			Phase() : x(this), y(this) {
+		struct Arctangent : PureFunction {
+			Arctangent() : x(this), y(this) {
 
 			}
 
@@ -152,9 +152,15 @@ namespace musical {
 		};
 
 		struct Hypotenuse : BinaryPureFunction {
-			float evaluate(const State* state) const noexcept override {
-				return hypot(input1.getValue(state), input2.getValue(state));
+			Hypotenuse() : x(this), y(this) {
+
 			}
+
+			float evaluate(const State* state) const noexcept override {
+				return hypot(x.getValue(state), y.getValue(state));
+			}
+
+			NumberInput x, y;
 		};
 
 		struct Sine : UnaryPureFunction {

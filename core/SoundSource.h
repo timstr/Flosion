@@ -1,6 +1,7 @@
 #pragma once
 
 #include "musical.h"
+#include "NumberSource.h"
 #include "SoundInput.h"
 #include "Stateful.h"
 #include <vector>

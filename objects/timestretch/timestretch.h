@@ -86,6 +86,7 @@ namespace musical {
 		float speed;
 	};
 
+	// TODO: rename to Resampler, rename Sampler to Note Sequencer
 	struct TimeStretch : SoundSourceTemplate<TimeStretchState> {
 		TimeStretch() : input(this), speed(this) {
 

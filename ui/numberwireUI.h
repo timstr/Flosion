@@ -8,8 +8,9 @@
 namespace fui {
 	
 	struct NumberInput : WireInputBase<musical::NumberSource, musical::NumberInput> {
-		NumberInput(ui::WeakRef<Box> parent_box, musical::NumberInput& target) :
-			WireInputBase(parent_box, target) {
+		NumberInput(ui::WeakRef<Object> parent_object, musical::NumberInput& target, std::string label) :
+			WireInputBase(parent_object, target),
+			m_label(label) {
 
 			setMinSize({30, 30});
 			setBorderColor(sf::Color(0xFF));
@@ -18,12 +19,21 @@ namespace fui {
 			setBackgroundColor(sf::Color(0x0000FFFF));
 		}
 
+		const std::string& label() const {
+			return m_label;
+		}
+
+	private:
+
 		ui::Ref<WireType> createWire(ui::Ref<Box> box) override;
+
+		const std::string m_label;
 	};
 
 	struct NumberOutput : WireOutputBase<musical::NumberSource, musical::NumberInput> {
-		NumberOutput(ui::WeakRef<Box> parent_box, musical::NumberSource& _target) :
-			WireOutputBase(parent_box, _target) {
+		NumberOutput(ui::WeakRef<Object> parent_object, musical::NumberSource& _target, std::string label) :
+			WireOutputBase(parent_object, _target),
+			m_label(label) {
 
 			setMinSize({30, 30});
 			setBorderColor(sf::Color(0xFF));
@@ -32,7 +42,15 @@ namespace fui {
 			setBackgroundColor(sf::Color(0x000080FF));
 		}
 
+		const std::string& label() const {
+			return m_label;
+		}
+
+	private:
+
 		ui::Ref<WireType> createWire(ui::Ref<Box> box) override;
+
+		const std::string m_label;
 	};
 
 	struct NumberWire : WireBase<musical::NumberSource, musical::NumberInput> {
@@ -49,14 +67,6 @@ namespace fui {
 			dst.setSource(nullptr);
 		}
 	};
-
-	ui::Ref<NumberInput::WireType> NumberInput::createWire(ui::Ref<Box> box){
-		return ui::create<NumberWire>(box);
-	}
-
-	ui::Ref<NumberOutput::WireType> NumberOutput::createWire(ui::Ref<Box> box){
-		return ui::create<NumberWire>(box);
-	}
 
 
 } // namespace fui

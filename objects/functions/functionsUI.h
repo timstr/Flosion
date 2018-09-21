@@ -6,389 +6,304 @@
 namespace fui {
 
 	// add
-	struct AddObject : ProcessingObject {
+	struct AddObject : Object {
 		AddObject(){
-			size = {75, 75};
-
-			auto in1 = new NumberInput(&add.input1, this, "Input A");
-			auto in2 = new NumberInput(&add.input2, this, "Input B");
-
-			addChildWindow(in1, leftOf(this), insideTop(this));
-			addChildWindow(in2, leftOf(this), below(in1, 5));
-
-			addChildWindow(new NumberOutput(&add, this, "Output"), rightOf(this), insideTop(this));
-
-			addChildWindow(new ui::Text("Add", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_add.input1, "Input A");
+			add<NumberInput>(self, m_add.input2, "Input B");
+			add<NumberOutput>(self, m_add, "Output");
+			add<ui::Text>("Add", getFont());
 		}
 
-		private:
-		musical::functions::Add add;
+	private:
+		musical::functions::Add m_add;
 	}; 
-	fuiRegisterObject(AddObject, "add", "+", "plus");
+	RegisterFactoryObject(AddObject, "add", "+", "plus");
 
 	// subtract
-	struct SubtractObject : ProcessingObject {
+	struct SubtractObject : Object {
 		SubtractObject(){
-			size = {75, 75};
-
-			auto in1 = new NumberInput(&subtract.input1, this, "Input A");
-			auto in2 = new NumberInput(&subtract.input2, this, "Input B");
-
-			addChildWindow(in1, leftOf(this), insideTop(this));
-			addChildWindow(in2, leftOf(this), below(in1, 5));
-
-			addChildWindow(new NumberOutput(&subtract, this, "Output"), rightOf(this), insideTop(this));
-
-			addChildWindow(new ui::Text("Subtract", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_subtract.input1, "Input A");
+			add<NumberInput>(self, m_subtract.input2, "Input B");
+			add<NumberOutput>(self, m_subtract, "Output");
+			add<ui::Text>("Subtract", getFont());
 		}
 
-		private:
-		musical::functions::Subtract subtract;
+	private:
+		musical::functions::Subtract m_subtract;
 	}; 
-	fuiRegisterObject(SubtractObject, "subtract", "-", "minus");
+	RegisterFactoryObject(SubtractObject, "subtract", "-", "minus");
 
 	// multiply
-	struct MultiplyObject : ProcessingObject {
+	struct MultiplyObject : Object {
 		MultiplyObject(){
-			size = {75, 75};
-
-			auto in1 = new NumberInput(&multiply.input1, this, "Input A");
-			auto in2 = new NumberInput(&multiply.input2, this, "Input B");
-
-			addChildWindow(in1, leftOf(this), insideTop(this));
-			addChildWindow(in2, leftOf(this), below(in1, 5));
-
-			addChildWindow(new NumberOutput(&multiply, this, "Output"), rightOf(this), insideTop(this));
-
-			addChildWindow(new ui::Text("Multiply", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_multiply.input1, "Input A");
+			add<NumberInput>(self, m_multiply.input2, "Input B");
+			add<NumberOutput>(self, m_multiply, "Output");
+			add<ui::Text>("Multiply", getFont());
 		}
 
-		private:
-		musical::functions::Multiply multiply;
+	private:
+		musical::functions::Multiply m_multiply;
 	}; 
-	fuiRegisterObject(MultiplyObject, "multiply", "*", "x");
+	RegisterFactoryObject(MultiplyObject, "multiply", "*", "x");
 
 	// divide
-	struct DivideObject : ProcessingObject {
+	struct DivideObject : Object {
 		DivideObject(){
-			size = {75, 75};
-
-			auto in1 = new NumberInput(&divide.numerator, this, "Numerator");
-			auto in2 = new NumberInput(&divide.denominator, this, "Denominator");
-
-			addChildWindow(in1, leftOf(this), insideTop(this));
-			addChildWindow(in2, leftOf(this), below(in1, 5));
-
-			addChildWindow(new NumberOutput(&divide, this, "Output"), rightOf(this), insideTop(this));
-
-			addChildWindow(new ui::Text("Divide", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_divide.numerator, "Numerator");
+			add<NumberInput>(self, m_divide.denominator, "Denominator");
+			add<NumberOutput>(self, m_divide, "Output");
+			add<ui::Text>("Divide", getFont());
 		}
 
-		private:
-		musical::functions::Divide divide;
+	private:
+		musical::functions::Divide m_divide;
 	}; 
-	fuiRegisterObject(DivideObject, "divide", "/");
+	RegisterFactoryObject(DivideObject, "divide", "/");
 
 	// unit sine
-	struct UnitSineObject : ProcessingObject {
+	struct UnitSineObject : Object {
 		UnitSineObject(){
-			size = {250, 50};
-
-			addChildWindow(new NumberInput(&usine.input, this, "Input"), leftOf(this), middleOfY(this));
-
-			addChildWindow(new NumberOutput(&usine, this, "Output"), rightOf(this), middleOfY(this));
-
-			addChildWindow(new ui::Text("Unit Sine", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_usine.input, "Input");
+			add<NumberOutput>(self, m_usine, "Output");
+			add<ui::Text>("usin", getFont());
 		}
 
-		private:
-		musical::functions::UnitSine usine;
+	private:
+		musical::functions::UnitSine m_usine;
 	}; 
-	fuiRegisterObject(UnitSineObject, "usin", "unit sine");
+	RegisterFactoryObject(UnitSineObject, "usin", "unit sine");
 
 	// saw wave
-	struct SawWaveObject : ProcessingObject {
+	struct SawWaveObject : Object {
 		SawWaveObject(){
-			size = {250, 50};
-
-			addChildWindow(new NumberInput(&saw.input, this, "Input"), leftOf(this), middleOfY(this));
-
-			addChildWindow(new NumberOutput(&saw, this, "Output"), rightOf(this), middleOfY(this));
-
-			addChildWindow(new ui::Text("Saw Wave", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_saw.input, "Input");
+			add<NumberOutput>(self, m_saw, "Output");
+			add<ui::Text>("saw wave", getFont());
 		}
 
-		private:
-		musical::functions::SawWave saw;
+	private:
+		musical::functions::SawWave m_saw;
 	}; 
-	fuiRegisterObject(SawWaveObject, "saw", "saw wave");
+	RegisterFactoryObject(SawWaveObject, "saw", "saw wave");
 
 	// square wave
-	struct SquareWaveObject : ProcessingObject {
+	struct SquareWaveObject : Object {
 		SquareWaveObject(){
-			size = {250, 50};
-
-			addChildWindow(new NumberInput(&square.input, this, "Input"), leftOf(this), middleOfY(this));
-
-			addChildWindow(new NumberOutput(&square, this, "Output"), rightOf(this), middleOfY(this));
-
-			addChildWindow(new ui::Text("Square Wave", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_square.input, "Input");
+			add<NumberOutput>(self, m_square, "Output");
+			add<ui::Text>("square wave", getFont());
 		}
 
-		private:
-		musical::functions::SquareWave square;
+	private:
+		musical::functions::SquareWave m_square;
 	}; 
-	fuiRegisterObject(SquareWaveObject, "square wave", "pulse wave");
+	RegisterFactoryObject(SquareWaveObject, "square wave", "pulse wave");
 
 	// gaussian bell curve
-	struct GaussianObject : ProcessingObject {
+	struct GaussianObject : Object {
 		GaussianObject(){
-			size = {100, 150};
-			addChildWindow(new NumberInput(&gaussian.x, this, "X"), leftOf(this), insideTop(this));
-
-			auto heightinput = new NumberInput(&gaussian.height, this, "Height");
-			auto widthinput = new NumberInput(&gaussian.width, this, "Width");
-			auto centerinput = new NumberInput(&gaussian.center, this, "Center");
-			
-			addChildWindow(heightinput, leftOf(this), insideBottom(this));
-			addChildWindow(widthinput, leftOf(this), above(heightinput, 5.0f));
-			addChildWindow(centerinput, leftOf(this), above(widthinput, 5.0f));
-
-			addChildWindow(new NumberOutput(&gaussian, this, "Output"), rightOf(this), middleOfY(this));
-
-			addChildWindow(new ui::Text("Gaussian", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_gaussian.height, "Height");
+			add<NumberInput>(self, m_gaussian.width, "Width");
+			add<NumberInput>(self, m_gaussian.center, "Center");
+			add<NumberInput>(self, m_gaussian.input, "Input");
+			add<NumberOutput>(self, m_gaussian, "Output");
+			add<ui::Text>("Gaussian", getFont());
 		}
 
-		private:
-		musical::functions::Gaussian gaussian;
+	private:
+		musical::functions::Gaussian m_gaussian;
 	};
-	fuiRegisterObject(GaussianObject, "gaussian", "bell curve");
+	RegisterFactoryObject(GaussianObject, "gaussian", "bell curve");
 
 	// natural log
-	struct NaturalLogObject : ProcessingObject {
+	struct NaturalLogObject : Object {
 		NaturalLogObject(){
-			size = {50, 30};
-
-			addChildWindow(new NumberInput(&nlog.input, this, "Input"), leftOf(this), middleOfY(this));
-
-			addChildWindow(new NumberOutput(&nlog, this, "Output"), rightOf(this), middleOfY(this));
-
-			addChildWindow(new ui::Text("Log", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_nlog.input, "Input");
+			add<NumberOutput>(self, m_nlog, "Output");
+			add<ui::Text>("ln", getFont());
 		}
 
-		private:
-		musical::functions::NaturalLog nlog;
+	private:
+		musical::functions::NaturalLog m_nlog;
 	}; 
-	fuiRegisterObject(NaturalLogObject, "ln", "logarithm", "natural logarithm");
+	RegisterFactoryObject(NaturalLogObject, "ln", "logarithm", "natural logarithm");
 
 	// exponential
-	struct ExponentialObject : ProcessingObject {
+	struct ExponentialObject : Object {
 		ExponentialObject(){
-			size = {50, 30};
-
-			addChildWindow(new NumberInput(&exponential.input, this, "Input"), leftOf(this), middleOfY(this));
-
-			addChildWindow(new NumberOutput(&exponential, this, "Output"), rightOf(this), middleOfY(this));
-
-			addChildWindow(new ui::Text("Exp", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_exponential.input, "Input");
+			add<NumberOutput>(self, m_exponential, "Output");
+			add<ui::Text>("exp", getFont());
 		}
 
-		private:
-		musical::functions::Exponential exponential;
+	private:
+		musical::functions::Exponential m_exponential;
 	}; 
-	fuiRegisterObject(ExponentialObject, "exponential");
+	RegisterFactoryObject(ExponentialObject, "exponential");
 
 	// minimum
-	struct MinimumObject : ProcessingObject {
+	struct MinimumObject : Object {
 		MinimumObject(){
-			size = {50, 50};
-
-			auto in1 = new NumberInput(&minimum.input1, this, "Input A");
-			auto in2 = new NumberInput(&minimum.input2, this, "Input B");
-
-			addChildWindow(in1, leftOf(this), insideTop(this));
-			addChildWindow(in2, leftOf(this), below(in1, 5));
-
-			addChildWindow(new NumberOutput(&minimum, this, "Output"), rightOf(this), insideTop(this));
-
-			addChildWindow(new ui::Text("Min", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_minimum.input1, "Input A");
+			add<NumberInput>(self, m_minimum.input2, "Input B");
+			add<NumberOutput>(self, m_minimum, "Output");
+			add<ui::Text>("min", getFont());
 		}
 
-		private:
-		musical::functions::Minimum minimum;
+	private:
+		musical::functions::Minimum m_minimum;
 	}; 
-	fuiRegisterObject(MinimumObject, "minimum");
+	RegisterFactoryObject(MinimumObject, "minimum");
 
 	// maximum
-	struct MaximumObject : ProcessingObject {
+	struct MaximumObject : Object {
 		MaximumObject(){
-			size = {50, 50};
-
-			auto in1 = new NumberInput(&maximum.input1, this, "Input A");
-			auto in2 = new NumberInput(&maximum.input2, this, "Input B");
-
-			addChildWindow(in1, leftOf(this), insideTop(this));
-			addChildWindow(in2, leftOf(this), below(in1, 5));
-
-			addChildWindow(new NumberOutput(&maximum, this, "Output"), rightOf(this), insideTop(this));
-
-			addChildWindow(new ui::Text("Max", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_maximum.input1, "Input A");
+			add<NumberInput>(self, m_maximum.input2, "Input B");
+			add<NumberOutput>(self, m_maximum, "Output");
+			add<ui::Text>("max", getFont());
 		}
 
-		private:
-		musical::functions::Maximum maximum;
+	private:
+		musical::functions::Maximum m_maximum;
 	}; 
-	fuiRegisterObject(MaximumObject, "maximum");
+	RegisterFactoryObject(MaximumObject, "maximum");
 
 	// clamp
-	struct ClampObject : ProcessingObject {
+	struct ClampObject : Object {
 		ClampObject(){
-			size = {75, 50};
-
-			auto in1 = new NumberInput(&clamp.input, this, "Input");
-			auto in2 = new NumberInput(&clamp.minimum, this, "Minimum");
-			auto in3 = new NumberInput(&clamp.maximum, this, "Maximum");
-
-			addChildWindow(in1, leftOf(this), insideTop(this));
-			addChildWindow(in2, leftOf(this), below(in1, 5));
-			addChildWindow(in3, leftOf(this), below(in2, 5));
-
-			addChildWindow(new NumberOutput(&clamp, this, "Output"), rightOf(this), insideTop(this));
-
-			addChildWindow(new ui::Text("Clamp", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_clamp.minimum, "Minimum");
+			add<NumberInput>(self, m_clamp.maximum, "Maximum");
+			add<NumberInput>(self, m_clamp.input, "Input");
+			add<NumberOutput>(self, m_clamp, "Output");
+			add<ui::Text>("clamp", getFont());
 		}
 
-		private:
-		musical::functions::Clamp clamp;
+	private:
+		musical::functions::Clamp m_clamp;
 	}; 
-	fuiRegisterObject(ClampObject, "clamp");
+	RegisterFactoryObject(ClampObject, "clamp");
 
 	// phase
-	struct PhaseObject : ProcessingObject {
-		PhaseObject(){
-			size = {50, 50};
-
-			auto in1 = new NumberInput(&phase.x, this, "X");
-			auto in2 = new NumberInput(&phase.y, this, "Y");
-
-			addChildWindow(in1, leftOf(this), insideTop(this));
-			addChildWindow(in2, leftOf(this), below(in1, 5));
-
-			addChildWindow(new NumberOutput(&phase, this, "Output"), rightOf(this), insideTop(this));
-
-			addChildWindow(new ui::Text("Phase", getFont()), middleOfX(this), middleOfY(this));
+	struct ArctangentObject : Object {
+		ArctangentObject(){
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_atan.x, "X");
+			add<NumberInput>(self, m_atan.y, "Y");
+			add<NumberOutput>(self, m_atan, "Output");
+			add<ui::Text>("max", getFont());
 		}
 
-		private:
-		musical::functions::Phase phase;
+	private:
+		musical::functions::Arctangent m_atan;
 	}; 
-	fuiRegisterObject(PhaseObject, "phase");
+	RegisterFactoryObject(ArctangentObject, "atan", "arctangent");
 
 	// abs
-	struct AbsoluteValueObject : ProcessingObject {
+	struct AbsoluteValueObject : Object {
 		AbsoluteValueObject(){
-			size = {75, 30};
-
-			addChildWindow(new NumberInput(&absval.input, this, "Input"), leftOf(this), middleOfY(this));
-
-			addChildWindow(new NumberOutput(&absval, this, "Output"), rightOf(this), middleOfY(this));
-
-			addChildWindow(new ui::Text("Abs", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_abs.input, "Input");
+			add<NumberOutput>(self, m_abs, "Output");
+			add<ui::Text>("abs", getFont());
 		}
 
-		private:
-		musical::functions::AbsoluteValue absval;
+	private:
+		musical::functions::AbsoluteValue m_abs;
 	}; 
-	fuiRegisterObject(AbsoluteValueObject, "absolute value");
+	RegisterFactoryObject(AbsoluteValueObject, "absolute value");
 
 	// hypotenuse
-	struct HypotenuseObject : ProcessingObject {
+	struct HypotenuseObject : Object {
 		HypotenuseObject(){
-			size = {50, 50};
-
-			auto in1 = new NumberInput(&hypotenuse.input1, this, "Input A");
-			auto in2 = new NumberInput(&hypotenuse.input2, this, "Input B");
-
-			addChildWindow(in1, leftOf(this), insideTop(this));
-			addChildWindow(in2, leftOf(this), below(in1, 5));
-
-			addChildWindow(new NumberOutput(&hypotenuse, this, "Output"), rightOf(this), insideTop(this));
-
-			addChildWindow(new ui::Text("Hypot", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_hypot.x, "X");
+			add<NumberInput>(self, m_hypot.y, "Y");
+			add<NumberOutput>(self, m_hypot, "Output");
+			add<ui::Text>("hypot", getFont());
 		}
 
-		private:
-		musical::functions::Hypotenuse hypotenuse;
+	private:
+		musical::functions::Hypotenuse m_hypot;
 	}; 
-	fuiRegisterObject(HypotenuseObject, "hypotenuse");
+	RegisterFactoryObject(HypotenuseObject, "hypotenuse");
 
 	// sine
-	struct SineObject : ProcessingObject {
+	struct SineObject : Object {
 		SineObject(){
-			size = {50, 30};
-
-			addChildWindow(new NumberInput(&sine.input, this, "Input"), leftOf(this), middleOfY(this));
-
-			addChildWindow(new NumberOutput(&sine, this, "Output"), rightOf(this), middleOfY(this));
-
-			addChildWindow(new ui::Text("Sin", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_sine.input, "Input");
+			add<NumberOutput>(self, m_sine, "Output");
+			add<ui::Text>("sin", getFont());
 		}
 
-		private:
-		musical::functions::Sine sine;
+	private:
+		musical::functions::Sine m_sine;
 	}; 
-	fuiRegisterObject(SineObject, "sine");
+	RegisterFactoryObject(SineObject, "sine");
 
 	// cosine
-	struct CosineObject : ProcessingObject {
+	struct CosineObject : Object {
 		CosineObject(){
-			size = {50, 30};
-
-			addChildWindow(new NumberInput(&cosine.input, this, "Input"), leftOf(this), middleOfY(this));
-
-			addChildWindow(new NumberOutput(&cosine, this, "Output"), rightOf(this), middleOfY(this));
-
-			addChildWindow(new ui::Text("Cos", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_cosine.input, "Input");
+			add<NumberOutput>(self, m_cosine, "Output");
+			add<ui::Text>("cos", getFont());
 		}
 
-		private:
-		musical::functions::Cosine cosine;
+	private:
+		musical::functions::Cosine m_cosine;
 	}; 
-	fuiRegisterObject(CosineObject, "cosine");
+	RegisterFactoryObject(CosineObject, "cosine");
 
 	//tangent
-	struct TangentObject : ProcessingObject {
+	struct TangentObject : Object {
 		TangentObject(){
-			size = {50, 30};
-
-			addChildWindow(new NumberInput(&tangent.input, this, "Input"), leftOf(this), middleOfY(this));
-
-			addChildWindow(new NumberOutput(&tangent, this, "Output"), rightOf(this), middleOfY(this));
-
-			addChildWindow(new ui::Text("Tan", getFont()), middleOfX(this), middleOfY(this));
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_tangent.input, "Input");
+			add<NumberOutput>(self, m_tangent, "Output");
+			add<ui::Text>("tan", getFont());
 		}
 
-		private:
-		musical::functions::Tangent tangent;
+	private:
+		musical::functions::Tangent m_tangent;
 	}; 
-	fuiRegisterObject(TangentObject, "tangent");
+	RegisterFactoryObject(TangentObject, "tangent");
 
-	struct DisplayObject : ProcessingObject {
-		DisplayObject() : numres(nullptr) {
-			size = {100, 30};
-			addChildWindow(text = new ui::Text("-", getFont()), middleOfX(this), middleOfY(this));
-			addChildWindow(new NumberInput(&numres, this, "Input"), leftOf(this), middleOfY(this));
+	struct DisplayObject : Object {
+		DisplayObject() : m_input(nullptr) {
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_input, "Input");
+			m_text = add<ui::Text>("usin", getFont());
 		}
 
 		void render(sf::RenderWindow& rw) override {
-			text->setText(toString(numres.getValue(nullptr, 0)));
-			ProcessingObject::render(rw);
+			if (m_input.getSource() == nullptr){
+				m_text->setText("-");
+			} else {
+				m_text->setText(std::to_string(m_input.getValue(nullptr, 0.0f)));
+			}
+			Object::render(rw);
 		}
 
-		private:
-		musical::NumberInput numres;
-		ui::Text* text;
+	private:
+		musical::NumberInput m_input;
+		ui::Ref<ui::Text> m_text;
 	};
-	fuiRegisterObject(DisplayObject, "display", "d0");
+	RegisterFactoryObject(DisplayObject, "display", "d0"); // TODO: "d0" is a terrible name
 
 }

@@ -5,25 +5,19 @@
 
 namespace fui {
 
-	struct DistortionObject : ProcessingObject {
+	struct DistortionObject : Object {
 		DistortionObject(){
-			size = {150, 150};
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, distortion.gain, "Gain");
+			add<NumberInput>(self, distortion.hardness, "Hardness");
+			add<SoundInput>(self, distortion.input, "Sound Input");
+			add<SoundOutput>(self, distortion, "Sound Output");
 
-			auto ampin = new NumberInput(&distortion.gain, this, "Gain");
-			auto roundin = new NumberInput(&distortion.hardness, this, "Hardness");
-			auto soundin = new SoundInput(&distortion.input, this);
-			auto soundout = new SoundOutput(&distortion, this);
-
-			addChildWindow(ampin, leftOf(this), insideTop(this, 5));
-			addChildWindow(roundin, leftOf(this), below(ampin, 5));
-			addChildWindow(soundin, leftOf(this), below(roundin, 5));
-			addChildWindow(soundout, rightOf(this), middleOfY(this));
-
-			addChildWindow(new ui::Text("Distortion", getFont()), middleOfX(this), middleOfY(this));
+			write("Distortion", getFont());
 		}
 
 		private:
 		musical::Distortion distortion;
 	};
-	fuiRegisterObject(DistortionObject, "distortion");
+	RegisterFactoryObject(DistortionObject, "distortion");
 }

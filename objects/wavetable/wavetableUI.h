@@ -8,70 +8,67 @@ namespace fui {
 
 	// TODO: add lock button
 
-	struct WavetableObject : ProcessingObject {
+	struct WavetableObject : Object {
 		WavetableObject(){
-			size = {200, 100};
-			addChildWindow(grabber = new Grabber(this));
-			addChildWindow(new NumberInput(&wavetable.input, this, "Input"), leftOf(this), middleOfY(this));
-			addChildWindow(new NumberOutput(&wavetable, this, "Output"), rightOf(this), middleOfY(this));
+			setSize({200, 100}, true);
+			grabber = add<Grabber>(*this);
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, wavetable.input, "Input");
+			add<NumberOutput>(self, wavetable, "Output");
 			redraw();
 		}
 
 		void redraw(){
-			int width = (int)size.x;
-			vertices.resize(width * 2 + 2);
+			int w = (int)width();
+			vertices.resize(w* 2 + 2);
 			float min = wavetable.getMinY();
 			float max = wavetable.getMaxY();
-			for (int i = 0; i <= width; i++){
-				float progress = (float)i / width;
+			for (int i = 0; i <= w; i++){
+				float progress = (float)i / w;
 				float y = (wavetable.getValueAt(progress) - min) / (max - min);
-				float height = (1.0f - y) * size.y;
-				vertices[i * 2].position = vec2((float)i, height);
-				vertices[i * 2 + 1].position = vec2((float)i, size.y);
+				float h = (1.0f - y) * height();
+				vertices[i * 2].position = vec2((float)i, h);
+				vertices[i * 2 + 1].position = vec2((float)i, height());
 				vertices[i * 2].color = sf::Color(0x00FF0080);
 				vertices[i * 2 + 1].color = sf::Color(0x00FF0080);
 			}
 		}
 
 		void render(sf::RenderWindow& rw) override {
-			sf::RectangleShape rect;
-			rect.setSize(size);
-			rect.setFillColor(sf::Color(0x40404080));
-			rect.setOutlineColor(sf::Color(0xFF));
-			rect.setOutlineThickness(1.0f);
-			rw.draw(rect);
+			Object::render(rw);
 			rw.draw(vertices.data(), vertices.size(), sf::PrimitiveType::TriangleStrip);
-			renderChildWindows(rw);
 		}
 
 		void fillLine(vec2 start, vec2 end){
-			float x0 = start.x / size.x;
-			float t = 1.0f - (start.y / size.y);
+			float x0 = start.x / left();
+			float t = 1.0f - (start.y / top());
 			float y0 = t * (wavetable.getMaxY() - wavetable.getMinY()) + wavetable.getMinY();
 
-			float x1 = end.x / size.x;
-			t = 1.0f - (end.y / size.y);
+			float x1 = end.x / left();
+			t = 1.0f - (end.y / top());
 			float y1 = t * (wavetable.getMaxY() - wavetable.getMinY()) + wavetable.getMinY();
 			wavetable.fillLine(x0, x1, y0, y1);
 			redraw();
 		}
 
-		void onLeftClick(int clicks){
+		bool onLeftClick(int clicks){
 			if (keyDown(sf::Keyboard::LShift) || keyDown(sf::Keyboard::RShift)){
 				// TODO: show menu
 			} else {
-				grabber->pos = localMousePos();
-				grabber->old_pos = grabber->pos;
+				grabber->setPos(localMousePos());
+				grabber->old_pos = grabber->pos();
 				grabber->startDrag();
 			}
+			return true;
 		}
 
 		private:
 
-		struct Grabber : ui::Window {
-			Grabber(WavetableObject* _parent) : parent(_parent) {
-				size = {0, 0};
-				old_pos = pos;
+		struct Grabber : ui::FreeElement {
+			Grabber(WavetableObject& _parent) : parent(_parent) {
+				setSize({0, 0});
+				setVisible(false);
+				old_pos = pos();
 			}
 
 			void render(sf::RenderWindow& rw) override {
@@ -79,19 +76,21 @@ namespace fui {
 			}
 
 			void onDrag() override {
-				pos.x = std::min(std::max(pos.x, 0.0f), parent->size.x);
-				pos.y = std::min(std::max(pos.y, 0.0f), parent->size.y);
-				parent->fillLine(old_pos, pos);
-				old_pos = pos;
+				setLeft(std::min(std::max(left(), 0.0f), parent.left()));
+				setTop(std::min(std::max(top(), 0.0f), parent.top()));
+				parent.fillLine(old_pos, pos());
+				old_pos = pos();
 			}
 
 			vec2 old_pos;
-			WavetableObject* const parent;
-		}* grabber;
+			WavetableObject& parent;
+		};
+		
+		ui::Ref<Grabber> grabber;
 
 		musical::WaveTable wavetable;
 		std::vector<sf::Vertex> vertices;
 	};
-	fuiRegisterObject(WavetableObject, "wavetable");
+	RegisterFactoryObject(WavetableObject, "wavetable");
 
 }
