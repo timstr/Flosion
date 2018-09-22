@@ -18,6 +18,8 @@ namespace fui {
 
 	private:
 
+		struct InputPanel;
+
 		std::vector<ui::Ref<Object>> m_objects;
 	};
 

@@ -1,6 +1,21 @@
 #include "objectUI.h"
 
 namespace fui {
+	Object::Object() {
+		setBackgroundColor(sf::Color(0xBB7700FF));
+		setBorderRadius(10);
+		setPadding(5);
+	}
+
+	bool Object::onLeftClick(int clicks) {
+		startDrag();
+		bringToFront();
+		return true;
+	}
+
+	void Object::onLeftRelease() {
+		stopDrag();
+	}
 
 	ui::Ref<Box> Object::getParentBox() {
 		return m_parentbox.lock();

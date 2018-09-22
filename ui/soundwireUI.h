@@ -18,6 +18,7 @@ namespace fui {
 			setBorderRadius(10);
 			setBorderThickness(2);
 			setBackgroundColor(sf::Color(0x00FF00FF));
+			setMargin(5);
 		}
 
 		const std::string& label() const {
@@ -41,6 +42,7 @@ namespace fui {
 			setBorderRadius(10);
 			setBorderThickness(2);
 			setBackgroundColor(sf::Color(0x008000FF));
+			setMargin(5);
 		}
 
 		const std::string& label() const {

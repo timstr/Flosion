@@ -16,9 +16,15 @@ namespace fui {
 	// Object is the base class to all gui components representing sound and
 	// numerical processing, and their related components
 	struct Object : ui::FreeElement {
+		Object();
+
+		bool onLeftClick(int clicks) override;
+
+		void onLeftRelease() override;
+
 		ui::Ref<Box> getParentBox();
 
-		private:
+	private:
 
 		// TODO: hide invalid inputs/outputs
 		void showNumberInputList(ui::WeakRef<NumberWire> wire, vec2 pos);
@@ -35,6 +41,8 @@ namespace fui {
 		std::vector<ui::WeakRef<SoundOutput>> sound_outputs;
 		std::vector<ui::WeakRef<NumberInput>> number_inputs;
 		std::vector<ui::WeakRef<NumberOutput>> number_outputs;
+
+		friend struct Box;
 	};
 
 } // namespace fui

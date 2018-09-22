@@ -30,6 +30,8 @@ namespace fui {
 
 		static ui::Ref<Object> createObject(const std::string& name);
 
+		static const std::map<std::string, ObjectCreator>& getObjectCreators();
+
 		// RegisterObject for registering an Object type with the factory under a set of names
 		// RegisterObject is intended to be used as a static object,
 		// one with each Object sub-class definition
@@ -65,7 +67,8 @@ namespace fui {
 		};
 
 
-		private:
+	private:
+
 		Factory() = delete;
 
 		static std::vector<std::string>& makeLowerCase(std::vector<std::string>& strings) {
@@ -91,6 +94,6 @@ namespace fui {
 	// RegisterObject(CrazyCoolObject, "CrazyCoolObject", "crazyobject", "coolObject")
 	#define RegisterFactoryObject(objectType, ...) \
 	namespace { \
-		::fui::Factory::RegisterObject<objectType> factoryRegisterObject_##objectType { std::vector<std::string> { #__VA_ARGS__ } }; \
+		::fui::Factory::RegisterObject<objectType> factoryRegisterObject_##objectType { std::vector<std::string> { __VA_ARGS__ } }; \
 	}
 }
