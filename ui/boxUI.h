@@ -7,20 +7,31 @@ namespace fui {
 	
 	// Box is what holds all objects
 	struct Box : Object {
-
-		bool onLeftClick(int clicks) override;
+		Box();
 
 		void addObject(ui::Ref<Object> object);
 
 		void releaseObject(ui::Ref<Object> object);
 
-		// TODO: does a box need to be aware of its contained wires?
+		void addSoundWire(ui::Ref<SoundWire> wire);
+
+		void removeSoundWire(SoundWire& wire);
+
+		void addNumberWire(ui::Ref<NumberWire> wire);
+
+		void removeNumberWire(NumberWire& wire);
 
 	private:
+
+		bool onLeftClick(int clicks) override;
 
 		struct InputPanel;
 
 		std::vector<ui::Ref<Object>> m_objects;
+		std::vector<ui::Ref<NumberWire>> m_numberwires;
+		std::vector<ui::Ref<SoundWire>> m_soundwires;
+		ui::Ref<FreeElement> m_object_container;
+		ui::Ref<FreeElement> m_wire_container;
 	};
 
 	// allows convenient clustering of objects and collapsing into a more compact view

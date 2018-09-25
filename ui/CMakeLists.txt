@@ -22,6 +22,8 @@ set(flosion-ui-srcs
 
 add_library(flosion-ui STATIC ${flosion-ui-headers} ${flosion-ui-srcs})
 
+set_property(TARGET flosion-ui PROPERTY CXX_STANDARD 17)
+
 target_link_libraries(flosion-ui
 	PUBLIC tims-gui
 	PUBLIC flosion-core

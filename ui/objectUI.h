@@ -24,7 +24,23 @@ namespace fui {
 
 		ui::Ref<Box> getParentBox();
 
+		void addSoundInput(ui::Ref<SoundInput> si);
+		void removeSoundInput(SoundInput& si);
+
+		void addSoundOutput(ui::Ref<SoundOutput> si);
+		void removeSoundOutput(SoundOutput& si);
+
+		void addNumberInput(ui::Ref<NumberInput> si);
+		void removeNumberInput(NumberInput& si);
+
+		void addNumberOutput(ui::Ref<NumberOutput> si);
+		void removeNumberOutput(NumberOutput& si);
+
 	private:
+
+		void onDrag() override;
+
+		void updateWires();
 
 		// TODO: hide invalid inputs/outputs
 		void showNumberInputList(ui::WeakRef<NumberWire> wire, vec2 pos);

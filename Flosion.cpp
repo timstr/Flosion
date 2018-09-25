@@ -54,7 +54,7 @@
 // - See https://www.youtube.com/watch?v=boPEO2auJj4
 // - Consider using std::atomic<T> for numeric members used in sound processing
 // - Consider using std::atomic<shared_ptr<T>> (or equivalent) for more complex types
-// - States are exempt from this, since they are only modified by the audio thread
+// - States are exempt from this (yay!!!), since they are only modified by the audio thread
 // - Any value which can be directly be changed by the gui should use
 //   atomics however (like number sliders, constants, any member data of
 //   sound processors that is configurable by the GUI and isn't controlled by wires)
@@ -68,6 +68,8 @@
 // TODO: make window sizes customizable for filter
 // TODO: clipboard
 // TODO: serialization and file loading/saving
+
+// TODO: include and dynamically link to ffmpeg for additional audio formats
 
 int main() {
 

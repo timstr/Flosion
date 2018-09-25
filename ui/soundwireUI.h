@@ -9,16 +9,23 @@
 namespace fui {
 
 	struct SoundInput : WireInputBase<musical::SoundSource, musical::SoundInput> {
-		SoundInput(ui::WeakRef<Object> parent_object, musical::SoundInput& target, std::string label) :
+		SoundInput(ui::Ref<Object> parent_object, musical::SoundInput& target, std::string label) :
 			WireInputBase(parent_object, target),
 				m_label(label) {
-			
+
+			parent_object->addSoundInput(thisAs<SoundInput>());
+
 			setMinSize({30, 30});
 			setBorderColor(sf::Color(0xFF));
 			setBorderRadius(10);
 			setBorderThickness(2);
 			setBackgroundColor(sf::Color(0x00FF00FF));
 			setMargin(5);
+		}
+		~SoundInput(){
+			if (auto p = parentObject()){
+				p->removeSoundInput(*this);
+			}
 		}
 
 		const std::string& label() const {
@@ -33,9 +40,11 @@ namespace fui {
 	};
 
 	struct SoundOutput : WireOutputBase<musical::SoundSource, musical::SoundInput> {
-		SoundOutput(ui::WeakRef<Object> parent_object, musical::SoundSource& target, std::string label) :
+		SoundOutput(ui::Ref<Object> parent_object, musical::SoundSource& target, std::string label) :
 			WireOutputBase(parent_object, target),
 			m_label(label) {
+
+			parent_object->addSoundOutput(thisAs<SoundOutput>());
 
 			setMinSize({30, 30});
 			setBorderColor(sf::Color(0xFF));
@@ -43,6 +52,11 @@ namespace fui {
 			setBorderThickness(2);
 			setBackgroundColor(sf::Color(0x008000FF));
 			setMargin(5);
+		}
+		~SoundOutput(){
+			if (auto p = parentObject()){
+				p->removeSoundOutput(*this);
+			}
 		}
 
 		const std::string& label() const {
@@ -57,9 +71,15 @@ namespace fui {
 	};
 
 	struct SoundWire : WireBase<musical::SoundSource, musical::SoundInput> {
-		SoundWire(ui::WeakRef<Box> parent_box) : 
+		SoundWire(ui::Ref<Box> parent_box) : 
 			WireBase(parent_box) {
 			
+			parent_box->addSoundWire(thisAs<SoundWire>());
+		}
+		~SoundWire(){
+			if (auto pb = parentBox()) {
+				pb->removeSoundWire(*this);
+			}
 		}
 
 		void onConnect(musical::SoundSource& src, musical::SoundInput& dst) override {

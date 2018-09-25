@@ -9,4 +9,6 @@ add_library(filter STATIC ${filter-srcs})
 
 set_target_properties(filter PROPERTIES LINKER_LANGUAGE CXX)
 
+set_property(TARGET filter PROPERTY CXX_STANDARD 17)
+
 target_link_libraries(filter PUBLIC flosion-objects-base)

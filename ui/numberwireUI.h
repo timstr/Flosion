@@ -8,9 +8,11 @@
 namespace fui {
 	
 	struct NumberInput : WireInputBase<musical::NumberSource, musical::NumberInput> {
-		NumberInput(ui::WeakRef<Object> parent_object, musical::NumberInput& target, std::string label) :
+		NumberInput(ui::Ref<Object> parent_object, musical::NumberInput& target, std::string label) :
 			WireInputBase(parent_object, target),
 			m_label(label) {
+
+			parent_object->addNumberInput(thisAs<NumberInput>());
 
 			setMinSize({30, 30});
 			setBorderColor(sf::Color(0xFF));
@@ -18,6 +20,11 @@ namespace fui {
 			setBorderThickness(2);
 			setBackgroundColor(sf::Color(0x0000FFFF));
 			setMargin(5);
+		}
+		~NumberInput(){
+			if (auto p = parentObject()){
+				p->removeNumberInput(*this);
+			}
 		}
 
 		const std::string& label() const {
@@ -32,9 +39,11 @@ namespace fui {
 	};
 
 	struct NumberOutput : WireOutputBase<musical::NumberSource, musical::NumberInput> {
-		NumberOutput(ui::WeakRef<Object> parent_object, musical::NumberSource& _target, std::string label) :
+		NumberOutput(ui::Ref<Object> parent_object, musical::NumberSource& _target, std::string label) :
 			WireOutputBase(parent_object, _target),
 			m_label(label) {
+
+			parent_object->addNumberOutput(thisAs<NumberOutput>());
 
 			setMinSize({30, 30});
 			setBorderColor(sf::Color(0xFF));
@@ -42,6 +51,11 @@ namespace fui {
 			setBorderThickness(2);
 			setBackgroundColor(sf::Color(0x000080FF));
 			setMargin(5);
+		}
+		~NumberOutput(){
+			if (auto p = parentObject()){
+				p->removeNumberOutput(*this);
+			}	
 		}
 
 		const std::string& label() const {
@@ -56,9 +70,14 @@ namespace fui {
 	};
 
 	struct NumberWire : WireBase<musical::NumberSource, musical::NumberInput> {
-		NumberWire(ui::WeakRef<Box> parent_box) :
+		NumberWire(ui::Ref<Box> parent_box) :
 			WireBase(parent_box) {
-
+			parent_box->addNumberWire(thisAs<NumberWire>());
+		}
+		~NumberWire() {
+			if (auto pb = parentBox()) {
+				pb->removeNumberWire(*this);
+			}
 		}
 
 		void onConnect(musical::NumberSource& src, musical::NumberInput& dst) override {

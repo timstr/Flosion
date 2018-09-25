@@ -28,6 +28,8 @@ add_library(flosion-core STATIC ${flosion-core-headers} ${flosion-core-srcs})
 
 set_target_properties(flosion-core PROPERTIES LINKER_LANGUAGE CXX)
 
+set_property(TARGET flosion-core PROPERTY CXX_STANDARD 17)
+
 target_include_directories(flosion-core
 	PUBLIC "."
 	PUBLIC ${flosion-util_SOURCE_DIR}

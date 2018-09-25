@@ -47,6 +47,38 @@ namespace fui {
 			return m_destination;
 		}
 
+		void updateWire() {
+			if (auto wirehead = m_wireheadin.lock()){
+				auto obj = m_parentobject.lock();
+				assert(obj);
+				wirehead->moveTo(pos() + obj->pos());
+			}
+		}
+
+		ui::Ref<Object> parentObject() {
+			return m_parentobject.lock();
+		}
+
+		void setWireIn(const ui::Ref<WireHeadType>& wirehead) {
+			assert(wirehead);
+			auto self = thisAs<InputType>();
+			if (auto wh = m_wireheadin.lock()) {
+				m_wireheadin.reset();
+				wh->disconnectFrom(self);
+			}
+			m_wireheadin = wirehead;
+			wirehead->connectTo(self);
+			updateWire();
+		}
+
+		void removeWireIn(const ui::Ref<WireHeadType>& wirehead) {
+			assert(wirehead);
+			auto wh = m_wireheadin.lock();
+			assert(wh && wh == wirehead);
+			m_wireheadin.reset();
+			wirehead->disconnectFrom(thisAs<InputType>());
+		}
+
 	private:
 
 		bool onLeftClick(int clicks) override {
@@ -54,24 +86,37 @@ namespace fui {
 			// If there's no wire connected, create a new wire whose head is connected and start
 			// dragging its tail.
 			auto self = thisAs<InputType>();
+			auto parent = m_parentobject.lock();
+			if (!parent){
+				throw std::runtime_error("The WireInput does not have a parent object");
+			}
+
 			if (auto wirehead = m_wireheadin.lock()){
 				wirehead->disconnectFrom(self);
+				wirehead->setPos(pos() + parent->pos() + localMousePos() - wirehead->size() * 0.5f);
 				wirehead->startDrag();
+				m_dragging_elem = wirehead;
 			} else {
 				m_wireheadin.reset();
-				auto parent = m_parentobject.lock();
-				if (!parent){
-					throw std::runtime_error("The WireInput does not have a parent object");
-				}
 				auto box = parent->getParentBox();
 				if (!box){
 					throw std::runtime_error("The WireInput's parent object does not have a box");
 				}
 				auto newwire = createWire(box);
 				newwire->head()->connectTo(self);
+				updateWire();
+				newwire->tail()->setPos(pos() + parent->pos() + localMousePos() - newwire->tail()->size() * 0.5f);
 				newwire->tail()->startDrag();
+				m_dragging_elem = newwire->tail();
 			}
 			return true;
+		}
+
+		void onLeftRelease() override {
+			if (auto elem = m_dragging_elem.lock()){
+				elem->stopDrag();
+			}
+			m_dragging_elem.reset();
 		}
 
 		bool onDrop(const ui::Ref<Element>& element) override {
@@ -89,8 +134,10 @@ namespace fui {
 
 		ui::WeakRef<Object> m_parentobject;
 		ui::WeakRef<WireHeadType> m_wireheadin;
-
+		ui::WeakRef<Element> m_dragging_elem;
 		DestinationType& m_destination;
+
+		friend struct Object;
 	};
 
 	// WireOutputBase is what a given WireType can be dropped onto
@@ -116,6 +163,40 @@ namespace fui {
 			return m_source;
 		}
 
+		void updateWires(){
+			for (const auto& wiretail : m_wiretailsout) {
+				if (auto wt = wiretail.lock()) {
+					auto obj = m_parentobject.lock();
+					assert(obj);
+					wt->moveTo(pos() + obj->pos());
+				}
+			}
+		}
+
+		ui::Ref<Object> parentObject() {
+			return m_parentobject.lock();
+		}
+
+		void addWireOut(const ui::Ref<WireTailType>& wiretail) {
+			assert(wiretail);
+			removeWireOut(wiretail);
+			m_wiretailsout.push_back(wiretail);
+			wiretail->connectTo(thisAs<OutputType>());
+		}
+
+		void removeWireOut(const ui::Ref<WireTailType>& wiretail) {
+			assert(wiretail);
+			auto self = thisAs<OutputType>();
+			for (auto it = m_wiretailsout.begin(); it != m_wiretailsout.end();) {
+				if (auto wt = it->lock(); wt && wt == wiretail) {
+					it = m_wiretailsout.erase(it);
+					wt->disconnectFrom(self);
+				} else {
+					++it;
+				}
+			}
+		}
+
 	private:
 
 		bool onLeftClick(int clicks) override {
@@ -123,26 +204,39 @@ namespace fui {
 			// If there's no wire connected, create a new wire whose tail is connected and start
 			// dragging its head.
 			auto self = thisAs<OutputType>();
+			auto parent = m_parentobject.lock();
+			if (!parent){
+				throw std::runtime_error("The WireInput does not have a parent object");
+			}
 			
 			if (m_wiretailsout.size() > 0){
 				auto wiretail = m_wiretailsout.back().lock();
+				assert(wiretail);
 				m_wiretailsout.pop_back();
 				wiretail->disconnectFrom(self);
+				wiretail->setPos(pos() + parent->pos() + localMousePos() - wiretail->size() * 0.5f);
 				wiretail->startDrag();
+				m_dragging_elem = wiretail;
 			} else {
-				auto parent = m_parentobject.lock();
-				if (!parent){
-					throw std::runtime_error("The WireInput does not have a parent object");
-				}
 				auto box = parent->getParentBox();
 				if (!box){
 					throw std::runtime_error("The WireInput's parent object does not have a box");
 				}
 				auto newwire = createWire(box);
 				newwire->tail()->connectTo(self);
+				updateWires();
+				newwire->head()->setPos(pos() + parent->pos() + localMousePos() - newwire->head()->size() * 0.5f);
 				newwire->head()->startDrag();
+				m_dragging_elem = newwire->head();
 			}
 			return true;
+		}
+
+		void onLeftRelease() override {
+			if (auto elem = m_dragging_elem.lock()){
+				elem->stopDrag();
+			}
+			m_dragging_elem.reset();
 		}
 
 		bool onDrop(const ui::Ref<Element>& element) override {
@@ -158,8 +252,11 @@ namespace fui {
 
 		ui::WeakRef<Object> m_parentobject;
 		std::vector<ui::WeakRef<WireTailType>> m_wiretailsout;
+		ui::WeakRef<Element> m_dragging_elem;
 
 		SourceType& m_source;
+
+		friend struct Object;
 	};
 
 
@@ -172,6 +269,20 @@ namespace fui {
 
 		EndPointBase(ui::WeakRef<WireType> parentwire) :
 			m_parentwire(parentwire) {
+
+			// TODO: make customizable
+			setSize({20, 20}, true);
+			setBorderRadius(10);
+			setBackgroundColor(sf::Color(0x404040FF));
+			setBorderThickness(1);
+			setBorderColor(sf::Color(0x808080FF));
+		}
+
+		void moveTo(vec2 pos){
+			if (abs(pos.x - left()) + abs(pos.y - top()) > 0.0001){
+				setPos(pos);
+				wire()->updateVertices();
+			}
 		}
 
 		ui::Ref<WireType> wire() const {
@@ -185,9 +296,9 @@ namespace fui {
 	private:
 
 		void onDrag() override {
-			auto parent = m_parentwire.lock();
-			assert(parent);
-			parent->updateVertices();
+			auto w = wire();
+			assert(w);
+			w->updateVertices();
 		}
 	};
 
@@ -204,8 +315,11 @@ namespace fui {
 		void connectTo(const ui::Ref<InputType>& input) {
 			// if wire's tail is connected, call onConnect
 			assert(input);
-			assert(m_target.lock() != input);
+			if (m_target.lock() == input) {
+				return;
+			}
 			m_target = input;
+			input->setWireIn(thisAs<WireHead>());
 			auto parentwire = wire();
 			assert(parentwire);
 			auto output = parentwire->tail()->target();
@@ -217,8 +331,11 @@ namespace fui {
 		void disconnectFrom(const ui::Ref<InputType>& input) {
 			// if wire's tail is connected, call onDisconnect
 			assert(input);
-			assert(m_target.lock() == input);
+			if (m_target.lock() != input) {
+				return;
+			}
 			m_target.reset();
+			input->removeWireIn(thisAs<WireHead>());
 			auto parentwire = wire();
 			assert(parentwire);
 			auto output = parentwire->tail()->target();
@@ -262,8 +379,11 @@ namespace fui {
 			// call onConnect if wire's head is connected
 			// TODO: when multiple heads are allowed, call onConnect for any of wire's connected heads
 			assert(output);
-			assert(m_target.lock() != output);
+			if (m_target.lock() == output) {
+				return;
+			}
 			m_target = output;
+			output->addWireOut(thisAs<WireTail>());
 			auto parentwire = wire();
 			assert(parentwire);
 			auto input = parentwire->head()->target();
@@ -276,8 +396,11 @@ namespace fui {
 			// call onDisconnect if wire's head is connected
 			// TODO: when multiple heads are allowed, call onDisconnect for any of wire's connected heads
 			assert(output);
-			assert(m_target.lock() == output);
+			if (m_target.lock() != output) {
+				return;
+			}
 			m_target.reset();
+			output->removeWireOut(thisAs<WireTail>());
 			auto parentwire = wire();
 			assert(parentwire);
 			auto input = parentwire->head()->target();
@@ -326,6 +449,8 @@ namespace fui {
 			auto self = thisAs<WireType>();
 			m_wirehead = add<WireHeadType>(self);
 			m_wiretail = add<WireTailType>(self);
+
+			m_parentbox.lock()->adopt(self);
 		}
 
 		void render(sf::RenderWindow& rw) override {
@@ -356,8 +481,12 @@ namespace fui {
 		void updateVertices(){
 			// TODO: curves, splines, branches and stuff
 			m_vertices.resize(2);
-			m_vertices[0] = sf::Vertex(m_wiretail->pos(), sf::Color(0x000080FF));
-			m_vertices[1] = sf::Vertex(m_wirehead->pos(), sf::Color(0x0000FFFF));
+			m_vertices[0] = sf::Vertex(m_wiretail->pos() + m_wiretail->size() * 0.5f, sf::Color(0x000080FF));
+			m_vertices[1] = sf::Vertex(m_wirehead->pos() + m_wirehead->size() * 0.5f, sf::Color(0x0000FFFF));
+		}
+
+		ui::Ref<Box> parentBox() {
+			return m_parentbox.lock();
 		}
 
 	private:

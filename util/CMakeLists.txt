@@ -17,6 +17,8 @@ set(flosion-util-srcs
 
 add_library(flosion-util STATIC ${flosion-util-headers} ${flosion-util-srcs})
 
+set_property(TARGET flosion-util PROPERTY CXX_STANDARD 17)
+
 target_include_directories(flosion-util
 	PUBLIC "."
 	PUBLIC ${flosion-core_SOURCE_DIR}
