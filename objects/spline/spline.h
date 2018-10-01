@@ -4,9 +4,10 @@
 #include "NumberInput.h"
 #include <set>
 
-namespace musical {
+namespace flo {
 
 	// TODO: allow resizing with and without scaling points
+	// TODO: reimplement using ordered vector<Point> instead of set<Point> for better performance
 	struct Spline : PureFunction {
 		Spline() : input(this){
 

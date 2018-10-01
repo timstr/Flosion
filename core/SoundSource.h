@@ -1,20 +1,23 @@
 #pragma once
 
-#include "musical.h"
+#include "Sample.h"
 #include "NumberSource.h"
 #include "SoundInput.h"
 #include "Stateful.h"
 #include <vector>
 #include <unordered_map>
 #include <set>
-#include <cassert>
+//#include <cassert>
+#define assert(x) do { if (!static_cast<bool>(x)) { throw std::runtime_error("Assertion failure!"); } } while (false);
 
-namespace musical {
+namespace flo {
 
 	struct SoundSource : Stateful {
-		~SoundSource() noexcept;
+		~SoundSource() NOEXCEPT_IF_I_SAY_SO;
 
 		virtual void getNextChunk(SoundChunk& chunk, const State* dependant_state, const Stateful* dst) = 0;
+
+		void removeAllDependants();
 
 	protected:
 
@@ -26,9 +29,12 @@ namespace musical {
 	// SoundSource template for specializing internal state type
 
 	template <class StateType>
-	struct SoundSourceTemplate : SoundSource {
-		SoundSourceTemplate() noexcept {
+	struct SoundSourceBase : SoundSource {
+		SoundSourceBase() NOEXCEPT_IF_I_SAY_SO {
 			static_assert(std::is_base_of<State, StateType>::value, "The provided StateType must derive from State");
+		}
+		~SoundSourceBase(){
+			removeAllDependants();
 		}
 
 		// overrides base function, delegates rendering to renderChunk()
@@ -49,7 +55,7 @@ namespace musical {
 
 		// add a new state to the state map and tell all inputs to add states
 		// corresponding to the new state
-		void addState(const State* parent_state, const Stateful* dependant) noexcept override {
+		void addState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO override {
 			auto [it, was_inserted] = state_map.emplace(
 				std::piecewise_construct,
 				std::forward_as_tuple(parent_state, dependant),
@@ -64,7 +70,7 @@ namespace musical {
 
 		// remove the state corresponding to the given state from the state map and
 		// tell all inputs to do the same
-		void removeState(const State* parent_state, const Stateful* dependant) noexcept override {
+		void removeState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO override {
 			auto it = state_map.find(std::make_pair(parent_state, dependant));
 			assert(it != state_map.end());
 			for (const auto& d : dependencies){
@@ -75,7 +81,7 @@ namespace musical {
 
 		// reset the state in the state map corresponding to the given state and tell
 		// all inputs to do the same
-		void resetState(const State* parent_state, const Stateful* dependant) noexcept override {
+		void resetState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO override {
 			auto it = state_map.find(std::make_pair(parent_state, dependant));
 			assert(it != state_map.end());
 			it->second.performReset();
@@ -84,19 +90,19 @@ namespace musical {
 			}
 		}
 
-		void addAllStatesTo(Stateful* dependency, const Stateful* via) const noexcept override {
+		void addAllStatesTo(Stateful* dependency) const NOEXCEPT_IF_I_SAY_SO override {
 			for (const auto& it : state_map){
-				dependency->addState(&it.second, via);
+				dependency->addState(&it.second, this);
 			}
 		}
 
-		void removeAllStatesFrom(Stateful* dependency, const Stateful* via) const noexcept override {
+		void removeAllStatesFrom(Stateful* dependency) const NOEXCEPT_IF_I_SAY_SO override {
 			for (const auto& it : state_map){
-				dependency->removeState(&it.second, via);
+				dependency->removeState(&it.second, this);
 			}
 		}
 
-		std::size_t numStates() const noexcept override {
+		std::size_t numStates() const NOEXCEPT_IF_I_SAY_SO override {
 			return state_map.size();
 		}
 
@@ -108,7 +114,7 @@ namespace musical {
 
 			}
 
-			float evaluate(const State* state) const noexcept override {
+			float evaluate(const State* state) const NOEXCEPT_IF_I_SAY_SO override {
 				const State* context = state;
 				while (state) {
 					if (state->getOwner() == parentsoundsource) {
@@ -126,7 +132,7 @@ namespace musical {
 				return 0.0f;
 			}
 
-			virtual float getValue(const StateType& state, const State* context) const noexcept = 0;
+			virtual float getValue(const StateType& state, const State* context) const NOEXCEPT_IF_I_SAY_SO = 0;
 
 		protected:
 			SoundSourceType* const parentsoundsource;
@@ -146,7 +152,7 @@ namespace musical {
 		}
 
 		struct Hash {
-			std::size_t operator()(const std::pair<const State*, const Stateful*>& x) const noexcept {
+			std::size_t operator()(const std::pair<const State*, const Stateful*>& x) const NOEXCEPT_IF_I_SAY_SO {
 				return std::hash<const State*>()(x.first) * 31 + std::hash<const Stateful*>()(x.second);
 			}
 		};

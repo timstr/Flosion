@@ -1,12 +1,12 @@
 #pragma once
 
-#include "musical.h"
+#include "Sample.h"
 #include "SoundSource.h"
 #include "SingleInput.h"
 #include <vector>
 #include <memory>
 
-namespace musical {
+namespace flo {
 
 	// a SoundQueue can be used with a SingleInput to create a queue of
 	// sound data, which is useful for cases where more sound data than
@@ -15,26 +15,26 @@ namespace musical {
 	// be used in the State of a SoundSource
 	struct SoundQueue {
 		// construct a queue with capacity for 'num_samples' samples
-		SoundQueue(size_t num_samples) noexcept;
+		SoundQueue(size_t num_samples) NOEXCEPT_IF_I_SAY_SO;
 
 		// advance queue, bring in silence
-		void advance(std::size_t num_samples) noexcept;
+		void advance(std::size_t num_samples) NOEXCEPT_IF_I_SAY_SO;
 
 		// advance queue, bring in data from sound input
 		// to be used in place of 'input.getNextChunk(..., state);`
-		void advance(std::size_t num_samples, SingleInput& input, const State* state) noexcept;
+		void advance(std::size_t num_samples, SingleInput& input, const State* state) NOEXCEPT_IF_I_SAY_SO;
 
 		// initializes the queue with a single SoundChunk's worth of sound
 		// This should be done at the beginning of reading from the SoundInput
 		// to prevent a delay of one SoundChunk, which will happen otherwise.
-		void prefill(SingleInput& input, const State* state) noexcept;
+		void prefill(SingleInput& input, const State* state) NOEXCEPT_IF_I_SAY_SO;
 
 		// silence and reset the queue
-		void clear() noexcept;
+		void clear() NOEXCEPT_IF_I_SAY_SO;
 
-		Sample& operator[](std::size_t index) noexcept;
+		Sample& operator[](std::size_t index) NOEXCEPT_IF_I_SAY_SO;
 
-		std::size_t size() const noexcept;
+		std::size_t size() const NOEXCEPT_IF_I_SAY_SO;
 
 		private:
 

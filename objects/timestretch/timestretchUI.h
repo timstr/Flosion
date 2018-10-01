@@ -16,7 +16,7 @@ namespace fui {
 
 		private:
 
-		musical::TimeStretch timestretch;
+		flo::TimeStretch timestretch;
 	};
 	RegisterFactoryObject(TimeStretchObject, "timestretch", "stretch");
 }

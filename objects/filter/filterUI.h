@@ -19,7 +19,7 @@ namespace fui {
 
 		private:
 
-		musical::Filter filter;
+		flo::Filter filter;
 	};
 	RegisterFactoryObject(FilterObject, "filter", "eq");
 

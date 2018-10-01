@@ -7,8 +7,8 @@
 
 namespace fui {
 	
-	struct NumberInput : WireInputBase<musical::NumberSource, musical::NumberInput> {
-		NumberInput(ui::Ref<Object> parent_object, musical::NumberInput& target, std::string label) :
+	struct NumberInput : WireInputBase<flo::NumberSource, flo::NumberInput> {
+		NumberInput(ui::Ref<Object> parent_object, flo::NumberInput& target, std::string label) :
 			WireInputBase(parent_object, target),
 			m_label(label) {
 
@@ -38,8 +38,8 @@ namespace fui {
 		const std::string m_label;
 	};
 
-	struct NumberOutput : WireOutputBase<musical::NumberSource, musical::NumberInput> {
-		NumberOutput(ui::Ref<Object> parent_object, musical::NumberSource& _target, std::string label) :
+	struct NumberOutput : WireOutputBase<flo::NumberSource, flo::NumberInput> {
+		NumberOutput(ui::Ref<Object> parent_object, flo::NumberSource& _target, std::string label) :
 			WireOutputBase(parent_object, _target),
 			m_label(label) {
 
@@ -69,7 +69,7 @@ namespace fui {
 		const std::string m_label;
 	};
 
-	struct NumberWire : WireBase<musical::NumberSource, musical::NumberInput> {
+	struct NumberWire : WireBase<flo::NumberSource, flo::NumberInput> {
 		NumberWire(ui::Ref<Box> parent_box) :
 			WireBase(parent_box) {
 			parent_box->addNumberWire(thisAs<NumberWire>());
@@ -80,11 +80,11 @@ namespace fui {
 			}
 		}
 
-		void onConnect(musical::NumberSource& src, musical::NumberInput& dst) override {
+		void onConnect(flo::NumberSource& src, flo::NumberInput& dst) override {
 			dst.setSource(&src);
 		}
 
-		void onDisconnect(musical::NumberSource& src, musical::NumberInput& dst) override {
+		void onDisconnect(flo::NumberSource& src, flo::NumberInput& dst) override {
 			dst.setSource(nullptr);
 		}
 	};

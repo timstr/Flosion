@@ -6,7 +6,7 @@
 #include <algorithm>
 #include "SingleInput.h"
 
-namespace musical {
+namespace flo {
 
 	struct FilterState : State {
 		using State::State;
@@ -32,7 +32,7 @@ namespace musical {
 	};
 
 
-	struct Filter : SoundSourceTemplate<FilterState> {
+	struct Filter : SoundSourceBase<FilterState> {
 		Filter() : input(this), frequency_out(this), amplitude_in(this) {
 
 		}

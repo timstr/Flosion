@@ -18,7 +18,7 @@ namespace fui {
 		}
 
 		private:
-		musical::Ensemble ensemble;
+		flo::Ensemble ensemble;
 	};
 	RegisterFactoryObject(EnsembleObject, "ensemble");
 };

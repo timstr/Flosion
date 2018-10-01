@@ -1,8 +1,8 @@
 #pragma once
 
-#include "musical.h"
+#include "Sample.h"
 
-namespace musical {
+namespace flo {
 
 	struct WaveGenState : State {
 		using State::State;
@@ -12,7 +12,7 @@ namespace musical {
 		float phase;
 	};
 
-	struct WaveGen : SoundSourceTemplate<WaveGenState> {
+	struct WaveGen : SoundSourceBase<WaveGenState> {
 		WaveGen() : phase(this), wavefunction(this), frequency(this) {
 
 		}

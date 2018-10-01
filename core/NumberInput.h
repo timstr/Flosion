@@ -3,7 +3,7 @@
 #include "Stateful.h"
 #include <vector>
 
-namespace musical {
+namespace flo {
 
 	struct NumberSource;
 
@@ -12,21 +12,21 @@ namespace musical {
 	struct NumberInput {
 
 		// create a NumberInput belonging to a NumberSource
-		NumberInput(NumberSource* _owner) noexcept;
+		NumberInput(NumberSource* _owner) NOEXCEPT_IF_I_SAY_SO;
 
 		// create a NumberInput belonging to a Stateful object
-		NumberInput(Stateful* _owner) noexcept;
+		NumberInput(Stateful* _owner) NOEXCEPT_IF_I_SAY_SO;
 
 		// create a NumberInput belonging to the global, stateless scope
 		// to be used as NumberInput(nullptr)
-		NumberInput(nullptr_t) noexcept;
+		NumberInput(nullptr_t) NOEXCEPT_IF_I_SAY_SO;
 
-		~NumberInput() noexcept;
+		~NumberInput() NOEXCEPT_IF_I_SAY_SO;
 
 		// Returns true if a given source would be safe to connect to.
 		// The source would be unsafe if it needed state information
 		// that is inaccessible to the context of this NumberInput
-		bool isSafeSource(const NumberSource* src) const noexcept;
+		bool isSafeSource(const NumberSource* src) const NOEXCEPT_IF_I_SAY_SO;
 
 		// will throw if _source is not safe (see isSafeSource())
 		// will not throw if given nullptr
@@ -39,15 +39,15 @@ namespace musical {
 		// or from sound processing objects, which shall be found as parents of some state
 		// in the state chain (accessed through the line of parents in the given state)
 		// this state is to be passed on as-is to preserve its full context
-		float getValue(const State* state, float default_value = 0) const noexcept;
+		float getValue(const State* state, float default_value = 0) const NOEXCEPT_IF_I_SAY_SO;
 
 	private:
 
-		void findAllStatefulSources(std::vector<const Stateful*>& sources) const noexcept;
+		void findAllStatefulSources(std::vector<const Stateful*>& sources) const NOEXCEPT_IF_I_SAY_SO;
 
-		void findAllStatefulDests(std::vector<const Stateful*>& dests) const noexcept;
+		void findAllStatefulDests(std::vector<const Stateful*>& dests) const NOEXCEPT_IF_I_SAY_SO;
 
-		bool findStatelessDest() const noexcept;
+		bool findStatelessDest() const NOEXCEPT_IF_I_SAY_SO;
 
 		NumberSource* owner_numbersource;
 		Stateful* owner_stateful;

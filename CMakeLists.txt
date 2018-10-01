@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10.0)
 
 project(flosion C CXX)
 
-add_executable(flosion Flosion.cpp)
+add_executable(flosion Flosion.cpp floatconfig.h)
 
 set_property(TARGET flosion PROPERTY CXX_STANDARD 17)
 

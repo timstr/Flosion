@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10.0)
 
 set(flosion-core-headers
-	musical.h
+	Sample.h
 	MultiInput.h
 	NumberInput.h
 	NumberSource.h

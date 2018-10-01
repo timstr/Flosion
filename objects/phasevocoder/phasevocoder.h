@@ -6,7 +6,7 @@
 #include "SoundQueue.h"
 #include "SingleInput.h"
 
-namespace musical {
+namespace flo {
 
 	const unsigned int max_window_size = 1 << 13;
 
@@ -78,7 +78,7 @@ namespace musical {
 		unsigned int last_window_size;
 	};
 
-	struct PhaseVocoder : SoundSourceTemplate<PhaseVocoderState> {
+	struct PhaseVocoder : SoundSourceBase<PhaseVocoderState> {
 		PhaseVocoder() : input(this), timespeed(this) {
 			window_size = max_window_size;
 		}

@@ -4,8 +4,8 @@
 #include "NumberInput.h"
 #include "NumberSource.h"
 
-namespace musical {
-	NumberInput::NumberInput(NumberSource* _owner) noexcept :
+namespace flo {
+	NumberInput::NumberInput(NumberSource* _owner) NOEXCEPT_IF_I_SAY_SO :
 		owner_numbersource(_owner),
 		owner_stateful(nullptr),
 		source(nullptr) {
@@ -14,19 +14,19 @@ namespace musical {
 		auto& inputs = owner_numbersource->dependants;
 		inputs.push_back(this);
 	}
-	NumberInput::NumberInput(Stateful* _owner) noexcept :
+	NumberInput::NumberInput(Stateful* _owner) NOEXCEPT_IF_I_SAY_SO :
 		owner_numbersource(nullptr),
 		owner_stateful(_owner),
 		source(nullptr) {
 
 	}
-	NumberInput::NumberInput(nullptr_t) noexcept :
+	NumberInput::NumberInput(nullptr_t) NOEXCEPT_IF_I_SAY_SO :
 		owner_numbersource(nullptr),
 		owner_stateful(nullptr),
 		source(nullptr) {
 	
 	}
-	NumberInput::~NumberInput() noexcept {
+	NumberInput::~NumberInput() NOEXCEPT_IF_I_SAY_SO {
 		if (source){
 			auto& d = source->dependants;
 			d.erase(std::remove(d.begin(), d.end(), this), d.end());
@@ -37,7 +37,7 @@ namespace musical {
 			inputs.erase(std::remove(inputs.begin(), inputs.end(), this), inputs.end());
 		}
 	}
-	bool NumberInput::isSafeSource(const NumberSource* src) const noexcept {
+	bool NumberInput::isSafeSource(const NumberSource* src) const NOEXCEPT_IF_I_SAY_SO {
 		if (src == nullptr){
 			return true;
 		}
@@ -79,12 +79,12 @@ namespace musical {
 	NumberSource* NumberInput::getSource() const {
 		return source;
 	}
-	void NumberInput::findAllStatefulSources(std::vector<const Stateful*>& sources) const noexcept {
+	void NumberInput::findAllStatefulSources(std::vector<const Stateful*>& sources) const NOEXCEPT_IF_I_SAY_SO {
 		if (source){
 			source->findAllStatefulSources(sources);
 		}
 	}
-	void NumberInput::findAllStatefulDests(std::vector<const Stateful*>& dests) const noexcept {
+	void NumberInput::findAllStatefulDests(std::vector<const Stateful*>& dests) const NOEXCEPT_IF_I_SAY_SO {
 		if (owner_stateful){
 			dests.push_back(owner_stateful);
 		}
@@ -92,7 +92,7 @@ namespace musical {
 			owner_numbersource->findAllStatefulDests(dests);
 		}
 	}
-	bool NumberInput::findStatelessDest() const noexcept {
+	bool NumberInput::findStatelessDest() const NOEXCEPT_IF_I_SAY_SO {
 		if (owner_numbersource){
 			return owner_numbersource->findStatelessDest();
 		} else if (owner_stateful){
@@ -107,7 +107,7 @@ namespace musical {
 	// or from sound processing objects, which shall be found as parents of some state
 	// in the state chain (accessed through the line of parents in the given state)
 	// this state is to be passed on as-is to preserve its full context
-	float NumberInput::getValue(const State* state, float default_value) const noexcept {
+	float NumberInput::getValue(const State* state, float default_value) const NOEXCEPT_IF_I_SAY_SO {
 		if (source){
 			return source->evaluate(state);
 		} else {

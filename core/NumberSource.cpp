@@ -2,13 +2,13 @@
 
 #include "NumberSource.h"
 
-namespace musical {
+namespace flo {
 
-	NumberSource::NumberSource(Stateful* _parent) noexcept
+	NumberSource::NumberSource(Stateful* _parent) NOEXCEPT_IF_I_SAY_SO
 		: parent(_parent) {
 		
 	}
-	NumberSource::~NumberSource() noexcept {
+	NumberSource::~NumberSource() NOEXCEPT_IF_I_SAY_SO {
 		for (auto& d : dependants){
 			d->setSource(nullptr);
 		}
@@ -16,7 +16,7 @@ namespace musical {
 			in->setSource(nullptr);
 		}
 	}
-	void NumberSource::findAllStatefulSources(std::vector<const Stateful*>& sources) const noexcept {
+	void NumberSource::findAllStatefulSources(std::vector<const Stateful*>& sources) const NOEXCEPT_IF_I_SAY_SO {
 		if (parent){
 			sources.push_back(parent);
 		}
@@ -24,12 +24,12 @@ namespace musical {
 			inputs[i]->findAllStatefulSources(sources);
 		}
 	}
-	void NumberSource::findAllStatefulDests(std::vector<const Stateful*>& dests) const noexcept {
+	void NumberSource::findAllStatefulDests(std::vector<const Stateful*>& dests) const NOEXCEPT_IF_I_SAY_SO {
 		for (int i = 0; i < dependants.size(); i++){
 			dependants[i]->findAllStatefulDests(dests);
 		}
 	}
-	bool NumberSource::findStatelessDest() const noexcept {
+	bool NumberSource::findStatelessDest() const NOEXCEPT_IF_I_SAY_SO {
 		for (int i = 0; i < dependants.size(); i++){
 			if (dependants[i]->findStatelessDest()){
 				return true;
@@ -38,20 +38,20 @@ namespace musical {
 		return false;
 	}
 
-	PureFunction::PureFunction() noexcept : NumberSource(nullptr){
+	PureFunction::PureFunction() NOEXCEPT_IF_I_SAY_SO : NumberSource(nullptr){
 
 	}
 
-	Constant::Constant(float _value) noexcept {
+	Constant::Constant(float _value) NOEXCEPT_IF_I_SAY_SO {
 		value = _value;
 	}
-	void Constant::setValue(float val) noexcept {
+	void Constant::setValue(float val) NOEXCEPT_IF_I_SAY_SO {
 		value = val;
 	}
-	float Constant::getValue() const noexcept {
+	float Constant::getValue() const NOEXCEPT_IF_I_SAY_SO {
 		return value;
 	}
-	float Constant::evaluate(const State* state) const noexcept {
+	float Constant::evaluate(const State* state) const NOEXCEPT_IF_I_SAY_SO {
 		return value;
 	}
 }

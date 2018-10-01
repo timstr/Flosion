@@ -1,10 +1,12 @@
 #pragma once
 
 #include "spline.h"
-#include "musical.h"
+#include "Sample.h"
 #include "MultiInput.h"
 
-namespace musical {
+namespace flo {
+
+	// TODO: rename to Note Sequencer or similar, something with Sequence at any rate
 
 	struct SamplerState : State {
 		using State::State;
@@ -16,7 +18,7 @@ namespace musical {
 		uint32_t time;
 	};
 
-	struct Sampler : SoundSourceTemplate<SamplerState> {
+	struct Sampler : SoundSourceBase<SamplerState> {
 		Sampler() : input(this) {
 			length = SFREQ * 4;
 		}
@@ -88,10 +90,10 @@ namespace musical {
 				void useSpline(){
 					mode = 1;
 				}
-				musical::Constant& getConstant(){
+				flo::Constant& getConstant(){
 					return constant;
 				}
-				musical::Spline& getSpline(){
+				flo::Spline& getSpline(){
 					return spline;
 				}
 				float getValue(float progress){
@@ -102,8 +104,8 @@ namespace musical {
 					}
 				}
 				private:
-				musical::Constant constant;
-				musical::Spline spline;
+				flo::Constant constant;
+				flo::Spline spline;
 				int mode;
 			};
 

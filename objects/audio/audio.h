@@ -5,7 +5,7 @@
 #include <functional>
 #include <thread>
 
-namespace musical {
+namespace flo {
 
 	struct AudioState : State {
 		using State::State;
@@ -18,7 +18,7 @@ namespace musical {
 		float pos_carryover;
 	};
 
-	struct Audio : SoundSourceTemplate<AudioState> {
+	struct Audio : SoundSourceBase<AudioState> {
 		Audio(){
 			loaded = true;
 		}

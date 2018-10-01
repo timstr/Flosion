@@ -2,7 +2,8 @@
 
 #include "boxUI.h"
 #include "objectUI.h"
-#include <cassert>
+//#include <cassert>
+#define assert(x) do { if (!static_cast<bool>(x)) { throw std::runtime_error("Assertion failure!"); } } while (false);
 
 namespace fui {
 
@@ -95,7 +96,7 @@ namespace fui {
 				wirehead->disconnectFrom(self);
 				wirehead->setPos(pos() + parent->pos() + localMousePos() - wirehead->size() * 0.5f);
 				wirehead->startDrag();
-				m_dragging_elem = wirehead;
+				transferResponseTo(wirehead);
 			} else {
 				m_wireheadin.reset();
 				auto box = parent->getParentBox();
@@ -107,16 +108,9 @@ namespace fui {
 				updateWire();
 				newwire->tail()->setPos(pos() + parent->pos() + localMousePos() - newwire->tail()->size() * 0.5f);
 				newwire->tail()->startDrag();
-				m_dragging_elem = newwire->tail();
+				transferResponseTo(newwire->tail());
 			}
 			return true;
-		}
-
-		void onLeftRelease() override {
-			if (auto elem = m_dragging_elem.lock()){
-				elem->stopDrag();
-			}
-			m_dragging_elem.reset();
 		}
 
 		bool onDrop(const ui::Ref<Element>& element) override {
@@ -134,7 +128,6 @@ namespace fui {
 
 		ui::WeakRef<Object> m_parentobject;
 		ui::WeakRef<WireHeadType> m_wireheadin;
-		ui::WeakRef<Element> m_dragging_elem;
 		DestinationType& m_destination;
 
 		friend struct Object;
@@ -216,7 +209,7 @@ namespace fui {
 				wiretail->disconnectFrom(self);
 				wiretail->setPos(pos() + parent->pos() + localMousePos() - wiretail->size() * 0.5f);
 				wiretail->startDrag();
-				m_dragging_elem = wiretail;
+				transferResponseTo(wiretail);
 			} else {
 				auto box = parent->getParentBox();
 				if (!box){
@@ -227,16 +220,9 @@ namespace fui {
 				updateWires();
 				newwire->head()->setPos(pos() + parent->pos() + localMousePos() - newwire->head()->size() * 0.5f);
 				newwire->head()->startDrag();
-				m_dragging_elem = newwire->head();
+				transferResponseTo(newwire->head());
 			}
 			return true;
-		}
-
-		void onLeftRelease() override {
-			if (auto elem = m_dragging_elem.lock()){
-				elem->stopDrag();
-			}
-			m_dragging_elem.reset();
 		}
 
 		bool onDrop(const ui::Ref<Element>& element) override {
@@ -252,7 +238,6 @@ namespace fui {
 
 		ui::WeakRef<Object> m_parentobject;
 		std::vector<ui::WeakRef<WireTailType>> m_wiretailsout;
-		ui::WeakRef<Element> m_dragging_elem;
 
 		SourceType& m_source;
 

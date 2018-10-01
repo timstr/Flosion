@@ -4,7 +4,7 @@
 #include "NumberInput.h"
 #include <vector>
 
-namespace musical {
+namespace flo {
 
 	struct NumberInput;
 
@@ -20,19 +20,19 @@ namespace musical {
 	//					variable or pure math function, the parent shall be null
 
 	struct NumberSource {
-		NumberSource(Stateful* _parent) noexcept;
+		NumberSource(Stateful* _parent) NOEXCEPT_IF_I_SAY_SO;
 
-		virtual ~NumberSource() noexcept;
+		virtual ~NumberSource() NOEXCEPT_IF_I_SAY_SO;
 
-		virtual float evaluate(const State* state) const noexcept = 0;
+		virtual float evaluate(const State* state) const NOEXCEPT_IF_I_SAY_SO = 0;
 		
 	private:
 
-		void findAllStatefulSources(std::vector<const Stateful*>& sources) const noexcept;
+		void findAllStatefulSources(std::vector<const Stateful*>& sources) const NOEXCEPT_IF_I_SAY_SO;
 
-		void findAllStatefulDests(std::vector<const Stateful*>& dests) const noexcept;
+		void findAllStatefulDests(std::vector<const Stateful*>& dests) const NOEXCEPT_IF_I_SAY_SO;
 
-		bool findStatelessDest() const noexcept;
+		bool findStatelessDest() const NOEXCEPT_IF_I_SAY_SO;
 
 		Stateful* const parent;
 		std::vector<NumberInput*> dependants;
@@ -42,16 +42,16 @@ namespace musical {
 	};
 
 	struct PureFunction : NumberSource {
-		PureFunction() noexcept;
+		PureFunction() NOEXCEPT_IF_I_SAY_SO;
 	};
 
 	struct Constant : PureFunction {
-		Constant(float _value = 0.0) noexcept;
+		Constant(float _value = 0.0) NOEXCEPT_IF_I_SAY_SO;
 
-		void setValue(float val) noexcept;
-		float getValue() const noexcept;
+		void setValue(float val) NOEXCEPT_IF_I_SAY_SO;
+		float getValue() const NOEXCEPT_IF_I_SAY_SO;
 
-		float evaluate(const State* state) const noexcept override;
+		float evaluate(const State* state) const NOEXCEPT_IF_I_SAY_SO override;
 
 		private:
 		float value;

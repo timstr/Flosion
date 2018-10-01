@@ -11,7 +11,7 @@ namespace fui {
 		}
 
 		private:
-		musical::Convolver convolver;
+		flo::Convolver convolver;
 	};
 	RegisterFactoryObject(ConvolverObject, "convolver");
 

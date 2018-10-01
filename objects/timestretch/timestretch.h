@@ -1,9 +1,9 @@
 #pragma once
 
-#include "musical.h"
+#include "Sample.h"
 #include "SingleInput.h"
 
-namespace musical {
+namespace flo {
 
 	struct TimeStretchState : State {
 		using State::State;
@@ -86,8 +86,8 @@ namespace musical {
 		float speed;
 	};
 
-	// TODO: rename to Resampler, rename Sampler to Note Sequencer
-	struct TimeStretch : SoundSourceTemplate<TimeStretchState> {
+	// TODO: rename to Resampler
+	struct TimeStretch : SoundSourceBase<TimeStretchState> {
 		TimeStretch() : input(this), speed(this) {
 
 		}

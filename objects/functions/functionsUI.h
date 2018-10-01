@@ -16,7 +16,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::Add m_add;
+		flo::functions::Add m_add;
 	}; 
 	RegisterFactoryObject(AddObject, "add", "+", "plus");
 
@@ -31,7 +31,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::Subtract m_subtract;
+		flo::functions::Subtract m_subtract;
 	}; 
 	RegisterFactoryObject(SubtractObject, "subtract", "-", "minus");
 
@@ -46,7 +46,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::Multiply m_multiply;
+		flo::functions::Multiply m_multiply;
 	}; 
 	RegisterFactoryObject(MultiplyObject, "multiply", "*", "x");
 
@@ -61,7 +61,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::Divide m_divide;
+		flo::functions::Divide m_divide;
 	}; 
 	RegisterFactoryObject(DivideObject, "divide", "/");
 
@@ -75,7 +75,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::UnitSine m_usine;
+		flo::functions::UnitSine m_usine;
 	}; 
 	RegisterFactoryObject(UnitSineObject, "usin", "unit sine");
 
@@ -89,7 +89,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::SawWave m_saw;
+		flo::functions::SawWave m_saw;
 	}; 
 	RegisterFactoryObject(SawWaveObject, "saw", "saw wave");
 
@@ -103,7 +103,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::SquareWave m_square;
+		flo::functions::SquareWave m_square;
 	}; 
 	RegisterFactoryObject(SquareWaveObject, "square wave", "pulse wave");
 
@@ -120,7 +120,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::Gaussian m_gaussian;
+		flo::functions::Gaussian m_gaussian;
 	};
 	RegisterFactoryObject(GaussianObject, "gaussian", "bell curve");
 
@@ -134,7 +134,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::NaturalLog m_nlog;
+		flo::functions::NaturalLog m_nlog;
 	}; 
 	RegisterFactoryObject(NaturalLogObject, "ln", "logarithm", "natural logarithm");
 
@@ -148,7 +148,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::Exponential m_exponential;
+		flo::functions::Exponential m_exponential;
 	}; 
 	RegisterFactoryObject(ExponentialObject, "exponential");
 
@@ -163,7 +163,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::Minimum m_minimum;
+		flo::functions::Minimum m_minimum;
 	}; 
 	RegisterFactoryObject(MinimumObject, "minimum");
 
@@ -178,7 +178,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::Maximum m_maximum;
+		flo::functions::Maximum m_maximum;
 	}; 
 	RegisterFactoryObject(MaximumObject, "maximum");
 
@@ -194,7 +194,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::Clamp m_clamp;
+		flo::functions::Clamp m_clamp;
 	}; 
 	RegisterFactoryObject(ClampObject, "clamp");
 
@@ -209,7 +209,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::Arctangent m_atan;
+		flo::functions::Arctangent m_atan;
 	}; 
 	RegisterFactoryObject(ArctangentObject, "atan", "arctangent");
 
@@ -223,7 +223,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::AbsoluteValue m_abs;
+		flo::functions::AbsoluteValue m_abs;
 	}; 
 	RegisterFactoryObject(AbsoluteValueObject, "absolute value");
 
@@ -238,7 +238,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::Hypotenuse m_hypot;
+		flo::functions::Hypotenuse m_hypot;
 	}; 
 	RegisterFactoryObject(HypotenuseObject, "hypotenuse");
 
@@ -252,7 +252,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::Sine m_sine;
+		flo::functions::Sine m_sine;
 	}; 
 	RegisterFactoryObject(SineObject, "sine");
 
@@ -266,7 +266,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::Cosine m_cosine;
+		flo::functions::Cosine m_cosine;
 	}; 
 	RegisterFactoryObject(CosineObject, "cosine");
 
@@ -280,7 +280,7 @@ namespace fui {
 		}
 
 	private:
-		musical::functions::Tangent m_tangent;
+		flo::functions::Tangent m_tangent;
 	}; 
 	RegisterFactoryObject(TangentObject, "tangent");
 
@@ -301,7 +301,7 @@ namespace fui {
 		}
 
 	private:
-		musical::NumberInput m_input;
+		flo::NumberInput m_input;
 		ui::Ref<ui::Text> m_text;
 	};
 	RegisterFactoryObject(DisplayObject, "display", "d0"); // TODO: "d0" is a terrible name

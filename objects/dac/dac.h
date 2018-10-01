@@ -2,10 +2,10 @@
 
 #include <SFML\Audio.hpp>
 #include "SoundResult.h"
-#include "musical.h"
+#include "Sample.h"
 #include <thread>
 
-namespace musical {
+namespace flo {
 
 	struct DAC : private sf::SoundStream {
 		DAC();

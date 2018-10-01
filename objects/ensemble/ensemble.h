@@ -1,11 +1,11 @@
 #pragma once
 
 #include <random>
-#include "musical.h"
+#include "Sample.h"
 #include "SoundSource.h"
 #include "MultiInput.h"
 
-namespace musical {
+namespace flo {
 
 	struct EnsembleState : State {
 		using State::State;
@@ -17,7 +17,7 @@ namespace musical {
 		SoundChunk buffer;
 	};
 
-	struct Ensemble : SoundSourceTemplate<EnsembleState> {
+	struct Ensemble : SoundSourceBase<EnsembleState> {
 		Ensemble() : input(this), num_voices(this), frequency(this), frequency_spread(this) {
 			for (int i = 0; i < max_voices; i++){
 				input.addKey(i);

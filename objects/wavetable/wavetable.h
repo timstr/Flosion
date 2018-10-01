@@ -6,7 +6,7 @@
 
 // TODO: save/read waveform to/from file
 
-namespace musical {
+namespace flo {
 
 	struct WaveTable : PureFunction {
 		WaveTable() : input(this) {

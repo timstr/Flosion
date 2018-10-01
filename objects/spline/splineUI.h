@@ -17,7 +17,7 @@ namespace fui {
 
 		private:
 
-	musical::Spline spline;
+	flo::Spline spline;
 	};
 	RegisterFactoryObject(SplineObject, "spline");
 };

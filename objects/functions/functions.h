@@ -1,10 +1,10 @@
 #pragma once
 
-#include "musical.h"
+#include "Sample.h"
 #include <math.h>
 #include "pi.h"
 
-namespace musical {
+namespace flo {
 
 	namespace functions {
 

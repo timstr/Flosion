@@ -17,7 +17,7 @@ namespace fui {
 		}
 
 		private:
-		musical::Distortion distortion;
+		flo::Distortion distortion;
 	};
 	RegisterFactoryObject(DistortionObject, "distortion");
 }

@@ -98,7 +98,6 @@ namespace fui {
 			if (count == 0){
 				results->write("no results", getFont(), sf::Color(0x808080FF), 15, ui::TextStyle::Italic);
 			}
-			//results->setHeight(results->inner()->height());
 		}
 
 		struct Result : ui::BlockElement {
@@ -179,7 +178,6 @@ namespace fui {
 	Box::Box() {
 		m_object_container = add<ui::FreeElement>();
 		m_wire_container = add<ui::FreeElement>();
-		// TODO: does the size of these two containers matter?
 	}
 
 	void Box::addObject(ui::Ref<Object> object) {

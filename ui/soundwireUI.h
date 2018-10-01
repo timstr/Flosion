@@ -8,8 +8,8 @@
 
 namespace fui {
 
-	struct SoundInput : WireInputBase<musical::SoundSource, musical::SoundInput> {
-		SoundInput(ui::Ref<Object> parent_object, musical::SoundInput& target, std::string label) :
+	struct SoundInput : WireInputBase<flo::SoundSource, flo::SoundInput> {
+		SoundInput(ui::Ref<Object> parent_object, flo::SoundInput& target, std::string label) :
 			WireInputBase(parent_object, target),
 				m_label(label) {
 
@@ -39,8 +39,8 @@ namespace fui {
 		const std::string m_label;
 	};
 
-	struct SoundOutput : WireOutputBase<musical::SoundSource, musical::SoundInput> {
-		SoundOutput(ui::Ref<Object> parent_object, musical::SoundSource& target, std::string label) :
+	struct SoundOutput : WireOutputBase<flo::SoundSource, flo::SoundInput> {
+		SoundOutput(ui::Ref<Object> parent_object, flo::SoundSource& target, std::string label) :
 			WireOutputBase(parent_object, target),
 			m_label(label) {
 
@@ -70,7 +70,7 @@ namespace fui {
 		const std::string m_label;
 	};
 
-	struct SoundWire : WireBase<musical::SoundSource, musical::SoundInput> {
+	struct SoundWire : WireBase<flo::SoundSource, flo::SoundInput> {
 		SoundWire(ui::Ref<Box> parent_box) : 
 			WireBase(parent_box) {
 			
@@ -82,11 +82,11 @@ namespace fui {
 			}
 		}
 
-		void onConnect(musical::SoundSource& src, musical::SoundInput& dst) override {
+		void onConnect(flo::SoundSource& src, flo::SoundInput& dst) override {
 			dst.setSource(&src);
 		}
 
-		void onDisconnect(musical::SoundSource& src, musical::SoundInput& dst) override {
+		void onDisconnect(flo::SoundSource& src, flo::SoundInput& dst) override {
 			dst.setSource(nullptr);
 		}
 	};

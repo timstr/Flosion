@@ -88,7 +88,7 @@ namespace fui {
 		
 		ui::Ref<Grabber> grabber;
 
-		musical::WaveTable wavetable;
+		flo::WaveTable wavetable;
 		std::vector<sf::Vertex> vertices;
 	};
 	RegisterFactoryObject(WavetableObject, "wavetable");

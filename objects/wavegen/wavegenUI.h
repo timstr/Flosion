@@ -16,7 +16,7 @@ namespace fui {
 		}
 
 		private:
-		musical::WaveGen wavegen;
+		flo::WaveGen wavegen;
 	};
 	RegisterFactoryObject(WaveGenObject, "wave generator");
 };

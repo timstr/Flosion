@@ -5,7 +5,7 @@
 #include "SoundQueue.h"
 #include <algorithm>
 
-namespace musical {
+namespace flo {
 
 	// TODO: implement using FFT
 
@@ -32,7 +32,7 @@ namespace musical {
 		unsigned int length;
 	};
 
-	struct Convolver : SoundSourceTemplate<ConvolverState> {
+	struct Convolver : SoundSourceBase<ConvolverState> {
 		Convolver() : function(this), function_length(this), input(this) {
 
 		}

@@ -2,7 +2,7 @@
 
 #include "DAC.h"
 
-namespace musical {
+namespace flo {
 
 	DAC::DAC(){
 		initialize(2, SFREQ);

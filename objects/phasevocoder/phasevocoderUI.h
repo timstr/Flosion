@@ -24,7 +24,7 @@ namespace fui {
 
 		private:
 
-		musical::PhaseVocoder phasevocoder;
+		flo::PhaseVocoder phasevocoder;
 	};
 	RegisterFactoryObject(PhaseVocoderObject, "phase vocoder");
 

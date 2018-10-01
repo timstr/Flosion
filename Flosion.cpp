@@ -1,4 +1,6 @@
-#include "musical.h"
+#include "floatconfig.h"
+
+#include "Sample.h"
 
 #include <SFML/Graphics.hpp>
 #include <math.h>
@@ -71,7 +73,27 @@
 
 // TODO: include and dynamically link to ffmpeg for additional audio formats
 
+// TODO: compiler optimizations:
+// - consider /fp:fast
+// - consider /Oi
+// - consider /arch:SSE /arch:SSE2 /arch:AVX /arch:AVX2
+// - https://docs.microsoft.com/en-us/cpp/build/reference/profile-guided-optimizations?view=vs-2017
+
 int main() {
+
+	DISABLE_DENORMALS;
+
+	// Testing:
+	/*flo::Audio audio;
+	flo::TimeStretch timestretch;
+	flo::SoundResult soundres;
+	flo::SoundChunk chunk;
+
+	timestretch.input.setSource(&audio);
+	soundres.input.setSource(&timestretch);
+	//dac.play();
+	soundres.getNextChunk(chunk);
+	soundres.input.setSource(nullptr);*/
 
 	ui::init(1000, 700, "Flosion", 30);
 

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "musical.h"
+#include "Sample.h"
 #include "SoundSource.h"
 #include <math.h>
 #include <algorithm>
 #include "SingleInput.h"
 
-namespace musical {
+namespace flo {
 
 	struct DistortionState : State {
 		using State::State;
@@ -16,7 +16,7 @@ namespace musical {
 		}
 	};
 
-	struct Distortion : SoundSourceTemplate<DistortionState> {
+	struct Distortion : SoundSourceBase<DistortionState> {
 		Distortion() : gain(this), hardness(this), input(this) {
 
 		}

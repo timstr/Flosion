@@ -26,7 +26,7 @@ namespace fui {
 
 		private:
 
-		musical::Audio audio;
+		flo::Audio audio;
 		ui::Ref<ui::Element> caption;
 	};
 	RegisterFactoryObject(AudioObject, "sound", "audioclip");
