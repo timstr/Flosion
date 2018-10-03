@@ -1,14 +1,13 @@
 #pragma once
 
 #include "SoundInput.h"
-//#include <cassert>
-#define assert(x) do { if (!static_cast<bool>(x)) { throw std::runtime_error("Assertion failure!"); } } while (false);
+#include <cassert>
 
 namespace flo {
 
 	template <class KeyType>
 	struct MultiInputState : State {
-		MultiInputState(const State* _parent, const Stateful* _owner, const KeyType& _key) NOEXCEPT_IF_I_SAY_SO :
+		MultiInputState(const State* _parent, const Stateful* _owner, const KeyType& _key) noexcept :
 			State(_parent, _owner),
 			key(_key) {
 
@@ -19,7 +18,7 @@ namespace flo {
 
 	template <class InputStateType, class KeyType, class SoundSourceType = SoundSource>
 	struct MultiInput : SoundInput {
-		MultiInput(SoundSourceType* _parent) NOEXCEPT_IF_I_SAY_SO :
+		MultiInput(SoundSourceType* _parent) noexcept :
 			SoundInput(_parent),
 			parentsoundsource(_parent) {
 
@@ -37,33 +36,33 @@ namespace flo {
 			using MultiInputType = MultiInput<InputStateType, KeyType, SoundSourceType>;
 			using KeyIterator = typename std::set<KeyType>::iterator;
 
-			iterator(MultiInputType& _multi_input, KeyIterator _key_it, const State* _parent_state) NOEXCEPT_IF_I_SAY_SO :
+			iterator(MultiInputType& _multi_input, KeyIterator _key_it, const State* _parent_state) noexcept :
 				key_it(_key_it),
 				multi_input(_multi_input),
 				parent_state(_parent_state) {
 
 			}
 
-			iterator& operator++(int dummy) NOEXCEPT_IF_I_SAY_SO {
+			iterator& operator++(int dummy) noexcept {
 				key_it++;
 				return *this;
 			}
-			iterator& operator--(int dummy) NOEXCEPT_IF_I_SAY_SO {
+			iterator& operator--(int dummy) noexcept {
 				key_it--;
 				return *this;
 			}
-			bool operator==(const iterator& _it) const NOEXCEPT_IF_I_SAY_SO {
+			bool operator==(const iterator& _it) const noexcept {
 				return (this->key_it == _it.key_it) && (this->parent_state == _it.parent_state);
 			}
-			bool operator!=(const iterator& _it) const NOEXCEPT_IF_I_SAY_SO {
+			bool operator!=(const iterator& _it) const noexcept {
 				return !(this->key_it == _it.key_it) || !(this->parent_state == _it.parent_state);
 			}
 
-			const KeyType& key() const NOEXCEPT_IF_I_SAY_SO {
+			const KeyType& key() const noexcept {
 				assert(key_it != multi_input.keys.end());
 				return *key_it;
 			}
-			InputStateType& state() const NOEXCEPT_IF_I_SAY_SO {
+			InputStateType& state() const noexcept {
 				assert(key_it != multi_input.keys.end());
 				auto it = multi_input.state_map.find(std::make_pair(*key_it, parent_state));
 				assert(it != multi_input.state_map.end());
@@ -79,11 +78,11 @@ namespace flo {
 			friend struct MultiInput;
 		};
 
-		iterator begin(const State* parent_state) NOEXCEPT_IF_I_SAY_SO {
+		iterator begin(const State* parent_state) noexcept {
 			return iterator(*this, keys.begin(), parent_state);
 		}
 
-		iterator end(const State* parent_state) NOEXCEPT_IF_I_SAY_SO {
+		iterator end(const State* parent_state) noexcept {
 			return iterator(*this, keys.end(), parent_state);
 		}
 
@@ -92,7 +91,7 @@ namespace flo {
 		// chunk is silenced if no source is connected or if the key is not registered
 		// chunk is assumed to be of length flo::CHUNK_SIZE
 		// state is to be the state provided to the current renderChunk function
-		void getNextChunk(SoundChunk& chunk, State* state, KeyType key) NOEXCEPT_IF_I_SAY_SO {
+		void getNextChunk(SoundChunk& chunk, State* state, KeyType key) noexcept {
 			if (m_source) {
 				auto it = state_map.find({ key, state });
 				assert(it != state_map.end());
@@ -102,7 +101,7 @@ namespace flo {
 			}
 		}
 
-		void getNextChunk(SoundChunk& chunk, const iterator& it) NOEXCEPT_IF_I_SAY_SO {
+		void getNextChunk(SoundChunk& chunk, const iterator& it) noexcept {
 			if (m_source){
 				m_source->getNextChunk(chunk, &it.state(), this);
 			} else {
@@ -111,7 +110,7 @@ namespace flo {
 		}
 
 		// add a key to an input state
-		void addKey(KeyType key) NOEXCEPT_IF_I_SAY_SO {
+		void addKey(KeyType key) noexcept {
 			assert(keys.find(key) == keys.end());
 			for (const auto& state : states){
 				auto [it, was_inserted] = state_map.emplace(
@@ -130,7 +129,7 @@ namespace flo {
 		}
 
 		// remove a key to an input state
-		void removeKey(KeyType key) NOEXCEPT_IF_I_SAY_SO {
+		void removeKey(KeyType key) noexcept {
 			for (auto it = states.begin(); it != states.end(); it++) {
 				auto it2 = state_map.find(std::make_pair(key, *it));
 				assert(it2 != state_map.end());
@@ -144,7 +143,7 @@ namespace flo {
 			keys.erase(it3);
 		}
 
-		void addState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO override {
+		void addState(const State* parent_state, const Stateful* dependant) noexcept override {
 			assert(dependant == parentsoundsource);
 			assert(states.find(parent_state) == states.end());
 			for (const auto& key : keys) {
@@ -163,7 +162,7 @@ namespace flo {
 			states.insert(parent_state);
 		}
 
-		void removeState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO override {
+		void removeState(const State* parent_state, const Stateful* dependant) noexcept override {
 			assert(dependant == parentsoundsource);
 			for (const auto& key : keys) {
 				auto it = state_map.find(std::make_pair(key, parent_state));
@@ -178,7 +177,7 @@ namespace flo {
 			states.erase(it3);
 		}
 
-		void resetState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO override {
+		void resetState(const State* parent_state, const Stateful* dependant) noexcept override {
 			assert(dependant == parentsoundsource);
 			for (const auto& key : keys){
 				auto it = state_map.find(std::make_pair(key, parent_state));
@@ -190,7 +189,7 @@ namespace flo {
 			}
 		}
 
-		void resetState(State* parent_state, KeyType key) NOEXCEPT_IF_I_SAY_SO {
+		void resetState(State* parent_state, KeyType key) noexcept {
 			auto it = state_map.find(std::make_pair(key, parent_state));
 			assert(it != state_map.end());
 			it->second.performReset();
@@ -199,7 +198,7 @@ namespace flo {
 			}
 		}
 
-		void resetState(const iterator& it) NOEXCEPT_IF_I_SAY_SO {
+		void resetState(const iterator& it) noexcept {
 			assert(it.key_it != keys.end());
 			it.state().performReset();
 			if (m_source) {
@@ -207,23 +206,23 @@ namespace flo {
 			}
 		}
 
-		void addAllStatesTo(Stateful* dependency) const NOEXCEPT_IF_I_SAY_SO override {
+		void addAllStatesTo(Stateful* dependency) const noexcept override {
 			for (const auto& it : state_map){
 				dependency->addState(&it.second, this);
 			}
 		}
 
-		void removeAllStatesFrom(Stateful* dependency) const NOEXCEPT_IF_I_SAY_SO override {
+		void removeAllStatesFrom(Stateful* dependency) const noexcept override {
 			for (const auto& it : state_map){
 				dependency->removeState(&it.second, this);
 			}
 		}
 
-		std::size_t numStates() const NOEXCEPT_IF_I_SAY_SO override {
+		std::size_t numStates() const noexcept override {
 			return state_map.size();
 		}
 
-		InputStateType& getState(State* parent_state, KeyType key) NOEXCEPT_IF_I_SAY_SO {
+		InputStateType& getState(State* parent_state, KeyType key) noexcept {
 			auto it = state_map.find(std::make_pair(key, parent_state));
 			assert(it != state_map.end());
 			return *it;
@@ -233,13 +232,13 @@ namespace flo {
 
 		// NumberSource for querying state variables
 		struct StateNumberSource : NumberSource {
-			StateNumberSource(MultiInput<InputStateType, KeyType, SoundSourceType>* _owner) NOEXCEPT_IF_I_SAY_SO :
+			StateNumberSource(MultiInput<InputStateType, KeyType, SoundSourceType>* _owner) noexcept :
 				NumberSource(_owner),
 				parentmultiinput(_owner) {
 
 			}
 
-			float evaluate(const State* state) const NOEXCEPT_IF_I_SAY_SO override {
+			float evaluate(const State* state) const noexcept override {
 				const State* context = state;
 				while (state) {
 					if (state->getOwner() == parentmultiinput) {
@@ -258,7 +257,7 @@ namespace flo {
 				return 0.0f;
 			}
 
-			virtual float getValue(const InputStateType& state, const State* context) const NOEXCEPT_IF_I_SAY_SO = 0;
+			virtual float getValue(const InputStateType& state, const State* context) const noexcept = 0;
 
 			MultiInput<InputStateType, KeyType, SoundSourceType>* const parentmultiinput;
 		};
@@ -266,7 +265,7 @@ namespace flo {
 	private:
 
 		struct Hash {
-			std::size_t operator()(const std::pair<KeyType, const State*>& x) const NOEXCEPT_IF_I_SAY_SO {
+			std::size_t operator()(const std::pair<KeyType, const State*>& x) const noexcept {
 				return std::hash<KeyType>()(x.first) * 31 + std::hash<const State*>()(x.second);
 			}
 		};

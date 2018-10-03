@@ -15,26 +15,26 @@ namespace flo {
 	// be used in the State of a SoundSource
 	struct SoundQueue {
 		// construct a queue with capacity for 'num_samples' samples
-		SoundQueue(size_t num_samples) NOEXCEPT_IF_I_SAY_SO;
+		SoundQueue(size_t num_samples) noexcept;
 
 		// advance queue, bring in silence
-		void advance(std::size_t num_samples) NOEXCEPT_IF_I_SAY_SO;
+		void advance(std::size_t num_samples) noexcept;
 
 		// advance queue, bring in data from sound input
 		// to be used in place of 'input.getNextChunk(..., state);`
-		void advance(std::size_t num_samples, SingleInput& input, const State* state) NOEXCEPT_IF_I_SAY_SO;
+		void advance(std::size_t num_samples, SingleInput& input, const State* state) noexcept;
 
 		// initializes the queue with a single SoundChunk's worth of sound
 		// This should be done at the beginning of reading from the SoundInput
 		// to prevent a delay of one SoundChunk, which will happen otherwise.
-		void prefill(SingleInput& input, const State* state) NOEXCEPT_IF_I_SAY_SO;
+		void prefill(SingleInput& input, const State* state) noexcept;
 
 		// silence and reset the queue
-		void clear() NOEXCEPT_IF_I_SAY_SO;
+		void clear() noexcept;
 
-		Sample& operator[](std::size_t index) NOEXCEPT_IF_I_SAY_SO;
+		Sample& operator[](std::size_t index) noexcept;
 
-		std::size_t size() const NOEXCEPT_IF_I_SAY_SO;
+		std::size_t size() const noexcept;
 
 		private:
 

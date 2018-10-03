@@ -233,9 +233,50 @@ namespace fui {
 	}
 
 	MainBox::MainBox() {
-		write("Main Box haha!", getFont());
+		//setBorderRadius(0);
 		setMinSize({500, 500});
 		setBackgroundColor(sf::Color(0x404040FF));
+	}
+
+	void MainBox::render(sf::RenderWindow& rw) {
+		resizeToFit(ui::getScreenSize());
+		Box::render(rw);
+	}
+
+	void MainBox::resizeToFit(vec2 screensize) {
+		// if the mainbox's top left corner is below or right of the window's top left
+		// corner, move the mainbox to the corner and shift every object over by the
+		// difference
+		float shift_x = std::max(0.0f, left());
+		float shift_y = std::max(0.0f, top());
+		setLeft(left() - shift_x);
+		setTop(top() - shift_y);
+
+		for (const auto& obj: m_objects){
+			obj->setLeft(obj->left() + shift_x);
+			obj->setTop(obj->top() + shift_y);
+		}
+		for (const auto& wire: m_numberwires){
+			wire->head()->setLeft(wire->head()->left() + shift_x);
+			wire->head()->setTop(wire->head()->top() + shift_y);
+			wire->tail()->setLeft(wire->tail()->left() + shift_x);
+			wire->tail()->setTop(wire->tail()->top() + shift_y);
+			wire->updateVertices();
+		}
+		for (const auto& wire: m_soundwires){
+			wire->head()->setLeft(wire->head()->left() + shift_x);
+			wire->head()->setTop(wire->head()->top() + shift_y);
+			wire->tail()->setLeft(wire->tail()->left() + shift_x);
+			wire->tail()->setTop(wire->tail()->top() + shift_y);
+			wire->updateVertices();
+		}
+
+		// if the mainbox's bottom right corner is left or above the window's bottom
+		// right corner, simply resize the mainbox by the difference
+		auto resize_x = std::max(0.0f, screensize.x - left() - width());
+		auto resize_y = std::max(0.0f, screensize.y - top() - height());
+		setMinWidth(width() + resize_x);
+		setMinHeight(height() + resize_y);
 	}
 
 } // namespace fui

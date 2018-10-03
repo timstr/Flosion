@@ -7,30 +7,59 @@
 #include <vector>
 #include <unordered_map>
 #include <set>
-//#include <cassert>
-#define assert(x) do { if (!static_cast<bool>(x)) { throw std::runtime_error("Assertion failure!"); } } while (false);
+#include <cassert>
 
 namespace flo {
 
+	// TODO: add **RealTime** SoundSource type for SoundSources that:
+	// - never change the time speed
+	// - query their input exactly once every time that they are queried (SingleInputs only)
+	// - create only one source state for every internal state (multiple SingleInputs are allowed if they go to different sources)
+	//
+	// Examples:
+	// - distortion
+	// - filter
+	// - delay
+	// - reverb
+	// - bitcrusher
+	// - splitter (more on this later)
+	//
+	// This will allow for such improvements as:
+	// - real time inputs that are outside of Flosion can be meaningfully used
+	//   and processed as the sources to RealTime processors. For example, a keyboard
+	//   input could be played through a reverb and filters if the processing chain
+	//   is real-time all the way up to the DAC
+	// - ???
+	//
+	// This property of a SoundSource is fairly high-level and difficult to enforce
+	// using an object-oriented heirarchy (plus all the dynamic_casts would be worrisome)
+
 	struct SoundSource : Stateful {
-		~SoundSource() NOEXCEPT_IF_I_SAY_SO;
+		// TODO: document
+		SoundSource(bool _is_realtime) noexcept;
+		~SoundSource() noexcept;
 
 		virtual void getNextChunk(SoundChunk& chunk, const State* dependant_state, const Stateful* dst) = 0;
 
 		void removeAllDependants();
+
+		// TODO: document
+		bool isRealTime() const noexcept;
 
 	protected:
 
 		friend struct SoundInput;
 
 		std::vector<SoundInput*> destinations;
+		const bool is_realtime;
 	};
 
 	// SoundSource template for specializing internal state type
 
 	template <class StateType>
 	struct SoundSourceBase : SoundSource {
-		SoundSourceBase() NOEXCEPT_IF_I_SAY_SO {
+		SoundSourceBase(bool is_realtime) noexcept :
+			SoundSource(is_realtime) {
 			static_assert(std::is_base_of<State, StateType>::value, "The provided StateType must derive from State");
 		}
 		~SoundSourceBase(){
@@ -55,7 +84,7 @@ namespace flo {
 
 		// add a new state to the state map and tell all inputs to add states
 		// corresponding to the new state
-		void addState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO override {
+		void addState(const State* parent_state, const Stateful* dependant) noexcept override {
 			auto [it, was_inserted] = state_map.emplace(
 				std::piecewise_construct,
 				std::forward_as_tuple(parent_state, dependant),
@@ -70,7 +99,7 @@ namespace flo {
 
 		// remove the state corresponding to the given state from the state map and
 		// tell all inputs to do the same
-		void removeState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO override {
+		void removeState(const State* parent_state, const Stateful* dependant) noexcept override {
 			auto it = state_map.find(std::make_pair(parent_state, dependant));
 			assert(it != state_map.end());
 			for (const auto& d : dependencies){
@@ -81,7 +110,7 @@ namespace flo {
 
 		// reset the state in the state map corresponding to the given state and tell
 		// all inputs to do the same
-		void resetState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO override {
+		void resetState(const State* parent_state, const Stateful* dependant) noexcept override {
 			auto it = state_map.find(std::make_pair(parent_state, dependant));
 			assert(it != state_map.end());
 			it->second.performReset();
@@ -90,19 +119,19 @@ namespace flo {
 			}
 		}
 
-		void addAllStatesTo(Stateful* dependency) const NOEXCEPT_IF_I_SAY_SO override {
+		void addAllStatesTo(Stateful* dependency) const noexcept override {
 			for (const auto& it : state_map){
 				dependency->addState(&it.second, this);
 			}
 		}
 
-		void removeAllStatesFrom(Stateful* dependency) const NOEXCEPT_IF_I_SAY_SO override {
+		void removeAllStatesFrom(Stateful* dependency) const noexcept override {
 			for (const auto& it : state_map){
 				dependency->removeState(&it.second, this);
 			}
 		}
 
-		std::size_t numStates() const NOEXCEPT_IF_I_SAY_SO override {
+		std::size_t numStates() const noexcept override {
 			return state_map.size();
 		}
 
@@ -114,7 +143,7 @@ namespace flo {
 
 			}
 
-			float evaluate(const State* state) const NOEXCEPT_IF_I_SAY_SO override {
+			float evaluate(const State* state) const noexcept override {
 				const State* context = state;
 				while (state) {
 					if (state->getOwner() == parentsoundsource) {
@@ -132,7 +161,7 @@ namespace flo {
 				return 0.0f;
 			}
 
-			virtual float getValue(const StateType& state, const State* context) const NOEXCEPT_IF_I_SAY_SO = 0;
+			virtual float getValue(const StateType& state, const State* context) const noexcept = 0;
 
 		protected:
 			SoundSourceType* const parentsoundsource;
@@ -152,7 +181,7 @@ namespace flo {
 		}
 
 		struct Hash {
-			std::size_t operator()(const std::pair<const State*, const Stateful*>& x) const NOEXCEPT_IF_I_SAY_SO {
+			std::size_t operator()(const std::pair<const State*, const Stateful*>& x) const noexcept {
 				return std::hash<const State*>()(x.first) * 31 + std::hash<const Stateful*>()(x.second);
 			}
 		};

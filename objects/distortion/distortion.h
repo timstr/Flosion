@@ -17,7 +17,11 @@ namespace flo {
 	};
 
 	struct Distortion : SoundSourceBase<DistortionState> {
-		Distortion() : gain(this), hardness(this), input(this) {
+		Distortion() :
+			SoundSourceBase<DistortionState>(true),
+			gain(this),
+			hardness(this),
+			input(this) {
 
 		}
 

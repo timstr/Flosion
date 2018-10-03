@@ -42,7 +42,7 @@ namespace flo {
 		}
 	}
 
-	bool DAC::onGetData(Chunk& data){
+	bool DAC::onGetData(sf::SoundStream::Chunk& data){
 		input.getNextChunk(inbuffer);
 
 		// format and write the chunk data

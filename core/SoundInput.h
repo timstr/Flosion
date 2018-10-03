@@ -8,14 +8,14 @@ namespace flo {
 
 	struct SoundInput : Stateful {
 		// parent is the stateful object to which the input belongs
-		SoundInput(Stateful* _parent) NOEXCEPT_IF_I_SAY_SO;
-		virtual ~SoundInput() NOEXCEPT_IF_I_SAY_SO;
+		SoundInput(Stateful* _parent) noexcept;
+		virtual ~SoundInput() noexcept;
 
 		// return the currently connected sound source
-		SoundSource* SoundInput::getSource() const NOEXCEPT_IF_I_SAY_SO;
+		SoundSource* SoundInput::getSource() const noexcept;
 
 		// connect a new sound source
-		void setSource(SoundSource* _source) NOEXCEPT_IF_I_SAY_SO;
+		void setSource(SoundSource* _source) noexcept;
 
 	protected:
 

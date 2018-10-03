@@ -12,21 +12,21 @@ namespace flo {
 	struct NumberInput {
 
 		// create a NumberInput belonging to a NumberSource
-		NumberInput(NumberSource* _owner) NOEXCEPT_IF_I_SAY_SO;
+		NumberInput(NumberSource* _owner) noexcept;
 
 		// create a NumberInput belonging to a Stateful object
-		NumberInput(Stateful* _owner) NOEXCEPT_IF_I_SAY_SO;
+		NumberInput(Stateful* _owner) noexcept;
 
 		// create a NumberInput belonging to the global, stateless scope
 		// to be used as NumberInput(nullptr)
-		NumberInput(nullptr_t) NOEXCEPT_IF_I_SAY_SO;
+		NumberInput(nullptr_t) noexcept;
 
-		~NumberInput() NOEXCEPT_IF_I_SAY_SO;
+		~NumberInput() noexcept;
 
 		// Returns true if a given source would be safe to connect to.
 		// The source would be unsafe if it needed state information
 		// that is inaccessible to the context of this NumberInput
-		bool isSafeSource(const NumberSource* src) const NOEXCEPT_IF_I_SAY_SO;
+		bool isSafeSource(const NumberSource* src) const noexcept;
 
 		// will throw if _source is not safe (see isSafeSource())
 		// will not throw if given nullptr
@@ -39,15 +39,15 @@ namespace flo {
 		// or from sound processing objects, which shall be found as parents of some state
 		// in the state chain (accessed through the line of parents in the given state)
 		// this state is to be passed on as-is to preserve its full context
-		float getValue(const State* state, float default_value = 0) const NOEXCEPT_IF_I_SAY_SO;
+		float getValue(const State* state, float default_value = 0) const noexcept;
 
 	private:
 
-		void findAllStatefulSources(std::vector<const Stateful*>& sources) const NOEXCEPT_IF_I_SAY_SO;
+		void findAllStatefulSources(std::vector<const Stateful*>& sources) const noexcept;
 
-		void findAllStatefulDests(std::vector<const Stateful*>& dests) const NOEXCEPT_IF_I_SAY_SO;
+		void findAllStatefulDests(std::vector<const Stateful*>& dests) const noexcept;
 
-		bool findStatelessDest() const NOEXCEPT_IF_I_SAY_SO;
+		bool findStatelessDest() const noexcept;
 
 		NumberSource* owner_numbersource;
 		Stateful* owner_stateful;

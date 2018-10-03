@@ -13,7 +13,11 @@ namespace flo {
 	};
 
 	struct WaveGen : SoundSourceBase<WaveGenState> {
-		WaveGen() : phase(this), wavefunction(this), frequency(this) {
+		WaveGen() :
+			SoundSourceBase<WaveGenState>(true),
+			phase(this),
+			wavefunction(this),
+			frequency(this) {
 
 		}
 

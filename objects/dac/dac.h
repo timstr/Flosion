@@ -29,7 +29,7 @@ namespace flo {
 
 		// sf::SoundStream overrides
 
-		bool onGetData(Chunk& data) override;
+		bool onGetData(sf::SoundStream::Chunk& data) override;
 
 		void onSeek(sf::Time timeOffset) override;
 	};

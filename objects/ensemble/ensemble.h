@@ -18,7 +18,13 @@ namespace flo {
 	};
 
 	struct Ensemble : SoundSourceBase<EnsembleState> {
-		Ensemble() : input(this), num_voices(this), frequency(this), frequency_spread(this) {
+		Ensemble() : 
+			SoundSourceBase<EnsembleState>(false),
+			input(this),
+			num_voices(this),
+			frequency(this),
+			frequency_spread(this) {
+
 			for (int i = 0; i < max_voices; i++){
 				input.addKey(i);
 			}

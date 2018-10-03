@@ -33,7 +33,11 @@ namespace flo {
 	};
 
 	struct Convolver : SoundSourceBase<ConvolverState> {
-		Convolver() : function(this), function_length(this), input(this) {
+		Convolver() :
+			SoundSourceBase<ConvolverState>(true),
+			function(this),
+			function_length(this),
+			input(this) {
 
 		}
 

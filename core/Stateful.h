@@ -15,63 +15,68 @@ namespace flo {
 
 		// returns the current time speed
 		// this will be 1 in most cases, but some stateful objects may slow or speed up time
-		virtual double getTimeSpeed(const State* state_chain) const NOEXCEPT_IF_I_SAY_SO;
+		virtual double getTimeSpeed(const State* state_chain) const noexcept;
 
 		// returns the total elapsed time (in samples)
-		uint32_t getTime(const State* state_chain) const NOEXCEPT_IF_I_SAY_SO;
+		uint32_t getTime(const State* state_chain) const noexcept;
 
 
 		// returns true if this depends on s
-		bool hasDependency(const Stateful* s) const NOEXCEPT_IF_I_SAY_SO;
+		bool hasDependency(const Stateful* s) const noexcept;
 
 		// returns true if this immediately depends on s
-		bool hasImmediateDependency(const Stateful* s) const NOEXCEPT_IF_I_SAY_SO;
+		bool hasImmediateDependency(const Stateful* s) const noexcept;
 
 		// returns true if s depends on this
-		bool hasDependant(const Stateful* s) const NOEXCEPT_IF_I_SAY_SO;
+		bool hasDependant(const Stateful* s) const noexcept;
 
 		// returns true if s depends immediately on this
-		bool hasImmediateDependant(const Stateful* s) const NOEXCEPT_IF_I_SAY_SO;
+		bool hasImmediateDependant(const Stateful* s) const noexcept;
 
 
 		// register a stateful object on which this depends
-		void addDependency(Stateful* dependency) NOEXCEPT_IF_I_SAY_SO;
+		void addDependency(Stateful* dependency) noexcept;
 
 		// unregister a stateful object on which this depends
-		void removeDependency(Stateful* dependency) NOEXCEPT_IF_I_SAY_SO;
+		void removeDependency(Stateful* dependency) noexcept;
 
 
 		// add a new state mapped to by the immediate dependant and one of its states
-		virtual void addState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO = 0;
+		virtual void addState(const State* parent_state, const Stateful* dependant) noexcept = 0;
 
 		// remove a state mapped to by the immediate dependant and one of its states
-		virtual void removeState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO = 0;
+		virtual void removeState(const State* parent_state, const Stateful* dependant) noexcept = 0;
 
 		// reset a state mapped to by the immediate dependant and one of its states
-		virtual void resetState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO = 0;
+		virtual void resetState(const State* parent_state, const Stateful* dependant) noexcept = 0;
 
 		// add all own states to an immediate dependency, for example when swapping sources
-		virtual void addAllStatesTo(Stateful* dependency) const NOEXCEPT_IF_I_SAY_SO = 0;
+		virtual void addAllStatesTo(Stateful* dependency) const noexcept = 0;
 
 		// remove all own states from an immediate dependency, for example when swapping sources
-		virtual void removeAllStatesFrom(Stateful* dependency) const NOEXCEPT_IF_I_SAY_SO = 0;
+		virtual void removeAllStatesFrom(Stateful* dependency) const noexcept = 0;
 
 		// total number of own states
-		virtual std::size_t numStates() const NOEXCEPT_IF_I_SAY_SO = 0;
+		virtual std::size_t numStates() const noexcept = 0;
 
 		std::vector<Stateful*> dependencies;
 		std::vector<Stateful*> dependants;
 	};
+
+	// TODO: allow State to have a strongly typed awareness of its parent
+	// i.e. so that states can refer to them when needed, for example
+	// a WaveGeneratorState can reset differently depending on whether
+	// its owner WaveGenerator has synching turned on or off
 
 	// State holds all stateful information belonging to a Stateful object
 	struct State {
 		State(const State* _parent, const Stateful* _owner);
 		virtual ~State();
 
-		void performReset() NOEXCEPT_IF_I_SAY_SO;
+		void performReset() noexcept;
 
-		const State* getParentState() const NOEXCEPT_IF_I_SAY_SO;
-		const Stateful* getOwner() const NOEXCEPT_IF_I_SAY_SO;
+		const State* getParentState() const noexcept;
+		const Stateful* getOwner() const noexcept;
 
 		// the difference between the tentative time and saved time is used along with
 		// the getTimeSpeed() function of Stateful objects to give better estimates of
@@ -79,32 +84,32 @@ namespace flo {
 		// state chain
 
 		// move the tentative time forward
-		void advanceTime(uint32_t samples) NOEXCEPT_IF_I_SAY_SO;
+		void advanceTime(uint32_t samples) noexcept;
 
 		// set the tentative time since last saving
-		void setTimeSinceSave(uint32_t samples) NOEXCEPT_IF_I_SAY_SO;
+		void setTimeSinceSave(uint32_t samples) noexcept;
 
 		// save the tentative time to the total time
-		void saveTime() NOEXCEPT_IF_I_SAY_SO;
+		void saveTime() noexcept;
 
 		// go back to the last saved time
-		void revertToSavedTime() NOEXCEPT_IF_I_SAY_SO;
+		void revertToSavedTime() noexcept;
 
 		// set the saved time and tentative time to 'samples'
-		void setTotalTimeTo(uint32_t samples) NOEXCEPT_IF_I_SAY_SO;
+		void setTotalTimeTo(uint32_t samples) noexcept;
 
 		// returns the object's current time, in samples, as seen by itself
-		uint32_t getTime() const NOEXCEPT_IF_I_SAY_SO;
+		uint32_t getTime() const noexcept;
 
 		// returns the object's current time, in samples, as seen by another Stateful object
-		uint32_t getTimeAt(const Stateful* stateful) const NOEXCEPT_IF_I_SAY_SO;
+		uint32_t getTimeAt(const Stateful* stateful) const noexcept;
 
 		// returns the object's current time, in samples, relative to the root state
-		uint32_t getGlobalTime() const NOEXCEPT_IF_I_SAY_SO;
+		uint32_t getGlobalTime() const noexcept;
 
 	protected:
 		// must be overridden to reset the state to its initial condition
-		virtual void reset() NOEXCEPT_IF_I_SAY_SO = 0;
+		virtual void reset() noexcept = 0;
 
 	private:
 

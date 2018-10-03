@@ -19,7 +19,9 @@ namespace flo {
 	};
 
 	struct Sampler : SoundSourceBase<SamplerState> {
-		Sampler() : input(this) {
+		Sampler() : SoundSourceBase<SamplerState>(false),
+			input(this) {
+
 			length = SFREQ * 4;
 		}
 

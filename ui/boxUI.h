@@ -21,17 +21,18 @@ namespace fui {
 
 		void removeNumberWire(NumberWire& wire);
 
-	private:
-
-		bool onLeftClick(int clicks) override;
-
-		struct InputPanel;
-
+	protected:
 		std::vector<ui::Ref<Object>> m_objects;
 		std::vector<ui::Ref<NumberWire>> m_numberwires;
 		std::vector<ui::Ref<SoundWire>> m_soundwires;
 		ui::Ref<FreeElement> m_object_container;
 		ui::Ref<FreeElement> m_wire_container;
+
+	private:
+
+		bool onLeftClick(int clicks) override;
+
+		struct InputPanel;
 	};
 
 	// allows convenient clustering of objects and collapsing into a more compact view
@@ -49,6 +50,10 @@ namespace fui {
 	struct MainBox : Box {
 		MainBox();
 
+	private:
+		void render(sf::RenderWindow& rw) override;
+
+		void resizeToFit(vec2 screensize);
 	};
 
 } // namespace fui

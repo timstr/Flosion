@@ -88,7 +88,10 @@ namespace flo {
 
 	// TODO: rename to Resampler
 	struct TimeStretch : SoundSourceBase<TimeStretchState> {
-		TimeStretch() : input(this), speed(this) {
+		TimeStretch() : 
+			SoundSourceBase<TimeStretchState>(false),
+			input(this),
+			speed(this) {
 
 		}
 

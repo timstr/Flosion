@@ -49,6 +49,8 @@ namespace flo {
 			}
 		}
 
+		// TODO: is this much memory usage reeeaaallly necessary?
+
 		// for analysis
 		complex prev_l[max_window_size];	// phase/amp of last window, left channel
 		complex prev_r[max_window_size];	// phase/amp of last window, right channel
@@ -79,7 +81,11 @@ namespace flo {
 	};
 
 	struct PhaseVocoder : SoundSourceBase<PhaseVocoderState> {
-		PhaseVocoder() : input(this), timespeed(this) {
+		PhaseVocoder() : 
+			SoundSourceBase<PhaseVocoderState>(false),
+			input(this),
+			timespeed(this) {
+
 			window_size = max_window_size;
 		}
 

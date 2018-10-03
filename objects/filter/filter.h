@@ -33,7 +33,11 @@ namespace flo {
 
 
 	struct Filter : SoundSourceBase<FilterState> {
-		Filter() : input(this), frequency_out(this), amplitude_in(this) {
+		Filter() : 
+			SoundSourceBase<FilterState>(true),
+			input(this),
+			frequency_out(this),
+			amplitude_in(this) {
 
 		}
 		~Filter(){

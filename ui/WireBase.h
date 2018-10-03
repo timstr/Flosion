@@ -2,8 +2,7 @@
 
 #include "boxUI.h"
 #include "objectUI.h"
-//#include <cassert>
-#define assert(x) do { if (!static_cast<bool>(x)) { throw std::runtime_error("Assertion failure!"); } } while (false);
+#include <cassert>
 
 namespace fui {
 

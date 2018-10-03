@@ -2,10 +2,7 @@
 
 #include <array>
 #include <stdexcept>
-//#include <cassert>
-#define assert(x) do { if (!static_cast<bool>(x)) { throw std::runtime_error("Assertion failure!"); } } while (false);
-
-#define NOEXCEPT_IF_I_SAY_SO
+#include <cassert>
 
 namespace flo {
 
@@ -15,77 +12,77 @@ namespace flo {
 	struct Sample {
 		float l, r;
 
-		constexpr Sample() NOEXCEPT_IF_I_SAY_SO :
+		constexpr Sample() noexcept :
 			l(0.0f), r(0.0f) {
 
 		}
-		constexpr Sample(float _l, float _r) NOEXCEPT_IF_I_SAY_SO :
+		constexpr Sample(float _l, float _r) noexcept :
 			l(_l), r(_r) {
 		}
 	};
 
-	constexpr Sample& operator+=(Sample& l, const Sample& r) NOEXCEPT_IF_I_SAY_SO {
+	constexpr Sample& operator+=(Sample& l, const Sample& r) noexcept {
 		l.l += r.l;
 		l.r += r.r;
 		return l;
 	}
-	constexpr Sample& operator-=(Sample& l, const Sample& r) NOEXCEPT_IF_I_SAY_SO {
+	constexpr Sample& operator-=(Sample& l, const Sample& r) noexcept {
 		l.l -= r.l;
 		l.r -= r.r;
 		return l;
 	}
-	constexpr Sample& operator*=(Sample& l, float r) NOEXCEPT_IF_I_SAY_SO {
+	constexpr Sample& operator*=(Sample& l, float r) noexcept {
 		l.l *= r;
 		l.r *= r;
 		return l;
 	}
-	constexpr Sample& operator/=(Sample& l, float r) NOEXCEPT_IF_I_SAY_SO {
+	constexpr Sample& operator/=(Sample& l, float r) noexcept {
 		l.l /= r;
 		l.r /= r;
 		return l;
 	}
 
-	constexpr Sample operator+(const Sample& l, const Sample& r) NOEXCEPT_IF_I_SAY_SO {
+	constexpr Sample operator+(const Sample& l, const Sample& r) noexcept {
 		return Sample(l.l + r.l, l.r + r.r);
 	}
-	constexpr Sample operator-(const Sample& l, const Sample& r) NOEXCEPT_IF_I_SAY_SO {
+	constexpr Sample operator-(const Sample& l, const Sample& r) noexcept {
 		return Sample(l.l - r.l, l.r - r.r);
 	}
-	constexpr Sample operator-(const Sample& s) NOEXCEPT_IF_I_SAY_SO {
+	constexpr Sample operator-(const Sample& s) noexcept {
 		return Sample(-s.l, -s.r);
 	}
-	constexpr Sample operator*(const Sample& l, float r) NOEXCEPT_IF_I_SAY_SO {
+	constexpr Sample operator*(const Sample& l, float r) noexcept {
 		return Sample(l.l * r, l.r * r);
 	}
-	constexpr Sample operator*(float l, const Sample& r) NOEXCEPT_IF_I_SAY_SO {
+	constexpr Sample operator*(float l, const Sample& r) noexcept {
 		return Sample(l * r.l, l * r.r);
 	}
-	constexpr Sample operator/(const Sample& l, float r) NOEXCEPT_IF_I_SAY_SO {
+	constexpr Sample operator/(const Sample& l, float r) noexcept {
 		return Sample(l.l / r, l.r / r);
 	}
 
 	struct SoundChunk {
-		constexpr SoundChunk() NOEXCEPT_IF_I_SAY_SO  {
+		constexpr SoundChunk() noexcept  {
 			silence();
 		}
 
-		constexpr Sample& operator[](size_t i) NOEXCEPT_IF_I_SAY_SO {
+		constexpr Sample& operator[](size_t i) noexcept {
 			assert(i < size());
 			return data[i];
 		}
 
-		constexpr const Sample& operator[](size_t i) const NOEXCEPT_IF_I_SAY_SO {
+		constexpr const Sample& operator[](size_t i) const noexcept {
 			assert(i < size());
 			return data[i];
 		}
 
-		constexpr void silence() NOEXCEPT_IF_I_SAY_SO {
+		constexpr void silence() noexcept {
 			for (Sample& s : data){
 				s = Sample(0.0f, 0.0f);
 			}
 		}
 
-		constexpr std::size_t size() const NOEXCEPT_IF_I_SAY_SO {
+		constexpr std::size_t size() const noexcept {
 			return CHUNK_SIZE;
 		}
 

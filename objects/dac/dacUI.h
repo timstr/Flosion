@@ -1,4 +1,5 @@
 #pragma once
+#include <GUI/helpers/ToggleButton.hpp>
 #include "FlosionUI.h"
 #include "DAC.h"
 
@@ -9,34 +10,17 @@ namespace fui {
 			setMinSize({150, 150});
 			write("DAC", getFont());
 			add<SoundInput>(thisAs<Object>(), dac.input.input, "Sound Input");
-			add<PlayButton>(*this);
+			add<ui::ToggleButton>(false, getFont(), [this](bool val){
+				if (val){
+					dac.play();
+				} else {
+					dac.pause();
+				}
+			}, std::pair<std::string, std::string>{"pause", "play"});
 			add<AmpMeter>(*this);
 		}
 
 	private:
-
-		struct PlayButton : ui::InlineElement {
-			PlayButton(DACObject& _parent) :
-				parent(_parent) {
-				setMinSize({50, 50});
-				caption = add<ui::Text>("Play", getFont());
-			}
-
-			bool onLeftClick(int clicks) override {
-				if (parent.dac.isPlaying()){
-					parent.dac.pause();
-					caption->setText("Play");
-				} else {
-					parent.dac.play();
-					caption->setText("Pause");
-				}
-				return true;
-			}
-
-			private:
-			ui::Ref<ui::Text> caption;
-			DACObject& parent;
-		};
 
 		struct AmpMeter : ui::InlineElement {
 			AmpMeter(DACObject& _parent) : parent(_parent){

@@ -4,11 +4,11 @@
 
 namespace flo {
 
-	NumberSource::NumberSource(Stateful* _parent) NOEXCEPT_IF_I_SAY_SO
+	NumberSource::NumberSource(Stateful* _parent) noexcept
 		: parent(_parent) {
 		
 	}
-	NumberSource::~NumberSource() NOEXCEPT_IF_I_SAY_SO {
+	NumberSource::~NumberSource() noexcept {
 		for (auto& d : dependants){
 			d->setSource(nullptr);
 		}
@@ -16,7 +16,7 @@ namespace flo {
 			in->setSource(nullptr);
 		}
 	}
-	void NumberSource::findAllStatefulSources(std::vector<const Stateful*>& sources) const NOEXCEPT_IF_I_SAY_SO {
+	void NumberSource::findAllStatefulSources(std::vector<const Stateful*>& sources) const noexcept {
 		if (parent){
 			sources.push_back(parent);
 		}
@@ -24,12 +24,12 @@ namespace flo {
 			inputs[i]->findAllStatefulSources(sources);
 		}
 	}
-	void NumberSource::findAllStatefulDests(std::vector<const Stateful*>& dests) const NOEXCEPT_IF_I_SAY_SO {
+	void NumberSource::findAllStatefulDests(std::vector<const Stateful*>& dests) const noexcept {
 		for (int i = 0; i < dependants.size(); i++){
 			dependants[i]->findAllStatefulDests(dests);
 		}
 	}
-	bool NumberSource::findStatelessDest() const NOEXCEPT_IF_I_SAY_SO {
+	bool NumberSource::findStatelessDest() const noexcept {
 		for (int i = 0; i < dependants.size(); i++){
 			if (dependants[i]->findStatelessDest()){
 				return true;
@@ -38,20 +38,20 @@ namespace flo {
 		return false;
 	}
 
-	PureFunction::PureFunction() NOEXCEPT_IF_I_SAY_SO : NumberSource(nullptr){
+	PureFunction::PureFunction() noexcept : NumberSource(nullptr){
 
 	}
 
-	Constant::Constant(float _value) NOEXCEPT_IF_I_SAY_SO {
+	Constant::Constant(float _value) noexcept {
 		value = _value;
 	}
-	void Constant::setValue(float val) NOEXCEPT_IF_I_SAY_SO {
+	void Constant::setValue(float val) noexcept {
 		value = val;
 	}
-	float Constant::getValue() const NOEXCEPT_IF_I_SAY_SO {
+	float Constant::getValue() const noexcept {
 		return value;
 	}
-	float Constant::evaluate(const State* state) const NOEXCEPT_IF_I_SAY_SO {
+	float Constant::evaluate(const State* state) const noexcept {
 		return value;
 	}
 }

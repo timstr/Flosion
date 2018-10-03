@@ -78,6 +78,18 @@ namespace flo {
 			}
 		};
 
+		struct DecibelsToVolume : UnaryPureFunction {
+			float evaluate(const State* state) const noexcept override {
+				return powf(10.0f, 0.05f * input.getValue(state));
+			}
+		};
+
+		struct VolumeToDecibels : UnaryPureFunction {
+			float evaluate(const State* state) const noexcept override {
+				return 20.0f * log10f(input.getValue(state));
+			}
+		};
+
 		struct Gaussian : PureFunction {
 			Gaussian() : input(this), center(this), width(this), height(this) {
 

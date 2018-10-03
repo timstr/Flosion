@@ -19,7 +19,9 @@ namespace flo {
 	};
 
 	struct Audio : SoundSourceBase<AudioState> {
-		Audio(){
+		Audio() :
+			SoundSourceBase<AudioState>(true) {
+
 			loaded = true;
 		}
 		~Audio(){

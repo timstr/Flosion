@@ -84,21 +84,32 @@ int main() {
 	DISABLE_DENORMALS;
 
 	// Testing:
-	/*flo::Audio audio;
-	flo::TimeStretch timestretch;
-	flo::SoundResult soundres;
-	flo::SoundChunk chunk;
+	/*using namespace std::chrono_literals;
 
-	timestretch.input.setSource(&audio);
-	soundres.input.setSource(&timestretch);
-	//dac.play();
-	soundres.getNextChunk(chunk);
-	soundres.input.setSource(nullptr);*/
+	flo::Audio audio;
+	flo::PhaseVocoder pv;
+	flo::Constant speed;
+	flo::DAC dac;
+
+	pv.input.setSource(&audio);
+	pv.timespeed.setSource(&speed);
+	dac.input.input.setSource(&pv);
+	speed.setValue(0.1f);
+	audio.loadFromFile("C:/Users/Tim/Music/sounds/1981.ogg");
+	std::this_thread::sleep_for(3s);
+
+	dac.play();
+	std::this_thread::sleep_for(5s);
+	speed.setValue(0.01f);
+	std::this_thread::sleep_for(30s);
+	dac.pause();
+	std::this_thread::sleep_for(1s);
+
+	dac.input.input.setSource(nullptr);*/
+
 
 	ui::init(1000, 700, "Flosion", 30);
-
 	ui::root().add<fui::FlosionUI>();
-
 	ui::run();
 
 	return 0;

@@ -3,16 +3,16 @@
 
 namespace flo {
 
-	SingleInput::SingleInput(Stateful* parent) NOEXCEPT_IF_I_SAY_SO :
+	SingleInput::SingleInput(Stateful* parent) noexcept :
 		SoundInput(parent) {
 		
 	}
 
-	SingleInput::~SingleInput() NOEXCEPT_IF_I_SAY_SO{
+	SingleInput::~SingleInput() noexcept{
 		setSource(nullptr);
 	}
 
-	void SingleInput::getNextChunk(SoundChunk& chunk, const State* state) NOEXCEPT_IF_I_SAY_SO {
+	void SingleInput::getNextChunk(SoundChunk& chunk, const State* state) noexcept {
 		if (m_source){
 			m_source->getNextChunk(chunk, state, this);
 		} else {
@@ -20,7 +20,7 @@ namespace flo {
 		}
 	}
 
-	void SingleInput::addState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO {
+	void SingleInput::addState(const State* parent_state, const Stateful* dependant) noexcept {
 		assert(dependant == m_parent);
 		assert(std::find(dependants.begin(), dependants.end(), dependant) != dependants.end());
 		assert(m_statemap.find(parent_state) == m_statemap.end());
@@ -30,7 +30,7 @@ namespace flo {
 		}
 	}
 
-	void SingleInput::removeState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO {
+	void SingleInput::removeState(const State* parent_state, const Stateful* dependant) noexcept {
 		assert(dependant == m_parent);
 		assert(std::find(dependants.begin(), dependants.end(), dependant) != dependants.end());
 		auto it = m_statemap.find(parent_state);
@@ -41,7 +41,7 @@ namespace flo {
 		}
 	}
 
-	void SingleInput::resetState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO {
+	void SingleInput::resetState(const State* parent_state, const Stateful* dependant) noexcept {
 		assert(dependant == m_parent);
 		assert(std::find(dependants.begin(), dependants.end(), dependant) != dependants.end());
 		assert(m_statemap.find(parent_state) != m_statemap.end());
@@ -50,21 +50,21 @@ namespace flo {
 		}
 	}
 
-	void SingleInput::addAllStatesTo(Stateful* dependency) const NOEXCEPT_IF_I_SAY_SO {
+	void SingleInput::addAllStatesTo(Stateful* dependency) const noexcept {
 		assert(std::find(dependencies.begin(), dependencies.end(), dependency) != dependencies.end());
 		for (const auto& state : m_statemap) {
 			dependency->addState(state, this);
 		}
 	}
 
-	void SingleInput::removeAllStatesFrom(Stateful* dependency) const NOEXCEPT_IF_I_SAY_SO {
+	void SingleInput::removeAllStatesFrom(Stateful* dependency) const noexcept {
 		assert(std::find(dependencies.begin(), dependencies.end(), dependency) != dependencies.end());
 		for (const auto& state : m_statemap) {
 			dependency->removeState(state, this);
 		}
 	}
 
-	std::size_t SingleInput::numStates() const NOEXCEPT_IF_I_SAY_SO {
+	std::size_t SingleInput::numStates() const noexcept {
 		return m_statemap.size();
 	}
 

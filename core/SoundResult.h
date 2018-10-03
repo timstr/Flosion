@@ -12,35 +12,35 @@ namespace flo {
 	// SoundSources. It is not intended for use inside a SoundSource,
 	// but as the end point in sound processing
 	struct SoundResult : Stateful {
-		SoundResult() NOEXCEPT_IF_I_SAY_SO;
+		SoundResult() noexcept;
 
-		void getNextChunk(SoundChunk& chunk) NOEXCEPT_IF_I_SAY_SO;
+		void getNextChunk(SoundChunk& chunk) noexcept;
 
-		void reset() NOEXCEPT_IF_I_SAY_SO;
+		void reset() noexcept;
 
-		void setSource(SoundSource* source) NOEXCEPT_IF_I_SAY_SO;
+		void setSource(SoundSource* source) noexcept;
 
-		std::size_t getTime() const NOEXCEPT_IF_I_SAY_SO;
+		std::size_t getTime() const noexcept;
 
 		SingleInput input;
 
 	private:
 
-		void addState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO override;
+		void addState(const State* parent_state, const Stateful* dependant) noexcept override;
 
-		void removeState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO override;
+		void removeState(const State* parent_state, const Stateful* dependant) noexcept override;
 
-		void resetState(const State* parent_state, const Stateful* dependant) NOEXCEPT_IF_I_SAY_SO override;
+		void resetState(const State* parent_state, const Stateful* dependant) noexcept override;
 
-		void addAllStatesTo(Stateful* dependency) const NOEXCEPT_IF_I_SAY_SO override;
+		void addAllStatesTo(Stateful* dependency) const noexcept override;
 
-		void removeAllStatesFrom(Stateful* dependency) const NOEXCEPT_IF_I_SAY_SO override;
+		void removeAllStatesFrom(Stateful* dependency) const noexcept override;
 
-		std::size_t numStates() const NOEXCEPT_IF_I_SAY_SO override;
+		std::size_t numStates() const noexcept override;
 
 		struct RootState : State {
 			using State::State;
-			void reset() NOEXCEPT_IF_I_SAY_SO override {
+			void reset() noexcept override {
 
 			}
 		} state;

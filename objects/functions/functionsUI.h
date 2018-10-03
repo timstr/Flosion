@@ -107,6 +107,34 @@ namespace fui {
 	}; 
 	RegisterFactoryObject(SquareWaveObject, "square wave", "pulse wave");
 
+	// decibels to volume
+	struct DecibelsToVolumeObject : Object {
+		DecibelsToVolumeObject(){
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_dbtov.input, "Input (dB)");
+			add<NumberOutput>(self, m_dbtov, "Output (Volume)");
+			add<ui::Text>("dB to Volume", getFont());
+		}
+
+	private:
+		flo::functions::DecibelsToVolume m_dbtov;
+	};
+	RegisterFactoryObject(DecibelsToVolumeObject, "decibels to volume", "dbtov");
+
+	// volume to decibels
+	struct VolumeToDecibelsObject : Object {
+		VolumeToDecibelsObject(){
+			auto self = thisAs<Object>();
+			add<NumberInput>(self, m_vtodb.input, "Input (Volume)");
+			add<NumberOutput>(self, m_vtodb, "Output (Decibels)");
+			add<ui::Text>("Volume to dB", getFont());
+		}
+
+	private:
+		flo::functions::VolumeToDecibels m_vtodb;
+	};
+	RegisterFactoryObject(VolumeToDecibelsObject, "volume to decibels", "vtodb");
+
 	// gaussian bell curve
 	struct GaussianObject : Object {
 		GaussianObject(){
