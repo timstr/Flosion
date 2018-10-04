@@ -264,8 +264,9 @@ namespace fui {
 
 		void moveTo(vec2 pos){
 			if (abs(pos.x - left()) + abs(pos.y - top()) > 0.0001){
-				setPos(pos);
-				wire()->updateVertices();
+				auto w = wire();
+				setPos(pos - w->pos());
+				w->updateVertices();
 			}
 		}
 

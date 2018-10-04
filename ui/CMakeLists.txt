@@ -6,6 +6,7 @@ set(flosion-ui-headers
 	Font.h
 	numberwireUI.h
 	objectUI.h
+	ObjectFactory.h
 	soundwireUI.h
 	WireBase.h
 )

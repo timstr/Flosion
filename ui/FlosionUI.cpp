@@ -1,5 +1,5 @@
-#include "FlosionUI.h"
-#include "FlosionUI.h"
+#include "flosionUI.h"
+#include "ObjectFactory.h"
 
 namespace fui {
 
@@ -14,18 +14,24 @@ namespace fui {
 
 		vec2 mouse = localMousePos();
 		vec2 delta = {0, 0};
+
+		if (mouse.x < 0 || mouse.x >= width() || mouse.y < 0 || mouse.y >= height() || !ui::programInFocus()){
+			mouse_timestamp = -10.0f;
+			return;
+		}
+
 		bool bordermouse = false;
-		if (mouse.x >= 0.0f && mouse.x < border){
+		if (mouse.x < border){
 			delta.x = border - mouse.x;
 			bordermouse = true;
-		} else if (mouse.x < width() && mouse.x > width() - border){
+		} else if (mouse.x > width() - border){
 			delta.x = width() - border - mouse.x;
 			bordermouse = true;
 		}
-		if (mouse.y >= 0.0f && mouse.y < border){
+		if (mouse.y < border){
 			delta.y = border - mouse.y;
 			bordermouse = true;
-		} else if (mouse.y < height() && mouse.y > height() - border){
+		} else if (mouse.y > height() - border){
 			delta.y = height() - border - mouse.y;
 			bordermouse = true;
 		}

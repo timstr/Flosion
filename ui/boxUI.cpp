@@ -1,7 +1,9 @@
 #include "boxUI.h"
 #include "Font.h"
-#include "FlosionUI.h"
+#include "ObjectFactory.h"
 #include <GUI/Helpers.hpp>
+#include <numberwireUI.h>
+#include <soundwireUI.h>
 
 namespace fui {
 
@@ -164,6 +166,39 @@ namespace fui {
 	const int Box::InputPanel::panel_max_results = 10;
 
 
+	void Box::shiftContents(vec2 delta)	{
+		for (const auto& obj: m_objects){
+			obj->setLeft(obj->left() + delta.x);
+			obj->setTop(obj->top() + delta.y);
+		}
+		for (const auto& wire: m_numberwires){
+			wire->setPos(wire->pos() + delta);
+		}
+		for (const auto& wire: m_soundwires){
+			wire->setPos(wire->pos() + delta);
+		}
+	}
+
+	std::pair<vec2, vec2> Box::getContentBounds() {
+		if (m_objects.empty()){
+			return {{0, 0}, {0, 0}};
+		}
+
+		vec2 minp = m_objects.front()->pos();
+		vec2 maxp = minp;
+
+		for (const auto& obj : m_objects){
+			vec2 tl = obj->pos();
+			vec2 br = tl + obj->size();
+			minp.x = std::min(minp.x, tl.x);
+			minp.y = std::min(minp.y, tl.y);
+			maxp.x = std::max(maxp.x, br.x);
+			maxp.y = std::max(maxp.y, br.y);
+		}
+
+		return {minp, maxp};
+	}
+
 	bool Box::onLeftClick(int clicks) {
 		if (clicks == 2){
 			auto input = add<InputPanel>(*this);
@@ -175,7 +210,7 @@ namespace fui {
 		return true;
 	}
 
-	Box::Box() {
+	Box::Box(){
 		m_object_container = add<ui::FreeElement>();
 		m_wire_container = add<ui::FreeElement>();
 	}
@@ -224,12 +259,70 @@ namespace fui {
 		}
 	}
 
+	CollapsibleBox::CollapsibleBox() :
+		m_iscollapsed(false) {
+		setMinWidth(100);
+		m_titlebar = add<ui::BlockElement>();
+		m_titlebar->setBackgroundColor(sf::Color(0xCC333380));
+		m_titlebar->setBorderRadius(3);
+		m_titlebar->write("Box!", getFont(), sf::Color(0xFF), 15, ui::TextStyle::Bold | ui::TextStyle::Italic);
+		m_titlebar->setMargin(2);
+		m_titlebar->setContentAlign(ui::ContentAlign::Center);
+		m_box = add<Box>();
+		m_box->setLayoutStyle(ui::LayoutStyle::Block);
+		m_box->setMinHeight(100);
+		m_box->setBackgroundColor(sf::Color(0x40404080));
+		m_box->setMargin(2);
+	}
+
 	void CollapsibleBox::collapse() {
 		// TODO
+		if (m_iscollapsed){
+			return;
+		}
+		m_iscollapsed = true;
+		release(m_box);
 	}
 
 	void CollapsibleBox::expand() {
 		// TODO
+		if (!m_iscollapsed){
+			return;
+		}
+		m_iscollapsed = false;
+		adopt(m_box);
+	}
+
+	void CollapsibleBox::render(sf::RenderWindow& rw) {
+		if (!m_iscollapsed){
+			auto [minp, maxp] = m_box->getContentBounds();
+			const vec2 margin = {30.0f, 30.0f};
+			if (abs(minp.x - maxp.x) + abs(minp.y - maxp.y) > 0){
+				vec2 delta = margin - minp;
+				m_box->shiftContents(delta);
+				setPos(pos() - delta);
+			}
+			m_box->setSize(maxp - minp + 2.0f * margin, true);
+			m_titlebar->setWidth(m_box->width(), true);
+		}
+		Element::render(rw);
+	}
+
+	bool CollapsibleBox::onLeftClick(int clicks) {
+		if (clicks == 2){
+			if (m_iscollapsed){
+				expand();
+			} else {
+				collapse();
+			}
+			return true;
+		}
+		startDrag();
+		return true;
+	}
+
+	void CollapsibleBox::onLeftRelease(){
+		stopDrag();
 	}
 
 	MainBox::MainBox() {
@@ -252,24 +345,7 @@ namespace fui {
 		setLeft(left() - shift_x);
 		setTop(top() - shift_y);
 
-		for (const auto& obj: m_objects){
-			obj->setLeft(obj->left() + shift_x);
-			obj->setTop(obj->top() + shift_y);
-		}
-		for (const auto& wire: m_numberwires){
-			wire->head()->setLeft(wire->head()->left() + shift_x);
-			wire->head()->setTop(wire->head()->top() + shift_y);
-			wire->tail()->setLeft(wire->tail()->left() + shift_x);
-			wire->tail()->setTop(wire->tail()->top() + shift_y);
-			wire->updateVertices();
-		}
-		for (const auto& wire: m_soundwires){
-			wire->head()->setLeft(wire->head()->left() + shift_x);
-			wire->head()->setTop(wire->head()->top() + shift_y);
-			wire->tail()->setLeft(wire->tail()->left() + shift_x);
-			wire->tail()->setTop(wire->tail()->top() + shift_y);
-			wire->updateVertices();
-		}
+		shiftContents({shift_x, shift_y});
 
 		// if the mainbox's bottom right corner is left or above the window's bottom
 		// right corner, simply resize the mainbox by the difference

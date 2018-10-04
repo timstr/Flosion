@@ -23,6 +23,7 @@
 #include "convolverUI.h"
 #include "distortionUI.h"
 #include "wavetableUI.h"
+#include "FlosionUI.h"
 
 #include <iostream>
 #include <iomanip>
@@ -78,6 +79,8 @@
 // - consider /Oi
 // - consider /arch:SSE /arch:SSE2 /arch:AVX /arch:AVX2
 // - https://docs.microsoft.com/en-us/cpp/build/reference/profile-guided-optimizations?view=vs-2017
+
+// TODO: add graphs back (in a safe and clean way)
 
 int main() {
 
