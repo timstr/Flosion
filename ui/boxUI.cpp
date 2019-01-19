@@ -18,6 +18,9 @@ namespace fui {
 			setBorderRadius(5);
 
 			auto onSubmit = [this](const std::wstring& str){
+				// TODO: allow arithmetic expressions
+				// TODO: allow ranges, values, and names of variable to be specified
+				// TODO: consider using Boost Spirit to create parsers for the above
 				if (!createObject({ str.begin(), str.end() })){
 					createObject(first_result);
 				}

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "NumberSource.h"
 #include "Sample.h"
 #include <math.h>
 #include "pi.h"

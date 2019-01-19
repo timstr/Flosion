@@ -8,7 +8,7 @@
 
 namespace flo {
 
-	const unsigned int max_window_size = 1 << 13;
+	const unsigned int max_window_size = 1 << 17;
 
 	// TODO: override time speed function
 	// TODO: phase locking
@@ -86,7 +86,7 @@ namespace flo {
 			input(this),
 			timespeed(this) {
 
-			window_size = max_window_size;
+			window_size = 8192;
 		}
 
 		void renderChunk(SoundChunk& buffer, PhaseVocoderState& state) override {
@@ -94,8 +94,18 @@ namespace flo {
 			fillOutBuffer(buffer, window_size, state);
 		}
 
-		void setWindowSize(unsigned int size){
-			if (size == 256 || size == 512 || size == 1024 || size == 2048 || size == 4096 || size == 8192){
+		void setWindowSize(uint32_t size){
+			if (size == 256 ||
+				size == 512 ||
+				size == 1024 ||
+				size == 2048 ||
+				size == 4096 ||
+				size == 8192 ||
+				size == 16384 ||
+				size == 32768 ||
+				size == 1<<16 ||
+				size == 1<<17){
+
 				window_size = size;
 			}
 		}

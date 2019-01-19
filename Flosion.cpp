@@ -82,6 +82,8 @@
 
 // TODO: add graphs back (in a safe and clean way)
 
+// TODO: allow text comments to be added free-floating or to a processing object
+
 int main() {
 
 	DISABLE_DENORMALS;

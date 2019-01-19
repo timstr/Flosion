@@ -16,7 +16,7 @@ namespace fui {
 				} else {
 					dac.pause();
 				}
-			}, std::pair<std::string, std::string>{"pause", "play"});
+			}, std::pair<std::string, std::string>{"play", "pause"});
 			add<AmpMeter>(*this);
 		}
 

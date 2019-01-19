@@ -72,7 +72,7 @@ namespace fui {
 	// which contains a uniquely named RegisterObject of the provided type.
 	// names are converted to lower case.
 	// Usage:
-	// struct struct CrazyCoolObject : fui::Object { ... };
+	// struct CrazyCoolObject : fui::Object { /* ... */ };
 	// RegisterObject(CrazyCoolObject, "CrazyCoolObject", "crazyobject", "coolObject")
 	#ifndef RegisterFactoryObject
 	#define RegisterFactoryObject(objectType, ...) \
