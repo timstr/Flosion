@@ -1,34 +1,4 @@
-#include "floatconfig.h"
-
-#include "Sample.h"
-
 #include <SFML/Graphics.hpp>
-#include <math.h>
-#include "filebrowser.h"
-#include <chrono>
-
-#include <GUI/GUI.hpp>
-
-#include "constantsUI.h"
-#include "functionsUI.h"
-#include "dacUI.h"
-#include "audioUI.h"
-#include "wavegenUI.h"
-#include "timestretchUI.h"
-#include "samplerUI.h"
-#include "ensembleUI.h"
-#include "splineUI.h"
-#include "filterUI.h"
-#include "phasevocoderUI.h"
-#include "convolverUI.h"
-#include "distortionUI.h"
-#include "wavetableUI.h"
-#include "FlosionUI.h"
-
-#include <iostream>
-#include <iomanip>
-
-#include "fft.h"
 
 // TODO: update to new gui
 // TODO: rethink sound processing design
@@ -86,8 +56,6 @@
 
 int main() {
 
-	DISABLE_DENORMALS;
-
 	// Testing:
 	/*using namespace std::chrono_literals;
 
@@ -112,10 +80,11 @@ int main() {
 
 	dac.input.input.setSource(nullptr);*/
 
-
+    /*
 	ui::init(1000, 700, "Flosion", 30);
 	ui::root().add<fui::FlosionUI>();
 	ui::run();
+    */
 
 	return 0;
 }
