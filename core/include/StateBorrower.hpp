@@ -1,6 +1,5 @@
 #pragma once
 
-#include <StateUser.hpp>
 #include <StateAllocator.hpp>
 
 #include <memory>
@@ -9,7 +8,7 @@ namespace flo {
 
     class StateOwner;
 
-    class StateBorrower : public StateUser {
+    class StateBorrower {
     public:
         virtual std::unique_ptr<StateAllocator> makeAllocater() const = 0;
 

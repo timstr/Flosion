@@ -20,8 +20,9 @@ add_subdirectory(core)
 # add_subdirectory(test)
 
 target_link_libraries(flosion
+	PUBLIC
 	tims-gui
-	flosion-core
+	flosion_core
 #	flosion-ui
 #	flosion-util
 #	flosion-objects
@@ -53,4 +54,7 @@ endif()
 if(WIN32)
 	# turn warning C4715 ("not all control paths return a value") into an error
 	add_definitions(/we4715)
+
+	# disable warning C4250 ("class X inherits virtual member function Y via dominance")
+	add_definitions(/wd4250)
 endif()

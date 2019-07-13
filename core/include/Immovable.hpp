@@ -3,6 +3,7 @@
 namespace flo {
 
     class Immovable {
+    public:
         Immovable() noexcept = default;
         ~Immovable() noexcept = default;
 

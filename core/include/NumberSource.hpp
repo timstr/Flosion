@@ -2,25 +2,19 @@
 
 #include <Immovable.hpp>
 
-namespace flo::sound {
-
-    class SoundState;
-
-} // namespace flo::sound
-
-namespace flo::number {
+namespace flo {
 
     class NumberSource : private Immovable {
     public:
 
-        using EvaluationFunction = double(*)(const NumberSource*, const sound::SoundState*) noexcept;
+        using EvaluationFunction = double(*)(const NumberSource*, const SoundState*) noexcept;
 
         NumberSource(EvaluationFunction) noexcept;
 
-        void evaluate(const sound::SoundState* context) const noexcept;
+        void evaluate(const SoundState* context) const noexcept;
 
     private:
         EvaluationFunction m_evalFn;
     };
 
-} // namespace flo::number
+} // namespace flo

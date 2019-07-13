@@ -2,22 +2,25 @@
 
 #include <State.hpp>
 
-namespace flo::sound {
+namespace flo {
 
-    class StateOwner;
+    class SoundNode;
+
+    // TODO: does every SoundState belong to a StateTable?
+    // If so, consider making owner a StateTable* instead
 
     class SoundState : public State {
     public:
-        SoundState(StateOwner* owner, const SoundState* dependentState) noexcept;
+        SoundState(SoundNode* owner, const SoundState* dependentState) noexcept;
 
         const SoundState* getDependentState() const noexcept;
 
-        StateOwner& getOwner() noexcept;
-        const StateOwner& getOwner() const noexcept;
+        SoundNode& getOwner() noexcept;
+        const SoundNode& getOwner() const noexcept;
         
     private:
-        StateOwner* m_owner;
+        SoundNode* m_owner;
         const SoundState* m_dependentState;
     };
 
-} // namespace flo::sound
+} // namespace flo

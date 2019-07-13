@@ -3,7 +3,7 @@
 #include <NumberSource.hpp>
 #include <StateBorrower.hpp>
 
-namespace flo::number {
+namespace flo {
 
     class StatefulNumberSource : public NumberSource, public StateBorrower {
     public:
