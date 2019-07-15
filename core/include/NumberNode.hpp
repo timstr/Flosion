@@ -30,11 +30,11 @@ namespace flo {
 
     */
 
-    class SoundNetwork;
+    class Network;
 
     class NumberNode : private Immovable {
     public:
-        NumberNode(SoundNetwork* network);
+        NumberNode(Network* network);
 
         bool canAddDependency(const NumberNode*) const noexcept;
         void addDependency(NumberNode* node);
@@ -50,7 +50,7 @@ namespace flo {
         bool hasDependency(const NumberNode*) const noexcept;
 
     private:
-        SoundNetwork* m_network;
+        Network* m_network;
         std::vector<NumberNode*> m_dependents;
         std::vector<NumberNode*> m_dependencies;
     };

@@ -10,9 +10,9 @@ namespace flo {
     class SoundInput;
 
     template<typename SoundStateType>
-    class SoundSourceTemplate : public SoundSource, public StateTable {
+    class SoundSourceTemplate : public SoundSource {
     public:
-        SoundSourceTemplate(SoundNetwork* network, Type type);
+        SoundSourceTemplate(Controllability, TimeSync);
 
         virtual void renderNextChunk(SoundChunk& chunk, SoundStateType* state) = 0;
 

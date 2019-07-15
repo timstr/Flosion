@@ -12,9 +12,10 @@ namespace flo {
      * play to the speakers, to write to a file, or for use by advanced
      * sound nodes which contain nested networks.
      */
-    class SoundResult final : public SoundNode {
+    class SoundResult final : public OSoundNode {
     public:
-        SoundResult(SoundNetwork*);
+        SoundResult();
+        ~SoundResult();
 
         void getNextChunk(SoundChunk&);
 
@@ -27,13 +28,6 @@ namespace flo {
 
     private:
         SingleSoundInput m_input;
-
-        void addStateFor(const SoundNode* node, const SoundState* state) override final;
-        void removeStateFor(const SoundNode* node, const SoundState* state) override final;
-        void resetStateFor(const SoundNode* node, const SoundState* state) override final;
-
-        void onStateMoved(const SoundNode* node, const SoundState* from, const SoundState* to) override final;
-
     };
 
 } // namespace flo

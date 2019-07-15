@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.10.0)
 set(flosion_core_headers
 	include/Immovable.hpp
 	include/MultiSoundInput.hpp
+	include/Network.hpp
 	include/NumberInput.hpp
 	include/NumberNode.hpp
 	include/NumberResult.hpp
@@ -25,6 +26,14 @@ set(flosion_core_headers
 )
 
 set(flosion_core_srcs
+	src/Network.cpp
+	src/SingleSoundInput.cpp
+	src/SoundChunk.cpp
+	src/SoundInput.cpp
+	src/SoundNode.cpp
+	src/SoundResult.cpp
+	src/SoundSource.cpp
+	src/SoundState.cpp
 	src/StateTable.cpp
 )
 

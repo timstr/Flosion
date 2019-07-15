@@ -11,7 +11,7 @@ namespace flo {
     template<typename StateType, typename KeyType>
     class MultiSoundInput final : public SoundInput {
     public:
-        MultiSoundInput(SoundNetwork*);
+        MultiSoundInput();
 
         void addKey(KeyType);
         void removeKey(KeyType);
@@ -30,12 +30,8 @@ namespace flo {
 
         void onStateMoved(const SoundNode* node, const SoundState* from, const SoundState* to) override final;
 
-        size_t getMultiplicity() const noexcept override final;
-
         std::map<KeyType, size_t> m_keyOffsets;
-        std::map<SoundNode*, size_t> m_dependentOffsets;
-
-        StateTable<StateType> m_stateArray;
+        std::map<OSoundNode*, size_t> m_dependentOffsets;
     };
 
 } // namespace flo

@@ -2,12 +2,13 @@
 #include <StateAllocator.hpp>
 
 namespace flo {
-    StateTable::StateTable(SoundNetwork* network, SoundNode::Type type, std::unique_ptr<StateAllocator> mainAllocator)
-        : SoundNode(network, type)
+
+    StateTable::StateTable(SoundNode* owner, std::unique_ptr<StateAllocator> mainAllocator)
+        : m_owner(owner)
         , m_mainAllocator(std::move(mainAllocator))
         , m_data(allocateData(m_mainAllocator->getSize(), 1, m_mainAllocator->getAlignment()))
         , m_slotSize(m_mainAllocator->getSize())
-        , m_numSlots(1)
+        , m_numSlots(0)
         , m_capacity(1) {
 
     }
@@ -27,7 +28,15 @@ namespace flo {
     }
 
     void StateTable::deallocateData(unsigned char* ptr){
-        operator delete(static_cast<void*>(ptr));
+        const auto align = std::align_val_t{m_mainAllocator->getAlignment()};
+        operator delete(static_cast<void*>(ptr), align);
+    }
+
+    void StateTable::destroySlot(unsigned char* where){
+        m_mainAllocator->destroy(where);
+        for (auto& slot : m_slotItems){
+            slot.allocator->destroy(where + slot.offset);
+        }
     }
 
 } // namespace flo

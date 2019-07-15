@@ -8,9 +8,9 @@
 
 namespace flo {
 
-    class SoundSource : virtual public SoundNode {
+    class SoundSource : public IOSoundNode {
     public:
-        SoundSource(SoundNetwork* network, Type type);
+        SoundSource(Controllability, TimeSync, std::unique_ptr<StateAllocator> allocator);
 
         /*
          * Produces the next chunk of sound. The SoundSource's state corresponding
@@ -19,9 +19,9 @@ namespace flo {
         virtual void getNextChunkFor(SoundChunk& chunk, const SoundState* context) = 0;
 
 
-        class Decorator : public SoundNode::Decorator {
+        //class Decorator : public SoundNode::Decorator {
             // TODO: ???
-        };
+        //};
     };
 
 } // namespace flo

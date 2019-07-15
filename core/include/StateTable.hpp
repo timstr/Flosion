@@ -1,16 +1,15 @@
 #pragma once
 
 #include <SoundState.hpp>
-#include <SoundNode.hpp>
+#include <StateAllocator.hpp>
 
 #include <memory>
 #include <vector>
 
 namespace flo {
 
-    class StatefulSoundNode;
-    class StateAllocator;
     class StateBorrower;
+    class SoundNode;
 
     /*
      * StateTable is an array-like container of custom SoundState objects.
@@ -21,9 +20,11 @@ namespace flo {
      * StateTable is the basis for an associative mapping from dependent sound nodes,
      * dependent states, etc, to the states needed by a sound node.
      */
-    class StateTable : virtual public SoundNode {
+
+
+    class StateTable final {
     public:
-        StateTable(SoundNetwork* network, SoundNode::Type type, std::unique_ptr<StateAllocator> mainAllocator);
+        StateTable(SoundNode* owner, std::unique_ptr<StateAllocator> mainAllocator);
         StateTable(StateTable&&) noexcept = default;
         StateTable& operator=(StateTable&&) noexcept = default;
         ~StateTable();
@@ -56,10 +57,17 @@ namespace flo {
         void popSlot();
 
     private:
+        SoundNode* m_owner;
+
         std::unique_ptr<StateAllocator> m_mainAllocator;
 
+        // Per slot item data
         struct SlotItem {
+
+            // The allocator used to manage the lifetime of the slot item
             std::unique_ptr<StateAllocator> allocator;
+
+            // The offset (in bytes) from the slot's begin to the item
             size_t offset;
         };
 
@@ -80,16 +88,27 @@ namespace flo {
         // number of slots for which there is available storage
         size_t m_capacity;
 
-        StateTable* toStateTable() noexcept override;
-
         unsigned char* allocateData(size_t slotSize, size_t numSlots, size_t alignment);
         void deallocateData(unsigned char*);
 
-        void constructSlot(unsigned char* where);
+        // constructs a slot in place from uninitialized storage
+        void constructSlot(unsigned char* where, const flo::SoundState* dependentState);
+
+        // destroys a slot in place
         void destroySlot(unsigned char* where);
+
+        // moves a slot from one location to another
+        // the old slot is destroyed
         void moveSlot(unsigned char* from, unsigned char* to);
-        void moveSlotAndAddSlotItem(unsigned char* from, unsigned char* to, const StateAllocator* which);
-        void moveSlotAndRemoveSlotItem(unsigned char* from, unsigned char* to, const StateAllocator* which);
+
+        // moves a slot from one location to another while adding a slot item
+        // the slot item must be present in m_slotItems
+        // the old slot is destroyed
+        void moveSlotAndAddItem(unsigned char* from, unsigned char* to, const StateAllocator* whichItem);
+        
+        // moves a slot from one location to another while removing a slot item
+        // the old slot is destroyed
+        void moveSlotAndRemoveItem(unsigned char* from, unsigned char* to, const StateAllocator* whichItem);
     };
 
 } // namespace flo

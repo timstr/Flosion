@@ -1,5 +1,7 @@
 #include <SFML/Graphics.hpp>
 
+#include <Network.hpp>
+#include <SoundResult.hpp>
 #include <SoundState.hpp>
 #include <SoundSourceTemplate.hpp>
 
@@ -18,22 +20,22 @@
 
 // TODO: add graphs back (in a safe and clean way)
 
-class OscillatorState : public flo::SoundState {
+class Oscillator;
+
+class OscillatorState : public flo::ConcreteSoundState<Oscillator> {
 public:
-    OscillatorState(flo::SoundNode* owner, const flo::SoundState* dependentState)
-        : SoundState(owner,dependentState)
-        , phase(0.0) {}
+    using ConcreteSoundState::ConcreteSoundState;
 
     void reset() noexcept override {
         phase = 0.0;
     }
 
-    double phase;
+    double phase {};
 }; 
 
 class Oscillator : public flo::SoundSourceTemplate<OscillatorState> {
 public:
-    Oscillator(flo::SoundNetwork* network) : SoundNode(network, Type::Normal), SoundSourceTemplate(network, Type::Normal) {}
+    Oscillator() : SoundSourceTemplate(Controllability::Controllable, TimeSync::Realtime) {}
 
     void renderNextChunk(flo::SoundChunk& chunk, OscillatorState* state){
         for (size_t i = 0; i < flo::SoundChunk::size; ++i){
@@ -50,11 +52,17 @@ public:
 int main() {
 
 	// Testing:
-	flo::SoundNetwork network;
+	flo::Network network;
 
-    auto osc = Oscillator{&network};
+    auto osc = Oscillator{};
 
+    auto res = flo::SoundResult{};
 
+    auto chunk = flo::SoundChunk{};
+
+    res.setSource(&osc);
+
+    res.getNextChunk(chunk);
 
 	return 0;
 }

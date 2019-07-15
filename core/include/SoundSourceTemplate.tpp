@@ -6,9 +6,8 @@
 namespace flo {
 
     template<typename SoundStateType>
-    SoundSourceTemplate<SoundStateType>::SoundSourceTemplate(SoundNetwork* network, Type type)
-        : SoundSource(network, type)
-        , StateTable(network, type, std::make_unique<ConcreteStateAllocator<SoundStateType>>()) {
+    SoundSourceTemplate<SoundStateType>::SoundSourceTemplate(Controllability controllability, TimeSync timeSync)
+        : SoundSource(controllability, timeSync, std::make_unique<ConcreteStateAllocator<SoundStateType>>()) {
     
         static_assert(std::is_base_of_v<SoundState, SoundStateType>);
     }

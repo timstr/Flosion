@@ -2,48 +2,190 @@
 
 #include <Immovable.hpp>
 #include <SoundChunk.hpp>
+#include <StateTable.hpp>
 
+#include <optional>
 #include <vector>
 
 namespace flo {
 
     class SoundState;
-    class SoundNode;
-    class SoundNetwork;
-    class StateTable;
+    class Network;
 
-    class SoundNetwork : private Immovable {
+    // TODO: add support for dynamically changing TimeBehavior
+    // i.e. a Sampler may be 'Normal' until it is switched into
+    // some interactive edit mode, when it becomes 'Uncontrolled'
+
+    class ISoundNode;
+    class OSoundNode;
+    class IOSoundNode;
+
+    // basic sound node type
+    class SoundNode : private Immovable {
     public:
+        SoundNode() noexcept = default;
+        virtual ~SoundNode() noexcept = default;
 
-        std::vector<SoundNode*> getAllNodes() noexcept;
-        const std::vector<SoundNode*> getAllNodes() const noexcept;
+        // For ISoundNode
+        enum class Controllability : uint8_t {
 
-        // TODO: ???
+            /**
+             * A Controllable ISoundNode can have any number of states and
+             * need not be called upon in realtime.
+             */ 
+            Controllable,
+
+            /**
+             * An Uncontrolled ISoundNode has exactly one state, and must
+             * be called in realtime.
+             */
+            Uncontrolled
+        };
+
+        // For OSoundNode
+        enum class Propagation : uint8_t {
+
+            /**
+             * A Singular OSoundNode propagates exactly one state
+             * to each of its dependencies
+             */
+            Singular,
+
+            /**
+             * A Divergent OSoundNode propagates any number of states
+             * to each of its dependencies
+             */
+            Divergent
+        };
+
+        // For IOSoundNode
+        enum class TimeSync : uint8_t {
+
+            /**
+             * A Realtime IOSoundNode calls upon each of its inputs exactly
+             * once for each of its propagated states. This means a Singular
+             * Realtime node calls upon each input exactly once, and a Divergent
+             * Realtime node with N propagated states per inbound state calls
+             * upon each input N times.
+             */
+            Realtime,
+
+            /**
+             * An OutOfSync IOSoundNode may call upon each of its inputs
+             * arbitrarily often and at arbitrary times.
+             */
+            OutOfSync
+        };
+        
+        ISoundNode* toISoundNode() noexcept;
+        OSoundNode* toOSoundNode() noexcept;
+        IOSoundNode* toIOSoundNode() noexcept;
+        virtual const ISoundNode* toISoundNode() const noexcept;
+        virtual const OSoundNode* toOSoundNode() const noexcept;
+        virtual const IOSoundNode* toIOSoundNode() const noexcept;
+
+        // TODO: decorators for I?O?SoundNode
 
     private:
-        std::vector<SoundNode*> m_nodes;
+        Network* network;
     };
 
-    /*
-    Examples:
-        Normal sound nodes:
-        - many SoundSources (e.g. sampler, time stretch, phase vocoder)
-        Realtime sound nodes:
-        - sound inputs (single and multi)
-        - many SoundSource (e.g. mixer, filter, distortion)
-        Uncontrolled sound nodes:
-        - some SoundSources (e.g. live keyboard, live mic input, network stream)
-        - DAC
+    // SoundNode that produces a sound stream
+    class ISoundNode : virtual public SoundNode {
+    public:
 
+        ISoundNode(Controllability, std::unique_ptr<StateAllocator> mainStateAllocator);
 
-    */
+        const std::vector<OSoundNode*>& getDirectDependents() const noexcept;
+
+        /**
+         * Add, remove, and reset states for a dependent node and its given state.
+         * States must be added to the state table as needed.
+         * The state table will automatically propagate updates to dependencies.
+         */
+        virtual void addStateFor(const SoundNode* node, const SoundState* state) = 0;
+        virtual void removeStateFor(const SoundNode* node, const SoundState* state) = 0;
+        virtual void resetStateFor(const SoundNode* node, const SoundState* state) = 0;
+
+        /**
+         * Called when a dependent state moves location. This function should update all
+         * of the nodes own states that map to that state to preserve the correct mapping.
+         */
+        virtual void onStateMoved(const SoundNode* node, const SoundState* from, const SoundState* to) = 0;
+
+    protected:
+        // TODO: how to use this most effectively in derived classes?
+        StateTable stateTable;
+
+    private:
+        std::vector<OSoundNode*> m_dependents;
+        Controllability m_controllability;
+
+        const ISoundNode* toISoundNode() const noexcept override final;
+    };
+
+    // SoundNode that consumes sound streams
+    class OSoundNode : virtual public SoundNode {
+    public:
+
+        OSoundNode(Propagation);
+        
+        bool canAddDependency(const ISoundNode*) const noexcept;
+        void addDependency(ISoundNode* node);
+        void removeDependency(ISoundNode* node);
+
+        const std::vector<ISoundNode*>& getDirectDependencies() const noexcept;
+        
+        /**
+         * Returns true if this node depends (directly or indirectly)
+         * on the given node.
+         */
+        bool hasDependency(const ISoundNode*) const noexcept;
+        
+        /*
+         * Returns whether or not the given sound node has exactly one state
+         * for each state of this node.
+         * It may be non-singular if there are any divergent nodes inbetween,
+         * or if the sound network forks and recombines somewhere inbetween.
+         */
+        std::optional<Propagation> getPropagationTo(const ISoundNode* dependency) const noexcept;
+
+        /*
+         * Returns true if all SoundNodes between this and the given node are
+         * realtime.
+         * Returns false if the given SoundNode is not a dependency of this
+         */
+        std::optional<TimeSync> getTimeSyncTo(const ISoundNode* dependency) const noexcept;
+
+    private:
+        std::vector<ISoundNode*> m_dependencies;
+        Propagation m_propagation;
+
+        const OSoundNode* toOSoundNode() const noexcept override final;
+    };
+
+    // SoundNode that both consumes sound streams and produces a sound stream
+    class IOSoundNode : public ISoundNode, public OSoundNode {
+    public:
+        
+        IOSoundNode(Controllability, Propagation, TimeSync, std::unique_ptr<StateAllocator> mainStateAllocator);
+
+        virtual double getTimeSpeed(const SoundState* context) const noexcept;
+
+    private:
+        TimeSync m_timeSync;
+
+        const IOSoundNode* toIOSoundNode() const noexcept override final;
+    };
+
+#if 0
 
     // Basic unit of sound processing network
     // Base class to both sound input and soundsource
     // ...and maybe SoundResult?
-    class SoundNode : protected Immovable {
+    class DeprecatedSoundNode : protected Immovable {
     public:
-        enum class Type : uint8_t {
+        enum class TimeBehavior : uint8_t {
 
             /**
              *A normal soundnode can have any number of states, may
@@ -65,8 +207,22 @@ namespace flo {
             Uncontrolled
         };
 
-        SoundNode(SoundNetwork* network, Type type);
-        ~SoundNode() = default;
+        enum class Propagation : uint8_t {
+            /**
+             * A singular soundnode creates exactly one state in each dependency
+             * for each of its own states.
+             */
+            Singular,
+
+            /**
+             * A divergent soundnode may create any number of states in each
+             * dependency for each of its own states.
+             */
+            Divergent
+        };
+
+        DeprecatedSoundNode(Network* network, TimeBehavior timeBehavior, Propagation statePropagation, std::unique_ptr<StateAllocator> allocator);
+        ~DeprecatedSoundNode() = default;
 
         // NOTE: this interface is meant for getNextChunk(...), but its arguments vary.
         // For example, SingleSoundInputs need only the parent state, but SoundSources
@@ -88,26 +244,20 @@ namespace flo {
 
         /**
          * Add, remove, and reset states for a dependent node and its given state.
-         * Changes must be propagated to dependencies, but this implementation is
-         * left open to allow for nodes with more than one state per input state.
-         * The node must already be a dependent.
+         * States must be added to the state table as needed.
+         * The state table will automatically propagate updates to dependencies.
          */
         virtual void addStateFor(const SoundNode* node, const SoundState* state) = 0;
         virtual void removeStateFor(const SoundNode* node, const SoundState* state) = 0;
         virtual void resetStateFor(const SoundNode* node, const SoundState* state) = 0;
 
-        /**
-         * Called when a dependent state moves location. This function should update all
-         * of the nodes own states that map to that state to preserve the correct mapping.
-         */
-        virtual void onStateMoved(const SoundNode* node, const SoundState* from, const SoundState* to) = 0;
+    public:
+        const StateTable& getStateTable() const noexcept;
 
-        /**
-         * If the dynamic type of the node is a StateTable, a pointer to that table
-         * is returned. This is used for borrowing state and for easy computation
-         * of dependency state mapping.
-         */
-        virtual StateTable* toStateTable() noexcept;
+    protected:
+        StateTable& getStateTable() noexcept;
+
+    public:
 
         /**
          * The total number of states owned by the node.
@@ -121,7 +271,7 @@ namespace flo {
          * Returns the number of states per each dependent state.
          * The default (non-overridden) behavior is to always return 1.
          */
-        virtual size_t getMultiplicity() const noexcept;
+        bool isDivergent() const noexcept;
 
         /**
          * Returns true if the node is realtime, which is to say that it calls on its
@@ -146,14 +296,12 @@ namespace flo {
         bool isUncontrolled() const noexcept;
         
         /*
-         * Returns the maximum number of times that a given SoundSource
-         * may be queried for a single chunk of processing from this
-         * input.
-         * Returns 0 if the SoundNode is not a dependency of this node
-         * If the SoundNode is uncontrolled, it is only safe to use it as input
-         * if the multiplicity is 1.
+         * Returns whether or not the given sound node has exactly one state
+         * for each state of this node.
+         * It may be non-singular if there are any divergent nodes inbetween,
+         * or if the sound network forks and recombines somewhere inbetween.
          */
-        size_t getMultiplicityTo(const SoundNode*) const noexcept;
+        bool isSingularTo(const SoundNode*) const noexcept;
 
         /*
          * Returns true if all SoundNodes between this and the given node are
@@ -188,11 +336,15 @@ namespace flo {
         bool hasDecorator(const Decorator*) const noexcept;
 
     private:
-        SoundNetwork* m_network;
+        Network* m_network;
+        StateTable m_stateTable;
         std::vector<SoundNode*> m_dependents;
         std::vector<SoundNode*> m_dependencies;
-        const Type m_type;
+        const TimeBehavior m_timeBehavior;
+        const Propagation m_propagation;
         std::vector<std::unique_ptr<Decorator>> m_decorators;
     };
 
+#endif
+    
 } // namespace flo

@@ -4,11 +4,14 @@
 
 namespace flo {
 
+    class ISoundNode;
+    class SoundState;
+
     class StateAllocator {
     public:
         virtual ~StateAllocator() noexcept = default;
 
-        virtual void construct(void* dst, flo::SoundNode* owner, const flo::SoundState* dependentState) = 0;
+        virtual void construct(void* dst, ISoundNode* owner, const SoundState* dependentState) = 0;
         virtual void moveConstruct(void* dst, void* src) noexcept = 0;
         virtual void destroy(void* dst) noexcept = 0;
 
@@ -21,7 +24,7 @@ namespace flo {
     template<typename StateType>
     class ConcreteStateAllocator : public StateAllocator {
     private:
-        void construct(void* dst, flo::SoundNode* owner, const flo::SoundState* dependentState) override final {
+        void construct(void* dst, ISoundNode* owner, const SoundState* dependentState) override final {
             new (dst) StateType(owner, dependentState);
         }
         void moveConstruct(void* dst, void* src) noexcept override final {

@@ -9,7 +9,11 @@ set_property(TARGET flosion PROPERTY CXX_STANDARD 17)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT flosion)
 
 if(MSVC)
-	add_definitions("/diagnostics:caret")
+	# turn warning C4715 ("not all control paths return a value") into an error
+	add_definitions(/we4715)
+
+	# disable warning C4250 ("class X inherits virtual member function Y via dominance")
+	add_definitions(/wd4250)
 endif()
 
 add_subdirectory(tims-gui)
@@ -49,12 +53,4 @@ if(WIN32)
 			"${SFML_DIR}/../../../bin/openal32.dll"
 			"$<TARGET_FILE_DIR:flosion>"
 	)
-endif()
-
-if(WIN32)
-	# turn warning C4715 ("not all control paths return a value") into an error
-	add_definitions(/we4715)
-
-	# disable warning C4250 ("class X inherits virtual member function Y via dominance")
-	add_definitions(/wd4250)
 endif()
