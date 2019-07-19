@@ -43,7 +43,7 @@ namespace flo {
 
         size_t getStateIndex(const SoundState* ownState) const noexcept;
 
-        size_t numSlots() const noexcept;
+        size_t size() const noexcept;
         size_t numBorrowers() const noexcept;
 
         void resize(size_t newSize);

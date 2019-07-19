@@ -98,6 +98,8 @@ namespace flo {
 
         const std::vector<OSoundNode*>& getDirectDependents() const noexcept;
 
+        Controllability getControllability() const noexcept;
+
         /**
          * Add, remove, and reset states for a dependent node and its given state.
          * States must be added to the state table as needed.
@@ -122,6 +124,8 @@ namespace flo {
         Controllability m_controllability;
 
         const ISoundNode* toISoundNode() const noexcept override final;
+
+        friend class OSoundNode;
     };
 
     // SoundNode that consumes sound streams
@@ -135,25 +139,32 @@ namespace flo {
         void removeDependency(ISoundNode* node);
 
         const std::vector<ISoundNode*>& getDirectDependencies() const noexcept;
+
+        Propagation getPropagation() const noexcept;
         
         /**
          * Returns true if this node depends (directly or indirectly)
          * on the given node.
          */
         bool hasDependency(const ISoundNode*) const noexcept;
+
+        bool hasUncontrolledDependency() const noexcept;
         
         /*
-         * Returns whether or not the given sound node has exactly one state
-         * for each state of this node.
-         * It may be non-singular if there are any divergent nodes inbetween,
-         * or if the sound network forks and recombines somewhere inbetween.
+         * Returns Singular if there exists exactly one path to the dependency,
+         * and all nodes along that path are Singular.
+         * Otherwise, if there is more than one path, or any nodes along any a
+         * path are Divergent, Divergent is returned.
+         * Otherwise, if there is no path to the dependency, nothing is returned.
          */
         std::optional<Propagation> getPropagationTo(const ISoundNode* dependency) const noexcept;
 
         /*
-         * Returns true if all SoundNodes between this and the given node are
-         * realtime.
-         * Returns false if the given SoundNode is not a dependency of this
+         * Returns RealTime if all nodes along paths to the dependency are
+         * RealTime.
+         * Returns OutOfSync if any nodes along a path to the dependency are
+         * OutOfSync.
+         * Returns nothing if there is no path to the dependency.
          */
         std::optional<TimeSync> getTimeSyncTo(const ISoundNode* dependency) const noexcept;
 
@@ -169,6 +180,8 @@ namespace flo {
     public:
         
         IOSoundNode(Controllability, Propagation, TimeSync, std::unique_ptr<StateAllocator> mainStateAllocator);
+
+        TimeSync getTimeSync() const noexcept;
 
         virtual double getTimeSpeed(const SoundState* context) const noexcept;
 

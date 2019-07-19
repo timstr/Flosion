@@ -39,4 +39,16 @@ namespace flo {
         }
     }
 
+    SoundState* StateTable::getState(size_t slotIndex) noexcept {
+        return const_cast<SoundState*>(const_cast<const StateTable*>(this)->getState(slotIndex));
+    }
+
+    const SoundState* StateTable::getState(size_t slotIndex) const noexcept {
+        return reinterpret_cast<const SoundState*>(m_data + (slotIndex * m_slotSize));
+    }
+
+    size_t StateTable::size() const noexcept {
+        return m_numSlots;
+    }
+
 } // namespace flo
