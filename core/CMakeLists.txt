@@ -13,6 +13,7 @@ set(flosion_core_headers
 	include/SoundChunk.hpp
 	include/SoundInput.hpp
 	include/SoundNode.hpp
+	include/SoundNode.tpp
 	include/SoundResult.hpp
 	include/SoundSource.hpp
 	include/SoundSourceTemplate.hpp
@@ -27,6 +28,7 @@ set(flosion_core_headers
 
 set(flosion_core_srcs
 	src/Network.cpp
+	src/Sample.cpp
 	src/SingleSoundInput.cpp
 	src/SoundChunk.cpp
 	src/SoundInput.cpp

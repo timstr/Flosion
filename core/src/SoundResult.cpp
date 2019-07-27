@@ -1,23 +1,22 @@
 #include <SoundResult.hpp>
 
 namespace flo {
-
-    SoundResult::SoundResult()
-        : OSoundNode(Propagation::Singular){
-    
-        m_input.addStateFor(this, nullptr);
+    SoundResult::SoundResult(){
+        addDependency(&m_input);
     }
-
     SoundResult::~SoundResult(){
-        m_input.removeStateFor(this, nullptr);
+        removeDependency(&m_input);
     }
-
     void SoundResult::getNextChunk(SoundChunk& chunk){
-        m_input.getNextChunkFor(chunk, this, nullptr);
+        return m_input.getNextChunkFor(chunk, this, getMonoState());
     }
 
-    void SoundResult::setSource(SoundSource* src) noexcept {
-        m_input.setSource(src);
+    void SoundResult::reset(){
+        m_input.resetStateFor(this, getMonoState());
+    }
+
+    void SoundResult::setSource(SoundSource* source) noexcept {
+        m_input.setSource(source);
     }
 
 } // namespace flo

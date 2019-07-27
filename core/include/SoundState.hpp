@@ -4,23 +4,26 @@
 
 namespace flo {
 
-    class ISoundNode;
+    class SoundNode;
 
     class SoundState : public State {
     public:
-        SoundState(ISoundNode* owner, const SoundState* dependentState) noexcept;
+        SoundState(SoundNode* owner, const SoundState* dependentState) noexcept;
 
         const SoundState* getDependentState() const noexcept;
 
-        ISoundNode& getOwner() noexcept;
-        const ISoundNode& getOwner() const noexcept;
+        SoundNode& getOwner() noexcept;
+        const SoundNode& getOwner() const noexcept;
         
     private:
-        ISoundNode* m_owner;
+        SoundNode* m_owner;
         const SoundState* m_dependentState;
+
+        friend class StateTable;
     };
 
     class EmptySoundState final : public SoundState {
+    public:
         using SoundState::SoundState;
 
         void reset() noexcept override final;

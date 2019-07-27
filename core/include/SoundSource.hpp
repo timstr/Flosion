@@ -8,11 +8,10 @@
 
 namespace flo {
 
-    class SoundSource : public IOSoundNode {
+    class SoundSource : public SoundNode {
     public:
-        SoundSource(Controllability, TimeSync, std::unique_ptr<StateAllocator> allocator);
 
-        /*
+        /**
          * Produces the next chunk of sound. The SoundSource's state corresponding
          * to the given context may be updated.
          */

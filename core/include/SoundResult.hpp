@@ -12,7 +12,7 @@ namespace flo {
      * play to the speakers, to write to a file, or for use by advanced
      * sound nodes which contain nested networks.
      */
-    class SoundResult final : public OSoundNode {
+    class SoundResult final : public Uncontrolled<Realtime<Singular<SoundNode, EmptySoundState>>> {
     public:
         SoundResult();
         ~SoundResult();

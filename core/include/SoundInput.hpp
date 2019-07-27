@@ -6,9 +6,8 @@ namespace flo {
 
     class SoundSource;
 
-    class SoundInput : public IOSoundNode {
+    class SoundInput : public Realtime<Controllable<SoundNode>> {
     public:
-        SoundInput(Propagation, std::unique_ptr<StateAllocator> mainStateAllocator);
 
         void setSource(SoundSource*);
 

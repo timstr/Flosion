@@ -129,9 +129,9 @@ namespace flo {
         Sample operator*(const ConstSampleProxy&) const noexcept;
 
     private:
-        ConstSampleProxy(float* ptr) noexcept;
+        ConstSampleProxy(const float* ptr) noexcept;
 
-        float* m_ptr;
+        const float* m_ptr;
 
         friend class SoundChunk;
     };

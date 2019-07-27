@@ -1,14 +1,25 @@
 #include <SoundInput.hpp>
 
+#include <SoundSource.hpp>
+
 namespace flo {
 
-    SoundInput::SoundInput(Propagation statePropagation, std::unique_ptr<StateAllocator> allocator)
-        : IOSoundNode(Controllability::Controllable, statePropagation, TimeSync::Realtime, std::move(allocator)){
-
+    void SoundInput::setSource(SoundSource* source){
+        if (m_source){
+            removeDependency(m_source);
+        }
+        m_source = source;
+        if (m_source){
+            addDependency(m_source);
+        }
     }
 
-    void SoundInput::setSource(SoundSource* src){
-        // TODO: remove all states from old source, add all states to new source
+    SoundSource* SoundInput::getSource() noexcept {
+        return m_source;
+    }
+
+    const SoundSource* SoundInput::getSource() const noexcept {
+        return m_source;
     }
 
 } // namespace flo

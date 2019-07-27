@@ -5,6 +5,8 @@
 #include <SoundState.hpp>
 #include <SoundSourceTemplate.hpp>
 
+#include <iostream>
+
 // TODO: synchronize this stuff
 // - See https://www.youtube.com/watch?v=boPEO2auJj4
 // - Consider using std::atomic<T> for numeric members used in sound processing
@@ -33,9 +35,8 @@ public:
     double phase {};
 }; 
 
-class Oscillator : public flo::SoundSourceTemplate<OscillatorState> {
+class Oscillator : public flo::Realtime<flo::Controllable<flo::SoundSourceTemplate<OscillatorState>>> {
 public:
-    Oscillator() : SoundSourceTemplate(Controllability::Controllable, TimeSync::Realtime) {}
 
     void renderNextChunk(flo::SoundChunk& chunk, OscillatorState* state){
         for (size_t i = 0; i < flo::SoundChunk::size; ++i){
@@ -63,6 +64,13 @@ int main() {
     res.setSource(&osc);
 
     res.getNextChunk(chunk);
+
+    for (size_t i = 0, iEnd = chunk.size; i != iEnd; ++i){
+        for (size_t j = 0, jEnd = static_cast<size_t>(chunk[i].l() * 32.0f); j != jEnd; ++j){
+            std::cout << '#';
+        }
+        std::cout << '\n';
+    }
 
 	return 0;
 }

@@ -2,7 +2,7 @@
 
 namespace flo {
 
-    SoundState::SoundState(ISoundNode* owner, const SoundState* dependentState) noexcept
+    SoundState::SoundState(SoundNode* owner, const SoundState* dependentState) noexcept
         : m_owner(owner)
         , m_dependentState(dependentState) {
     
