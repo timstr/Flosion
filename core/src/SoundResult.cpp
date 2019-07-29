@@ -1,6 +1,7 @@
 #include <SoundResult.hpp>
 
 namespace flo {
+
     SoundResult::SoundResult(){
         addDependency(&m_input);
     }

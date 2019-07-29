@@ -36,7 +36,7 @@ namespace flo {
     class SoundNode : public StateTable, private Immovable {
     public:
         SoundNode() noexcept;
-        virtual ~SoundNode() noexcept = default;
+        virtual ~SoundNode() noexcept;
         
         bool canAddDependency(const SoundNode*) const noexcept;
         void addDependency(SoundNode* node);
@@ -93,22 +93,15 @@ namespace flo {
         Network* m_network;
     };
 
-
-
-    // Implements main state allocation functions
-    template<typename SoundNodeType, typename SoundStateType>
-    class Allocatable : public SoundNodeType {
-    private:
-        std::unique_ptr<StateAllocator> makeAllocator() const override final;
-    };
+    // To create a concrete sound node, choose from the following:
+    // - Singular or Divergent or Uncontrolled
+    // - Realtime or OutOfSync
 
     // Implements a singular soundnode.
-    // SoundNodeType must derive from SoundNode and may
-    // not derive from Allocatable or from Divergent
-    // SoundStateType must derive from SoundState
     template<typename SoundNodeType, typename SoundStateType>
-    class Singular : public Allocatable<SoundNodeType, SoundStateType> {
+    class Singular : public SoundNodeType {
     public:
+        Singular();
 
         SoundStateType* getState(const SoundNode* dependent, const SoundState* dependentState) noexcept;
         const SoundStateType* getState(const SoundNode* dependent, const SoundState* dependentState) const noexcept;
@@ -116,16 +109,17 @@ namespace flo {
         SoundStateType* getState(size_t index) noexcept;
         const SoundStateType* getState(size_t index) const noexcept;
 
+        using StateType = SoundStateType;
+
     private:
         bool isDivergent() const noexcept override final;
+        bool isUncontrolled() const noexcept override final;
+        std::unique_ptr<StateAllocator> makeAllocator() const override final;
     };
 
     // Implements a divergent soundnode
-    // SoundNodeType must derive from SoundNode and may
-    // not derive from Allocatable or from Singular
-    // SoundStateType must derive from SoundState
     template<typename SoundNodeType, typename SoundStateType, typename KeyType>
-    class Divergent : public Allocatable<SoundNodeType, SoundStateType> {
+    class Divergent : public SoundNodeType {
     public:
 
         SoundStateType* getState(const SoundNode* dependent, const SoundState* dependentState, const KeyType& key) noexcept;
@@ -134,35 +128,41 @@ namespace flo {
         SoundStateType* getState(size_t index) noexcept;
         const SoundStateType* getState(size_t index) const noexcept;
 
+        using StateType = SoundStateType;
+
         void addKey(const KeyType&);
         bool hasKey(const KeyType&) const noexcept;
         void removeKey(const KeyType&);
 
     private:
         bool isDivergent() const noexcept override final;
+        bool isUncontrolled() const noexcept override final;
+        std::unique_ptr<StateAllocator> makeAllocator() const override final;
 
         std::vector<KeyType> m_keys; // indices here are also indices into columns of state table. Keep sorted.
     };
 
-    // Implements a controlled soundnode
-    template<typename SoundNodeType>
+    // Implements an uncontrolled soundnode
+    // An uncontrolled soundnode always has exactly one state,
+    // and may have at most one dependent and with at most one
+    // dependent state. If there is no dependent state, the
+    // uncontrolled soundnode's single state will have null for
+    // its dependent state.
+    // Uncontrolled implies singular, i.e. an uncontrolled soundnode
+    // has exactly one state per dependent state.
+    template<typename SoundNodeType, typename SoundStateType>
     class Uncontrolled : public SoundNodeType {
     public:
+        Uncontrolled();
 
-        // TODO: how can this work??????
-        // Maybe an uncontrolled soundnode has either exactly one dependent with exactly one state,
-        // or it fakes that?
-        const SoundState* getMonoState() const noexcept;
+        const SoundStateType* getMonoState() const noexcept;
+
+        using StateType = SoundStateType;
 
     private:
+        bool isDivergent() const noexcept override final;
         bool isUncontrolled() const noexcept override final;
-    };
-
-    // Implements an uncontrolled soundnode
-    template<typename SoundNodeType>
-    class Controllable : public SoundNodeType {
-    private:
-        bool isUncontrolled() const noexcept override final;
+        std::unique_ptr<StateAllocator> makeAllocator() const override final;
     };
 
     // Implements a realtime soundnode

@@ -4,6 +4,7 @@
 
 namespace flo {
 
+    /*
     class NumberSource : private Immovable {
     public:
 
@@ -16,5 +17,6 @@ namespace flo {
     private:
         EvaluationFunction m_evalFn;
     };
+    */
 
 } // namespace flo

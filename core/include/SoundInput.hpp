@@ -6,8 +6,9 @@ namespace flo {
 
     class SoundSource;
 
-    class SoundInput : public Realtime<Controllable<SoundNode>> {
+    class SoundInput : public Realtime<SoundNode> {
     public:
+        SoundInput() noexcept;
 
         void setSource(SoundSource*);
 

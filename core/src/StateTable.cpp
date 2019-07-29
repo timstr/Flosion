@@ -12,6 +12,7 @@ namespace flo {
         , m_numDependentStates(0)
         , m_numKeys(0)
         , m_slotSize(-1)
+        , m_isMonostate(false)
         , m_data(nullptr) {
 
     }
@@ -53,14 +54,17 @@ namespace flo {
     }
 
     void StateTable::deallocateData(unsigned char* ptr){
+        if (ptr == nullptr){
+            return;
+        }
         const auto align = std::align_val_t{getMainAllocator()->getAlignment()};
         operator delete(static_cast<void*>(ptr), align);
     }
 
-    void StateTable::constructSlot(unsigned char* where, const flo::SoundState* dependentState){
-        getMainAllocator()->construct(where, m_owner, dependentState);
+    void StateTable::constructSlot(unsigned char* where){
+        getMainAllocator()->construct(where, m_owner, nullptr);
         for (auto& slot : m_slotItems){
-            slot.allocator->construct(where + slot.offset, m_owner, dependentState);
+            slot.allocator->construct(where + slot.offset, m_owner, nullptr);
         }
     }
 
@@ -71,9 +75,9 @@ namespace flo {
         }
     }
 
-    void StateTable::moveSlot(unsigned char* from, unsigned char* to, const SoundState* newDependentState){
+    void StateTable::moveSlot(unsigned char* from, unsigned char* to){
         getMainAllocator()->moveConstruct(to, from);
-        (reinterpret_cast<SoundState*>(to))->m_dependentState = newDependentState;
+        (reinterpret_cast<SoundState*>(to))->m_dependentState = nullptr;
         for (auto& slot : m_slotItems){
             slot.allocator->moveConstruct(to + slot.offset, from + slot.offset);
         }
@@ -104,7 +108,7 @@ namespace flo {
 
     const SoundState* StateTable::getState(const SoundNode* dependent, const SoundState* dependentState, size_t keyIndex) const noexcept {
         const auto offset = getDependentOffset(dependent);
-        return getState(offset + (dependent->getStateIndex(dependentState) * numKeys()) + keyIndex);
+        return getState((offset + dependent->getStateIndex(dependentState) * numKeys()) + keyIndex);
     }
 
     SoundState* StateTable::getState(size_t slotIndex) noexcept {
@@ -125,7 +129,7 @@ namespace flo {
             const auto slotIdx = baseSlot + j;
             const auto slotAddr = m_data + (m_slotSize * slotIdx);
             resetSlot(slotAddr);
-            for (const auto& d : m_owner->getDirectDependents()){
+            for (const auto& d : m_owner->getDirectDependencies()){
                 d->resetStateFor(m_owner, reinterpret_cast<const SoundState*>(slotAddr));
             }
         }
@@ -142,10 +146,12 @@ namespace flo {
     }
 
     size_t StateTable::numDependentStates() const noexcept {
+        assert(!m_isMonostate || (m_numDependentStates == 1));
         return m_numDependentStates;
     }
 
     size_t StateTable::numKeys() const noexcept {
+        assert(!m_isMonostate || (m_numKeys == 1));
         return m_numKeys;
     }
 
@@ -162,6 +168,18 @@ namespace flo {
         assert(endIndex <= dependent->numSlots());
 
         if (beginIndex == endIndex){
+            return;
+        }
+
+        if (m_isMonostate){
+            assert(m_dependentOffsets.size() == 1);
+            assert(m_dependentOffsets[0].dependent == dependent);
+            assert(m_dependentOffsets[0].offset == 0);
+            assert(beginIndex == 0);
+            assert(beginIndex == 1);
+            assert(numSlots() == 1);
+            assert(getState(0)->m_dependentState == nullptr);
+            getState(0)->m_dependentState = dependent->getState(0);
             return;
         }
 
@@ -184,7 +202,7 @@ namespace flo {
                 for (size_t j = 0; j < numKeys(); ++j){
                     auto from = oldData + (m_slotSize * oldSlotIndex);
                     auto to = newData + (m_slotSize * newSlotIndex);
-                    moveSlot(from, to, itDependent->dependent->getState(i));
+                    moveSlot(from, to);
 
                     ++oldSlotIndex;
                     ++newSlotIndex;
@@ -205,7 +223,7 @@ namespace flo {
                     assert(oldSlotIndex == (itDependent->offset + i));
                     auto from = oldData + (m_slotSize * oldSlotIndex);
                     auto to = newData + (m_slotSize * newSlotIndex);
-                    moveSlot(from, to, dependent->getState(i));
+                    moveSlot(from, to);
 
                     ++oldSlotIndex;
                     ++newSlotIndex;
@@ -216,7 +234,7 @@ namespace flo {
             for (size_t i = beginIndex; i < endIndex; ++i){
                 for (size_t j = 0; j < numKeys(); ++j){
                     auto dst = newData + (m_slotSize * newSlotIndex);
-                    constructSlot(dst, dependent->getState(i));
+                    constructSlot(dst);
 
                     ++newSlotIndex;
                 }
@@ -228,7 +246,7 @@ namespace flo {
                 assert(oldSlotIndex == itDependent->offset + i - (endIndex - beginIndex));
                 auto from = oldData + (m_slotSize * oldSlotIndex);
                 auto to = newData + (m_slotSize * newSlotIndex);
-                moveSlot(from, to, dependent->getState(i));
+                moveSlot(from, to);
 
                 ++oldSlotIndex;
                 ++newSlotIndex;
@@ -246,7 +264,7 @@ namespace flo {
                     assert(oldSlotIndex == itDependent->offset + i);
                     auto from = oldData + (m_slotSize * oldSlotIndex);
                     auto to = newData + (m_slotSize * newSlotIndex);
-                    moveSlot(from, to, itDependent->dependent->getState(i));
+                    moveSlot(from, to);
 
                     ++oldSlotIndex;
                     ++newSlotIndex;
@@ -260,13 +278,14 @@ namespace flo {
         // cleanup
         deallocateData(oldData);
         m_data = newData;
+        m_numDependentStates += endIndex - beginIndex;
 
         // propagate the changes
         {
             const auto offset = getDependentOffset(dependent);
             const auto ownStartIndex = numKeys() * (offset + beginIndex);
             const auto ownEndIndex = numKeys() * (offset + endIndex);
-            for (auto& d : m_owner->getDirectDependents()){
+            for (auto& d : m_owner->getDirectDependencies()){
                 d->insertDependentStates(m_owner, ownStartIndex, ownEndIndex);
                 d->repointStatesFor(m_owner);
             }
@@ -283,6 +302,21 @@ namespace flo {
         );
 
         assert(beginIndex < endIndex);
+        assert(beginIndex < m_numDependentStates);
+        assert(endIndex <= m_numDependentStates);
+        assert(m_numDependentStates >= endIndex - beginIndex);
+
+        if (m_isMonostate){
+            assert(m_dependentOffsets.size() == 1);
+            assert(m_dependentOffsets[0].dependent == dependent);
+            assert(m_dependentOffsets[0].offset == 0);
+            assert(beginIndex == 0);
+            assert(beginIndex == 1);
+            assert(numSlots() == 1);
+            assert(getState(0)->m_dependentState == dependent->getState(0));
+            getState(0)->m_dependentState = nullptr;
+            return;
+        }
 
         // allocate new array
         auto newNumSlots = numKeys() * (numDependentStates() - (endIndex - beginIndex));
@@ -303,7 +337,7 @@ namespace flo {
                 for (size_t j = 0; j < numKeys(); ++j){
                     auto from = oldData + (m_slotSize * oldSlotIndex);
                     auto to = newData + (m_slotSize * newSlotIndex);
-                    moveSlot(from, to, itDependent->dependent->getState(i));
+                    moveSlot(from, to);
 
                     ++oldSlotIndex;
                     ++newSlotIndex;
@@ -313,13 +347,10 @@ namespace flo {
             assert(itDependent != m_dependentOffsets.end());
         }
 
-        assert(itDependent != m_dependentOffsets.begin());
+        assert(itDependent != m_dependentOffsets.end());
         assert(itDependent->dependent == dependent);
 
         // begin moving states for the given dependent with new states
-
-        assert(beginIndex < dependent->numSlots());
-        assert(endIndex <= dependent->numSlots());
 
         // move all the dependent's states prior to the first new state
         for (size_t i = 0; i < beginIndex; ++i){
@@ -327,7 +358,7 @@ namespace flo {
                 assert(oldSlotIndex == (itDependent->offset + i));
                 auto from = oldData + (m_slotSize * oldSlotIndex);
                 auto to = newData + (m_slotSize * newSlotIndex);
-                moveSlot(from, to, dependent->getState(i));
+                moveSlot(from, to);
 
                 ++oldSlotIndex;
                 ++newSlotIndex;
@@ -349,7 +380,7 @@ namespace flo {
             for (size_t j = 0; j < numKeys(); ++j){
                 auto from = oldData + (m_slotSize * oldSlotIndex);
                 auto to = newData + (m_slotSize * newSlotIndex);
-                moveSlot(from, to, dependent->getState(i - (endIndex - beginIndex)));
+                moveSlot(from, to);
 
                 ++oldSlotIndex;
                 ++newSlotIndex;
@@ -366,7 +397,7 @@ namespace flo {
                     assert(oldSlotIndex == itDependent->offset + i);
                     auto from = oldData + (m_slotSize * oldSlotIndex);
                     auto to = newData + (m_slotSize * newSlotIndex);
-                    moveSlot(from, to, itDependent->dependent->getState(i));
+                    moveSlot(from, to);
 
                     ++oldSlotIndex;
                     ++newSlotIndex;
@@ -380,17 +411,123 @@ namespace flo {
         // cleanup
         deallocateData(oldData);
         m_data = newData;
+        m_numDependentStates -= endIndex - beginIndex;
 
         // propagate the changes
         {
             const auto offset = getDependentOffset(dependent);
             const auto ownStartIndex = numKeys() * (offset + beginIndex);
             const auto ownEndIndex = numKeys() * (offset + endIndex);
-            for (auto& d : m_owner->getDirectDependents()){
+            for (auto& d : m_owner->getDirectDependencies()){
                 d->eraseDependentStates(m_owner, ownStartIndex, ownEndIndex);
                 d->repointStatesFor(m_owner);
             }
         }
+    }
+
+    void StateTable::insertKeys(size_t beginIndex, size_t endIndex){
+        assert(beginIndex < endIndex);
+        assert(beginIndex <= numKeys());
+
+        // allocate new data
+        const auto oldData = m_data;
+        const auto newNumSlots = numDependentStates() * (numKeys() + (endIndex - beginIndex));
+        m_data = allocateData(m_slotSize, newNumSlots);
+        const auto oldNumKeys = m_numKeys;
+        m_numKeys += endIndex - beginIndex;
+        
+        auto oldSlotIndex = size_t{0};
+        auto newSlotIndex = size_t{0};
+
+        auto currentDependent = m_dependentOffsets.begin();
+        for (size_t i = 0; i < numDependentStates(); ++i){
+            assert(currentDependent != m_dependentOffsets.end());
+            while (currentDependent->offset <= i){
+                ++currentDependent;
+                assert(currentDependent != m_dependentOffsets.end());
+            }
+
+            const auto dependentState = currentDependent->dependent->getState(i - currentDependent->offset);
+
+            // move states before new key
+            for (size_t j = 0; j < beginIndex; ++j){
+                assert(oldSlotIndex % oldNumKeys == j);
+                assert(newSlotIndex % m_numKeys == j);
+                moveSlot(oldData + m_slotSize * oldSlotIndex, m_data + m_slotSize * newSlotIndex);
+                ++oldSlotIndex;
+                ++newSlotIndex;
+            }
+
+            // add states for new key
+            for (size_t j = beginIndex; j < endIndex; ++j){
+                assert(newSlotIndex % m_numKeys == j);
+                constructSlot(m_data + m_slotSize * newSlotIndex);
+                ++newSlotIndex;
+            }
+            
+            // move states after new key
+            for (size_t j = endIndex; j < oldNumKeys - endIndex; ++j){
+                assert(oldSlotIndex % oldNumKeys == j);
+                assert(newSlotIndex % m_numKeys == j + beginIndex - endIndex);
+                moveSlot(oldData + m_slotSize * oldSlotIndex, m_data + m_slotSize * newSlotIndex);
+                ++oldSlotIndex;
+                ++newSlotIndex;
+            }
+
+            // propagate changes
+            for (auto& d : m_owner->getDirectDependencies()){
+                d->insertDependentStates(m_owner, m_numKeys * i + beginIndex, m_numKeys * i + endIndex);
+            }
+        }
+
+        for (auto& d : m_owner->getDirectDependencies()){
+            d->repointStatesFor(m_owner);
+        }
+
+        // clean up
+        deallocateData(oldData);
+    }
+
+    void StateTable::enableMonostate(bool enable){
+        if (enable == m_isMonostate){
+            return;
+        }
+
+        // ensure allocation things are initialized
+        getMainAllocator();
+
+        if (enable){
+            if (numSlots() > 0){
+                for (auto& d : m_owner->getDirectDependencies()){
+                    d->eraseDependentStates(m_owner, 0, numSlots());
+                }
+                for (size_t i = 0; i < numSlots(); ++i){
+                    destroySlot(m_data + (m_slotSize * i));
+                }
+            }
+            deallocateData(m_data);
+            m_data = allocateData(m_slotSize, 1);
+            const auto& dependents = m_owner->getDirectDependents();
+            assert(dependents.size() < 2);
+            const SoundState* dependentState = nullptr;
+            if (dependents.size() == 1){
+                assert(dependents[0]->numSlots() < 2);
+                if (dependents[0]->numSlots() == 1){
+                    dependentState = dependents[0]->getState(0);
+                }
+            }
+            constructSlot(m_data);
+            m_numKeys = 1;
+            m_numDependentStates = 1;
+        } else {
+            // TODO
+            assert(false);
+        }
+        m_isMonostate = enable;
+    }
+
+    bool StateTable::hasMonostate() const noexcept {
+        return m_isMonostate;
     }
 
 } // namespace flo

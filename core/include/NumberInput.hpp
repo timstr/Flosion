@@ -4,7 +4,7 @@
 
 namespace flo {
 
-    class SoundState;
+    // class SoundState;
 
     // TODO: make NumberInput also store a Constant
     // so that it can be assigned a default value
@@ -13,7 +13,9 @@ namespace flo {
     // (but getSource() should return nullptr when
     // source points to internal constant)
 
+    /*
     class NumberInput {
+        NumberInput() noexcept;
         
         double getValue(const SoundState* context) const noexcept;
 
@@ -25,5 +27,6 @@ namespace flo {
     private:
         NumberSource* m_source;
     };
+    */
 
 } // namespace flo

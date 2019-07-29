@@ -9,6 +9,15 @@ namespace flo {
         , m_network(nullptr) {
     }
 
+    SoundNode::~SoundNode() noexcept {
+        while (m_dependencies.size() > 0){
+            removeDependency(m_dependencies.back());
+        }
+        while (m_dependents.size() > 0){
+            m_dependents.back()->removeDependency(this);
+        }
+    }
+
     bool SoundNode::canAddDependency(const SoundNode* node) const noexcept {
         // TODO
         return true;
@@ -20,9 +29,12 @@ namespace flo {
         }
         m_dependencies.push_back(node);
         node->m_dependents.push_back(this);
-        node->m_dependentOffsets.push_back({this, numDependentStates()});
+        node->m_dependentOffsets.push_back({this, node->numDependentStates()});
 
-        node->insertDependentStates(this, 0, numSlots());
+        if (numSlots() > 0){
+            node->insertDependentStates(this, 0, numSlots());
+            node->repointStatesFor(this);
+        }
     }
 
     void SoundNode::removeDependency(SoundNode* node){
@@ -30,11 +42,17 @@ namespace flo {
             throw std::runtime_error("Don't do that.");
         }
         
-        node->eraseDependentStates(this, 0, numSlots());
+        if (numSlots() > 0){
+            node->eraseDependentStates(this, 0, numSlots());
+        }
         
         node->m_dependentOffsets.erase(
-            std::remove_if(m_dependentOffsets.begin(), m_dependentOffsets.end(), [&](const StateTable::DependentOffset& d){ return d.dependent == this; }),
-            m_dependentOffsets.end()
+            std::remove_if(node->m_dependentOffsets.begin(),
+                node->m_dependentOffsets.end(),
+                [&](const StateTable::DependentOffset& d){
+                    return d.dependent == this;
+                }),
+            node->m_dependentOffsets.end()
         );
         m_dependencies.erase(
             std::remove(m_dependencies.begin(), m_dependencies.end(), node),

@@ -16,5 +16,3 @@ namespace flo {
     };
 
 } // namespace flo
-
-#include <SoundSourceTemplate.tpp>

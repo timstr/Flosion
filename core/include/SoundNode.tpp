@@ -1,17 +1,16 @@
 #include <cassert>
 #include "SoundNode.hpp"
 
+// TODO: make sure to DELETE the "#include <SoundNode.hpp>" that Visual Studio inserts here >:(
+
 namespace flo {
 
-    // Allocatable
+    // Singular
 
     template<typename SoundNodeType, typename SoundStateType>
-    inline std::unique_ptr<StateAllocator> Allocatable<SoundNodeType, SoundStateType>::makeAllocator() const     {
-        return std::make_unique<ConcreteStateAllocator<SoundStateType>>();
+    Singular<SoundNodeType, SoundStateType>::Singular(){
+        StateTable::insertKeys(0, 1);
     }
-
-
-    // Singular
 
     template<typename SoundNodeType, typename SoundStateType>
     SoundStateType* Singular<SoundNodeType, SoundStateType>::getState(const SoundNode* dependent, const SoundState* dependentState) noexcept {
@@ -38,6 +37,16 @@ namespace flo {
         return false;
     }
 
+    template<typename SoundNodeType, typename SoundStateType>
+    bool Singular<SoundNodeType, SoundStateType>::isUncontrolled() const noexcept {
+        return false;
+    }
+
+    template<typename SoundNodeType, typename SoundStateType>
+    std::unique_ptr<StateAllocator> Singular<SoundNodeType, SoundStateType>::makeAllocator() const {
+        return std::make_unique<ConcreteStateAllocator<SoundStateType>>();
+    }
+
 
     // Divergent
 
@@ -45,29 +54,45 @@ namespace flo {
     inline bool Divergent<SoundNodeType, SoundStateType, KeyType>::isDivergent() const noexcept {
         return true;
     }
-    
 
-    // Controllable
-
-    template<typename SoundNodeType>
-    inline bool Controllable<SoundNodeType>::isUncontrolled() const noexcept {
+    template<typename SoundNodeType, typename SoundStateType, typename KeyType>
+    bool Divergent<SoundNodeType, SoundStateType, KeyType>::isUncontrolled() const noexcept {
         return false;
     }
 
-
+    template<typename SoundNodeType, typename SoundStateType, typename KeyType>
+    std::unique_ptr<StateAllocator> Divergent<SoundNodeType, SoundStateType, KeyType>::makeAllocator() const {
+        return std::make_unique<ConcreteStateAllocator<SoundStateType>>();
+    }
+    
     // Uncontrolled
 
-    template<typename SoundNodeType>
-    const SoundState* Uncontrolled<SoundNodeType>::getMonoState() const noexcept {
-        assert(numSlots() == 1);
-        return getState(0);
+    template<typename SoundNodeType, typename SoundStateType>
+    inline Uncontrolled<SoundNodeType, SoundStateType>::Uncontrolled(){
+        StateTable::enableMonostate();
     }
 
-    template<typename SoundNodeType>
-    inline bool Uncontrolled<SoundNodeType>::isUncontrolled() const noexcept {
+    template<typename SoundNodeType, typename SoundStateType>
+    const SoundStateType* Uncontrolled<SoundNodeType, SoundStateType>::getMonoState() const noexcept {
+        assert(StateTable::numSlots() == 1);
+        assert(StateTable::hasMonostate());
+        return reinterpret_cast<const SoundStateType*>(StateTable::getState(0));
+    }
+
+    template<typename SoundNodeType, typename SoundStateType>
+    bool Uncontrolled<SoundNodeType, SoundStateType>::isDivergent() const noexcept {
+        return false;
+    }
+
+    template<typename SoundNodeType, typename SoundStateType>
+    bool Uncontrolled<SoundNodeType, SoundStateType>::isUncontrolled() const noexcept {
         return true;
     }
 
+    template<typename SoundNodeType, typename SoundStateType>
+    std::unique_ptr<StateAllocator> Uncontrolled<SoundNodeType, SoundStateType>::makeAllocator() const {
+        return std::make_unique<ConcreteStateAllocator<SoundStateType>>();
+    }
 
     // Realtime
 

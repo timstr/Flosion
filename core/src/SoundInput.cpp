@@ -4,6 +4,10 @@
 
 namespace flo {
 
+    SoundInput::SoundInput() noexcept
+        : m_source(nullptr) {
+    }
+
     void SoundInput::setSource(SoundSource* source){
         if (m_source){
             removeDependency(m_source);

@@ -82,6 +82,25 @@ namespace flo {
         void addBorrower(StateBorrower*);
         void removeBorrower(StateBorrower*);
 
+        // Fixes the state table as having a single state.
+        // NOTE: MONOSTATE IMPLIES SINGULAR
+        // Throws an exception if there are neither no dependents
+        // at all nor exactly one dependent with at most one state.
+        // This puts the state table into a special mode, in which
+        // the state table may have at most one dependent and at most
+        // one dependent state.
+        // The state table will at all times contain exactly one state.
+        // If there is no dependent state, this so-called monostate
+        // will have null for its dependent state.
+        // Implementation note: this can probably be done without
+        // affecting how state lookup, index computation, low-level
+        // allocation, is done. This will affect insertDependentStates
+        // and eraseDependentStates, but the monostate can be handled
+        // in a fairly trivial special case.
+        void enableMonostate(bool enable = true);
+
+        bool hasMonostate() const noexcept;
+
     private:
         SoundNode* m_owner;
 
@@ -121,6 +140,8 @@ namespace flo {
         // size in bytes per slot
         size_t m_slotSize;
 
+        bool m_isMonostate;
+
         // the array
         unsigned char* m_data;
 
@@ -137,14 +158,14 @@ namespace flo {
         void deallocateData(unsigned char*);
 
         // constructs a slot in place from uninitialized storage
-        void constructSlot(unsigned char* where, const flo::SoundState* dependentState);
+        void constructSlot(unsigned char* where);
 
         // destroys a slot in place
         void destroySlot(unsigned char* where);
 
         // moves a slot from one location to another
         // the old slot is destroyed
-        void moveSlot(unsigned char* from, unsigned char* to, const SoundState* newDependentState);
+        void moveSlot(unsigned char* from, unsigned char* to);
 
         void resetSlot(unsigned char* where);
 
@@ -157,6 +178,10 @@ namespace flo {
         // the old slot is destroyed
         void moveSlotAndRemoveItem(unsigned char* from, unsigned char* to, const StateAllocator* whichItem);
 
+        // updates the dependent state pointers for all states associated
+        // with the given dependent.
+        // This should be called anytime the given dependent moves any of
+        // its states
         void repointStatesFor(const SoundNode* dependent) noexcept;
 
         friend class SoundNode;

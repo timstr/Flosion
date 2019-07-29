@@ -4,8 +4,11 @@
 #include <SoundResult.hpp>
 #include <SoundState.hpp>
 #include <SoundSourceTemplate.hpp>
+#include <NumberNode.hpp>
 
 #include <iostream>
+
+#include <conio.h>
 
 // TODO: synchronize this stuff
 // - See https://www.youtube.com/watch?v=boPEO2auJj4
@@ -35,8 +38,11 @@ public:
     double phase {};
 }; 
 
-class Oscillator : public flo::Realtime<flo::Controllable<flo::SoundSourceTemplate<OscillatorState>>> {
+class Oscillator : public flo::Realtime<flo::ControlledSoundSource<OscillatorState>> {
 public:
+    /*Oscillator() : phase(this) {
+
+    }*/
 
     void renderNextChunk(flo::SoundChunk& chunk, OscillatorState* state){
         for (size_t i = 0; i < flo::SoundChunk::size; ++i){
@@ -46,8 +52,18 @@ public:
             state->phase += 0.1;
         }
     }
-};
 
+    class Phase : public flo::SoundNumberSource<Oscillator> {
+    public:
+        Phase(Oscillator* parent) : SoundNumberSource(parent, getValue) {
+            
+        }
+
+        static double getValue(const flo::SoundNumberSource<Oscillator>* self, OscillatorState* state) noexcept {
+            return state->phase;
+        }
+    } /* phase */;
+};
 
 
 int main() {
@@ -63,14 +79,20 @@ int main() {
 
     res.setSource(&osc);
 
-    res.getNextChunk(chunk);
+    while (true){
+        res.getNextChunk(chunk);
 
-    for (size_t i = 0, iEnd = chunk.size; i != iEnd; ++i){
-        for (size_t j = 0, jEnd = static_cast<size_t>(chunk[i].l() * 32.0f); j != jEnd; ++j){
-            std::cout << '#';
+        for (size_t i = 0, iEnd = chunk.size; i < iEnd; ++i){
+            float v = std::clamp(chunk[i].l(), -1.0f, 1.0f) * 0.5f + 0.5f;
+            for (size_t j = 0, jEnd = static_cast<size_t>(v * 64.0f); j != jEnd; ++j){
+                std::cout << '#';
+            }
+            std::cout << '\n';
+            _sleep(100);
         }
-        std::cout << '\n';
     }
+
+    _getch();
 
 	return 0;
 }

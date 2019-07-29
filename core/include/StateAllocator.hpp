@@ -6,6 +6,8 @@ namespace flo {
 
     class SoundState;
 
+    // TODO: distinguish between SoundState and default-constructible state
+
     class StateAllocator {
     public:
         virtual ~StateAllocator() noexcept = default;

@@ -3,22 +3,32 @@
 #include <SoundSource.hpp>
 #include <StateTable.hpp>
 
-#include <map>
-
 namespace flo {
 
     class SoundInput;
 
     template<typename SoundStateType>
-    class SoundSourceTemplate : public Singular<SoundSource, SoundStateType> {
+    class ControlledSoundSource : public Singular<SoundSource, SoundStateType> {
     public:
 
         virtual void renderNextChunk(SoundChunk& chunk, SoundStateType* state) = 0;
 
     private:
-        void getNextChunkFor(SoundChunk&, const SoundState*) override final;
+        void getNextChunkFor(SoundChunk& chunk, const SoundInput* dependent, const SoundState* dependentState) override final;
 
     };
+
+    template<typename SoundStateType>
+    class UncontrolledSoundSource : public Uncontrolled<SoundSource, SoundStateType> {
+    public:
+
+        virtual void renderNextChunk(SoundChunk& chunk, SoundStateType* state) = 0;
+
+    private:
+        void getNextChunkFor(SoundChunk& chunk, const SoundInput* dependent, const SoundState* dependentState) override final;
+
+    };
+
 
 } // namespace flo
 
