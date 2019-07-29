@@ -8,6 +8,18 @@ namespace flo {
     
     }
 
+    const SoundState* SoundState::getDependentState() const noexcept {
+        return m_dependentState;
+    }
+
+    SoundNode* SoundState::getOwner() noexcept {
+        return m_owner;
+    }
+
+    const SoundNode * SoundState::getOwner() const noexcept {
+        return m_owner;
+    }
+
     void EmptySoundState::reset() noexcept {
 
     }

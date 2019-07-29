@@ -12,8 +12,8 @@ namespace flo {
 
         const SoundState* getDependentState() const noexcept;
 
-        SoundNode& getOwner() noexcept;
-        const SoundNode& getOwner() const noexcept;
+        SoundNode* getOwner() noexcept;
+        const SoundNode* getOwner() const noexcept;
         
     private:
         SoundNode* m_owner;

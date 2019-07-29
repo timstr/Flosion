@@ -28,6 +28,7 @@ set(flosion_core_headers
 
 set(flosion_core_srcs
 	src/Network.cpp
+	src/NumberNode.cpp
 	src/Sample.cpp
 	src/SingleSoundInput.cpp
 	src/SoundChunk.cpp

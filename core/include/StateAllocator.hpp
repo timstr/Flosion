@@ -4,6 +4,7 @@
 
 namespace flo {
 
+    class SoundNode;
     class SoundState;
 
     // TODO: distinguish between SoundState and default-constructible state

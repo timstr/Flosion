@@ -7,6 +7,7 @@
 #include <NumberNode.hpp>
 
 #include <iostream>
+#include <random>
 
 #include <conio.h>
 
@@ -25,6 +26,37 @@
 
 // TODO: add graphs back (in a safe and clean way)
 
+class Sine : public flo::StatelessNumberSource {
+public:
+    Sine() : flo::StatelessNumberSource(compute), input(this) {
+    
+    }
+
+    flo::NumberSourceInput input;
+
+private:
+    static double compute(const flo::NumberSource* self, const flo::SoundState* context) noexcept {
+        const auto derivedSelf = reinterpret_cast<const Sine*>(self);
+        return std::sin(derivedSelf->input.getValue(context) * 2.0 * 3.141592654);
+    }
+};
+
+class Saw : public flo::StatelessNumberSource {
+public:
+    Saw() : flo::StatelessNumberSource(compute), input(this) {
+    
+    }
+
+    flo::NumberSourceInput input;
+
+private:
+    static double compute(const flo::NumberSource* self, const flo::SoundState* context) noexcept {
+        const auto derivedSelf = reinterpret_cast<const Saw*>(self);
+        const auto v = derivedSelf->input.getValue(context);
+        return 2.0 * (v - std::floor(v)) - 1.0;
+    }
+};
+
 class Oscillator;
 
 class OscillatorState : public flo::ConcreteSoundState<Oscillator> {
@@ -40,16 +72,16 @@ public:
 
 class Oscillator : public flo::Realtime<flo::ControlledSoundSource<OscillatorState>> {
 public:
-    /*Oscillator() : phase(this) {
+    Oscillator() : phase(this), waveFunction(this), frequency(this) {
 
-    }*/
+    }
 
     void renderNextChunk(flo::SoundChunk& chunk, OscillatorState* state){
         for (size_t i = 0; i < flo::SoundChunk::size; ++i){
-            float val = std::sin(static_cast<float>(state->phase));
+            float val = static_cast<float>(waveFunction.getValue(state));
             chunk.l(i) = val;
             chunk.r(i) = val;
-            state->phase += 0.1;
+            state->phase += frequency.getValue(state);
         }
     }
 
@@ -59,10 +91,13 @@ public:
             
         }
 
-        static double getValue(const flo::SoundNumberSource<Oscillator>* self, OscillatorState* state) noexcept {
+        static double getValue(const flo::SoundNumberSource<Oscillator>* self, const OscillatorState* state) noexcept {
             return state->phase;
         }
-    } /* phase */;
+    } phase;
+
+    flo::SoundNumberInput waveFunction;
+    flo::SoundNumberInput frequency;
 };
 
 
@@ -72,6 +107,23 @@ int main() {
 	flo::Network network;
 
     auto osc = Oscillator{};
+
+    auto sine = Sine{};
+    auto saw = Saw{};
+
+    sine.input.setSource(&osc.phase);
+    saw.input.setSource(&osc.phase);
+
+    std::random_device rd;
+    auto eng = std::default_random_engine{rd()};
+    auto dist = std::uniform_int_distribution<int>{0,1};
+    if (dist(eng)){
+        osc.waveFunction.setSource(&sine);
+    } else {
+        osc.waveFunction.setSource(&saw);
+    }
+
+    osc.frequency.setDefaultValue(0.05);
 
     auto res = flo::SoundResult{};
 
