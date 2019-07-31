@@ -32,17 +32,15 @@ namespace flo {
         Sample& operator-=(const Sample&) noexcept;
         Sample& operator-=(const SampleProxy&) noexcept;
         Sample& operator*=(float) noexcept;
-        Sample& operator*=(const Sample&) noexcept;
-        Sample& operator*=(const SampleProxy&) noexcept;
         
+        Sample operator-() const noexcept;
         Sample operator+(const Sample&) const noexcept;
         Sample operator+(const ConstSampleProxy&) const noexcept;
         Sample operator-(const Sample&) const noexcept;
         Sample operator-(const ConstSampleProxy&) const noexcept;
         Sample operator*(float) const noexcept;
-        Sample operator*(const Sample&) const noexcept;
-        Sample operator*(const ConstSampleProxy&) const noexcept;
         
+
         operator SampleProxy() & noexcept;
         operator ConstSampleProxy() const & noexcept;
 
@@ -84,6 +82,7 @@ namespace flo {
         SampleProxy& operator*=(const Sample&) noexcept;
         SampleProxy& operator*=(const ConstSampleProxy&) noexcept;
         
+        Sample operator-() const noexcept;
         Sample operator+(const Sample&) const noexcept;
         Sample operator+(const ConstSampleProxy&) const noexcept;
         Sample operator-(const Sample&) const noexcept;
@@ -98,6 +97,7 @@ namespace flo {
         float* m_ptr;
 
         friend class SoundChunk;
+        friend class Sample;
     };
 
     /**
@@ -110,6 +110,7 @@ namespace flo {
      * Beware of dangling references.
      */
     class ConstSampleProxy {
+    public:
         ConstSampleProxy() = delete;
         ConstSampleProxy(const ConstSampleProxy&) noexcept = default;
         ~ConstSampleProxy() noexcept = default;
@@ -119,7 +120,8 @@ namespace flo {
         const float& l() const noexcept;
 
         const float& r() const noexcept;
-
+        
+        Sample operator-() const noexcept;
         Sample operator+(const Sample&) const noexcept;
         Sample operator+(const ConstSampleProxy&) const noexcept;
         Sample operator-(const Sample&) const noexcept;
@@ -134,6 +136,7 @@ namespace flo {
         const float* m_ptr;
 
         friend class SoundChunk;
+        friend class Sample;
     };
 
 } // namespace flo

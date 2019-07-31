@@ -1,5 +1,6 @@
 #include <StateTable.hpp>
 #include <StateAllocator.hpp>
+#include <StateBorrower.hpp>
 #include <SoundNode.hpp>
 
 #include <algorithm>
@@ -35,6 +36,16 @@ namespace flo {
         return it->offset;
     }
 
+    size_t StateTable::nextAlignedOffset(size_t minOffset, size_t align) const {
+        // make sure that align is a power of 2
+        assert(align != 0 && (align & (align - 1)) == 0);
+        auto prev = (minOffset / align) * align;
+        assert(prev % align == 0);
+        assert(prev <= minOffset);
+        assert(prev + align > minOffset);
+        return (prev == minOffset) ? prev : prev + align;
+    }
+
     StateAllocator* StateTable::getMainAllocator(){
         if (!m_mainAllocator){
             assert(m_numKeys == 0);
@@ -64,6 +75,7 @@ namespace flo {
     void StateTable::constructSlot(unsigned char* where){
         getMainAllocator()->construct(where, m_owner, nullptr);
         for (auto& slot : m_slotItems){
+            assert(slot.offset != static_cast<size_t>(-1));
             slot.allocator->construct(where + slot.offset, m_owner, nullptr);
         }
     }
@@ -71,14 +83,15 @@ namespace flo {
     void StateTable::destroySlot(unsigned char* where){
         getMainAllocator()->destroy(where);
         for (auto& slot : m_slotItems){
+            assert(slot.offset != static_cast<size_t>(-1));
             slot.allocator->destroy(where + slot.offset);
         }
     }
 
     void StateTable::moveSlot(unsigned char* from, unsigned char* to){
         getMainAllocator()->moveConstruct(to, from);
-        (reinterpret_cast<SoundState*>(to))->m_dependentState = nullptr;
         for (auto& slot : m_slotItems){
+            assert(slot.offset != static_cast<size_t>(-1));
             slot.allocator->moveConstruct(to + slot.offset, from + slot.offset);
         }
         destroySlot(from);
@@ -87,7 +100,35 @@ namespace flo {
     void StateTable::resetSlot(unsigned char* where){
         reinterpret_cast<SoundState*>(where)->reset();
         for (auto& slot : m_slotItems){
+            assert(slot.offset != static_cast<size_t>(-1));
             reinterpret_cast<State*>(where + slot.offset)->reset();
+        }
+    }
+
+    void StateTable::moveSlotAndAddItem(unsigned char* from, unsigned char* to, const StateBorrower* whichItem){
+        getMainAllocator()->moveConstruct(to, from);
+        for (auto& slot : m_slotItems){
+            assert(slot.offset != static_cast<size_t>(-1));
+            assert(slot.previousOffset != static_cast<size_t>(-1));
+            if (slot.borrower == whichItem){
+                const auto mainState = (reinterpret_cast<SoundState*>(to));
+                slot.allocator->construct(to + slot.offset, m_owner, mainState->getDependentState());
+            } else {
+                slot.allocator->moveConstruct(to + slot.offset, from + slot.previousOffset);
+                slot.allocator->destroy(from + slot.previousOffset);
+            }
+        }
+    }
+
+    void StateTable::moveSlotAndRemoveItem(unsigned char* from, unsigned char* to, const StateBorrower* whichItem) {
+        getMainAllocator()->moveConstruct(to, from);
+        for (auto& slot : m_slotItems){
+            if (slot.borrower == whichItem){
+                slot.allocator->destroy(from + slot.offset);
+            } else {
+                slot.allocator->moveConstruct(to + slot.offset, from + slot.previousOffset);
+                slot.allocator->destroy(from + slot.previousOffset);
+            }
         }
     }
 
@@ -118,6 +159,17 @@ namespace flo {
     const SoundState* StateTable::getState(size_t slotIndex) const noexcept {
         assert(slotIndex < numSlots());
         return reinterpret_cast<const SoundState*>(m_data + (slotIndex * m_slotSize));
+    }
+
+    State* StateTable::getBorrowedState(const SoundState* mainState, const StateBorrower* borrower) const noexcept {
+        // TODO: safety assertions
+        const auto addr = (reinterpret_cast<const unsigned char*>(mainState) + borrower->m_stateOffset);
+        return reinterpret_cast<State*>(const_cast<unsigned char*>(addr));
+    }
+
+    const SoundState* StateTable::getMainState(const State* borrowedState) const noexcept {
+        const auto idx = ((reinterpret_cast<const unsigned char*>(borrowedState)) - m_data) / m_slotSize;
+        return getState(idx);
     }
 
     void StateTable::resetStateFor(const SoundNode* dependent, const SoundState* dependentState) noexcept {
@@ -486,6 +538,144 @@ namespace flo {
 
         // clean up
         deallocateData(oldData);
+    }
+
+    void StateTable::addBorrower(StateBorrower* borrower){
+        assert(
+            std::count_if(
+                m_slotItems.begin(),
+                m_slotItems.end(),
+                [&](const SlotItem& si){ return si.borrower == borrower; }
+            ) == 0
+        );
+
+        auto mainAllocator = getMainAllocator();
+
+        auto allocator = borrower->makeAllocater();
+        auto size = allocator->getSize();
+        auto align = allocator->getAlignment();
+        auto nextOffset = mainAllocator->getSize();
+
+        auto item = m_slotItems.begin();
+
+        // Find the first position whose size is smaller than that of the new state
+        while (item != m_slotItems.end()){
+            const auto itemSize = item->allocator->getSize();
+            if (itemSize < size){
+                break;
+            }
+            item->previousOffset = item->offset;
+            nextOffset = item->offset + itemSize;
+            ++item;
+        }
+ 
+        // insert the new slot item
+        nextOffset = nextAlignedOffset(nextOffset, align);
+        item = m_slotItems.insert(item, SlotItem{borrower, std::move(allocator), nextOffset, static_cast<size_t>(-1)});
+        borrower->m_stateOffset = nextOffset;
+        nextOffset += size;
+
+        // shuffle all remaining slot items over
+        ++item;
+        while (item != m_slotItems.end()){
+            item->previousOffset = item->offset;
+            nextOffset = nextAlignedOffset(nextOffset, item->allocator->getAlignment());
+            item->offset = nextOffset;
+            item->borrower->m_stateOffset = nextOffset;
+            nextOffset += item->allocator->getSize();
+        }
+
+        // infer position of next slot and update size
+        nextOffset = nextAlignedOffset(nextOffset, mainAllocator->getAlignment());
+        const auto oldSlotSize = m_slotSize;
+        m_slotSize = nextOffset;
+        assert(oldSlotSize < m_slotSize);
+
+        // allocate new data
+        auto oldData = m_data;
+        m_data = allocateData(m_slotSize, numSlots());
+
+        // move everything
+        for (size_t i = 0, iEnd = numSlots(); i < iEnd; ++i){
+            moveSlotAndAddItem(oldData + (i * oldSlotSize), m_data + (i * m_slotSize), borrower);
+        }
+
+        // clean up
+        deallocateData(oldData);
+
+        // propagate changes
+        for (const auto& d : m_owner->getDirectDependencies()){
+            d->repointStatesFor(m_owner);
+        }
+    }
+
+    void StateTable::removeBorrower(StateBorrower* borrower){
+        assert(
+            std::count_if(
+                m_slotItems.begin(),
+                m_slotItems.end(),
+                [&](const SlotItem& si){ return si.borrower == borrower; }
+            ) == 1
+        );
+
+        auto mainAllocator = getMainAllocator();
+
+        auto nextOffset = mainAllocator->getSize();;
+
+        auto item = m_slotItems.begin();
+
+        // Find the slot item for the given borrower
+        while (item != m_slotItems.end() && item->borrower != borrower){
+            item->previousOffset = item->offset;
+            nextOffset = item->offset + item->allocator->getSize();
+            ++item;
+        }
+ 
+        // record its position
+        assert(item != m_slotItems.end());
+        assert(item->borrower == borrower);
+        const auto itemToRemove = item;
+        item->previousOffset = item->offset;
+
+        // NOTE: the slot item is not removed yet so that moveSlotAndRemoveItem
+        // still has access to the data it needs for cleanup
+
+        // shuffle all remaining slot items over
+        ++item;
+        while (item != m_slotItems.end()){
+            item->previousOffset = item->offset;
+            nextOffset = nextAlignedOffset(nextOffset, item->allocator->getAlignment());
+            item->offset = nextOffset;
+            item->borrower->m_stateOffset = nextOffset;
+            nextOffset += item->allocator->getSize();
+        }
+
+        // infer position of next slot and update size
+        nextOffset = nextAlignedOffset(nextOffset, mainAllocator->getAlignment());
+        const auto oldSlotSize = m_slotSize;
+        m_slotSize = nextOffset;
+        assert(oldSlotSize > m_slotSize);
+
+        // allocate new data
+        auto oldData = m_data;
+        m_data = allocateData(m_slotSize, numSlots());
+
+        // move everything
+        for (size_t i = 0, iEnd = numSlots(); i < iEnd; ++i){
+            moveSlotAndRemoveItem(oldData + (i * oldSlotSize), m_data + (i * m_slotSize), borrower);
+        }
+
+        // erase the old slot item
+        m_slotItems.erase(itemToRemove);
+        borrower->m_stateOffset = static_cast<size_t>(-1);
+
+        // clean up
+        deallocateData(oldData);
+
+        // propagate changes
+        for (const auto& d : m_owner->getDirectDependencies()){
+            d->repointStatesFor(m_owner);
+        }
     }
 
     void StateTable::enableMonostate(bool enable){

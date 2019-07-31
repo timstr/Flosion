@@ -10,35 +10,14 @@ namespace flo {
     class SoundState;
     class Network;
 
-    // TODO: add support for dynamically changing TimeBehavior
-    // i.e. a Sampler may be 'Normal' until it is switched into
-    // some interactive edit mode, when it becomes 'Uncontrolled'
-    // NO NO NO. That will be horribly complicated, and the only
-    // use case I can think of for this is switching a normally
-    // controllable soundsource like NoteSequencer into an interactive
-    // keyboard playing mode. It would be simpler to internally
-    // substitute in a different sound source that is always uncontrolled.
-
-    /*
-    TODO:
-    - Every node shall BE a state table (maybe make SoundNode derive from StateTable?)
-    - StateTable shall have the pure virtual methods currently defined in StateAllocator
-      (but ConcreteStateAllocator should still override these and be co-derived from by derived SoundNodes)
-    - No more addStateFor/removeStateFor, it all happens when adding and removing dependencies and keys
-      and updates are propagated automatically
-
-    */
-
     // basic sound node type
-    // TODO: derive from StateTable (and make StateTable derive from
-    // StateAllocator for its main state) to make this interface less
-    // complicated
     class SoundNode : public StateTable, private Immovable {
     public:
         SoundNode() noexcept;
         virtual ~SoundNode() noexcept;
         
         bool canAddDependency(const SoundNode*) const noexcept;
+        bool canRemoveDependency(const SoundNode*) const noexcept;
         void addDependency(SoundNode* node);
         void removeDependency(SoundNode* node);
 
@@ -57,28 +36,6 @@ namespace flo {
          * NOTE: this interface is really meant for getNextChunkFor(...), but its
          * arguments differ significantly between concrete sound nodes.
          */
-
-    private:
-
-        /*
-        void addDependentStates(const SoundNode* dependent, size_t beginIndex, size_t endIndex);
-        void eraseDependentStates(const SoundNode* dependent, size_t beginIndex, size_t endIndex);
-
-        void insertKeys(size_t beginIndex, size_t endIndex);
-        void eraseKeys(size_t beginIndex, size_t endIndex);
-
-        void addBorrower(StateBorrower*);
-        void removeBorrower(StateBorrower*);
-
-        SoundState* getState(const SoundNode* dependent, size_t dependentStateIndex, size_t keyIndex) noexcept;
-        const SoundState* getState(const SoundNode* dependent, size_t dependentStateIndex, size_t keyIndex) const noexcept;
-
-        SoundState* getState(size_t index) noexcept;
-        const SoundState* getState(size_t index) const noexcept;
-
-        State* getBorrowedState(const SoundState* mainState, const StateBorrower* borrower) noexcept;
-        const State* getBorrowedState(const SoundState* mainState, const StateBorrower* borrower) const noexcept;
-        */
 
     private:
 

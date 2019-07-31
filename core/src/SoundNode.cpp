@@ -19,7 +19,39 @@ namespace flo {
     }
 
     bool SoundNode::canAddDependency(const SoundNode* node) const noexcept {
-        // TODO
+        if (hasDependency(node) || node->hasDependency(this)){
+            return false;
+        }
+
+        if (node->isUncontrolled() || node->hasUncontrolledDependency()){
+            // make sure that there will be nothing but a line of realtime, singular dependents
+            const auto dds = node->getDirectDependents();
+            if (dds.size() > 0){
+                return false;
+            }
+
+            auto curr = this;
+            while (curr){
+                if (curr->isDivergent() || curr->isOutOfSync()){
+                    return false;
+                }
+                const auto dds = curr->getDirectDependents();
+                if (dds.size() == 0){
+                    return true;
+                } else if (dds.size() == 1){
+                    curr = dds[0];
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    bool SoundNode::canRemoveDependency(const SoundNode *) const noexcept {
+        // TODO: make sure that no numbersources would lose access to the
+        // state they need
         return true;
     }
 
@@ -38,6 +70,10 @@ namespace flo {
     }
 
     void SoundNode::removeDependency(SoundNode* node){
+        if (!canRemoveDependency(node)){
+            throw std::runtime_error("Don't do that.");
+        }
+
         if (std::find(m_dependencies.begin(), m_dependencies.end(), node) == m_dependencies.end()){
             throw std::runtime_error("Don't do that.");
         }
@@ -70,6 +106,30 @@ namespace flo {
 
     const std::vector<SoundNode*>& SoundNode::getDirectDependents() const noexcept {
         return m_dependents;
+    }
+
+    bool SoundNode::hasDependency(const SoundNode* node) const noexcept {
+        if (this == node){
+            return true;
+        }
+        for (const auto& d : m_dependencies){
+            if (d->hasDependency(node)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool SoundNode::hasUncontrolledDependency() const noexcept {
+        if (isUncontrolled()){
+            return true;
+        }
+        for (const auto& d : m_dependencies){
+            if (d->hasUncontrolledDependency()){
+                return true;
+            }
+        }
+        return false;
     }
     
 

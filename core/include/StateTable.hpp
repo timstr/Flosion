@@ -49,8 +49,9 @@ namespace flo {
         SoundState* getState(size_t index) noexcept;
         const SoundState* getState(size_t index) const noexcept;
 
-        State* getBorrowedState(const SoundState* mainState, const StateBorrower* borrower) noexcept;
-        const State* getBorrowedState(const SoundState* mainState, const StateBorrower* borrower) const noexcept;
+        State* getBorrowedState(const SoundState* mainState, const StateBorrower* borrower) const noexcept;
+
+        const SoundState* getMainState(const State* borrowedState) const noexcept;
 
         void resetStateFor(const SoundNode* dependent, const SoundState* dependentState) noexcept;
 
@@ -111,12 +112,17 @@ namespace flo {
 
         // Per slot item data
         struct SlotItem {
+            // The borrower for which the state is allocated
+            StateBorrower* borrower;
 
             // The allocator used to manage the lifetime of the slot item
             std::unique_ptr<StateAllocator> allocator;
 
             // The offset (in bytes) from the slot's begin to the item
             size_t offset;
+
+            // The previous offset (in bytes). Used for reallocating while adding and removing items.
+            size_t previousOffset;
         };
 
         std::vector<SlotItem> m_slotItems;
@@ -150,7 +156,7 @@ namespace flo {
 
         size_t getDependentOffset(const SoundNode* dependent) const noexcept;
 
-        size_t nextAlignedOffset(const unsigned char* addr, size_t align) const;
+        size_t nextAlignedOffset(size_t minOffset, size_t align) const;
 
         StateAllocator* getMainAllocator();
 
@@ -172,11 +178,11 @@ namespace flo {
         // moves a slot from one location to another while adding a slot item
         // the slot item must be present in m_slotItems
         // the old slot is destroyed
-        void moveSlotAndAddItem(unsigned char* from, unsigned char* to, const StateAllocator* whichItem);
+        void moveSlotAndAddItem(unsigned char* from, unsigned char* to, const StateBorrower* whichItem);
         
         // moves a slot from one location to another while removing a slot item
         // the old slot is destroyed
-        void moveSlotAndRemoveItem(unsigned char* from, unsigned char* to, const StateAllocator* whichItem);
+        void moveSlotAndRemoveItem(unsigned char* from, unsigned char* to, const StateBorrower* whichItem);
 
         // updates the dependent state pointers for all states associated
         // with the given dependent.

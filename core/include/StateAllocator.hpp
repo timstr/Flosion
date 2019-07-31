@@ -2,6 +2,8 @@
 
 #include <State.hpp>
 
+#include <type_traits>
+
 namespace flo {
 
     class SoundNode;
@@ -27,7 +29,15 @@ namespace flo {
     class ConcreteStateAllocator : public StateAllocator {
     private:
         void construct(void* dst, SoundNode* owner, const SoundState* dependentState) override final {
-            new (dst) StateType(owner, dependentState);
+            if constexpr (std::is_base_of_v<SoundState, StateType>){
+                auto s = new (dst) StateType(owner, dependentState);
+                s->reset();
+            } else if constexpr (std::is_base_of_v<State, StateType>){
+                auto s = new (dst) StateType();
+                s->reset();
+            } else {
+                static_assert(false, "The template parameter passed to ConcreteStateAllocator must derive from State or SoundState.");
+            }
         }
         void moveConstruct(void* dst, void* src) noexcept override final {
             new (dst) StateType(std::move(*static_cast<StateType*>(src)));

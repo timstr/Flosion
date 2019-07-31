@@ -57,6 +57,31 @@ private:
     }
 };
 
+class SmootherState : public flo::State {
+public:
+    void reset() noexcept override {
+        value = 0.0;
+    }
+
+    double value{};
+};
+class Smoother : public flo::BorrowingNumberSource<SmootherState> {
+public:
+    Smoother() : flo::BorrowingNumberSource<SmootherState>(compute), input(this) {
+    
+    }
+
+    flo::NumberSourceInput input;
+
+private:
+    static double compute(const flo::BorrowingNumberSource<SmootherState>* self, SmootherState* state) noexcept {
+        auto derivedSelf = reinterpret_cast<const Smoother*>(self);
+        auto v = derivedSelf->input.getValue(derivedSelf->getStateLender()->getMainState(state));
+        state->value += 0.2 * (v - state->value);
+        return state->value;
+    }
+};
+
 class Oscillator;
 
 class OscillatorState : public flo::ConcreteSoundState<Oscillator> {
@@ -108,6 +133,9 @@ int main() {
 
     auto osc = Oscillator{};
 
+    auto smoo = Smoother{};
+    smoo.borrowFrom(&osc);
+
     auto sine = Sine{};
     auto saw = Saw{};
 
@@ -118,10 +146,12 @@ int main() {
     auto eng = std::default_random_engine{rd()};
     auto dist = std::uniform_int_distribution<int>{0,1};
     if (dist(eng)){
-        osc.waveFunction.setSource(&sine);
+        smoo.input.setSource(&sine);
     } else {
-        osc.waveFunction.setSource(&saw);
+        smoo.input.setSource(&saw);
     }
+
+    osc.waveFunction.setSource(&smoo);
 
     osc.frequency.setDefaultValue(0.05);
 

@@ -6,17 +6,24 @@
 
 namespace flo {
 
-    class StateOwner;
+    class SoundNode;
 
     class StateBorrower {
     public:
+        StateBorrower() noexcept;
+
         virtual std::unique_ptr<StateAllocator> makeAllocater() const = 0;
 
-        // TODO
+        SoundNode* getStateLender() noexcept;
+        const SoundNode* getStateLender() const noexcept;
+
+        void borrowFrom(SoundNode*);
 
     private:
-        StateOwner* m_stateOwner;
+        SoundNode* m_stateLender;
         size_t m_stateOffset;
+
+        friend class StateTable;
     };
 
 } // namespace flo

@@ -37,6 +37,7 @@ set(flosion_core_srcs
 	src/SoundResult.cpp
 	src/SoundSource.cpp
 	src/SoundState.cpp
+	src/StateBorrower.cpp
 	src/StateTable.cpp
 )
 

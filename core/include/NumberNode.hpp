@@ -55,10 +55,7 @@ namespace flo {
         std::vector<NumberNode*> m_dependents;
         std::vector<NumberNode*> m_dependencies;
 
-        // TODO: also provide access to the state owner of stateful number sources
-        // so that dependencies can be figured out.
-        // TODO: Consider replacing isStateless() with getStateOwner() or something similar
-        virtual bool isStateless() const noexcept = 0;
+        virtual const SoundNode* getStateOwner() const noexcept = 0;
     };
 
     class NumberSource : public NumberNode {
@@ -80,7 +77,7 @@ namespace flo {
         // TODO
 
     private:
-        bool isStateless() const noexcept override final;
+        const SoundNode* getStateOwner() const noexcept override final;
     };
 
     template<typename StateType>
@@ -95,10 +92,10 @@ namespace flo {
     private:
         const DerivedEvaluationFunction m_derivedEvalFn;
 
-        bool isStateless() const noexcept override final;
+        const SoundNode* getStateOwner() const noexcept override final;
         std::unique_ptr<StateAllocator> makeAllocater() const override final;
 
-        static double findStateAndEvaluate(const NumberSource* self, SoundState* context) noexcept;
+        static double findStateAndEvaluate(const NumberSource* self, const SoundState* context) noexcept;
     };
 
     template<typename SoundNodeType>
@@ -116,7 +113,7 @@ namespace flo {
         const SoundNodeType* m_owner;
         const DerivedEvaluationFunction m_derivedEvalFn;
 
-        bool isStateless() const noexcept override final;
+        const SoundNode* getStateOwner() const noexcept override final;
         static double findStateAndEvaluate(const NumberSource* self, const SoundState* context) noexcept;
     };
 
@@ -163,7 +160,7 @@ namespace flo {
         NumberSourceInput(NumberSource* owner);
 
     private:
-        bool isStateless() const noexcept override final;
+        const SoundNode* getStateOwner() const noexcept override final;
     };
 
 
@@ -173,7 +170,7 @@ namespace flo {
 
     private:
         const SoundNode* m_owner;
-        bool isStateless() const noexcept override final;
+        const SoundNode* getStateOwner() const noexcept override final;
     };
 
     // TODO: move the definitions below this comment to their own .tpp file
@@ -188,8 +185,8 @@ namespace flo {
     }
 
     template<typename SoundNodeType>
-    inline bool SoundNumberSource<SoundNodeType>::isStateless() const noexcept {
-        return false;
+    inline const SoundNode* SoundNumberSource<SoundNodeType>::getStateOwner() const noexcept {
+        return m_owner;
     }
 
     template<typename SoundNodeType>
@@ -203,6 +200,32 @@ namespace flo {
             context = context->getDependentState();
         }
         assert(false);
+        return 0.0;
+    }
+
+    template<typename StateType>
+    inline BorrowingNumberSource<StateType>::BorrowingNumberSource(DerivedEvaluationFunction evalFn) noexcept
+        : NumberSource(findStateAndEvaluate)
+        , m_derivedEvalFn(evalFn) {
+
+    }
+
+    template<typename StateType>
+    inline const SoundNode * BorrowingNumberSource<StateType>::getStateOwner() const noexcept {
+        return getStateLender();
+    }
+
+    template<typename StateType>
+    inline std::unique_ptr<StateAllocator> BorrowingNumberSource<StateType>::makeAllocater() const {
+        return std::make_unique<ConcreteStateAllocator<StateType>>();
+    }
+
+    template<typename StateType>
+    inline double BorrowingNumberSource<StateType>::findStateAndEvaluate(const NumberSource* self, const SoundState* context) noexcept {
+        auto derivedSelf = reinterpret_cast<const BorrowingNumberSource<StateType>*>(self);
+        if (const auto lender = derivedSelf->getStateLender()){
+            return derivedSelf->m_derivedEvalFn(derivedSelf, reinterpret_cast<StateType*>(lender->getBorrowedState(context, derivedSelf)));
+        }
         return 0.0;
     }
 
