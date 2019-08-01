@@ -23,7 +23,7 @@ namespace flo {
             return false;
         }
 
-        if (node->isUncontrolled() || node->hasUncontrolledDependency()){
+        if (node->hasUncontrolledDependency()){
             // make sure that there will be nothing but a line of realtime, singular dependents
             const auto dds = node->getDirectDependents();
             if (dds.size() > 0){

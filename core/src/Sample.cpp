@@ -132,11 +132,81 @@ namespace flo {
         return m_ptr[1];
     }
 
+    SampleProxy& SampleProxy::operator=(const Sample& other) noexcept {
+        l() = other.l();
+        r() = other.r();
+        return *this;
+    }
+
+    SampleProxy& SampleProxy::operator=(const ConstSampleProxy& other) noexcept {
+        l() = other.l();
+        r() = other.r();
+        return *this;
+    }
+
+    SampleProxy& SampleProxy::operator+=(const Sample& other) noexcept {
+        l() += other.l();
+        r() += other.r();
+        return *this;
+    }
+
+    SampleProxy& SampleProxy::operator+=(const ConstSampleProxy& other) noexcept {
+        l() += other.l();
+        r() += other.r();
+        return *this;
+    }
+
+    SampleProxy& SampleProxy::operator-=(const Sample& other) noexcept {
+        l() -= other.l();
+        r() -= other.r();
+        return *this;
+    }
+
+    SampleProxy& SampleProxy::operator-=(const ConstSampleProxy& other) noexcept {
+        l() -= other.l();
+        r() -= other.r();
+        return *this;
+    }
+
+    SampleProxy& SampleProxy::operator*=(float value) noexcept {
+        l() *= value;
+        r() *= value;
+        return *this;
+    }
+
+    Sample SampleProxy::operator-() const noexcept {
+        return {-l(), -r()};
+    }
+
+    Sample SampleProxy::operator+(const Sample& other) const noexcept {
+        return {l() + other.l(), r() + other.r()};
+    }
+
+    Sample SampleProxy::operator+(const ConstSampleProxy& other) const noexcept {
+        return {l() + other.l(), r() + other.r()};
+    }
+
+    Sample SampleProxy::operator-(const Sample& other) const noexcept {
+        return {l() - other.l(), r() - other.r()};
+    }
+
+    Sample SampleProxy::operator-(const ConstSampleProxy& other) const noexcept {
+        return {l() - other.l(), r() - other.r()};
+    }
+
+    Sample SampleProxy::operator*(float value) const noexcept {
+        return {l() * value, r() * value};
+    }
+
     // ConstSampleProxy
 
     ConstSampleProxy::ConstSampleProxy(const float* ptr) noexcept
         : m_ptr(ptr) {
     
+    }
+
+    ConstSampleProxy::ConstSampleProxy(SampleProxy other) noexcept 
+        : m_ptr(other.m_ptr) {
     }
 
     const float& ConstSampleProxy::l() const noexcept {
@@ -145,6 +215,30 @@ namespace flo {
 
     const float& ConstSampleProxy::r() const noexcept {
         return m_ptr[1];
+    }
+
+    Sample ConstSampleProxy::operator-() const noexcept {
+        return {-l(), -r()};
+    }
+
+    Sample ConstSampleProxy::operator+(const Sample& other) const noexcept {
+        return {l() + other.l(), r() + other.r()};
+    }
+
+    Sample ConstSampleProxy::operator+(const ConstSampleProxy& other) const noexcept {
+        return {l() + other.l(), r() + other.r()};
+    }
+
+    Sample ConstSampleProxy::operator-(const Sample& other) const noexcept {
+        return {l() - other.l(), r() - other.r()};
+    }
+
+    Sample ConstSampleProxy::operator-(const ConstSampleProxy& other) const noexcept {
+        return {l() - other.l(), r() - other.r()};
+    }
+
+    Sample ConstSampleProxy::operator*(float value) const noexcept {
+        return {l() * value, r() * value};
     }
 
 } // namespace flo

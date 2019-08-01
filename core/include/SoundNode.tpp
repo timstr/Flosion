@@ -1,5 +1,4 @@
 #include <cassert>
-#include "SoundNode.hpp"
 
 // TODO: make sure to DELETE the "#include <SoundNode.hpp>" that Visual Studio inserts here >:(
 
@@ -63,6 +62,55 @@ namespace flo {
     template<typename SoundNodeType, typename SoundStateType, typename KeyType>
     std::unique_ptr<StateAllocator> Divergent<SoundNodeType, SoundStateType, KeyType>::makeAllocator() const {
         return std::make_unique<ConcreteStateAllocator<SoundStateType>>();
+    }
+
+    template<typename SoundNodeType, typename SoundStateType, typename KeyType>
+    size_t Divergent<SoundNodeType, SoundStateType, KeyType>::getKeyIndex(const KeyType& key) const noexcept {
+        // TODO: measure if binary search is faster
+        auto it = std::find(m_keys.begin(), m_keys.end(), key);
+        assert(it != m_keys.end());
+        return static_cast<size_t>(it - m_keys.begin());
+    }
+
+    template<typename SoundNodeType, typename SoundStateType, typename KeyType>
+    inline SoundStateType* Divergent<SoundNodeType, SoundStateType, KeyType>::getState(const SoundNode* dependent, const SoundState* dependentState, const KeyType& key) noexcept {
+        return reinterpret_cast<SoundStateType*>(StateTable::getState(dependent, dependentState, getKeyIndex(key)));
+    }
+
+    template<typename SoundNodeType, typename SoundStateType, typename KeyType>
+    inline const SoundStateType* Divergent<SoundNodeType, SoundStateType, KeyType>::getState(const SoundNode* dependent, const SoundState* dependentState, const KeyType& key) const noexcept {
+        return reinterpret_cast<const SoundStateType*>(StateTable::getState(dependent, dependentState, getKeyIndex(key)));
+    }
+
+    template<typename SoundNodeType, typename SoundStateType, typename KeyType>
+    inline SoundStateType* Divergent<SoundNodeType, SoundStateType, KeyType>::getState(size_t index) noexcept {
+        return reinterpret_cast<SoundStateType*>(StateTable::getState(index));
+    }
+
+    template<typename SoundNodeType, typename SoundStateType, typename KeyType>
+    inline const SoundStateType* Divergent<SoundNodeType, SoundStateType, KeyType>::getState(size_t index) const noexcept {
+        return reinterpret_cast<const SoundStateType*>(StateTable::getState(index));
+    }
+
+    template<typename SoundNodeType, typename SoundStateType, typename KeyType>
+    void Divergent<SoundNodeType, SoundStateType, KeyType>::addKey(const KeyType& key){
+        assert(!hasKey(key));
+        m_keys.push_back(key);
+        const auto size = m_keys.size();
+        StateTable::insertKeys(size - 1, size);
+    }
+
+    template<typename SoundNodeType, typename SoundStateType, typename KeyType>
+    bool Divergent<SoundNodeType, SoundStateType, KeyType>::hasKey(const KeyType& key) const noexcept {
+        return std::find(m_keys.begin(), m_keys.end(), key) != m_keys.end();
+    }
+
+    template<typename SoundNodeType, typename SoundStateType, typename KeyType>
+    void Divergent<SoundNodeType, SoundStateType, KeyType>::removeKey(const KeyType& key){
+        auto it = std::find(m_keys.begin(), m_keys.end(), key);
+        assert(it != m_keys.end());
+        auto idx = static_cast<size_t>(it - m_keys.end());
+        StateTable::eraseKeys(idx, idx + 1);
     }
     
     // Uncontrolled

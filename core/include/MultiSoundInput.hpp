@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SoundInput.hpp>
+#include <SoundSource.hpp>
 #include <StateTable.hpp>
 #include <SoundChunk.hpp>
 
@@ -9,7 +10,7 @@
 namespace flo {
 
     template<typename StateType, typename KeyType>
-    class MultiSoundInput final : public Divergent<SoundInput, StateType, KeyType> {
+    class MultiSoundInput : public Divergent<SoundInput, StateType, KeyType> {
     public:
         
         void getNextChunkFor(SoundChunk& chunk, const SoundNode* node, const SoundState* state, const KeyType& key);
@@ -20,7 +21,7 @@ namespace flo {
     template<typename StateType, typename KeyType>
     inline void MultiSoundInput<StateType, KeyType>::getNextChunkFor(SoundChunk& chunk, const SoundNode* node, const SoundState* state, const KeyType& key){
         if (getSource()){
-            getSource->getNextChunkFor(chunk, this, getState(node, state, key));
+            getSource()->getNextChunkFor(chunk, this, getState(node, state, key));
         } else {
             chunk.silence();
         }

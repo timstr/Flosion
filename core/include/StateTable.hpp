@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Immovable.hpp>
 #include <SoundState.hpp>
 #include <StateAllocator.hpp>
 
@@ -31,11 +32,9 @@ namespace flo {
     // - There is one main state in each slot
     // - There is one borrowed state in each slot for each borrower
     // - All slots are stored contiguously in row-major order
-    class StateTable {
+    class StateTable : private Immovable {
     public:
         StateTable(SoundNode* owner);
-        StateTable(StateTable&&) noexcept;
-        StateTable& operator=(StateTable&&) noexcept;
         ~StateTable();
 
         StateTable(const StateTable&) = delete;

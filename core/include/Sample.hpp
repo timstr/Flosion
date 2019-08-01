@@ -79,8 +79,6 @@ namespace flo {
         SampleProxy& operator-=(const Sample&) noexcept;
         SampleProxy& operator-=(const ConstSampleProxy&) noexcept;
         SampleProxy& operator*=(float) noexcept;
-        SampleProxy& operator*=(const Sample&) noexcept;
-        SampleProxy& operator*=(const ConstSampleProxy&) noexcept;
         
         Sample operator-() const noexcept;
         Sample operator+(const Sample&) const noexcept;
@@ -88,8 +86,6 @@ namespace flo {
         Sample operator-(const Sample&) const noexcept;
         Sample operator-(const ConstSampleProxy&) const noexcept;
         Sample operator*(float) const noexcept;
-        Sample operator*(const Sample&) const noexcept;
-        Sample operator*(const ConstSampleProxy&) const noexcept;
 
     private:
         SampleProxy(float* ptr) noexcept;
@@ -98,6 +94,7 @@ namespace flo {
 
         friend class SoundChunk;
         friend class Sample;
+        friend class ConstSampleProxy;
     };
 
     /**
@@ -127,8 +124,6 @@ namespace flo {
         Sample operator-(const Sample&) const noexcept;
         Sample operator-(const ConstSampleProxy&) const noexcept;
         Sample operator*(float) const noexcept;
-        Sample operator*(const Sample&) const noexcept;
-        Sample operator*(const ConstSampleProxy&) const noexcept;
 
     private:
         ConstSampleProxy(const float* ptr) noexcept;

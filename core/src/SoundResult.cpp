@@ -20,4 +20,12 @@ namespace flo {
         m_input.setSource(source);
     }
 
+    SingleSoundInput& SoundResult::getInput() noexcept {
+        return m_input;
+    }
+
+    const SingleSoundInput & SoundResult::getInput() const noexcept {
+        return m_input;
+    }
+
 } // namespace flo

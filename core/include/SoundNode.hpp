@@ -11,7 +11,7 @@ namespace flo {
     class Network;
 
     // basic sound node type
-    class SoundNode : public StateTable, private Immovable {
+    class SoundNode : public StateTable {
     public:
         SoundNode() noexcept;
         virtual ~SoundNode() noexcept;
@@ -96,6 +96,8 @@ namespace flo {
         bool isUncontrolled() const noexcept override final;
         std::unique_ptr<StateAllocator> makeAllocator() const override final;
 
+        size_t getKeyIndex(const KeyType&) const noexcept;
+
         std::vector<KeyType> m_keys; // indices here are also indices into columns of state table. Keep sorted.
     };
 
@@ -161,6 +163,7 @@ namespace flo {
 
     */
     
+
 
 } // namespace flo
 

@@ -4,6 +4,7 @@
 #include <SoundResult.hpp>
 #include <SoundState.hpp>
 #include <SoundSourceTemplate.hpp>
+#include <MultiSoundInput.hpp>
 #include <NumberNode.hpp>
 
 #include <iostream>
@@ -77,7 +78,7 @@ private:
     static double compute(const flo::BorrowingNumberSource<SmootherState>* self, SmootherState* state) noexcept {
         auto derivedSelf = reinterpret_cast<const Smoother*>(self);
         auto v = derivedSelf->input.getValue(derivedSelf->getStateLender()->getMainState(state));
-        state->value += 0.2 * (v - state->value);
+        state->value += 1.0 * (v - state->value);
         return state->value;
     }
 };
@@ -125,6 +126,78 @@ public:
     flo::SoundNumberInput frequency;
 };
 
+class EnsembleInputState : public flo::SoundState {
+public:
+    using SoundState::SoundState;
+
+    void reset() noexcept override {
+        frequency = 0.0;
+    }
+
+    double frequency {};
+};
+
+class EnsembleState : public flo::SoundState {
+public:
+    using SoundState::SoundState;
+
+    void reset() noexcept override {
+        buffer.silence();
+        init = false;
+    }
+
+    flo::SoundChunk buffer;
+    bool init {};
+};
+
+class Ensemble : public flo::Realtime<flo::ControlledSoundSource<EnsembleState>> {
+public:
+    static const size_t numVoices = 2;
+    
+    Ensemble() {
+        addDependency(&input);
+        for (size_t k = 0; k < numVoices; ++k){
+            input.addKey(k);
+        }
+    }
+    ~Ensemble(){
+        for (size_t k = 0; k < numVoices; ++k){
+            input.removeKey(k);
+        }
+        removeDependency(&input);
+    }
+    
+    void renderNextChunk(flo::SoundChunk& chunk, EnsembleState* state){
+        if (!state->init){
+            for (size_t k = 0; k < numVoices; ++k){
+                input.getState(this, state, k)->frequency = 0.05 + (static_cast<double>(k) * 0.03);
+            }
+        }
+        for (size_t k = 0; k < numVoices; ++k){
+            input.getNextChunkFor(state->buffer, this, state, k);
+            for (size_t i = 0; i < flo::SoundChunk::size; ++i){
+                chunk[i] += state->buffer[i] * 0.1f;
+            }
+        }
+    }
+
+    class Input : public flo::MultiSoundInput<EnsembleInputState, size_t> {
+    public:
+        Input() : frequency(this) {
+        }
+
+        class Frequency : public flo::SoundNumberSource<Input> {    
+        public:
+            Frequency(Input* owner) : SoundNumberSource<Input>(owner, compute) {
+                
+            }
+        private:
+            static double compute(const SoundNumberSource<Input>*, const EnsembleInputState* state) noexcept {
+                return state->frequency;
+            }
+        } frequency;
+    } input;
+};
 
 int main() {
 
@@ -139,6 +212,8 @@ int main() {
     auto sine = Sine{};
     auto saw = Saw{};
 
+    auto ens = Ensemble{};
+
     sine.input.setSource(&osc.phase);
     saw.input.setSource(&osc.phase);
 
@@ -151,15 +226,18 @@ int main() {
         smoo.input.setSource(&saw);
     }
 
+    ens.input.setSource(&osc);
+
     osc.waveFunction.setSource(&smoo);
 
-    osc.frequency.setDefaultValue(0.05);
+    // osc.frequency.setDefaultValue(0.05);
+    osc.frequency.setSource(&ens.input.frequency);
 
     auto res = flo::SoundResult{};
 
     auto chunk = flo::SoundChunk{};
 
-    res.setSource(&osc);
+    res.setSource(&ens);
 
     while (true){
         res.getNextChunk(chunk);
