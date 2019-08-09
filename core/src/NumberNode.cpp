@@ -1,6 +1,7 @@
 #include <NumberNode.hpp>
 
 #include <SoundNode.hpp>
+#include <SoundResult.hpp>
 
 // TODO: delete the '#include "..\include\NumberNode.hpp"' that Visual Studio likes to insert above >:(
 
@@ -133,7 +134,7 @@ namespace flo {
     }
 
     NumberSource* NumberInput::getSource() noexcept {
-        return m_source;
+        return m_source == &m_constant ? nullptr : m_source;
     }
 
     const NumberSource* NumberInput::getSource() const noexcept {
@@ -151,36 +152,20 @@ namespace flo {
         return m_owner;
     }
 
-    NumberSource::NumberSource(EvaluationFunction evalFn) noexcept
-        : m_evalFn(evalFn) {
-    
-    }
-
-    double NumberSource::evaluate(const SoundState* context) const noexcept {
-        return m_evalFn(this, context);
-    }
-
-    ConstantNumberSource::ConstantNumberSource() noexcept 
-        : StatelessNumberSource(compute)
-        , m_value(0.0) {
-
-    }
-
     ConstantNumberSource::ConstantNumberSource(double value) noexcept 
-        : StatelessNumberSource(compute)
-        , m_value(value) {
+        : m_value(value) {
     }
 
     double ConstantNumberSource::getValue() const noexcept {
-        return m_value;
+        return m_value.load(std::memory_order_relaxed);
     }
 
     void ConstantNumberSource::setValue(double value) noexcept {
-        m_value = value;
+        m_value.store(value, std::memory_order_relaxed);
     }
 
-    double ConstantNumberSource::compute(const NumberSource* self, const SoundState* context) noexcept {
-        return reinterpret_cast<const ConstantNumberSource*>(self)->m_value;
+    double ConstantNumberSource::evaluate(const SoundState* /* context */) const noexcept {
+        return m_value.load(std::memory_order_relaxed);
     }
 
     const SoundNode* StatelessNumberSource::getStateOwner() const noexcept {
@@ -196,6 +181,20 @@ namespace flo {
 
     const SoundNode* NumberSourceInput::getStateOwner() const noexcept {
         return nullptr;
+    }
+
+    NumberResult::NumberResult() noexcept 
+        : m_hiddenNode(std::make_unique<SoundResult>())
+        , input(m_hiddenNode.get()) {
+
+    }
+
+    double NumberResult::getValue() const noexcept {
+        return input.getValue(m_hiddenNode->getMonoState());
+    }
+
+    const SoundNode* NumberResult::getStateOwner() const noexcept {
+        return m_hiddenNode.get();
     }
 
 } // namespace flo

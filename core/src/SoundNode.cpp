@@ -1,5 +1,7 @@
 #include <SoundNode.hpp>
 
+#include <SoundResult.hpp>
+
 #include <algorithm>
 
 namespace flo {
@@ -59,6 +61,7 @@ namespace flo {
         if (!canAddDependency(node)){
             throw std::runtime_error("Don't do that.");
         }
+        auto lock = getScopedWriteLock();
         m_dependencies.push_back(node);
         node->m_dependents.push_back(this);
         node->m_dependentOffsets.push_back({this, node->numDependentStates()});
@@ -73,11 +76,11 @@ namespace flo {
         if (!canRemoveDependency(node)){
             throw std::runtime_error("Don't do that.");
         }
-
         if (std::find(m_dependencies.begin(), m_dependencies.end(), node) == m_dependencies.end()){
             throw std::runtime_error("Don't do that.");
         }
         
+        auto lock = getScopedWriteLock();
         if (numSlots() > 0){
             node->eraseDependentStates(this, 0, numSlots());
         }
@@ -132,5 +135,46 @@ namespace flo {
         return false;
     }
     
+    SoundNode::Lock::Lock(std::vector<std::unique_lock<RecursiveSharedMutex>> locks) noexcept
+        : m_locks(std::move(locks)) {
+        
+    }
+
+    SoundNode::Lock SoundNode::getScopedWriteLock() noexcept {
+        // Find all dependent sound results
+        std::vector<SoundResult*> soundResults;
+        findDependentSoundResults(soundResults);
+
+        // Sort the sound results in order of address (this will
+        // prevent deadlock when acquiring multiple locks)
+        std::sort(soundResults.begin(), soundResults.end());
+
+        // Remove duplicates
+        soundResults.erase(
+            std::unique(soundResults.begin(), soundResults.end()),
+            soundResults.end()
+        );
+
+        // Acquire locks from mutexes of those sound results
+        std::vector<std::unique_lock<RecursiveSharedMutex>> locks;
+        locks.reserve(soundResults.size());
+        std::transform(
+            soundResults.begin(),
+            soundResults.end(),
+            std::back_inserter(locks),
+            [](SoundResult* res){
+                return std::unique_lock{res->m_mutex};
+            }
+        );
+
+        // Return custom multi-lock
+        return Lock{std::move(locks)};
+    }
+
+    void SoundNode::findDependentSoundResults(std::vector<SoundResult*>& out) noexcept {
+        for (const auto& d : m_dependents){
+            d->findDependentSoundResults(out);
+        }
+    }
 
 } // namespace flo

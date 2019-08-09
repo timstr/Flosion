@@ -1,5 +1,7 @@
 #include <SoundResult.hpp>
 
+#include <cassert>
+
 namespace flo {
 
     SoundResult::SoundResult(){
@@ -9,7 +11,9 @@ namespace flo {
         removeDependency(&m_input);
     }
     void SoundResult::getNextChunk(SoundChunk& chunk){
-        return m_input.getNextChunkFor(chunk, this, getMonoState());
+        // Acquire read lock to prevent race conditions
+        auto lock = std::shared_lock{m_mutex};
+        m_input.getNextChunkFor(chunk, this, getMonoState());
     }
 
     void SoundResult::reset(){
@@ -26,6 +30,11 @@ namespace flo {
 
     const SingleSoundInput & SoundResult::getInput() const noexcept {
         return m_input;
+    }
+
+    void SoundResult::findDependentSoundResults(std::vector<SoundResult*>& soundResults) noexcept {
+        soundResults.push_back(this);
+        assert(getDirectDependents().size() == 0);
     }
 
 } // namespace flo

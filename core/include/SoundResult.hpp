@@ -4,6 +4,8 @@
 #include <SoundNode.hpp>
 #include <SoundChunk.hpp>
 
+#include <shared_mutex>
+
 namespace flo {
 
     /**
@@ -28,6 +30,12 @@ namespace flo {
 
     private:
         SingleSoundInput m_input;
+
+        RecursiveSharedMutex m_mutex;
+
+        virtual void findDependentSoundResults(std::vector<SoundResult*>& soundResults) noexcept override final;
+
+        friend class SoundNode;
     };
 
 } // namespace flo

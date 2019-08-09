@@ -8,6 +8,7 @@ set(flosion_core_headers
 	include/NumberNode.hpp
 	include/NumberResult.hpp
 	include/NumberSource.hpp
+	include/RecursiveSharedMutex.hpp
 	include/Sample.hpp
 	include/SingleSoundInput.hpp
 	include/SoundChunk.hpp
@@ -29,6 +30,7 @@ set(flosion_core_headers
 set(flosion_core_srcs
 	src/Network.cpp
 	src/NumberNode.cpp
+	src/RecursiveSharedMutex.cpp
 	src/Sample.cpp
 	src/SingleSoundInput.cpp
 	src/SoundChunk.cpp

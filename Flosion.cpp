@@ -29,31 +29,29 @@
 
 class Sine : public flo::StatelessNumberSource {
 public:
-    Sine() : flo::StatelessNumberSource(compute), input(this) {
+    Sine() : input(this) {
     
     }
 
     flo::NumberSourceInput input;
 
 private:
-    static double compute(const flo::NumberSource* self, const flo::SoundState* context) noexcept {
-        const auto derivedSelf = reinterpret_cast<const Sine*>(self);
-        return std::sin(derivedSelf->input.getValue(context) * 2.0 * 3.141592654);
+    double evaluate(const flo::SoundState* context) const noexcept override {
+        return std::sin(input.getValue(context) * 2.0 * 3.141592654);
     }
 };
 
 class Saw : public flo::StatelessNumberSource {
 public:
-    Saw() : flo::StatelessNumberSource(compute), input(this) {
+    Saw() : input(this) {
     
     }
 
     flo::NumberSourceInput input;
 
 private:
-    static double compute(const flo::NumberSource* self, const flo::SoundState* context) noexcept {
-        const auto derivedSelf = reinterpret_cast<const Saw*>(self);
-        const auto v = derivedSelf->input.getValue(context);
+    double evaluate(const flo::SoundState* context) const noexcept override {
+        const auto v = input.getValue(context);
         return 2.0 * (v - std::floor(v)) - 1.0;
     }
 };
@@ -68,16 +66,15 @@ public:
 };
 class Smoother : public flo::BorrowingNumberSource<SmootherState> {
 public:
-    Smoother() : flo::BorrowingNumberSource<SmootherState>(compute), input(this) {
+    Smoother() : input(this) {
     
     }
 
     flo::NumberSourceInput input;
 
 private:
-    static double compute(const flo::BorrowingNumberSource<SmootherState>* self, SmootherState* state) noexcept {
-        auto derivedSelf = reinterpret_cast<const Smoother*>(self);
-        auto v = derivedSelf->input.getValue(derivedSelf->getStateLender()->getMainState(state));
+    double evaluate(SmootherState* state) const noexcept override {
+        auto v = input.getValue(getStateLender()->getMainState(state));
         state->value += 1.0 * (v - state->value);
         return state->value;
     }
@@ -113,11 +110,10 @@ public:
 
     class Phase : public flo::SoundNumberSource<Oscillator> {
     public:
-        Phase(Oscillator* parent) : SoundNumberSource(parent, getValue) {
-            
-        }
+        using SoundNumberSource::SoundNumberSource;
 
-        static double getValue(const flo::SoundNumberSource<Oscillator>* self, const OscillatorState* state) noexcept {
+    private:
+        double evaluate(const OscillatorState* state) const noexcept override {
             return state->phase;
         }
     } phase;
@@ -152,7 +148,7 @@ public:
 
 class Ensemble : public flo::Realtime<flo::ControlledSoundSource<EnsembleState>> {
 public:
-    static const size_t numVoices = 2;
+    static const size_t numVoices = 3;
     
     Ensemble() {
         addDependency(&input);
@@ -188,11 +184,10 @@ public:
 
         class Frequency : public flo::SoundNumberSource<Input> {    
         public:
-            Frequency(Input* owner) : SoundNumberSource<Input>(owner, compute) {
-                
-            }
+            using SoundNumberSource::SoundNumberSource;
+
         private:
-            static double compute(const SoundNumberSource<Input>*, const EnsembleInputState* state) noexcept {
+            double evaluate(const EnsembleInputState* state) const noexcept override {
                 return state->frequency;
             }
         } frequency;
@@ -251,6 +246,28 @@ int main() {
             _sleep(100);
         }
     }
+
+    /*{
+        std::atomic<bool> done = false;
+
+        auto thr = std::thread{[&](){
+            while (!done){
+                res.setSource(nullptr);
+                res.setSource(&ens);
+            }
+        }};
+
+        for (size_t i = 0; i < 1'000'000; ++i){
+            res.getNextChunk(chunk);
+            if (i % 32 == 0){
+                std::cout << '*';
+                std::cout.flush();
+            }
+        }
+        done = true;
+
+        thr.join();
+    }*/
 
     _getch();
 

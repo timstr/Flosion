@@ -9,6 +9,7 @@ namespace flo {
     }
 
     void SoundInput::setSource(SoundSource* source){
+        auto lock = getScopedWriteLock();
         if (m_source){
             removeDependency(m_source);
         }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Immovable.hpp>
+#include <NumberNode.hpp>
 
 namespace flo {
 

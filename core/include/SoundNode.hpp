@@ -1,14 +1,17 @@
 #pragma once
 
 #include <Immovable.hpp>
+#include <RecursiveSharedMutex.hpp>
 #include <StateTable.hpp>
 
+#include <shared_mutex>
 #include <vector>
 
 namespace flo {
 
-    class SoundState;
     class Network;
+    class SoundResult;
+    class SoundState;
 
     // basic sound node type
     class SoundNode : public StateTable {
@@ -28,14 +31,27 @@ namespace flo {
 
         bool hasUncontrolledDependency() const noexcept;
 
-        bool isDivergentTo(const SoundNode* dependency) const noexcept;
-
-        bool isOutOfSyncTo(const SoundNode* dependency) const noexcept;
-
         /**
          * NOTE: this interface is really meant for getNextChunkFor(...), but its
          * arguments differ significantly between concrete sound nodes.
          */
+
+    protected:
+
+        class Lock {
+        public:
+            ~Lock() noexcept = default;
+
+        private:
+            Lock(std::vector<std::unique_lock<RecursiveSharedMutex>> locks) noexcept;
+
+            std::vector<std::unique_lock<RecursiveSharedMutex>> m_locks;
+
+            friend class SoundNode;
+        };
+
+        [[nodiscard]]
+        Lock getScopedWriteLock() noexcept;
 
     private:
 
@@ -43,6 +59,8 @@ namespace flo {
         virtual bool isUncontrolled() const noexcept = 0;
         virtual bool isOutOfSync() const noexcept = 0;
         virtual double getTimeSpeed(const SoundState* mainState) const noexcept = 0;
+
+        virtual void findDependentSoundResults(std::vector<SoundResult*>& soundResults) noexcept;
 
     private:
         std::vector<SoundNode*> m_dependents;
