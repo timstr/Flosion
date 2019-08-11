@@ -5,7 +5,7 @@
 
 namespace flo {
 
-    class SingleSoundInput final : public Singular<SoundInput, EmptySoundState> {
+    class SingleSoundInput : public Singular<SoundInput, EmptySoundState> {
     public:
 
         // TODO: is 'node' needed here?

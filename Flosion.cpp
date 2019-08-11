@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 #include <Network.hpp>
 #include <SoundResult.hpp>
@@ -26,6 +27,10 @@
 // TODO: include and dynamically link to ffmpeg for additional audio formats?
 
 // TODO: add graphs back (in a safe and clean way)
+
+
+std::random_device ranDev;
+auto ranEng = std::default_random_engine{ranDev()};
 
 class Sine : public flo::StatelessNumberSource {
 public:
@@ -99,7 +104,7 @@ public:
 
     }
 
-    void renderNextChunk(flo::SoundChunk& chunk, OscillatorState* state){
+    void renderNextChunk(flo::SoundChunk& chunk, OscillatorState* state) override {
         for (size_t i = 0; i < flo::SoundChunk::size; ++i){
             float val = static_cast<float>(waveFunction.getValue(state));
             chunk.l(i) = val;
@@ -148,9 +153,9 @@ public:
 
 class Ensemble : public flo::Realtime<flo::ControlledSoundSource<EnsembleState>> {
 public:
-    static const size_t numVoices = 3;
+    static const size_t numVoices = 8;
     
-    Ensemble() {
+    Ensemble() : frequencyIn(this) {
         addDependency(&input);
         for (size_t k = 0; k < numVoices; ++k){
             input.addKey(k);
@@ -163,23 +168,29 @@ public:
         removeDependency(&input);
     }
     
-    void renderNextChunk(flo::SoundChunk& chunk, EnsembleState* state){
+    void renderNextChunk(flo::SoundChunk& chunk, EnsembleState* state) override {
         if (!state->init){
+            auto dist = std::normal_distribution<float>(1.0f, 0.005f);
+            const auto freq = frequencyIn.getValue(state);
             for (size_t k = 0; k < numVoices; ++k){
-                input.getState(this, state, k)->frequency = 0.05 + (static_cast<double>(k) * 0.03);
+                input.getState(this, state, k)->frequency = dist(ranEng) * freq;
             }
+            state->init = true;
         }
+        chunk.silence();
         for (size_t k = 0; k < numVoices; ++k){
             input.getNextChunkFor(state->buffer, this, state, k);
             for (size_t i = 0; i < flo::SoundChunk::size; ++i){
-                chunk[i] += state->buffer[i] * 0.1f;
+                chunk[i] += state->buffer[i] * 0.05f;
             }
         }
     }
 
+    flo::SoundNumberInput frequencyIn;
+
     class Input : public flo::MultiSoundInput<EnsembleInputState, size_t> {
     public:
-        Input() : frequency(this) {
+        Input() : frequencyOut(this) {
         }
 
         class Frequency : public flo::SoundNumberSource<Input> {    
@@ -190,8 +201,276 @@ public:
             double evaluate(const EnsembleInputState* state) const noexcept override {
                 return state->frequency;
             }
-        } frequency;
+        } frequencyOut;
     } input;
+};
+
+class MixerState : public flo::SoundState {
+public:
+    using SoundState::SoundState;
+
+    void reset() noexcept override {
+        buffer.silence();
+    }
+
+    flo::SoundChunk buffer;
+};
+
+class Router {
+public:
+    Router() : m_input(this) {
+        
+    }
+
+
+    void addNumberSource(size_t n){
+        m_input.addNumberSource(n);
+        for (auto& o : m_outputs){
+            o->addNumberInput(n);
+        }
+    }
+    void removeNumberSource(size_t n){
+        for (auto& o : m_outputs){
+            o->removeNumberInput(n);
+        }
+        m_input.removeNumberSource(n);
+    }
+    size_t numNumberSources() const {
+        return m_input.numNumberSources();
+    }
+
+    void addSoundSource(size_t o){
+        assert(o <= m_outputs.size());
+        auto ss = std::make_unique<Output>(this);
+        ss->addDependency(&m_input);
+        for (size_t i = 0, iEnd = m_input.numNumberSources(); i != iEnd; ++i){
+            ss->addNumberInput(i);
+        }
+        m_outputs.insert(m_outputs.begin() + o, std::move(ss));
+    }
+    void removeSoundSource(size_t o){
+        assert(o < m_outputs.size());
+        auto it = m_outputs.begin() + o;
+        const auto& ss = *it;
+        ss->removeDependency(&m_input);
+        m_outputs.erase(it);
+    }
+    size_t numSoundSources() const {
+        return m_outputs.size();
+    }
+
+    flo::NumberSource* getNumberSource(size_t n){
+        return m_input.getNumberSource(n);
+    }
+    const flo::NumberSource* getNumberSource(size_t n) const {
+        return m_input.getNumberSource(n);
+    }
+    
+    flo::NumberInput* getNumberInput(size_t n, size_t o){
+        assert(o < numSoundSources());
+        return m_outputs[o]->getNumberInput(n);
+    }
+    const flo::NumberInput* getNumberInput(size_t n, size_t o) const {
+        assert(o < numSoundSources());
+        return m_outputs[o]->getNumberInput(n);
+    }
+
+    flo::SoundSource* getSoundSource(size_t o){
+        assert(o < numSoundSources());
+        return m_outputs[o].get();
+    }
+    const flo::SoundSource* getSoundSource(size_t o) const {
+        assert(o < numSoundSources());
+        return m_outputs[o].get();
+    }
+
+    flo::SingleSoundInput* getSoundInput(){
+        return &m_input;
+    }
+    const flo::SingleSoundInput* getSoundInput() const {
+        return &m_input;
+    }
+
+private:
+    class Output : public flo::Realtime<flo::ControlledSoundSource<flo::EmptySoundState>> {
+    public:
+        Output(Router* parent) : m_parent(parent) {
+
+        }
+
+        void addNumberInput(size_t where){
+            assert(where <= m_numberInputs.size());
+            auto ni = std::make_unique<flo::SoundNumberInput>(this);
+            m_parent->getNumberSource(where)->addDependency(ni.get());
+            m_numberInputs.insert(m_numberInputs.begin() + where, std::move(ni));
+        }
+        void removeNumberInput(size_t where){
+            assert(where < m_numberInputs.size());
+            auto it = m_numberInputs.begin() + where;
+            m_parent->getNumberSource(where)->removeDependency(it->get());
+            m_numberInputs.erase(it);
+        }
+        flo::NumberInput* getNumberInput(size_t which){
+            assert(which < m_numberInputs.size());
+            return m_numberInputs[which].get();
+        }
+        const flo::NumberInput* getNumberInput(size_t which) const {
+            assert(which < m_numberInputs.size());
+            return m_numberInputs[which].get();
+        }
+
+    private:
+
+        void renderNextChunk(flo::SoundChunk& chunk, flo::EmptySoundState* state) override {
+            m_parent->m_input.getNextChunkFor(chunk, this, state);
+        }
+
+        Router* const m_parent;
+
+        std::vector<std::unique_ptr<flo::SoundNumberInput>> m_numberInputs;
+    };
+
+    class Input : public flo::SingleSoundInput {
+    public:
+        Input(Router* router) : m_router(router) {
+        
+        }
+
+        void addNumberSource(size_t where){
+            assert(where <= m_numberSources.size());
+            auto ns = std::make_unique<InputNumberSource>(this);
+            m_numberSources.insert(m_numberSources.begin() + where, std::move(ns));
+            for (size_t i = 0, iEnd = m_numberSources.size(); i != iEnd; ++i){
+                m_numberSources[i]->m_numberSourceIdx = i;
+            }
+        }
+        void removeNumberSource(size_t where){
+            assert(where < m_numberSources.size());
+            m_numberSources.erase(m_numberSources.begin() + where);
+            for (size_t i = 0, iEnd = m_numberSources.size(); i != iEnd; ++i){
+                m_numberSources[i]->m_numberSourceIdx = i;
+            }
+        }
+        size_t numNumberSources() const {
+            return m_numberSources.size();
+        }
+
+        flo::NumberSource* getNumberSource(size_t which){
+            assert(which < m_numberSources.size());
+            return m_numberSources[which].get();
+        }
+        const flo::NumberSource* getNumberSource(size_t which) const {
+            assert(which < m_numberSources.size());
+            return m_numberSources[which].get();
+        }
+
+        Router* getRouter(){
+            return m_router;
+        }
+        const Router* getRouter() const {
+            return m_router;
+        }
+
+    private:
+        class InputNumberSource : public flo::SoundNumberSource<Input> {
+        public:
+            InputNumberSource(Input* parent)
+                : SoundNumberSource(parent)
+                , m_parent(parent)
+                , m_numberSourceIdx(-1) {
+                
+            }
+
+            double evaluate(const StateType* state) const noexcept override final {
+                auto ds = state->getDependentState();
+                assert(ds);
+                auto router = m_parent->getRouter();
+                const auto& outputs = router->m_outputs;
+                const auto it = std::find_if(
+                    outputs.begin(),
+                    outputs.end(),
+                    [&](const std::unique_ptr<Output>& op){
+                        return ds->getOwner() == op.get();
+                    }
+                );
+                assert(it != outputs.end());
+                return (*it)->getNumberInput(m_numberSourceIdx)->getValue(state);
+            }
+
+        private:
+            const Input* m_parent;
+            size_t m_numberSourceIdx;
+
+            friend class Input;
+        };
+
+        Router* const m_router;
+
+        std::vector<std::unique_ptr<InputNumberSource>> m_numberSources;
+    };
+
+    Input m_input;
+    std::vector<std::unique_ptr<Output>> m_outputs;
+};
+
+class Mixer : public flo::Realtime<flo::ControlledSoundSource<MixerState>> {
+public:
+
+    void renderNextChunk(flo::SoundChunk& chunk, MixerState* state) override {
+        chunk.silence();
+
+        for (auto& input : m_inputs){
+            input->getNextChunkFor(state->buffer, this, state);
+            for (size_t i = 0; i < flo::SoundChunk::size; ++i){
+                chunk[i] += state->buffer[i] * 0.1f;
+            }
+        }
+    }
+
+    void addSource(SoundSource* source){
+        m_inputs.push_back(std::make_unique<flo::SingleSoundInput>());
+        const auto& input = m_inputs.back();
+        addDependency(input.get());
+        input.get()->setSource(source);
+    }
+
+private:
+    std::vector<std::unique_ptr<flo::SingleSoundInput>> m_inputs;
+};
+
+class DAC : public sf::SoundStream {
+public:
+    DAC(){
+        initialize(2, 44100);
+    }
+
+    flo::SoundResult soundResult;
+
+private:
+    flo::SoundChunk m_chunk;
+    std::array<sf::Int16, 2 * flo::SoundChunk::size> m_buffer;
+
+    bool onGetData(sf::SoundStream::Chunk& out) override {
+        
+        soundResult.getNextChunk(m_chunk);
+        for (size_t i = 0; i < flo::SoundChunk::size; ++i){
+            const auto lClamped = std::clamp(m_chunk.l(i), -1.0f, 1.0f);
+            const auto rClamped = std::clamp(m_chunk.r(i), -1.0f, 1.0f);
+            const auto lScaled = static_cast<float>(std::numeric_limits<std::int16_t>::max()) * lClamped;
+            const auto rScaled = static_cast<float>(std::numeric_limits<std::int16_t>::max()) * rClamped;
+            m_buffer[2 * i + 0] = static_cast<sf::Int16>(lScaled);
+            m_buffer[2 * i + 1] = static_cast<sf::Int16>(rScaled);
+        }
+
+        out.sampleCount = 2 * flo::SoundChunk::size;
+        out.samples = &m_buffer[0];
+
+        return true;
+    }
+
+    void onSeek(sf::Time) override {
+        // Nothing to do
+    }
 };
 
 int main() {
@@ -201,34 +480,70 @@ int main() {
 
     auto osc = Oscillator{};
 
-    auto smoo = Smoother{};
-    smoo.borrowFrom(&osc);
+    //auto smoo = Smoother{};
+    //smoo.borrowFrom(&osc);
 
-    auto sine = Sine{};
+    //auto sine = Sine{};
     auto saw = Saw{};
 
     auto ens = Ensemble{};
 
-    sine.input.setSource(&osc.phase);
+    //sine.input.setSource(&osc.phase);
     saw.input.setSource(&osc.phase);
 
-    std::random_device rd;
-    auto eng = std::default_random_engine{rd()};
-    auto dist = std::uniform_int_distribution<int>{0,1};
-    if (dist(eng)){
-        smoo.input.setSource(&sine);
-    } else {
-        smoo.input.setSource(&saw);
-    }
+    //std::random_device rd;
+    //auto eng = std::default_random_engine{rd()};
+    //auto dist = std::uniform_int_distribution<int>{0,1};
+    //if (dist(eng)){
+    //    smoo.input.setSource(&sine);
+    //} else {
+    //    smoo.input.setSource(&saw);
+    //}
 
     ens.input.setSource(&osc);
 
-    osc.waveFunction.setSource(&smoo);
+    //osc.waveFunction.setSource(&smoo);
+    //osc.waveFunction.setSource(&sine);
+    osc.waveFunction.setSource(&saw);
 
-    // osc.frequency.setDefaultValue(0.05);
-    osc.frequency.setSource(&ens.input.frequency);
+    //osc.frequency.setDefaultValue(0.005);
+    osc.frequency.setSource(&ens.input.frequencyOut);
 
-    auto res = flo::SoundResult{};
+    auto router = Router{};
+    router.getSoundInput()->setSource(&ens);
+
+    router.addNumberSource(0);
+    ens.frequencyIn.setSource(router.getNumberSource(0));
+    
+    auto mixer = Mixer{};
+
+    router.addSoundSource(0);
+    router.getNumberInput(0, 0)->setDefaultValue(100.0f / 44100.0f);
+    mixer.addSource(router.getSoundSource(0));
+
+    router.addSoundSource(1);
+    router.getNumberInput(0, 1)->setDefaultValue(125.0f / 44100.0f);
+    mixer.addSource(router.getSoundSource(1));
+
+    router.addSoundSource(2);
+    router.getNumberInput(0, 2)->setDefaultValue(150.0f / 44100.0f);
+    mixer.addSource(router.getSoundSource(2));
+
+
+
+    auto dac = DAC{};
+
+    //dac.soundResult.setSource(&ens);
+    //dac.soundResult.setSource(&osc);
+    dac.soundResult.setSource(&mixer);
+
+    dac.play();
+
+    std::this_thread::sleep_for(std::chrono::seconds(8));
+
+    dac.pause();
+
+    /*auto res = flo::SoundResult{};
 
     auto chunk = flo::SoundChunk{};
 
@@ -245,7 +560,7 @@ int main() {
             std::cout << '\n';
             _sleep(100);
         }
-    }
+    }*/
 
     /*{
         std::atomic<bool> done = false;
@@ -269,7 +584,7 @@ int main() {
         thr.join();
     }*/
 
-    _getch();
+    //_getch();
 
 	return 0;
 }

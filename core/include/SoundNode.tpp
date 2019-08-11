@@ -111,8 +111,9 @@ namespace flo {
         auto lock = getScopedWriteLock();
         auto it = std::find(m_keys.begin(), m_keys.end(), key);
         assert(it != m_keys.end());
-        auto idx = static_cast<size_t>(it - m_keys.end());
+        auto idx = static_cast<size_t>(it - m_keys.begin());
         StateTable::eraseKeys(idx, idx + 1);
+        m_keys.erase(it);
     }
     
     // Uncontrolled

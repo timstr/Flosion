@@ -136,7 +136,7 @@ namespace flo {
         const auto dsBegin = getDependentOffset(dependent);
         const auto dsEnd = dsBegin + dependent->numSlots();
         for (size_t i = dsBegin; i < dsEnd; ++i){
-            const auto dependentState = dependent->getState(i);
+            const auto dependentState = dependent->getState(i - dsBegin);
             for (size_t j = 0; j < numKeys(); ++j){
                 getState((i * numKeys()) + j)->m_dependentState = dependentState;
             }
@@ -285,7 +285,7 @@ namespace flo {
             // move all the dependent's states prior to the first new state
             for (size_t i = 0; i < beginIndex; ++i){
                 for (size_t j = 0; j < numKeys(); ++j){
-                    assert(oldSlotIndex == (itDependent->offset + i));
+                    //assert(oldSlotIndex == (itDependent->offset + i));
                     auto from = oldData + (m_slotSize * oldSlotIndex);
                     auto to = newData + (m_slotSize * newSlotIndex);
                     moveSlot(from, to);
