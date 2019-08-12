@@ -475,6 +475,36 @@ private:
 
 int main() {
 
+    {
+        auto osc = Oscillator{};
+
+        auto router = Router{};
+
+        auto mixer = Mixer{};
+
+        auto dac = DAC{};
+
+        router.addSoundSource(0);
+        router.addSoundSource(1);
+        router.addSoundSource(2);
+        router.addSoundSource(3);
+        router.addSoundSource(4);
+
+        mixer.addSource(router.getSoundSource(0));
+        mixer.addSource(router.getSoundSource(1));
+        mixer.addSource(router.getSoundSource(2));
+        mixer.addSource(router.getSoundSource(3));
+        mixer.addSource(router.getSoundSource(4));
+
+        dac.soundResult.setSource(&mixer);
+
+        router.getSoundInput()->setSource(&osc);
+
+        //router.getSoundInput()->setSource(nullptr);
+    }
+
+    /*
+
 	// Testing:
 	flo::Network network;
 
@@ -539,9 +569,11 @@ int main() {
 
     dac.play();
 
-    std::this_thread::sleep_for(std::chrono::seconds(8));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     dac.pause();
+
+    */
 
     /*auto res = flo::SoundResult{};
 

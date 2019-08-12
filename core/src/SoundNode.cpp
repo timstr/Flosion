@@ -21,6 +21,9 @@ namespace flo {
     }
 
     bool SoundNode::canAddDependency(const SoundNode* node) const noexcept {
+        // TODO: make sure that the node doesn't already have other
+        // dependencies whose number sources it depends on
+
         if (hasDependency(node) || node->hasDependency(this)){
             return false;
         }
