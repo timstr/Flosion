@@ -459,7 +459,10 @@ namespace flo {
         assert(newSlotIndex / numKeys() == itDependent->offset + beginIndex);
 
         // move all the dependent's states after the last state being removed
-        for (size_t i = endIndex, iEnd = dependent->numSlots() + (endIndex - beginIndex); i < iEnd; ++i){
+        // TODO: the following line assumes that dependent->numSlots() just decreased
+        // This is not true for uncontrolled (monostate) soundnodes.
+        const auto oldDependentNumSlots = dependent->numSlots() + (dependent->m_isMonostate ? 0 : endIndex - beginIndex);
+        for (size_t i = endIndex, iEnd = oldDependentNumSlots; i < iEnd; ++i){
             for (size_t j = 0; j < numKeys(); ++j){
                 assert(oldSlotIndex / numKeys() == itDependent->offset + i);
                 assert(oldSlotIndex % numKeys() == j);
@@ -474,9 +477,6 @@ namespace flo {
                 ++newSlotIndex;
             }
         }
-
-        //assert(oldSlotIndex / numKeys() == itDependent->offset + numKeys() * (itDependent->dependent->numSlots() + (endIndex - beginIndex)));
-        //assert(newSlotIndex / numKeys() == itDependent->offset + numKeys() * itDependent->dependent->numSlots());
 
         // move the states of all remaining dependents
         ++itDependent;
@@ -505,10 +505,7 @@ namespace flo {
             ++itDependent;
         }
 
-        if (oldSlotIndex != m_numDependentStates * numKeys()){
-            //assert(false);
-        }
-        //assert(oldSlotIndex == m_numDependentStates * numKeys());
+        assert(oldSlotIndex == m_numDependentStates * numKeys());
 
         assert(newSlotIndex == newNumSlots);
 
@@ -804,6 +801,7 @@ namespace flo {
         getMainAllocator();
 
         if (enable){
+            // Erase any old data
             if (numSlots() > 0){
                 for (auto& d : m_owner->getDirectDependencies()){
                     d->eraseDependentStates(m_owner, 0, numSlots());
@@ -813,7 +811,11 @@ namespace flo {
                 }
             }
             deallocateData(m_data);
+
+            // allocate space for one new slot
             m_data = allocateData(m_slotSize, 1);
+
+            // get pointer to dependent state
             const auto& dependents = m_owner->getDirectDependents();
             assert(dependents.size() < 2);
             const SoundState* dependentState = nullptr;
@@ -823,9 +825,18 @@ namespace flo {
                     dependentState = dependents[0]->getState(0);
                 }
             }
+
+            // construct new slot and point to dependent state
             constructSlot(m_data);
             m_numKeys = 1;
             m_numDependentStates = 1;
+            getState(0)->m_dependentState = dependentState;
+
+            // propagate changes
+            for (const auto& d : m_owner->getDirectDependencies()){
+                d->repointStatesFor(m_owner);
+            }
+
         } else {
             // TODO
             assert(false);
