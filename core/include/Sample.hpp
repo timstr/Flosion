@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace flo {
 
     class Sample;
@@ -17,6 +19,8 @@ namespace flo {
         Sample(const Sample&) noexcept = default;
         explicit Sample(const ConstSampleProxy&) noexcept;
         ~Sample() noexcept = default;
+
+        constexpr static std::uint32_t frequency = 44100;
 
         float& l() noexcept;
         const float& l() const noexcept;

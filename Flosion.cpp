@@ -61,6 +61,21 @@ private:
     }
 };
 
+class Multiply : public flo::StatelessNumberSource {
+public:
+    Multiply() : inputA(this), inputB(this) {
+    
+    }
+
+    flo::NumberSourceInput inputA;
+    flo::NumberSourceInput inputB;
+
+private:
+    double evaluate(const flo::SoundState* context) const noexcept override {
+        return inputA.getValue(context) * inputB.getValue(context);
+    }
+};
+
 class SmootherState : public flo::State {
 public:
     void reset() noexcept override {
@@ -106,6 +121,7 @@ public:
 
     void renderNextChunk(flo::SoundChunk& chunk, OscillatorState* state) override {
         for (size_t i = 0; i < flo::SoundChunk::size; ++i){
+            state->adjustTime(static_cast<std::uint32_t>(i));
             float val = static_cast<float>(waveFunction.getValue(state));
             chunk.l(i) = val;
             chunk.r(i) = val;
@@ -132,10 +148,10 @@ public:
     using SoundState::SoundState;
 
     void reset() noexcept override {
-        frequency = 0.0;
+        ratio = 1.0;
     }
 
-    double frequency {};
+    double ratio {};
 };
 
 class EnsembleState : public flo::SoundState {
@@ -155,7 +171,7 @@ class Ensemble : public flo::Realtime<flo::ControlledSoundSource<EnsembleState>>
 public:
     static const size_t numVoices = 4;
     
-    Ensemble() : frequencyIn(this) {
+    Ensemble() : frequencyIn(this), input(this) {
         addDependency(&input);
         for (size_t k = 0; k < numVoices; ++k){
             input.addKey(k);
@@ -171,9 +187,8 @@ public:
     void renderNextChunk(flo::SoundChunk& chunk, EnsembleState* state) override {
         if (!state->init){
             auto dist = std::normal_distribution<float>(1.0f, 0.005f);
-            const auto freq = frequencyIn.getValue(state);
             for (size_t k = 0; k < numVoices; ++k){
-                input.getState(this, state, k)->frequency = dist(ranEng) * freq;
+                input.getState(this, state, k)->ratio = dist(ranEng);
             }
             state->init = true;
         }
@@ -181,6 +196,7 @@ public:
         for (size_t k = 0; k < numVoices; ++k){
             input.getNextChunkFor(state->buffer, this, state, k);
             for (size_t i = 0; i < flo::SoundChunk::size; ++i){
+                //state->adjustTime(static_cast<std::uint32_t>(i));
                 chunk[i] += state->buffer[i] * 0.05f;
             }
         }
@@ -190,7 +206,7 @@ public:
 
     class Input : public flo::MultiSoundInput<EnsembleInputState, size_t> {
     public:
-        Input() : frequencyOut(this) {
+        Input(Ensemble* ensemble) : m_ensemble(ensemble), frequencyOut(this) {
         }
 
         class Frequency : public flo::SoundNumberSource<Input> {    
@@ -199,9 +215,13 @@ public:
 
         private:
             double evaluate(const EnsembleInputState* state) const noexcept override {
-                return state->frequency;
+                const auto freq = this->getOwner()->m_ensemble->frequencyIn.getValue(state);
+                return state->ratio * freq;
             }
         } frequencyOut;
+
+    private:
+        Ensemble* const m_ensemble;
     } input;
 };
 
@@ -475,6 +495,32 @@ private:
 
 int main() {
     
+
+    {
+        auto osc = Oscillator{};
+        auto saw = Saw{};
+        saw.input.setSource(&osc.phase);
+        osc.waveFunction.setSource(&saw);
+
+        auto dac = DAC{};
+
+        dac.soundResult.setSource(&osc);
+    
+        auto mul = Multiply{};
+        mul.inputA.setDefaultValue(100.0 / static_cast<double>(flo::Sample::frequency));
+        mul.inputB.setSource(&dac.soundResult.currentTime);
+
+        osc.frequency.setSource(&mul);
+
+        dac.play();
+
+        std::this_thread::sleep_for(std::chrono::seconds(8));
+
+        dac.pause();
+    }
+
+    return 0;
+
     // Testing:
 	flo::Network network;
 
@@ -516,26 +562,30 @@ int main() {
     ens.frequencyIn.setSource(router.getNumberSource(0));
     
     auto mixer = Mixer{};
+    auto dac = DAC{};
+    dac.soundResult.setSource(&mixer);
 
+    auto mul1 = Multiply{};
     router.addSoundSource(0);
-    router.getNumberInput(0, 0)->setDefaultValue(100.0f / 44100.0f);
     mixer.addSource(router.getSoundSource(0));
+    //router.getNumberInput(0, 0)->setDefaultValue(100.0f / 44100.0f);
+    router.getNumberInput(0, 0)->setSource(&mul1);
+    mul1.inputA.setDefaultValue(100.0 / 44100.0);
+    mul1.inputB.setSource(&dac.soundResult.currentTime);
 
-    router.addSoundSource(1);
+    /*router.addSoundSource(1);
     router.getNumberInput(0, 1)->setDefaultValue(125.0f / 44100.0f);
     mixer.addSource(router.getSoundSource(1));
 
     router.addSoundSource(2);
     router.getNumberInput(0, 2)->setDefaultValue(150.0f / 44100.0f);
-    mixer.addSource(router.getSoundSource(2));
+    mixer.addSource(router.getSoundSource(2));*/
 
 
 
-    auto dac = DAC{};
 
     //dac.soundResult.setSource(&ens);
     //dac.soundResult.setSource(&osc);
-    dac.soundResult.setSource(&mixer);
 
     dac.play();
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Immovable.hpp>
+#include <NumberNode.hpp>
 #include <RecursiveSharedMutex.hpp>
 #include <StateTable.hpp>
 
@@ -66,6 +67,8 @@ namespace flo {
         std::vector<SoundNode*> m_dependents;
         std::vector<SoundNode*> m_dependencies;
         Network* m_network;
+
+        friend class SoundState;
     };
 
     // To create a concrete sound node, choose from the following:

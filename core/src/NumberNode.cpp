@@ -197,4 +197,17 @@ namespace flo {
         return m_hiddenNode.get();
     }
 
+    CurrentTime::CurrentTime(SoundNode* owner) noexcept
+        : m_owner(owner) {
+    
+    }
+
+    double CurrentTime::evaluate(const SoundState* context) const noexcept {
+        return context->getElapsedTimeAt(m_owner);
+    }
+
+    const SoundNode* CurrentTime::getStateOwner() const noexcept {
+        return m_owner;
+    }
+
 } // namespace flo

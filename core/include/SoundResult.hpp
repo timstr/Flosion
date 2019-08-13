@@ -28,6 +28,8 @@ namespace flo {
         SingleSoundInput& getInput() noexcept;
         const SingleSoundInput& getInput() const noexcept;
 
+        CurrentTime currentTime;
+
     private:
         SingleSoundInput m_input;
 

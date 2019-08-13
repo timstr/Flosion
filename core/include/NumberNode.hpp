@@ -4,6 +4,7 @@
 #include <StateBorrower.hpp>
 
 #include <atomic>
+#include <cassert>
 #include <vector>
 
 namespace flo {
@@ -103,7 +104,7 @@ namespace flo {
 
         const SoundNode* getStateOwner() const noexcept override final;
 
-        double evaluate(const SoundState* context) const noexcept override final;
+        double evaluate(const SoundState* context) const noexcept override;
     };
 
     class ConstantNumberSource : public StatelessNumberSource {
@@ -172,9 +173,20 @@ namespace flo {
         SoundNumberInput input;
 
     private:
-        // TODO: a NumberResult SHOULD return a soundnode that is
-        // inaccessible everywhere else. This way, only global/stateless
-        // number sources may be connected to it.
+        const SoundNode* getStateOwner() const noexcept override final;
+    };
+
+
+
+    class CurrentTime : public NumberSource {
+    public:
+        CurrentTime(SoundNode* owner) noexcept;
+
+    private:
+        SoundNode* const m_owner;
+
+        double evaluate(const SoundState*) const noexcept override;
+
         const SoundNode* getStateOwner() const noexcept override final;
     };
 
