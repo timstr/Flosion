@@ -78,7 +78,7 @@ namespace flo {
     class BorrowingNumberSource : public NumberSource, public StateBorrower {
     public:
 
-        virtual double evaluate(StateType* state) const noexcept = 0;
+        virtual double evaluate(StateType* state, const SoundState* context) const noexcept = 0;
 
     private:
         double evaluate(const SoundState* context) const noexcept override final;
@@ -94,7 +94,7 @@ namespace flo {
 
         using StateType = typename SoundNodeType::StateType;
 
-        virtual double evaluate(const StateType* state) const noexcept = 0;
+        virtual double evaluate(const StateType* state, const SoundState* context) const noexcept = 0;
 
         SoundNodeType* getOwner() noexcept;
         const SoundNodeType* getOwner() const noexcept;
@@ -215,12 +215,13 @@ namespace flo {
 
     template<typename SoundNodeType>
     inline double SoundNumberSource<SoundNodeType>::evaluate(const SoundState* context) const noexcept {
-        while (context){
-            const auto owner = context->getOwner();
+        auto curr = context;
+        while (curr){
+            const auto owner = curr->getOwner();
             if (owner == m_owner){
-                return evaluate(reinterpret_cast<const StateType*>(context));
+                return evaluate(reinterpret_cast<const StateType*>(curr), context);
             }
-            context = context->getDependentState();
+            curr = curr->getDependentState();
         }
         assert(false);
         return 0.0;
@@ -229,7 +230,7 @@ namespace flo {
     template<typename StateType>
     inline double BorrowingNumberSource<StateType>::evaluate(const SoundState* context) const noexcept {
         if (auto lender = getStateLender()){
-            return evaluate(reinterpret_cast<StateType*>(lender->getBorrowedState(context, this)));
+            return evaluate(reinterpret_cast<StateType*>(lender->getBorrowedState(context, this)), context);
         }
         return 0.0;
     }

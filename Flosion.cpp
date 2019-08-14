@@ -93,8 +93,8 @@ public:
     flo::NumberSourceInput input;
 
 private:
-    double evaluate(SmootherState* state) const noexcept override {
-        auto v = input.getValue(getStateLender()->getMainState(state));
+    double evaluate(SmootherState* state, const flo::SoundState* context) const noexcept override {
+        auto v = input.getValue(context);
         state->value += 1.0 * (v - state->value);
         return state->value;
     }
@@ -134,7 +134,7 @@ public:
         using SoundNumberSource::SoundNumberSource;
 
     private:
-        double evaluate(const OscillatorState* state) const noexcept override {
+        double evaluate(const OscillatorState* state, const flo::SoundState* context) const noexcept override {
             return state->phase;
         }
     } phase;
@@ -214,8 +214,8 @@ public:
             using SoundNumberSource::SoundNumberSource;
 
         private:
-            double evaluate(const EnsembleInputState* state) const noexcept override {
-                const auto freq = this->getOwner()->m_ensemble->frequencyIn.getValue(state);
+            double evaluate(const EnsembleInputState* state, const flo::SoundState* context) const noexcept override {
+                const auto freq = this->getOwner()->m_ensemble->frequencyIn.getValue(context);
                 return state->ratio * freq;
             }
         } frequencyOut;
@@ -401,7 +401,7 @@ private:
                 
             }
 
-            double evaluate(const StateType* state) const noexcept override final {
+            double evaluate(const StateType* state, const flo::SoundState* context) const noexcept override final {
                 auto ds = state->getDependentState();
                 assert(ds);
                 auto router = m_parent->getRouter();
@@ -414,7 +414,7 @@ private:
                     }
                 );
                 assert(it != outputs.end());
-                return (*it)->getNumberInput(m_numberSourceIdx)->getValue(state);
+                return (*it)->getNumberInput(m_numberSourceIdx)->getValue(context);
             }
 
         private:
@@ -495,22 +495,28 @@ private:
 
 int main() {
     
-
     {
         auto osc = Oscillator{};
         auto saw = Saw{};
         saw.input.setSource(&osc.phase);
         osc.waveFunction.setSource(&saw);
 
+        auto ens = Ensemble{};
+        ens.input.setSource(&osc);
+
         auto dac = DAC{};
 
-        dac.soundResult.setSource(&osc);
-    
+        //dac.soundResult.setSource(&osc);
+        dac.soundResult.setSource(&ens);
+        
         auto mul = Multiply{};
         mul.inputA.setDefaultValue(100.0 / static_cast<double>(flo::Sample::frequency));
         mul.inputB.setSource(&dac.soundResult.currentTime);
 
-        osc.frequency.setSource(&mul);
+        ens.frequencyIn.setSource(&mul);
+
+        //osc.frequency.setSource(&mul);
+        osc.frequency.setSource(&ens.input.frequencyOut);
 
         dac.play();
 
