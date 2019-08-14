@@ -169,7 +169,7 @@ public:
 
 class Ensemble : public flo::Realtime<flo::ControlledSoundSource<EnsembleState>> {
 public:
-    static const size_t numVoices = 4;
+    static const size_t numVoices = 8;
     
     Ensemble() : frequencyIn(this), input(this) {
         addDependency(&input);
@@ -247,6 +247,7 @@ public:
         m_input.addNumberSource(n);
         for (auto& o : m_outputs){
             o->addNumberInput(n);
+            //m_input.getNumberSource(n)->addDependency(o->getNumberInput(n));
         }
     }
     void removeNumberSource(size_t n){
@@ -265,6 +266,7 @@ public:
         ss->addDependency(&m_input);
         for (size_t i = 0, iEnd = m_input.numNumberSources(); i != iEnd; ++i){
             ss->addNumberInput(i);
+            //m_input.getNumberSource(i)->addDependency(ss->getNumberInput(i));
         }
         m_outputs.insert(m_outputs.begin() + o, std::move(ss));
     }
@@ -321,13 +323,13 @@ private:
         void addNumberInput(size_t where){
             assert(where <= m_numberInputs.size());
             auto ni = std::make_unique<flo::SoundNumberInput>(this);
-            m_parent->getNumberSource(where)->addDependency(ni.get());
+            //m_parent->getNumberSource(where)->addDependency(ni.get());
             m_numberInputs.insert(m_numberInputs.begin() + where, std::move(ni));
         }
         void removeNumberInput(size_t where){
             assert(where < m_numberInputs.size());
             auto it = m_numberInputs.begin() + where;
-            m_parent->getNumberSource(where)->removeDependency(it->get());
+            //m_parent->getNumberSource(where)->removeDependency(it->get());
             m_numberInputs.erase(it);
         }
         flo::NumberInput* getNumberInput(size_t which){
@@ -451,7 +453,7 @@ public:
         m_inputs.push_back(std::make_unique<flo::SingleSoundInput>());
         const auto& input = m_inputs.back();
         addDependency(input.get());
-        input.get()->setSource(source);
+        input->setSource(source);
     }
 
 private:
@@ -494,38 +496,6 @@ private:
 };
 
 int main() {
-    
-    {
-        auto osc = Oscillator{};
-        auto saw = Saw{};
-        saw.input.setSource(&osc.phase);
-        osc.waveFunction.setSource(&saw);
-
-        auto ens = Ensemble{};
-        ens.input.setSource(&osc);
-
-        auto dac = DAC{};
-
-        //dac.soundResult.setSource(&osc);
-        dac.soundResult.setSource(&ens);
-        
-        auto mul = Multiply{};
-        mul.inputA.setDefaultValue(100.0 / static_cast<double>(flo::Sample::frequency));
-        mul.inputB.setSource(&dac.soundResult.currentTime);
-
-        ens.frequencyIn.setSource(&mul);
-
-        //osc.frequency.setSource(&mul);
-        osc.frequency.setSource(&ens.input.frequencyOut);
-
-        dac.play();
-
-        std::this_thread::sleep_for(std::chrono::seconds(8));
-
-        dac.pause();
-    }
-
-    return 0;
 
     // Testing:
 	flo::Network network;
@@ -574,73 +544,29 @@ int main() {
     auto mul1 = Multiply{};
     router.addSoundSource(0);
     mixer.addSource(router.getSoundSource(0));
-    //router.getNumberInput(0, 0)->setDefaultValue(100.0f / 44100.0f);
     router.getNumberInput(0, 0)->setSource(&mul1);
-    mul1.inputA.setDefaultValue(100.0 / 44100.0);
+    mul1.inputA.setDefaultValue(50.0 / 44100.0);
     mul1.inputB.setSource(&dac.soundResult.currentTime);
-
-    /*router.addSoundSource(1);
-    router.getNumberInput(0, 1)->setDefaultValue(125.0f / 44100.0f);
+    
+    auto mul2 = Multiply{};
+    router.addSoundSource(1);
     mixer.addSource(router.getSoundSource(1));
+    router.getNumberInput(0, 1)->setSource(&mul2);
+    mul2.inputA.setDefaultValue(62.5 / 44100.0);
+    mul2.inputB.setSource(&dac.soundResult.currentTime);
 
+    auto mul3 = Multiply{};
     router.addSoundSource(2);
-    router.getNumberInput(0, 2)->setDefaultValue(150.0f / 44100.0f);
-    mixer.addSource(router.getSoundSource(2));*/
-
-
-
-
-    //dac.soundResult.setSource(&ens);
-    //dac.soundResult.setSource(&osc);
+    mixer.addSource(router.getSoundSource(2));
+    router.getNumberInput(0, 2)->setSource(&mul3);
+    mul3.inputA.setDefaultValue(75.0 / 44100.0);
+    mul3.inputB.setSource(&dac.soundResult.currentTime);
 
     dac.play();
-
+    std::cout << "Playing...\n";
     std::this_thread::sleep_for(std::chrono::seconds(8));
-
+    std::cout << "Done.\n";
     dac.pause();
-
-    /*auto res = flo::SoundResult{};
-
-    auto chunk = flo::SoundChunk{};
-
-    res.setSource(&ens);
-
-    while (true){
-        res.getNextChunk(chunk);
-
-        for (size_t i = 0, iEnd = chunk.size; i < iEnd; ++i){
-            float v = std::clamp(chunk[i].l(), -1.0f, 1.0f) * 0.5f + 0.5f;
-            for (size_t j = 0, jEnd = static_cast<size_t>(v * 64.0f); j != jEnd; ++j){
-                std::cout << '#';
-            }
-            std::cout << '\n';
-            _sleep(100);
-        }
-    }*/
-
-    /*{
-        std::atomic<bool> done = false;
-
-        auto thr = std::thread{[&](){
-            while (!done){
-                res.setSource(nullptr);
-                res.setSource(&ens);
-            }
-        }};
-
-        for (size_t i = 0; i < 1'000'000; ++i){
-            res.getNextChunk(chunk);
-            if (i % 32 == 0){
-                std::cout << '*';
-                std::cout.flush();
-            }
-        }
-        done = true;
-
-        thr.join();
-    }*/
-
-    //_getch();
 
 	return 0;
 }

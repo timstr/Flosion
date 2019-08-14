@@ -29,6 +29,7 @@ namespace flo {
         const std::vector<SoundNode*>& getDirectDependents() const noexcept;
 
         bool hasDependency(const SoundNode*) const noexcept;
+        bool hasDirectDependency(const SoundNode*) const noexcept;
 
         bool hasUncontrolledDependency() const noexcept;
 

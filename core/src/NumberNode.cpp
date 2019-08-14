@@ -41,7 +41,7 @@ namespace flo {
             if (auto o = nn->getStateOwner()){
                 dependencyOwners.push_back(o);
             }
-            for (const auto& d : nn->getDirectDependents()){
+            for (const auto& d : nn->getDirectDependencies()){
                 findDependencies(d);
             }
         };

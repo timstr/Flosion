@@ -126,6 +126,14 @@ namespace flo {
         return false;
     }
 
+    bool SoundNode::hasDirectDependency(const SoundNode* node) const noexcept {
+        return std::find(
+            m_dependencies.begin(),
+            m_dependencies.end(),
+            node
+        ) != m_dependencies.end();
+    }
+
     bool SoundNode::hasUncontrolledDependency() const noexcept {
         if (isUncontrolled()){
             return true;
