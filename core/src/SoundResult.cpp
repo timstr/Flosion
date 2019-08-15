@@ -4,8 +4,7 @@
 
 namespace flo {
 
-    SoundResult::SoundResult()
-        : currentTime(this) {
+    SoundResult::SoundResult(){
         addDependency(&m_input);
     }
     SoundResult::~SoundResult(){

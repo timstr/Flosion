@@ -63,8 +63,8 @@ private:
 
 class Multiply : public flo::StatelessNumberSource {
 public:
-    Multiply() : inputA(this), inputB(this) {
-    
+    Multiply() : inputA(this, 1.0), inputB(this, 1.0) {
+        
     }
 
     flo::NumberSourceInput inputA;
@@ -106,16 +106,18 @@ class OscillatorState : public flo::ConcreteSoundState<Oscillator> {
 public:
     using ConcreteSoundState::ConcreteSoundState;
 
-    void reset() noexcept override {
-        phase = 0.0;
-    }
+    void reset() noexcept override;
 
     double phase {};
-}; 
+};
 
 class Oscillator : public flo::Realtime<flo::ControlledSoundSource<OscillatorState>> {
 public:
-    Oscillator() : phase(this), waveFunction(this), frequency(this) {
+    Oscillator()
+        : phase(this)
+        , waveFunction(this)
+        , frequency(this, 250.0)
+        , m_phaseSync(true) {
 
     }
 
@@ -141,7 +143,27 @@ public:
 
     flo::SoundNumberInput waveFunction;
     flo::SoundNumberInput frequency;
+
+    void setPhaseSync(bool enable){
+        m_phaseSync.store(enable, std::memory_order_relaxed);
+    }
+
+    bool getPhaseSync() const noexcept {
+        return m_phaseSync.load(std::memory_order_relaxed);
+    }
+    
+private:
+    std::atomic<bool> m_phaseSync;
 };
+
+void OscillatorState::reset() noexcept {
+    if (getOwner().getPhaseSync()){
+        phase = 0.0;
+    } else {
+        auto dist = std::uniform_real_distribution<double>{0.0, 1.0};
+        phase = dist(ranEng);
+    }
+}
 
 class EnsembleInputState : public flo::SoundState {
 public:
@@ -171,7 +193,7 @@ class Ensemble : public flo::Realtime<flo::ControlledSoundSource<EnsembleState>>
 public:
     static const size_t numVoices = 8;
     
-    Ensemble() : frequencyIn(this), input(this) {
+    Ensemble() : frequencyIn(this, 250.0), input(this) {
         addDependency(&input);
         for (size_t k = 0; k < numVoices; ++k){
             input.addKey(k);
@@ -466,7 +488,7 @@ public:
         initialize(2, 44100);
     }
 
-    flo::SoundResult soundResult;
+    flo::WithCurrentTime<flo::SoundResult> soundResult;
 
 private:
     flo::SoundChunk m_chunk;
@@ -495,12 +517,82 @@ private:
     }
 };
 
+class ResamplerState : public flo::SoundState {
+public:
+    using SoundState::SoundState;
+
+    void reset() noexcept override {
+        buffer.silence();
+        posCoarse = 0;
+        posFine = 0.0;
+    }
+
+    flo::SoundChunk buffer;
+    std::uint16_t posCoarse;
+    double posFine;
+};
+
+class Resampler : public flo::OutOfSync<flo::ControlledSoundSource<ResamplerState>> {
+public:
+    Resampler() : timeSpeed(this, 1.0) {
+        addDependency(&input);
+    }
+
+    void renderNextChunk(flo::SoundChunk& chunk, ResamplerState* state) override {
+        // TODO: different types of interpolation and smoothing and junk
+
+        const auto refillBuffer = [&]() -> void {
+            input.getNextChunkFor(state->buffer, this, state);
+            assert(state->posCoarse + 1 == flo::SoundChunk::size);
+            state->posCoarse = 0;
+        };
+
+        const auto getNextSample = [&](double speed) -> flo::Sample {
+            auto acc = flo::Sample{};
+            auto count = std::uint8_t{0};
+
+            state->posFine += speed;
+
+            if (state->posFine < 1.0){
+                return flo::Sample{state->buffer[state->posCoarse]};
+            }
+
+            while (state->posFine >= 1.0){
+                state->posFine -= 1.0;
+                acc += state->buffer[state->posCoarse];
+                ++count;
+                ++state->posCoarse;
+                if (state->posCoarse == flo::SoundChunk::size){
+                    refillBuffer();
+                }
+            }
+
+            return acc / static_cast<float>(count);
+        };
+
+        for (std::uint16_t i = 0; i < flo::SoundChunk::size; ++i){
+            state->adjustTime(i);
+            const auto speed = timeSpeed.getValue(state);
+            chunk[i] = getNextSample(speed);
+        }
+    }
+
+    double getTimeSpeed(const flo::SoundState* context) const noexcept override {
+        return timeSpeed.getValue(context);
+    }
+
+    flo::WithCurrentTime<flo::SingleSoundInput> input;
+
+    flo::SoundNumberInput timeSpeed;
+};
+
 int main() {
 
     // Testing:
 	flo::Network network;
 
     auto osc = Oscillator{};
+    //osc.setPhaseSync(false);
 
     //auto smoo = Smoother{};
     //smoo.borrowFrom(&osc);
@@ -539,28 +631,32 @@ int main() {
     
     auto mixer = Mixer{};
     auto dac = DAC{};
+    /*auto rs = Resampler{};
+    rs.timeSpeed.setDefaultValue(1.0);
+    rs.input.setSource(&mixer);
+    dac.soundResult.setSource(&rs);*/
     dac.soundResult.setSource(&mixer);
 
     auto mul1 = Multiply{};
     router.addSoundSource(0);
     mixer.addSource(router.getSoundSource(0));
     router.getNumberInput(0, 0)->setSource(&mul1);
-    mul1.inputA.setDefaultValue(50.0 / 44100.0);
-    mul1.inputB.setSource(&dac.soundResult.currentTime);
+    mul1.inputA.setDefaultValue(100.0 / 44100.0);
+    //mul1.inputB.setSource(&dac.soundResult.currentTime);
     
     auto mul2 = Multiply{};
     router.addSoundSource(1);
     mixer.addSource(router.getSoundSource(1));
     router.getNumberInput(0, 1)->setSource(&mul2);
-    mul2.inputA.setDefaultValue(62.5 / 44100.0);
-    mul2.inputB.setSource(&dac.soundResult.currentTime);
+    mul2.inputA.setDefaultValue(125.0 / 44100.0);
+    //mul2.inputB.setSource(&dac.soundResult.currentTime);
 
     auto mul3 = Multiply{};
     router.addSoundSource(2);
     mixer.addSource(router.getSoundSource(2));
     router.getNumberInput(0, 2)->setSource(&mul3);
-    mul3.inputA.setDefaultValue(75.0 / 44100.0);
-    mul3.inputB.setSource(&dac.soundResult.currentTime);
+    mul3.inputA.setDefaultValue(150.0 / 44100.0);
+    //mul3.inputB.setSource(&dac.soundResult.currentTime);
 
     dac.play();
     std::cout << "Playing...\n";

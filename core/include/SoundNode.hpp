@@ -164,28 +164,14 @@ namespace flo {
         bool isOutOfSync() const noexcept override final;
     };
 
-    /* Example usage:
+    // Convenient mix-in template for adding a CurrentTime SoundNumberSource
+    template<typename SoundNodeType>
+    class WithCurrentTime : public SoundNodeType {
+    public:
+        WithCurrentTime();
 
-    class SoundInput : Realtime<Controllable<SoundNode>> { ... };
-
-    class SingleSoundInput : Singular<SoundInput, EmptyState> { ... };
-
-    template<typename SoundStateType, typename KeyType
-    class MultiSoundInput : Divergent<SoundInput, EmptyState, KeyType> { ... };
-
-
-    class SoundSource : SoundNode { ... };
-
-    template<typename SoundStateType>
-    class ConcreteSoundSource : Singular<SoundNode, SoundStateType> { ... };
-
-    class PhaseVocoderState { ... };
-    
-    class PhaseVocoder : OutOfSync<Controllable<ConcreteSoundSource<PhaseVocoderState>>> { ... };
-
-    */
-    
-
+        CurrentTime currentTime;
+    };
 
 } // namespace flo
 

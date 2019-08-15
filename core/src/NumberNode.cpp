@@ -104,8 +104,9 @@ namespace flo {
         return false;
     }
 
-    NumberInput::NumberInput() noexcept
-        : m_source(&m_constant) {
+    NumberInput::NumberInput(double defaultValue) noexcept
+        : m_constant(defaultValue)
+        , m_source(&m_constant) {
         // NOTE: there would be a call to addDependency(&m_constant)
         // but that would call a yet-unimplemented virtual function,
         // specifically getStateOwner() in canAddDependency().
@@ -141,8 +142,9 @@ namespace flo {
         return m_source;
     }
 
-    SoundNumberInput::SoundNumberInput(SoundNode* owner) noexcept
-        : m_owner(owner) {
+    SoundNumberInput::SoundNumberInput(SoundNode* owner, double defaultValue) noexcept
+        : NumberInput(defaultValue)
+        , m_owner(owner) {
         // NOTE: this is done here to prevent a call to a yet-unimplemented
         // virtual function (getStateOwner() in canAddDependency())
         addDependency(&m_constant);
@@ -172,7 +174,8 @@ namespace flo {
         return nullptr;
     }
 
-    NumberSourceInput::NumberSourceInput(NumberSource* owner){
+    NumberSourceInput::NumberSourceInput(NumberSource* owner, double defaultValue)
+        : NumberInput(defaultValue) {
         // NOTE: this is done here to prevent a call to a yet-unimplemented
         // virtual function (getStateOwner() in canAddDependency())
         addDependency(&m_constant);

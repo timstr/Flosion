@@ -164,6 +164,12 @@ namespace flo {
     inline bool OutOfSync<SoundNodeType>::isOutOfSync() const noexcept {
         return true;
     }
+    
+    template<typename SoundNodeType>
+    inline WithCurrentTime<SoundNodeType>::WithCurrentTime()
+        : currentTime(this) {
+
+    }
 
 }
 

@@ -121,7 +121,7 @@ namespace flo {
 
     class NumberInput : public NumberNode {
     private:
-        NumberInput() noexcept;
+        NumberInput(double defaultValue = 0.0) noexcept;
         friend class NumberSourceInput;
         friend class SoundNumberInput;
     public:
@@ -143,7 +143,7 @@ namespace flo {
 
     class NumberSourceInput : public NumberInput {
     public:
-        NumberSourceInput(NumberSource* owner);
+        NumberSourceInput(NumberSource* owner, double defaultValue = 0.0);
 
     private:
         const SoundNode* getStateOwner() const noexcept override final;
@@ -152,7 +152,7 @@ namespace flo {
 
     class SoundNumberInput : public NumberInput {
     public:
-        SoundNumberInput(SoundNode* owner) noexcept;
+        SoundNumberInput(SoundNode* owner, double defaultValue = 0.0) noexcept;
 
     private:
         const SoundNode* m_owner;

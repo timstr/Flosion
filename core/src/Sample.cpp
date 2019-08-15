@@ -14,6 +14,11 @@ namespace flo {
         r() = right;
     }
 
+    Sample::Sample(const SampleProxy& other) noexcept {
+        l() = other.l();
+        r() = other.r();
+    }
+
     Sample::Sample(const ConstSampleProxy& other) noexcept {
         l() = other.l();
         r() = other.r();
@@ -77,6 +82,12 @@ namespace flo {
         return *this;
     }
 
+    Sample& Sample::operator/=(float v) noexcept {
+        l() /= v;
+        r() /= v;
+        return *this;
+    }
+
     Sample Sample::operator-() const noexcept {
         return {-l(), -r()};
     }
@@ -99,6 +110,10 @@ namespace flo {
 
     Sample Sample::operator*(float value) const noexcept {
         return {l() - value, r() - value};
+    }
+
+    Sample Sample::operator/(float v) const noexcept {
+        return {l() / v, r() / v};
     }
 
     Sample::operator SampleProxy() & noexcept {
@@ -174,6 +189,12 @@ namespace flo {
         return *this;
     }
 
+    SampleProxy& SampleProxy::operator/=(float v) noexcept {
+        l() /= v;
+        r() /= v;
+        return *this;
+    }
+
     Sample SampleProxy::operator-() const noexcept {
         return {-l(), -r()};
     }
@@ -196,6 +217,10 @@ namespace flo {
 
     Sample SampleProxy::operator*(float value) const noexcept {
         return {l() * value, r() * value};
+    }
+
+    Sample SampleProxy::operator/(float v) const noexcept {
+        return {l() / v, r() / v};
     }
 
     // ConstSampleProxy
@@ -239,6 +264,10 @@ namespace flo {
 
     Sample ConstSampleProxy::operator*(float value) const noexcept {
         return {l() * value, r() * value};
+    }
+
+    Sample ConstSampleProxy::operator/(float v) const noexcept {
+        return {l() / v, r() / v};
     }
 
 } // namespace flo

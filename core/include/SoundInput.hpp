@@ -15,7 +15,7 @@ namespace flo {
         SoundSource* getSource() noexcept;
         const SoundSource* getSource() const noexcept;
 
-        // TODO
+        // TODO: should this be called Reactor?
         /*class Decorator : public SoundNode::Decorator {
         public:
             

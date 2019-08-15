@@ -17,6 +17,7 @@ namespace flo {
         Sample() noexcept;
         Sample(float l, float r) noexcept;
         Sample(const Sample&) noexcept = default;
+        explicit Sample(const SampleProxy&) noexcept;
         explicit Sample(const ConstSampleProxy&) noexcept;
         ~Sample() noexcept = default;
 
@@ -36,6 +37,7 @@ namespace flo {
         Sample& operator-=(const Sample&) noexcept;
         Sample& operator-=(const SampleProxy&) noexcept;
         Sample& operator*=(float) noexcept;
+        Sample& operator/=(float) noexcept;
         
         Sample operator-() const noexcept;
         Sample operator+(const Sample&) const noexcept;
@@ -43,6 +45,7 @@ namespace flo {
         Sample operator-(const Sample&) const noexcept;
         Sample operator-(const ConstSampleProxy&) const noexcept;
         Sample operator*(float) const noexcept;
+        Sample operator/(float) const noexcept;
         
 
         operator SampleProxy() & noexcept;
@@ -83,6 +86,7 @@ namespace flo {
         SampleProxy& operator-=(const Sample&) noexcept;
         SampleProxy& operator-=(const ConstSampleProxy&) noexcept;
         SampleProxy& operator*=(float) noexcept;
+        SampleProxy& operator/=(float) noexcept;
         
         Sample operator-() const noexcept;
         Sample operator+(const Sample&) const noexcept;
@@ -90,6 +94,7 @@ namespace flo {
         Sample operator-(const Sample&) const noexcept;
         Sample operator-(const ConstSampleProxy&) const noexcept;
         Sample operator*(float) const noexcept;
+        Sample operator/(float) const noexcept;
 
     private:
         SampleProxy(float* ptr) noexcept;
@@ -128,6 +133,7 @@ namespace flo {
         Sample operator-(const Sample&) const noexcept;
         Sample operator-(const ConstSampleProxy&) const noexcept;
         Sample operator*(float) const noexcept;
+        Sample operator/(float) const noexcept;
 
     private:
         ConstSampleProxy(const float* ptr) noexcept;
