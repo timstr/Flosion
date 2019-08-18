@@ -109,11 +109,11 @@ namespace flo {
         getMainAllocator()->moveConstruct(to, from);
         for (auto& slot : m_slotItems){
             assert(slot.offset != static_cast<size_t>(-1));
-            assert(slot.previousOffset != static_cast<size_t>(-1));
             if (slot.borrower == whichItem){
                 const auto mainState = (reinterpret_cast<SoundState*>(to));
                 slot.allocator->construct(to + slot.offset, m_owner, mainState->getDependentState());
             } else {
+                assert(slot.previousOffset != static_cast<size_t>(-1));
                 slot.allocator->moveConstruct(to + slot.offset, from + slot.previousOffset);
                 slot.allocator->destroy(from + slot.previousOffset);
             }
@@ -123,9 +123,11 @@ namespace flo {
     void StateTable::moveSlotAndRemoveItem(unsigned char* from, unsigned char* to, const StateBorrower* whichItem) {
         getMainAllocator()->moveConstruct(to, from);
         for (auto& slot : m_slotItems){
+            assert(slot.offset != static_cast<size_t>(-1));
             if (slot.borrower == whichItem){
                 slot.allocator->destroy(from + slot.offset);
             } else {
+                assert(slot.previousOffset != static_cast<size_t>(-1));
                 slot.allocator->moveConstruct(to + slot.offset, from + slot.previousOffset);
                 slot.allocator->destroy(from + slot.previousOffset);
             }
