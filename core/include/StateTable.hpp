@@ -9,7 +9,7 @@
 
 namespace flo {
 
-    class StateBorrower;
+    class BorrowingNumberSource;
     class SoundNode;
 
     /*
@@ -48,7 +48,7 @@ namespace flo {
         SoundState* getState(size_t index) noexcept;
         const SoundState* getState(size_t index) const noexcept;
 
-        State* getBorrowedState(const SoundState* mainState, const StateBorrower* borrower) const noexcept;
+        State* getBorrowedState(const SoundState* mainState, const BorrowingNumberSource* borrower) const noexcept;
 
         const SoundState* getMainState(const State* borrowedState) const noexcept;
 
@@ -79,8 +79,8 @@ namespace flo {
         void insertKeys(size_t beginIndex, size_t endIndex);
         void eraseKeys(size_t beginIndex, size_t endIndex);
 
-        void addBorrower(StateBorrower*);
-        void removeBorrower(StateBorrower*);
+        void addBorrower(BorrowingNumberSource*);
+        void removeBorrower(BorrowingNumberSource*);
 
         // Fixes the state table as having a single state.
         // NOTE: MONOSTATE IMPLIES SINGULAR
@@ -112,7 +112,7 @@ namespace flo {
         // Per slot item data
         struct SlotItem {
             // The borrower for which the state is allocated
-            StateBorrower* borrower;
+            BorrowingNumberSource* borrower;
 
             // The allocator used to manage the lifetime of the slot item
             std::unique_ptr<StateAllocator> allocator;
@@ -177,11 +177,11 @@ namespace flo {
         // moves a slot from one location to another while adding a slot item
         // the slot item must be present in m_slotItems
         // the old slot is destroyed
-        void moveSlotAndAddItem(unsigned char* from, unsigned char* to, const StateBorrower* whichItem);
+        void moveSlotAndAddItem(unsigned char* from, unsigned char* to, const BorrowingNumberSource* whichItem);
         
         // moves a slot from one location to another while removing a slot item
         // the old slot is destroyed
-        void moveSlotAndRemoveItem(unsigned char* from, unsigned char* to, const StateBorrower* whichItem);
+        void moveSlotAndRemoveItem(unsigned char* from, unsigned char* to, const BorrowingNumberSource* whichItem);
 
         // updates the dependent state pointers for all states associated
         // with the given dependent.

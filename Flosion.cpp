@@ -76,6 +76,21 @@ private:
     }
 };
 
+class Add : public flo::StatelessNumberSource {
+public:
+    Add() : inputA(this, 1.0), inputB(this, 1.0) {
+        
+    }
+
+    flo::NumberSourceInput inputA;
+    flo::NumberSourceInput inputB;
+
+private:
+    double evaluate(const flo::SoundState* context) const noexcept override {
+        return inputA.getValue(context) + inputB.getValue(context);
+    }
+};
+
 class SmootherState : public flo::State {
 public:
     void reset() noexcept override {
@@ -84,7 +99,7 @@ public:
 
     double value{};
 };
-class Smoother : public flo::BorrowingNumberSource<SmootherState> {
+class Smoother : public flo::BorrowingNumberSourceTemplate<SmootherState> {
 public:
     Smoother() : input(this) {
     
@@ -96,6 +111,44 @@ private:
     double evaluate(SmootherState* state, const flo::SoundState* context) const noexcept override {
         auto v = input.getValue(context);
         state->value += 1.0 * (v - state->value);
+        return state->value;
+    }
+};
+
+class RandomWalkState : public flo::State {
+public:
+
+    void reset() noexcept override {
+        value = 0.0;
+        velocity = 0.0;
+    }
+
+    double value;
+    double velocity;
+};
+
+class RandomWalk : public flo::BorrowingNumberSourceTemplate<RandomWalkState> {
+public:
+    RandomWalk()
+        : speed(this, 0.001)
+        , damping(this, 0.5)
+        , bias(this, 0.1) {
+        
+    }
+
+    flo::NumberSourceInput speed;
+    flo::NumberSourceInput damping;
+    flo::NumberSourceInput bias;
+
+private:
+    double evaluate(RandomWalkState* state, const flo::SoundState* context) const noexcept override {
+        const auto sp = speed.getValue(context);
+        const auto d = damping.getValue(context);
+        const auto b = bias.getValue(context);
+        auto dist = std::uniform_real_distribution<double>{-1.0, 1.0};
+        auto deltaVelocity = (dist(ranEng) - state->value * b) * sp;
+        state->velocity = (state->velocity * d) + deltaVelocity;
+        state->value += state->velocity;
         return state->value;
     }
 };
@@ -116,7 +169,7 @@ public:
     Oscillator()
         : phase(this)
         , waveFunction(this)
-        , frequency(this, 250.0)
+        , frequency(this, 250.0 / static_cast<double>(flo::Sample::frequency))
         , m_phaseSync(true) {
 
     }
@@ -128,6 +181,7 @@ public:
             chunk.l(i) = val;
             chunk.r(i) = val;
             state->phase += frequency.getValue(state);
+            state->phase -= std::floor(state->phase);
         }
     }
 
@@ -193,7 +247,10 @@ class Ensemble : public flo::Realtime<flo::ControlledSoundSource<EnsembleState>>
 public:
     static const size_t numVoices = 8;
     
-    Ensemble() : frequencyIn(this, 250.0), input(this) {
+    Ensemble()
+        : frequencyIn(this, 250.0 / static_cast<double>(flo::Sample::frequency)),
+        input(this) {
+
         addDependency(&input);
         for (size_t k = 0; k < numVoices; ++k){
             input.addKey(k);
@@ -588,6 +645,45 @@ public:
 
 int main() {
 
+    {
+        auto dac = DAC{};
+
+        auto osc = Oscillator{};
+
+        auto saw = Saw{};
+
+        osc.waveFunction.setSource(&saw);
+        saw.input.setSource(&osc.phase);
+
+        dac.soundResult.setSource(&osc);
+
+        auto rw = RandomWalk{};
+        rw.borrowFrom(&osc);
+
+        auto add = Add{};
+
+        auto mul = Multiply{};
+
+        add.inputA.setDefaultValue(1.0);
+        add.inputB.setSource(&rw);
+
+        mul.inputA.setDefaultValue(250.0 / static_cast<double>(flo::Sample::frequency));
+        mul.inputB.setSource(&add);
+
+        //rw.smoothing.setDefaultValue(0.95);
+
+        osc.frequency.setSource(&mul);
+
+        dac.play();
+        std::cout << "Playing...\n";
+        std::this_thread::sleep_for(std::chrono::seconds(8));
+        std::cout << "Paused\n";
+        dac.pause();
+
+        return 0;
+    }
+
+
     // Testing:
 	flo::Network network;
 
@@ -642,21 +738,21 @@ int main() {
     mixer.addSource(router.getSoundSource(0));
     router.getNumberInput(0, 0)->setSource(&mul1);
     mul1.inputA.setDefaultValue(100.0 / 44100.0);
-    //mul1.inputB.setSource(&dac.soundResult.currentTime);
+    mul1.inputB.setSource(&dac.soundResult.currentTime);
     
     auto mul2 = Multiply{};
     router.addSoundSource(1);
     mixer.addSource(router.getSoundSource(1));
     router.getNumberInput(0, 1)->setSource(&mul2);
     mul2.inputA.setDefaultValue(125.0 / 44100.0);
-    //mul2.inputB.setSource(&dac.soundResult.currentTime);
+    mul2.inputB.setSource(&dac.soundResult.currentTime);
 
     auto mul3 = Multiply{};
     router.addSoundSource(2);
     mixer.addSource(router.getSoundSource(2));
     router.getNumberInput(0, 2)->setSource(&mul3);
     mul3.inputA.setDefaultValue(150.0 / 44100.0);
-    //mul3.inputB.setSource(&dac.soundResult.currentTime);
+    mul3.inputB.setSource(&dac.soundResult.currentTime);
 
     dac.play();
     std::cout << "Playing...\n";

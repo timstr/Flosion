@@ -21,12 +21,13 @@ namespace flo {
     }
 
     bool SoundNode::canAddDependency(const SoundNode* node) const noexcept {
-        // TODO: make sure that the node doesn't already have other
-        // dependencies whose number sources it depends on
-
         if (hasDependency(node) || node->hasDependency(this)){
             return false;
         }
+
+        // TODO: make sure that the node doesn't already have other
+        // dependencies whose number sources it depends on
+
 
         if (node->hasUncontrolledDependency()){
             // make sure that there will be nothing but a line of realtime, singular dependents
@@ -54,9 +55,14 @@ namespace flo {
         return true;
     }
 
-    bool SoundNode::canRemoveDependency(const SoundNode *) const noexcept {
+    bool SoundNode::canRemoveDependency(const SoundNode* node) const noexcept {
         // TODO: make sure that no numbersources would lose access to the
         // state they need
+        std::function<void(const SoundNode*)> searchFn = [&](const SoundNode* n){
+        
+        };
+        searchFn(node);
+
         return true;
     }
 

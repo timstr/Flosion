@@ -1,6 +1,5 @@
 #include <StateTable.hpp>
 #include <StateAllocator.hpp>
-#include <StateBorrower.hpp>
 #include <SoundNode.hpp>
 
 #include <algorithm>
@@ -105,7 +104,7 @@ namespace flo {
         }
     }
 
-    void StateTable::moveSlotAndAddItem(unsigned char* from, unsigned char* to, const StateBorrower* whichItem){
+    void StateTable::moveSlotAndAddItem(unsigned char* from, unsigned char* to, const BorrowingNumberSource* whichItem){
         getMainAllocator()->moveConstruct(to, from);
         for (auto& slot : m_slotItems){
             assert(slot.offset != static_cast<size_t>(-1));
@@ -120,7 +119,7 @@ namespace flo {
         }
     }
 
-    void StateTable::moveSlotAndRemoveItem(unsigned char* from, unsigned char* to, const StateBorrower* whichItem) {
+    void StateTable::moveSlotAndRemoveItem(unsigned char* from, unsigned char* to, const BorrowingNumberSource* whichItem) {
         getMainAllocator()->moveConstruct(to, from);
         for (auto& slot : m_slotItems){
             assert(slot.offset != static_cast<size_t>(-1));
@@ -163,7 +162,7 @@ namespace flo {
         return reinterpret_cast<const SoundState*>(m_data + (slotIndex * m_slotSize));
     }
 
-    State* StateTable::getBorrowedState(const SoundState* mainState, const StateBorrower* borrower) const noexcept {
+    State* StateTable::getBorrowedState(const SoundState* mainState, const BorrowingNumberSource* borrower) const noexcept {
         // TODO: safety assertions
         const auto addr = (reinterpret_cast<const unsigned char*>(mainState) + borrower->m_stateOffset);
         return reinterpret_cast<State*>(const_cast<unsigned char*>(addr));
@@ -656,7 +655,7 @@ namespace flo {
         deallocateData(oldData);
     }
 
-    void StateTable::addBorrower(StateBorrower* borrower){
+    void StateTable::addBorrower(BorrowingNumberSource* borrower){
         assert(
             std::count_if(
                 m_slotItems.begin(),
@@ -725,7 +724,7 @@ namespace flo {
         }
     }
 
-    void StateTable::removeBorrower(StateBorrower* borrower){
+    void StateTable::removeBorrower(BorrowingNumberSource* borrower){
         assert(
             std::count_if(
                 m_slotItems.begin(),

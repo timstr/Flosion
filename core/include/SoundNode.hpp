@@ -5,7 +5,6 @@
 #include <RecursiveSharedMutex.hpp>
 #include <StateTable.hpp>
 
-#include <shared_mutex>
 #include <vector>
 
 namespace flo {
@@ -32,6 +31,8 @@ namespace flo {
         bool hasDirectDependency(const SoundNode*) const noexcept;
 
         bool hasUncontrolledDependency() const noexcept;
+
+        const std::vector<NumberNode*>& getNumberNodes() const;
 
         /**
          * NOTE: this interface is really meant for getNextChunkFor(...), but its
@@ -67,6 +68,10 @@ namespace flo {
     private:
         std::vector<SoundNode*> m_dependents;
         std::vector<SoundNode*> m_dependencies;
+
+        // TODO: populate this with number inputs and sources that belong to this soundnode,
+        // and with stateful numbernodes that are borrowing state from this soundnode.
+        std::vector<NumberNode*> m_numberNodes;
         Network* m_network;
 
         friend class SoundState;

@@ -57,6 +57,7 @@ namespace flo {
         std::vector<NumberNode*> m_dependents;
         std::vector<NumberNode*> m_dependencies;
 
+        // TODO: replace this with SoundNode* m_stateOwner;
         virtual const SoundNode* getStateOwner() const noexcept = 0;
     };
 
@@ -74,8 +75,27 @@ namespace flo {
         const SoundNode* getStateOwner() const noexcept override final;
     };
 
+    class BorrowingNumberSource : public NumberSource {
+    public:
+        BorrowingNumberSource() noexcept;
+        ~BorrowingNumberSource();
+
+        virtual std::unique_ptr<StateAllocator> makeAllocater() const = 0;
+
+        SoundNode* getStateLender() noexcept;
+        const SoundNode* getStateLender() const noexcept;
+
+        void borrowFrom(SoundNode*);
+
+    private:
+        SoundNode* m_stateLender;
+        size_t m_stateOffset;
+
+        friend class StateTable;
+    };
+
     template<typename StateType>
-    class BorrowingNumberSource : public NumberSource, public StateBorrower {
+    class BorrowingNumberSourceTemplate : public BorrowingNumberSource {
     public:
 
         virtual double evaluate(StateType* state, const SoundState* context) const noexcept = 0;
@@ -228,7 +248,7 @@ namespace flo {
     }
 
     template<typename StateType>
-    inline double BorrowingNumberSource<StateType>::evaluate(const SoundState* context) const noexcept {
+    inline double BorrowingNumberSourceTemplate<StateType>::evaluate(const SoundState* context) const noexcept {
         if (auto lender = getStateLender()){
             return evaluate(reinterpret_cast<StateType*>(lender->getBorrowedState(context, this)), context);
         }
@@ -236,12 +256,12 @@ namespace flo {
     }
 
     template<typename StateType>
-    inline const SoundNode * BorrowingNumberSource<StateType>::getStateOwner() const noexcept {
+    inline const SoundNode * BorrowingNumberSourceTemplate<StateType>::getStateOwner() const noexcept {
         return getStateLender();
     }
 
     template<typename StateType>
-    inline std::unique_ptr<StateAllocator> BorrowingNumberSource<StateType>::makeAllocater() const {
+    inline std::unique_ptr<StateAllocator> BorrowingNumberSourceTemplate<StateType>::makeAllocater() const {
         return std::make_unique<ConcreteStateAllocator<StateType>>();
     }
 
