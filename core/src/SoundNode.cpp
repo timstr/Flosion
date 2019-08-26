@@ -73,8 +73,7 @@ namespace flo {
         auto lock = getScopedWriteLock();
         m_dependencies.push_back(node);
         node->m_dependents.push_back(this);
-        node->m_dependentOffsets.push_back({this, node->numDependentStates()});
-
+        node->addDependentOffset(this);
         if (numSlots() > 0){
             node->insertDependentStates(this, 0, numSlots());
             node->repointStatesFor(this);
@@ -93,15 +92,8 @@ namespace flo {
         if (numSlots() > 0){
             node->eraseDependentStates(this, 0, numSlots());
         }
-        
-        node->m_dependentOffsets.erase(
-            std::remove_if(node->m_dependentOffsets.begin(),
-                node->m_dependentOffsets.end(),
-                [&](const StateTable::DependentOffset& d){
-                    return d.dependent == this;
-                }),
-            node->m_dependentOffsets.end()
-        );
+        node->removeDependentOffset(this);
+
         m_dependencies.erase(
             std::remove(m_dependencies.begin(), m_dependencies.end(), node),
             m_dependencies.end()

@@ -169,7 +169,7 @@ public:
     Oscillator()
         : phase(this)
         , waveFunction(this)
-        , frequency(this, 250.0 / static_cast<double>(flo::Sample::frequency))
+        , frequency(this, 250.0)
         , m_phaseSync(true) {
 
     }
@@ -180,7 +180,7 @@ public:
             float val = static_cast<float>(waveFunction.getValue(state));
             chunk.l(i) = val;
             chunk.r(i) = val;
-            state->phase += frequency.getValue(state);
+            state->phase += frequency.getValue(state) / static_cast<double>(flo::Sample::frequency);
             state->phase -= std::floor(state->phase);
         }
     }
@@ -245,10 +245,10 @@ public:
 
 class Ensemble : public flo::Realtime<flo::ControlledSoundSource<EnsembleState>> {
 public:
-    static const size_t numVoices = 8;
+    static const size_t numVoices = 4;
     
     Ensemble()
-        : frequencyIn(this, 250.0 / static_cast<double>(flo::Sample::frequency)),
+        : frequencyIn(this, 250.0),
         input(this) {
 
         addDependency(&input);
@@ -651,14 +651,65 @@ int main() {
         auto osc = Oscillator{};
 
         auto saw = Saw{};
-
-        osc.waveFunction.setSource(&saw);
         saw.input.setSource(&osc.phase);
+        osc.waveFunction.setSource(&saw);
 
-        dac.soundResult.setSource(&osc);
+        auto ens = Ensemble{};
+
+        ens.input.setSource(&osc);
+        ens.frequencyIn.setDefaultValue(70.0);
 
         auto rw = RandomWalk{};
         rw.borrowFrom(&osc);
+
+        rw.bias.setDefaultValue(1.0);
+        rw.speed.setDefaultValue(0.0003);
+        rw.damping.setDefaultValue(0.8);
+
+        auto one = flo::ConstantNumberSource{1.0};
+
+        auto add = Add{};
+        add.inputA.setSource(&one);
+        add.inputB.setSource(&rw);
+
+        auto mul = Multiply{};
+        mul.inputA.setSource(&add);
+        mul.inputB.setSource(&ens.input.frequencyOut);
+
+        osc.frequency.setSource(&mul);
+
+        dac.soundResult.setSource(&ens);
+
+        dac.play();
+        std::cout << "Playing...\n";
+        std::this_thread::sleep_for(std::chrono::seconds(8));
+        std::cout << "Paused\n";
+        dac.pause();
+
+        return 0;
+    }
+
+    /*{
+        auto dac = DAC{};
+
+        auto osc = Oscillator{};
+
+        auto sine = Sine{};
+
+
+        osc.waveFunction.setSource(&sine);
+        sine.input.setSource(&osc.phase);
+
+        auto ens = Ensemble{};
+
+        ens.input.setSource(&osc);
+
+        osc.frequency.setSource(&ens.input.frequencyOut);
+
+        dac.soundResult.setSource(&ens);
+
+        auto rw = RandomWalk{};
+        rw.borrowFrom(&ens);
 
         auto add = Add{};
 
@@ -667,12 +718,12 @@ int main() {
         add.inputA.setDefaultValue(1.0);
         add.inputB.setSource(&rw);
 
-        mul.inputA.setDefaultValue(250.0 / static_cast<double>(flo::Sample::frequency));
+        mul.inputA.setDefaultValue(300.0);
         mul.inputB.setSource(&add);
 
         //rw.smoothing.setDefaultValue(0.95);
 
-        osc.frequency.setSource(&mul);
+        ens.frequencyIn.setSource(&mul);
 
         dac.play();
         std::cout << "Playing...\n";
@@ -727,10 +778,10 @@ int main() {
     
     auto mixer = Mixer{};
     auto dac = DAC{};
-    /*auto rs = Resampler{};
-    rs.timeSpeed.setDefaultValue(1.0);
-    rs.input.setSource(&mixer);
-    dac.soundResult.setSource(&rs);*/
+    //auto rs = Resampler{};
+    //rs.timeSpeed.setDefaultValue(1.0);
+    //rs.input.setSource(&mixer);
+    //dac.soundResult.setSource(&rs);
     dac.soundResult.setSource(&mixer);
 
     auto mul1 = Multiply{};
@@ -760,5 +811,5 @@ int main() {
     std::cout << "Done.\n";
     dac.pause();
 
-	return 0;
+	return 0;*/
 }

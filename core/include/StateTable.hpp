@@ -131,7 +131,15 @@ namespace flo {
             const SoundNode* dependent;
 
             // the index at which the dependent's states begin
+            // NOTE: this index is in terms of all states owned by
+            // the state table. It is effectively the sum of numbers
+            // of slots owned by all dependents ordered before this
+            // one, times the number of keys.
             size_t offset;
+
+            // The number of the dependent's states which are being
+            // mapped to.
+            size_t count;
         };
         
         std::vector<DependentOffset> m_dependentOffsets;
@@ -188,6 +196,9 @@ namespace flo {
         // This should be called anytime the given dependent moves any of
         // its states
         void repointStatesFor(const SoundNode* dependent) noexcept;
+
+        void addDependentOffset(const SoundNode*);
+        void removeDependentOffset(const SoundNode*);
 
         friend class SoundNode;
     };

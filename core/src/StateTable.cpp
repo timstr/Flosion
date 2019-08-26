@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <numeric>
 
 namespace flo {
 
@@ -30,7 +31,13 @@ namespace flo {
     }
 
     size_t StateTable::getDependentOffset(const SoundNode* dependent) const noexcept {
-        auto it = std::find_if(m_dependentOffsets.begin(), m_dependentOffsets.end(), [&](const DependentOffset& d){ return d.dependent == dependent; });
+        auto it = std::find_if(
+            m_dependentOffsets.begin(),
+            m_dependentOffsets.end(),
+            [&](const DependentOffset& d){
+                return d.dependent == dependent;
+            }
+        );
         assert(it != m_dependentOffsets.end());
         return it->offset;
     }
@@ -54,6 +61,7 @@ namespace flo {
             m_mainAllocator = makeAllocator();
             m_slotSize = m_mainAllocator->getSize();
         }
+        assert(m_mainAllocator);
         return m_mainAllocator.get();
     }
 
@@ -144,6 +152,43 @@ namespace flo {
         }
     }
 
+    void StateTable::addDependentOffset(const SoundNode* d){
+        assert(std::find_if(
+            m_dependentOffsets.begin(),
+            m_dependentOffsets.end(),
+            [&](const DependentOffset& x){
+                return x.dependent == d;
+            }
+        ) == m_dependentOffsets.end());
+
+        const auto offset = std::accumulate(
+            m_dependentOffsets.begin(),
+            m_dependentOffsets.end(),
+            0ull,
+            [](size_t acc, const DependentOffset& x){
+                return acc + x.count;
+            }
+        );
+
+        m_dependentOffsets.push_back({
+            d,
+            offset,
+            (m_isMonostate ? 1u : 0u)
+        });
+    }
+
+    void StateTable::removeDependentOffset(const SoundNode* d){
+        auto it = std::find_if(
+            m_dependentOffsets.begin(),
+            m_dependentOffsets.end(),
+            [&](const DependentOffset& x){
+                return x.dependent == d;
+            }
+        );
+        assert(it != m_dependentOffsets.end());
+        m_dependentOffsets.erase(it);
+    }
+
     SoundState* StateTable::getState(const SoundNode* dependent, const SoundState* dependentState, size_t keyIndex) noexcept {
         return const_cast<SoundState*>(const_cast<const StateTable*>(this)->getState(dependent, dependentState, keyIndex));
     }
@@ -163,7 +208,7 @@ namespace flo {
     }
 
     State* StateTable::getBorrowedState(const SoundState* mainState, const BorrowingNumberSource* borrower) const noexcept {
-        // TODO: safety assertions
+        assert(hasState(mainState));
         const auto addr = (reinterpret_cast<const unsigned char*>(mainState) + borrower->m_stateOffset);
         return reinterpret_cast<State*>(const_cast<unsigned char*>(addr));
     }
@@ -175,7 +220,6 @@ namespace flo {
 
     void StateTable::resetStateFor(const SoundNode* dependent, const SoundState* dependentState) noexcept {
         const auto stateIdx = dependent->getStateIndex(dependentState);
-
 
         const auto baseSlot = getDependentOffset(dependent) + (stateIdx * numKeys());
         for (size_t j = 0; j < numKeys(); ++j){
@@ -196,7 +240,12 @@ namespace flo {
 
     bool StateTable::hasState(const SoundState* ownState) const noexcept {
         const auto addr = reinterpret_cast<const unsigned char*>(ownState);
-        return addr >= m_data && addr < (m_data + (m_slotSize * numSlots()));
+        const auto diff = addr - m_data;
+        if (diff % m_slotSize != 0){
+            return false;
+        }
+        const auto idx = diff / m_slotSize;
+        return (idx >= 0) && (idx < numSlots());
     }
 
     size_t StateTable::numSlots() const noexcept {
@@ -222,13 +271,11 @@ namespace flo {
     }
 
     void StateTable::insertDependentStates(const SoundNode* dependent, size_t beginIndex, size_t endIndex){
-        assert(
-            std::find_if(
-                m_dependentOffsets.begin(),
-                m_dependentOffsets.end(),
-                [&](const DependentOffset& d){ return d.dependent == dependent; }
-            ) != m_dependentOffsets.end()
-        );
+        assert(std::find_if(
+            m_dependentOffsets.begin(),
+            m_dependentOffsets.end(),
+            [&](const DependentOffset& d){ return d.dependent == dependent; }
+        ) != m_dependentOffsets.end());
         assert(beginIndex <= endIndex);
         assert(beginIndex < dependent->numSlots());
         assert(endIndex <= dependent->numSlots());
@@ -241,11 +288,23 @@ namespace flo {
             assert(m_dependentOffsets.size() == 1);
             assert(m_dependentOffsets[0].dependent == dependent);
             assert(m_dependentOffsets[0].offset == 0);
+            assert(m_dependentOffsets[0].count == 1);
             assert(beginIndex == 0);
             assert(beginIndex == 1);
             assert(numSlots() == 1);
             assert(getState(0)->m_dependentState == nullptr);
             getState(0)->m_dependentState = dependent->getState(0);
+            return;
+        }
+
+        if (numKeys() == 0){
+            assert(std::all_of(
+                m_dependentOffsets.begin(),
+                m_dependentOffsets.end(),
+                [](const DependentOffset& d){
+                    return d.offset == 0;
+                }
+            ));
             return;
         }
 
@@ -264,8 +323,11 @@ namespace flo {
         // for all dependents prior to the given dependent
         while (itDependent->dependent != dependent){
             // move all states to new array
-            for (size_t i = 0; i < itDependent->dependent->numSlots(); i++){
+            assert(itDependent->dependent->numSlots() == itDependent->count);
+            for (size_t i = 0; i < itDependent->count; i++){
                 for (size_t j = 0; j < numKeys(); ++j){
+                    assert(oldSlotIndex < numSlots());
+                    assert(newSlotIndex < newNumSlots);
                     auto from = oldData + (m_slotSize * oldSlotIndex);
                     auto to = newData + (m_slotSize * newSlotIndex);
                     moveSlot(from, to);
@@ -287,6 +349,8 @@ namespace flo {
             for (size_t i = 0; i < beginIndex; ++i){
                 for (size_t j = 0; j < numKeys(); ++j){
                     //assert(oldSlotIndex == (itDependent->offset + i));
+                    assert(oldSlotIndex < numSlots());
+                    assert(newSlotIndex < newNumSlots);
                     auto from = oldData + (m_slotSize * oldSlotIndex);
                     auto to = newData + (m_slotSize * newSlotIndex);
                     moveSlot(from, to);
@@ -300,6 +364,7 @@ namespace flo {
             for (size_t i = beginIndex; i < endIndex; ++i){
                 for (size_t j = 0; j < numKeys(); ++j){
                     auto dst = newData + (m_slotSize * newSlotIndex);
+                    assert(newSlotIndex < newNumSlots);
                     constructSlot(dst);
 
                     ++newSlotIndex;
@@ -307,9 +372,11 @@ namespace flo {
             }
 
             // move all the depdendent's states after the last new state
-            for (size_t i = endIndex, iEnd = dependent->numSlots(); i < iEnd; ++i){
+            for (size_t i = endIndex, iEnd = itDependent->count; i < iEnd; ++i){
                 for (size_t j = 0; j < numKeys(); ++j){
                     assert(oldSlotIndex == itDependent->offset + i - (endIndex - beginIndex));
+                    assert(oldSlotIndex < numSlots());
+                    assert(newSlotIndex < newNumSlots);
                     auto from = oldData + (m_slotSize * oldSlotIndex);
                     auto to = newData + (m_slotSize * newSlotIndex);
                     moveSlot(from, to);
@@ -318,6 +385,9 @@ namespace flo {
                     ++newSlotIndex;
                 }
             }
+
+            // update the number of states
+            itDependent->count += (endIndex - beginIndex);
         }
 
         // move the states of all remaining dependents
@@ -325,9 +395,12 @@ namespace flo {
         while (itDependent != m_dependentOffsets.end()){
             assert(itDependent->dependent != dependent);
             itDependent->offset = newSlotIndex;
-            for (size_t i = 0; i < itDependent->dependent->numSlots(); i++){
+            assert(itDependent->dependent->numSlots() == itDependent->count);
+            for (size_t i = 0; i < itDependent->count; i++){
                 for (size_t j = 0; j < numKeys(); ++j){
                     assert(oldSlotIndex == itDependent->offset + i);
+                    assert(oldSlotIndex < numSlots());
+                    assert(newSlotIndex < newNumSlots);
                     auto from = oldData + (m_slotSize * oldSlotIndex);
                     auto to = newData + (m_slotSize * newSlotIndex);
                     moveSlot(from, to);
@@ -376,11 +449,24 @@ namespace flo {
             assert(m_dependentOffsets.size() == 1);
             assert(m_dependentOffsets[0].dependent == dependent);
             assert(m_dependentOffsets[0].offset == 0);
+            assert(m_dependentOffsets[0].count == 1);
             assert(beginIndex == 0);
             assert(beginIndex == 1);
             assert(numSlots() == 1);
             assert(getState(0)->m_dependentState == dependent->getState(0));
             getState(0)->m_dependentState = nullptr;
+            m_dependentOffsets[0].count = 0;
+            return;
+        }
+
+        if (numKeys() == 0){
+            assert(std::all_of(
+                m_dependentOffsets.begin(),
+                m_dependentOffsets.end(),
+                [](const DependentOffset& d){
+                    return d.offset == 0;
+                }
+            ));
             return;
         }
 
@@ -399,13 +485,16 @@ namespace flo {
         // for all dependents prior to the given dependent
         while (itDependent->dependent != dependent){
             // move all states to new array
-            for (size_t i = 0; i < itDependent->dependent->numSlots(); i++){
+            assert(itDependent->dependent->numSlots() == itDependent->count);
+            for (size_t i = 0; i < itDependent->count; i++){
                 for (size_t j = 0; j < numKeys(); ++j){
                     assert(oldSlotIndex / numKeys() == itDependent->offset + i);
                     assert(oldSlotIndex % numKeys() == j);
                     assert(newSlotIndex / numKeys() == itDependent->offset + i);
                     assert(newSlotIndex % numKeys() == j);
-
+                    
+                    assert(oldSlotIndex < numSlots());
+                    assert(newSlotIndex < newNumSlots);
                     auto from = oldData + (m_slotSize * oldSlotIndex);
                     auto to = newData + (m_slotSize * newSlotIndex);
                     moveSlot(from, to);
@@ -422,61 +511,72 @@ namespace flo {
         assert(itDependent->dependent == dependent);
 
         // begin moving states for the given dependent with new states
+        {
+            // move all the dependent's states prior to the first new state
+            for (size_t i = 0; i < beginIndex; ++i){
+                for (size_t j = 0; j < numKeys(); ++j){
+                    assert(oldSlotIndex / numKeys() == itDependent->offset + i);
+                    assert(oldSlotIndex % numKeys() == j);
+                    assert(newSlotIndex / numKeys() == itDependent->offset + i);
+                    assert(newSlotIndex % numKeys() == j);
+                
+                    assert(oldSlotIndex < numSlots());
+                    assert(newSlotIndex < newNumSlots);
+                    auto from = oldData + (m_slotSize * oldSlotIndex);
+                    auto to = newData + (m_slotSize * newSlotIndex);
+                    moveSlot(from, to);
 
-        // move all the dependent's states prior to the first new state
-        for (size_t i = 0; i < beginIndex; ++i){
-            for (size_t j = 0; j < numKeys(); ++j){
-                assert(oldSlotIndex / numKeys() == itDependent->offset + i);
-                assert(oldSlotIndex % numKeys() == j);
-                assert(newSlotIndex / numKeys() == itDependent->offset + i);
-                assert(newSlotIndex % numKeys() == j);
-
-                auto from = oldData + (m_slotSize * oldSlotIndex);
-                auto to = newData + (m_slotSize * newSlotIndex);
-                moveSlot(from, to);
-
-                ++oldSlotIndex;
-                ++newSlotIndex;
+                    ++oldSlotIndex;
+                    ++newSlotIndex;
+                }
             }
-        }
 
-        assert(oldSlotIndex / numKeys() == itDependent->offset + beginIndex);
-        assert(newSlotIndex / numKeys() == itDependent->offset + beginIndex);
+            assert(oldSlotIndex / numKeys() == itDependent->offset + beginIndex);
+            assert(newSlotIndex / numKeys() == itDependent->offset + beginIndex);
 
-        // destroy all the dependent's old states
-        for (size_t i = beginIndex; i < endIndex; ++i){
-            for (size_t j = 0; j < numKeys(); ++j){
-                assert(oldSlotIndex / numKeys() == itDependent->offset + i);
-                assert(oldSlotIndex % numKeys() == j);
+            // destroy all the dependent's old states
+            for (size_t i = beginIndex; i < endIndex; ++i){
+                for (size_t j = 0; j < numKeys(); ++j){
+                    assert(oldSlotIndex / numKeys() == itDependent->offset + i);
+                    assert(oldSlotIndex % numKeys() == j);
+                
+                    assert(oldSlotIndex < numSlots());
+                    auto dst = oldData + (m_slotSize * oldSlotIndex);
+                    destroySlot(dst);
 
-                auto dst = oldData + (m_slotSize * oldSlotIndex);
-                destroySlot(dst);
-
-                ++oldSlotIndex;
+                    ++oldSlotIndex;
+                }
             }
-        }
 
-        assert(oldSlotIndex / numKeys() == itDependent->offset + endIndex);
-        assert(newSlotIndex / numKeys() == itDependent->offset + beginIndex);
+            assert(oldSlotIndex / numKeys() == itDependent->offset + endIndex);
+            assert(newSlotIndex / numKeys() == itDependent->offset + beginIndex);
 
-        // move all the dependent's states after the last state being removed
-        // TODO: the following line assumes that dependent->numSlots() just decreased
-        // This is not true for uncontrolled (monostate) soundnodes.
-        const auto oldDependentNumSlots = dependent->numSlots() + (dependent->m_isMonostate ? 0 : endIndex - beginIndex);
-        for (size_t i = endIndex, iEnd = oldDependentNumSlots; i < iEnd; ++i){
-            for (size_t j = 0; j < numKeys(); ++j){
-                assert(oldSlotIndex / numKeys() == itDependent->offset + i);
-                assert(oldSlotIndex % numKeys() == j);
-                assert(newSlotIndex / numKeys() == itDependent->offset + i - (endIndex - beginIndex));
-                assert(newSlotIndex % numKeys() == j);
+            // move all the dependent's states after the last state being removed
+            // TODO: Something unusual needs to be done here
+            // Sometimes when this function is called, the dependent has just
+            // removed a total of (endIndex - beginIndex) states, while other times,
+            // the dependent has not lost any states.
+            for (size_t i = endIndex, iEnd = itDependent->count; i < iEnd; ++i){
+                for (size_t j = 0; j < numKeys(); ++j){
+                    assert(oldSlotIndex / numKeys() == itDependent->offset + i);
+                    assert(oldSlotIndex % numKeys() == j);
+                    assert(newSlotIndex / numKeys() == itDependent->offset + i - (endIndex - beginIndex));
+                    assert(newSlotIndex % numKeys() == j);
+                
+                    assert(oldSlotIndex < numSlots());
+                    assert(newSlotIndex < newNumSlots);
+                    auto from = oldData + (m_slotSize * oldSlotIndex);
+                    auto to = newData + (m_slotSize * newSlotIndex);
+                    moveSlot(from, to);
 
-                auto from = oldData + (m_slotSize * oldSlotIndex);
-                auto to = newData + (m_slotSize * newSlotIndex);
-                moveSlot(from, to);
-
-                ++oldSlotIndex;
-                ++newSlotIndex;
+                    ++oldSlotIndex;
+                    ++newSlotIndex;
+                }
             }
+
+            // update the number of states for the dependent
+            assert(itDependent->count >= (endIndex - beginIndex));
+            itDependent->count -= (endIndex - beginIndex);
         }
 
         // move the states of all remaining dependents
@@ -485,7 +585,8 @@ namespace flo {
             assert(itDependent->dependent != dependent);
             const auto newOffset = newSlotIndex;
             assert(newOffset == itDependent->offset - numKeys() * (endIndex - beginIndex));
-            for (size_t i = 0, iEnd = itDependent->dependent->numSlots(); i < iEnd; i++){
+            assert(itDependent->dependent->numSlots() == itDependent->count);
+            for (size_t i = 0, iEnd = itDependent->count; i < iEnd; i++){
                 for (size_t j = 0; j < numKeys(); ++j){
 
                     assert(oldSlotIndex / numKeys() == itDependent->offset + i);
@@ -493,7 +594,9 @@ namespace flo {
                     assert(newSlotIndex / numKeys() == itDependent->offset + i - (endIndex - beginIndex));
                     assert(newSlotIndex / numKeys() == newOffset + i);
                     assert(newSlotIndex % numKeys() == j);
-
+                    
+                    assert(oldSlotIndex < numSlots());
+                    assert(newSlotIndex < newNumSlots);
                     auto from = oldData + (m_slotSize * oldSlotIndex);
                     auto to = newData + (m_slotSize * newSlotIndex);
                     moveSlot(from, to);
@@ -607,8 +710,11 @@ namespace flo {
 
         auto currentDependent = m_dependentOffsets.begin();
         for (size_t i = 0; i < numDependentStates(); ++i){
+            assert(oldSlotIndex == i * oldNumKeys);
+            assert(newSlotIndex == i * m_numKeys);
+
             assert(currentDependent != m_dependentOffsets.end());
-            while (currentDependent->offset <= i){
+            while (currentDependent->offset < i){
                 ++currentDependent;
                 assert(currentDependent != m_dependentOffsets.end());
             }
@@ -640,11 +746,11 @@ namespace flo {
 
             // propagate changes
             for (auto& d : m_owner->getDirectDependencies()){
-                d->insertDependentStates(m_owner, m_numKeys * i + beginIndex, m_numKeys * i + endIndex);
+                d->eraseDependentStates(m_owner, m_numKeys * i + beginIndex, m_numKeys * i + endIndex);
             }
 
-            assert(oldSlotIndex == i * oldNumKeys);
-            assert(newSlotIndex == i * m_numKeys);
+            assert(oldSlotIndex == (i + 1) * oldNumKeys);
+            assert(newSlotIndex == (i + 1) * m_numKeys);
         }
 
         for (auto& d : m_owner->getDirectDependencies()){
