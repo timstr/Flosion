@@ -50,19 +50,7 @@ namespace flo {
         SoundSourceType& getOwner() noexcept;
         const SoundSourceType& getOwner() const noexcept;
     };
-
-    // TODO: move the template definitions below to their own .tpp file
     
-    template<typename SoundSourceType>
-    inline SoundSourceType& ConcreteSoundState<SoundSourceType>::getOwner() noexcept {
-        // TODO: safety assertions
-        return reinterpret_cast<SoundSourceType&>(*SoundState::getOwner());
-    }
-
-    template<typename SoundSourceType>
-    inline const SoundSourceType& ConcreteSoundState<SoundSourceType>::getOwner() const noexcept {
-        // TODO: safety assertions
-        return reinterpret_cast<SoundSourceType&>(*SoundState::getOwner());
-    }
-
 } // namespace flo
+
+#include <SoundState.tpp>

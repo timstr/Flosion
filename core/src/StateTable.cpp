@@ -1,6 +1,7 @@
 #include <StateTable.hpp>
 #include <StateAllocator.hpp>
 #include <SoundNode.hpp>
+#include <BorrowingNumberSource.hpp>
 
 #include <algorithm>
 #include <cassert>
@@ -160,6 +161,7 @@ namespace flo {
                 return x.dependent == d;
             }
         ) == m_dependentOffsets.end());
+        assert(!m_isMonostate || m_dependentOffsets.size() == 0);
 
         const auto offset = std::accumulate(
             m_dependentOffsets.begin(),
@@ -178,6 +180,7 @@ namespace flo {
     }
 
     void StateTable::removeDependentOffset(const SoundNode* d){
+        assert(!m_isMonostate || (m_dependentOffsets.size() == 1));
         auto it = std::find_if(
             m_dependentOffsets.begin(),
             m_dependentOffsets.end(),
@@ -552,10 +555,6 @@ namespace flo {
             assert(newSlotIndex / numKeys() == itDependent->offset + beginIndex);
 
             // move all the dependent's states after the last state being removed
-            // TODO: Something unusual needs to be done here
-            // Sometimes when this function is called, the dependent has just
-            // removed a total of (endIndex - beginIndex) states, while other times,
-            // the dependent has not lost any states.
             for (size_t i = endIndex, iEnd = itDependent->count; i < iEnd; ++i){
                 for (size_t j = 0; j < numKeys(); ++j){
                     assert(oldSlotIndex / numKeys() == itDependent->offset + i);

@@ -6,23 +6,14 @@
 #include <SoundState.hpp>
 #include <SoundSourceTemplate.hpp>
 #include <MultiSoundInput.hpp>
-#include <NumberNode.hpp>
+#include <NumberSource.hpp>
+#include <BorrowingNumberSource.hpp>
 
 #include <iostream>
 #include <random>
 
 #include <conio.h>
 
-// TODO: synchronize this stuff
-// - See https://www.youtube.com/watch?v=boPEO2auJj4
-// - Consider using std::atomic<T> for numeric members used in sound processing
-// - Consider using std::atomic<shared_ptr<T>> (or equivalent) for more complex types
-// - States are exempt from this (yay!!!), since they are only modified by the audio thread
-// - Any value which can be directly be changed by the gui should use
-//   atomics however (like number sliders, constants, any member data of
-//   sound processors that is configurable by the GUI and isn't controlled by wires)
-// - Changes to wiring *need* to be synchronized as they have caused many crashes
-//   to date.
 
 // TODO: include and dynamically link to ffmpeg for additional audio formats?
 
@@ -32,7 +23,7 @@
 std::random_device ranDev;
 auto ranEng = std::default_random_engine{ranDev()};
 
-class Sine : public flo::StatelessNumberSource {
+class Sine : public flo::NumberSource {
 public:
     Sine() : input(this) {
     
@@ -46,7 +37,7 @@ private:
     }
 };
 
-class Saw : public flo::StatelessNumberSource {
+class Saw : public flo::NumberSource {
 public:
     Saw() : input(this) {
     
@@ -61,7 +52,7 @@ private:
     }
 };
 
-class Multiply : public flo::StatelessNumberSource {
+class Multiply : public flo::NumberSource {
 public:
     Multiply() : inputA(this, 1.0), inputB(this, 1.0) {
         
@@ -76,7 +67,7 @@ private:
     }
 };
 
-class Add : public flo::StatelessNumberSource {
+class Add : public flo::NumberSource {
 public:
     Add() : inputA(this, 1.0), inputB(this, 1.0) {
         

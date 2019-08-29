@@ -5,6 +5,7 @@
 
 #include <atomic>
 #include <cassert>
+#include <set>
 #include <vector>
 
 namespace flo {
@@ -34,6 +35,7 @@ namespace flo {
     */
 
     class Network;
+    class SoundNode;
 
     class NumberNode : private Immovable {
     public:
@@ -46,223 +48,26 @@ namespace flo {
         const std::vector<NumberNode*>& getDirectDependencies() const noexcept;
         const std::vector<NumberNode*>& getDirectDependents() const noexcept;
 
+        std::set<const NumberNode*> getAllDependencies() const noexcept;
+        std::set<const NumberNode*> getAllDependents() const noexcept;
+
         /**
          * Returns true if this node depends (directly or indirectly)
          * on the given node.
          */
         bool hasDependency(const NumberNode*) const noexcept;
 
+        SoundNode* getStateOwner() noexcept;
+        const SoundNode* getStateOwner() const noexcept;
+
+    protected:
+        void setStateOwner(SoundNode*);
+
     private:
         Network* m_network;
         std::vector<NumberNode*> m_dependents;
         std::vector<NumberNode*> m_dependencies;
-
-        // TODO: replace this with SoundNode* m_stateOwner;
-        virtual const SoundNode* getStateOwner() const noexcept = 0;
+        SoundNode* m_stateOwner;
     };
-
-    // TODO: how can NumberSources be "simulated?"
-    // I.e. how can a NumberSource be made to effectively return a different
-    // value when called through the same network of SoundNodes when a client
-    // requests it, without affecting the normal functioning of the network?
-    class NumberSource : public NumberNode {
-    public:
-        virtual double evaluate(const SoundState* context) const noexcept = 0;
-    };
-
-    class StatelessNumberSource : public NumberSource {
-    private:
-        const SoundNode* getStateOwner() const noexcept override final;
-    };
-
-    class BorrowingNumberSource : public NumberSource {
-    public:
-        BorrowingNumberSource() noexcept;
-        ~BorrowingNumberSource();
-
-        virtual std::unique_ptr<StateAllocator> makeAllocater() const = 0;
-
-        SoundNode* getStateLender() noexcept;
-        const SoundNode* getStateLender() const noexcept;
-
-        void borrowFrom(SoundNode*);
-
-    private:
-        SoundNode* m_stateLender;
-        size_t m_stateOffset;
-
-        friend class StateTable;
-    };
-
-    template<typename StateType>
-    class BorrowingNumberSourceTemplate : public BorrowingNumberSource {
-    public:
-
-        virtual double evaluate(StateType* state, const SoundState* context) const noexcept = 0;
-
-    private:
-        double evaluate(const SoundState* context) const noexcept override final;
-
-        const SoundNode* getStateOwner() const noexcept override final;
-        std::unique_ptr<StateAllocator> makeAllocater() const override final;
-    };
-
-    template<typename SoundNodeType>
-    class SoundNumberSource : public NumberSource {
-    public:
-        SoundNumberSource(SoundNodeType* owner) noexcept;
-
-        using StateType = typename SoundNodeType::StateType;
-
-        virtual double evaluate(const StateType* state, const SoundState* context) const noexcept = 0;
-
-        SoundNodeType* getOwner() noexcept;
-        const SoundNodeType* getOwner() const noexcept;
-
-    private:
-        const SoundNodeType* m_owner;
-
-        const SoundNode* getStateOwner() const noexcept override final;
-
-        double evaluate(const SoundState* context) const noexcept override;
-    };
-
-    class ConstantNumberSource : public StatelessNumberSource {
-    public:
-        ConstantNumberSource(double value = 0.0) noexcept;
-
-        double getValue() const noexcept;
-        void setValue(double) noexcept;
-
-    private:
-        std::atomic<double> m_value;
-        double evaluate(const SoundState* context) const noexcept override final;
-    };
-
-    class NumberInput : public NumberNode {
-    private:
-        NumberInput(double defaultValue = 0.0) noexcept;
-        friend class NumberSourceInput;
-        friend class SoundNumberInput;
-    public:
-
-        double getValue(const SoundState* context) const noexcept;
-
-        double getDefaultValue() const noexcept;
-        void setDefaultValue(double) noexcept;
-
-        void setSource(NumberSource*) noexcept;
-        
-        NumberSource* getSource() noexcept;
-        const NumberSource* getSource() const noexcept;
-
-    private:
-        NumberSource* m_source;
-        ConstantNumberSource m_constant;
-    };
-
-    class NumberSourceInput : public NumberInput {
-    public:
-        NumberSourceInput(NumberSource* owner, double defaultValue = 0.0);
-
-    private:
-        const SoundNode* getStateOwner() const noexcept override final;
-    };
-
-
-    class SoundNumberInput : public NumberInput {
-    public:
-        SoundNumberInput(SoundNode* owner, double defaultValue = 0.0) noexcept;
-
-    private:
-        const SoundNode* m_owner;
-        const SoundNode* getStateOwner() const noexcept override final;
-    };
-
-    class SoundResult;
-
-    class NumberResult : public flo::NumberNode {
-    private:
-        std::unique_ptr<SoundResult> m_hiddenNode;
-
-    public:
-        NumberResult() noexcept;
-
-        double getValue() const noexcept;
-
-        SoundNumberInput input;
-
-    private:
-        const SoundNode* getStateOwner() const noexcept override final;
-    };
-
-
-
-    class CurrentTime : public NumberSource {
-    public:
-        CurrentTime(SoundNode* owner) noexcept;
-
-    private:
-        SoundNode* const m_owner;
-
-        double evaluate(const SoundState*) const noexcept override;
-
-        const SoundNode* getStateOwner() const noexcept override final;
-    };
-
-    // TODO: move the definitions below this comment to their own .tpp file
-
-
-    template<typename SoundNodeType>
-    inline SoundNumberSource<SoundNodeType>::SoundNumberSource(SoundNodeType* owner) noexcept
-        : m_owner(owner) {
-    }
-
-    template<typename SoundNodeType>
-    inline SoundNodeType* SoundNumberSource<SoundNodeType>::getOwner() noexcept {
-        return m_owner;
-    }
-
-    template<typename SoundNodeType>
-    inline const SoundNodeType* SoundNumberSource<SoundNodeType>::getOwner() const noexcept {
-        return m_owner;
-    }
-
-    template<typename SoundNodeType>
-    inline const SoundNode* SoundNumberSource<SoundNodeType>::getStateOwner() const noexcept {
-        return m_owner;
-    }
-
-    template<typename SoundNodeType>
-    inline double SoundNumberSource<SoundNodeType>::evaluate(const SoundState* context) const noexcept {
-        auto curr = context;
-        while (curr){
-            const auto owner = curr->getOwner();
-            if (owner == m_owner){
-                return evaluate(reinterpret_cast<const StateType*>(curr), context);
-            }
-            curr = curr->getDependentState();
-        }
-        assert(false);
-        return 0.0;
-    }
-
-    template<typename StateType>
-    inline double BorrowingNumberSourceTemplate<StateType>::evaluate(const SoundState* context) const noexcept {
-        if (auto lender = getStateLender()){
-            return evaluate(reinterpret_cast<StateType*>(lender->getBorrowedState(context, this)), context);
-        }
-        return 0.0;
-    }
-
-    template<typename StateType>
-    inline const SoundNode * BorrowingNumberSourceTemplate<StateType>::getStateOwner() const noexcept {
-        return getStateLender();
-    }
-
-    template<typename StateType>
-    inline std::unique_ptr<StateAllocator> BorrowingNumberSourceTemplate<StateType>::makeAllocater() const {
-        return std::make_unique<ConcreteStateAllocator<StateType>>();
-    }
 
 } // namespace flo

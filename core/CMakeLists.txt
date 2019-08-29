@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.10.0)
 
 set(flosion_core_headers
+	include/BorrowingNumberSource.hpp
+	include/BorrowingNumberSource.tpp
 	include/Immovable.hpp
 	include/MultiSoundInput.hpp
+	include/MultiSoundInput.tpp
 	include/Network.hpp
-	include/NumberInput.hpp
 	include/NumberNode.hpp
 	include/NumberResult.hpp
 	include/NumberSource.hpp
@@ -17,9 +19,11 @@ set(flosion_core_headers
 	include/SoundNode.tpp
 	include/SoundResult.hpp
 	include/SoundSource.hpp
+	include/SoundSource.tpp
 	include/SoundSourceTemplate.hpp
 	include/SoundSourceTemplate.tpp
 	include/SoundState.hpp
+	include/SoundState.tpp
 	include/State.hpp
 	include/StateAllocator.hpp
 	include/StateTable.hpp
@@ -28,8 +32,11 @@ set(flosion_core_headers
 )
 
 set(flosion_core_srcs
+	src/BorrowingNumberSource.cpp
 	src/Network.cpp
 	src/NumberNode.cpp
+	src/NumberResult.cpp
+	src/NumberSource.cpp
 	src/RecursiveSharedMutex.cpp
 	src/Sample.cpp
 	src/SingleSoundInput.cpp

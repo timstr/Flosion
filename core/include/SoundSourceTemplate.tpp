@@ -1,7 +1,5 @@
 #pragma once
 
-// TODO: make sure to DELETE the "#include <SoundSourceTemplate.hpp>" that Visual Studio inserts here >:(
-
 #include <SoundState.hpp>
 
 #include <cassert>

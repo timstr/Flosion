@@ -3,8 +3,6 @@
 #include <SoundNode.hpp>
 #include <SoundResult.hpp>
 
-// TODO: delete the '#include "..\include\NumberNode.hpp"' that Visual Studio likes to insert above >:(
-
 #include <algorithm>
 #include <cassert>
 #include <functional>
@@ -12,8 +10,9 @@
 namespace flo {
 
     NumberNode::NumberNode() noexcept
-        : m_network(nullptr) {
-    
+        : m_network(nullptr)
+        , m_stateOwner(nullptr) {
+
     }
 
     bool NumberNode::canAddDependency(const NumberNode* node) const noexcept {
@@ -21,37 +20,19 @@ namespace flo {
             return false;
         }
 
-        // Make sure that all stateful dependents have access to all their stateful sources
-
-        // find all stateful dependents of this
-        std::vector<const SoundNode*> dependentOwners;
-        std::function<void(const NumberNode*)> findDependents = [&](const NumberNode* nn){
-            if (auto o = nn->getStateOwner()){
-                dependentOwners.push_back(o);
+        // make sure every stateful dependent's state owner is a depencency of every stateful dependency's state owner.
+        // That might sound confusing but trust me.
+        for (const auto& dependency : getAllDependencies()){
+            const auto dependencyStateOwner = dependency->getStateOwner();
+            if (!dependencyStateOwner){
+                continue;
             }
-            for (const auto& d : nn->getDirectDependents()){
-                findDependents(d);
-            }
-        };
-        findDependents(this);
-
-        // find all stateful dependencies of node
-        std::vector<const SoundNode*> dependencyOwners;
-        std::function<void(const NumberNode*)> findDependencies = [&](const NumberNode* nn){
-            if (auto o = nn->getStateOwner()){
-                dependencyOwners.push_back(o);
-            }
-            for (const auto& d : nn->getDirectDependencies()){
-                findDependencies(d);
-            }
-        };
-        findDependencies(node);
-
-        // make sure every stateful dependent's state owner is a depencency of every stateful dependency's state owner
-        // That might sound confusing but trust me
-        for (const auto& dependency : dependencyOwners){
-            for (const auto& dependent : dependentOwners){
-                if (!dependency->hasDependency(dependent)){
+            for (const auto& dependent : getAllDependents()){
+                const auto dependentStateOwner = dependent->getStateOwner();
+                if (!dependentStateOwner){
+                    continue;
+                }
+                if (!dependencyStateOwner->hasDependency(dependentStateOwner)){
                     return false;
                 }
             }
@@ -92,6 +73,36 @@ namespace flo {
         return m_dependents;
     }
 
+    std::set<const NumberNode*> NumberNode::getAllDependencies() const noexcept {
+        std::set<const NumberNode*> nodes;
+        std::function<void(const NumberNode*)> search = [&](const NumberNode* n){
+            if (!n){
+                return;
+            }
+            nodes.insert(n);
+            for (const auto& d : n->getDirectDependencies()){
+                search(d);
+            }
+        };
+        search(this);
+        return nodes;
+    }
+
+    std::set<const NumberNode*> NumberNode::getAllDependents() const noexcept {
+        std::set<const NumberNode*> nodes;
+        std::function<void(const NumberNode*)> search = [&](const NumberNode* n){
+            if (!n){
+                return;
+            }
+            nodes.insert(n);
+            for (const auto& d : n->getDirectDependents()){
+                search(d);
+            }
+        };
+        search(this);
+        return nodes;
+    }
+
     bool NumberNode::hasDependency(const NumberNode* node) const noexcept {
         if (this == node){
             return true;
@@ -104,145 +115,22 @@ namespace flo {
         return false;
     }
 
-    NumberInput::NumberInput(double defaultValue) noexcept
-        : m_constant(defaultValue)
-        , m_source(&m_constant) {
-        // NOTE: there would be a call to addDependency(&m_constant)
-        // but that would call a yet-unimplemented virtual function,
-        // specifically getStateOwner() in canAddDependency().
-        // For this reason, the dependency is added in the derived
-        // SoundNumberInput and NumberSourceInput.
+    SoundNode* NumberNode::getStateOwner() noexcept {
+        return m_stateOwner;
     }
 
-    double NumberInput::getValue(const SoundState* context) const noexcept {
-        assert(m_source);
-        return m_source->evaluate(context);
+    const SoundNode* NumberNode::getStateOwner() const noexcept {
+        return m_stateOwner;
     }
 
-    double NumberInput::getDefaultValue() const noexcept {
-        return m_constant.getValue();
-    }
-
-    void NumberInput::setDefaultValue(double value) noexcept {
-        m_constant.setValue(value);
-    }
-
-    void NumberInput::setSource(NumberSource* source) noexcept {
-        assert(m_source);
-        removeDependency(m_source);
-        m_source = (source == nullptr ? &m_constant : source);
-        addDependency(m_source);
-    }
-
-    NumberSource* NumberInput::getSource() noexcept {
-        return m_source == &m_constant ? nullptr : m_source;
-    }
-
-    const NumberSource* NumberInput::getSource() const noexcept {
-        return m_source;
-    }
-
-    SoundNumberInput::SoundNumberInput(SoundNode* owner, double defaultValue) noexcept
-        : NumberInput(defaultValue)
-        , m_owner(owner) {
-        // NOTE: this is done here to prevent a call to a yet-unimplemented
-        // virtual function (getStateOwner() in canAddDependency())
-        addDependency(&m_constant);
-    }
-
-    const SoundNode* SoundNumberInput::getStateOwner() const noexcept {
-        return m_owner;
-    }
-
-    ConstantNumberSource::ConstantNumberSource(double value) noexcept 
-        : m_value(value) {
-    }
-
-    double ConstantNumberSource::getValue() const noexcept {
-        return m_value.load(std::memory_order_relaxed);
-    }
-
-    void ConstantNumberSource::setValue(double value) noexcept {
-        m_value.store(value, std::memory_order_relaxed);
-    }
-
-    double ConstantNumberSource::evaluate(const SoundState* /* context */) const noexcept {
-        return m_value.load(std::memory_order_relaxed);
-    }
-
-    const SoundNode* StatelessNumberSource::getStateOwner() const noexcept {
-        return nullptr;
-    }
-
-
-
-    BorrowingNumberSource::BorrowingNumberSource() noexcept
-        : m_stateLender(nullptr)
-        , m_stateOffset(-1) {
-
-    }
-
-    BorrowingNumberSource::~BorrowingNumberSource(){
-        borrowFrom(nullptr);
-    }
-
-    SoundNode* BorrowingNumberSource::getStateLender() noexcept {
-        return m_stateLender;
-    }
-
-    const SoundNode* BorrowingNumberSource::getStateLender() const noexcept {
-        return m_stateLender;
-    }
-
-    void BorrowingNumberSource::borrowFrom(SoundNode* node){
-        if (m_stateLender){
-            m_stateLender->removeBorrower(this);
+    void NumberNode::setStateOwner(SoundNode* sn){
+        if (m_stateOwner){
+            m_stateOwner->removeNumberNode(this);
         }
-        m_stateLender = node;
-        if (m_stateLender){
-            m_stateLender->addBorrower(this);
+        m_stateOwner = sn;
+        if (m_stateOwner){
+            m_stateOwner->addNumberNode(this);
         }
-    }
-
-
-
-    NumberSourceInput::NumberSourceInput(NumberSource* owner, double defaultValue)
-        : NumberInput(defaultValue) {
-        // NOTE: this is done here to prevent a call to a yet-unimplemented
-        // virtual function (getStateOwner() in canAddDependency())
-        addDependency(&m_constant);
-        owner->addDependency(this);
-    }
-
-    const SoundNode* NumberSourceInput::getStateOwner() const noexcept {
-        return nullptr;
-    }
-
-    NumberResult::NumberResult() noexcept 
-        : m_hiddenNode(std::make_unique<SoundResult>())
-        , input(m_hiddenNode.get()) {
-
-    }
-
-    double NumberResult::getValue() const noexcept {
-        return input.getValue(m_hiddenNode->getMonoState());
-    }
-
-    const SoundNode* NumberResult::getStateOwner() const noexcept {
-        return m_hiddenNode.get();
-    }
-
-    CurrentTime::CurrentTime(SoundNode* owner) noexcept
-        : m_owner(owner) {
-    
-    }
-
-    double CurrentTime::evaluate(const SoundState* context) const noexcept {
-        return context->getElapsedTimeAt(m_owner);
-    }
-
-    const SoundNode* CurrentTime::getStateOwner() const noexcept {
-        return m_owner;
     }
 
 } // namespace flo

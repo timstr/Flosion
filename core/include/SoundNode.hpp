@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Immovable.hpp>
-#include <NumberNode.hpp>
+#include <NumberSource.hpp>
 #include <RecursiveSharedMutex.hpp>
 #include <StateTable.hpp>
 
@@ -27,11 +27,15 @@ namespace flo {
         const std::vector<SoundNode*>& getDirectDependencies() const noexcept;
         const std::vector<SoundNode*>& getDirectDependents() const noexcept;
 
+        std::set<const SoundNode*> getAllDependencies() const noexcept;
+        std::set<const SoundNode*> getAllDependents() const noexcept;
+
         bool hasDependency(const SoundNode*) const noexcept;
         bool hasDirectDependency(const SoundNode*) const noexcept;
 
         bool hasUncontrolledDependency() const noexcept;
 
+        // TODO: add all number inputs, sources, and borrowers
         const std::vector<NumberNode*>& getNumberNodes() const;
 
         /**
@@ -64,6 +68,12 @@ namespace flo {
         virtual double getTimeSpeed(const SoundState* mainState) const noexcept = 0;
 
         virtual void findDependentSoundResults(std::vector<SoundResult*>& soundResults) noexcept;
+
+    private:
+        void addNumberNode(NumberNode*);
+        void removeNumberNode(NumberNode*);
+
+        friend class NumberNode;
 
     private:
         std::vector<SoundNode*> m_dependents;
@@ -167,6 +177,16 @@ namespace flo {
 
     private:
         bool isOutOfSync() const noexcept override final;
+    };
+
+    class CurrentTime : public NumberSource {
+    public:
+        CurrentTime(SoundNode* owner) noexcept;
+
+    private:
+        SoundNode* const m_owner;
+
+        double evaluate(const SoundState*) const noexcept override;
     };
 
     // Convenient mix-in template for adding a CurrentTime SoundNumberSource

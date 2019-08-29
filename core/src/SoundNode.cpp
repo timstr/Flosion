@@ -3,6 +3,7 @@
 #include <SoundResult.hpp>
 
 #include <algorithm>
+#include <set>
 
 namespace flo {
 
@@ -25,9 +26,22 @@ namespace flo {
             return false;
         }
 
-        // TODO: make sure that the node doesn't already have other
+        // make sure that the node doesn't already have other
         // dependencies whose number sources it depends on
-
+        {
+            const auto dependents = getAllDependents();
+            for (const auto& nn : node->getNumberNodes()){
+                for (const auto& nd : nn->getAllDependencies()){
+                    const auto ndo = nd->getStateOwner();
+                    if (!ndo){
+                        continue;
+                    }
+                    if (dependents.find(ndo) != dependents.end()){
+                        return false;
+                    }
+                }
+            }
+        }
 
         if (node->hasUncontrolledDependency()){
             // make sure that there will be nothing but a line of realtime, singular dependents
@@ -56,12 +70,29 @@ namespace flo {
     }
 
     bool SoundNode::canRemoveDependency(const SoundNode* node) const noexcept {
+        assert(hasDirectDependency(node));
+
         // TODO: make sure that no numbersources would lose access to the
         // state they need
-        std::function<void(const SoundNode*)> searchFn = [&](const SoundNode* n){
-        
+        std::function<bool(const SoundNode*, const NumberNode*)> searchFn = [&](const SoundNode* sn, const NumberNode* nn){
+            const auto so = nn->getStateOwner();
+            if (!so || so == sn){
+                return true;
+            }
+            if (so != node){
+                for (const auto& d : sn->getDirectDependents()){
+                    if (!searchFn(d, nn)){
+                        return false;
+                    }
+                }
+            }
+            return true;
         };
-        searchFn(node);
+        for (const auto& nn : node->getNumberNodes()){
+            if (!searchFn(node, nn)){
+                return false;
+            }
+        }
 
         return true;
     }
@@ -112,6 +143,36 @@ namespace flo {
         return m_dependents;
     }
 
+    std::set<const SoundNode*> SoundNode::getAllDependencies() const noexcept {
+        std::set<const SoundNode*> nodes;
+        std::function<void(const SoundNode*)> search = [&](const SoundNode* n){
+            if (!n){
+                return;
+            }
+            nodes.insert(n);
+            for (const auto& d : n->getDirectDependencies()){
+                search(d);
+            }
+        };
+        search(this);
+        return nodes;
+    }
+
+    std::set<const SoundNode*> SoundNode::getAllDependents() const noexcept {
+        std::set<const SoundNode*> nodes;
+        std::function<void(const SoundNode*)> search = [&](const SoundNode* n){
+            if (!n){
+                return;
+            }
+            nodes.insert(n);
+            for (const auto& d : n->getDirectDependents()){
+                search(d);
+            }
+        };
+        search(this);
+        return nodes;
+    }
+
     bool SoundNode::hasDependency(const SoundNode* node) const noexcept {
         if (this == node){
             return true;
@@ -142,6 +203,10 @@ namespace flo {
             }
         }
         return false;
+    }
+
+    const std::vector<NumberNode*>& SoundNode::getNumberNodes() const {
+        return m_numberNodes;
     }
     
     SoundNode::Lock::Lock(std::vector<std::unique_lock<RecursiveSharedMutex>> locks) noexcept
@@ -184,6 +249,39 @@ namespace flo {
         for (const auto& d : m_dependents){
             d->findDependentSoundResults(out);
         }
+    }
+
+    void SoundNode::addNumberNode(NumberNode* node){
+        assert(std::find(
+            m_numberNodes.begin(),
+            m_numberNodes.end(),
+            node
+        ) == m_numberNodes.end());
+        m_numberNodes.push_back(node);
+    }
+
+    void SoundNode::removeNumberNode(NumberNode* node){
+        assert(std::count(
+            m_numberNodes.begin(),
+            m_numberNodes.end(),
+            node
+        ) == 1);
+        auto it = std::find(
+            m_numberNodes.begin(),
+            m_numberNodes.end(),
+            node
+        );
+        assert(it != m_numberNodes.end());
+        m_numberNodes.erase(it);
+    }
+
+    CurrentTime::CurrentTime(SoundNode* owner) noexcept
+        : m_owner(owner) {
+        setStateOwner(m_owner);
+    }
+
+    double CurrentTime::evaluate(const SoundState* context) const noexcept {
+        return context->getElapsedTimeAt(m_owner);
     }
 
 } // namespace flo

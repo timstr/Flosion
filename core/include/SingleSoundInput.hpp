@@ -8,10 +8,6 @@ namespace flo {
     class SingleSoundInput : public Singular<SoundInput, EmptySoundState> {
     public:
 
-        // TODO: is 'node' needed here?
-        // Classically, the node is always the SoundSource which owns
-        // the SoundInput.
-        // It *may* be needed for the Router object.
         void getNextChunkFor(SoundChunk& chunk, const SoundNode* node, const SoundState* state);
     };
 

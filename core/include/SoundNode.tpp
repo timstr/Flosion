@@ -1,7 +1,5 @@
 #include <cassert>
 
-// TODO: make sure to DELETE the "#include <SoundNode.hpp>" that Visual Studio inserts here >:(
-
 namespace flo {
 
     // Singular
