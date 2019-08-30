@@ -3,6 +3,7 @@
 #include <Immovable.hpp>
 #include <NumberSource.hpp>
 #include <RecursiveSharedMutex.hpp>
+#include <SoundState.hpp>
 #include <StateTable.hpp>
 
 #include <vector>

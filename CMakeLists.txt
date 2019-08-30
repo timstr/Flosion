@@ -21,7 +21,7 @@ add_subdirectory(core)
 # add_subdirectory(ui)
 # add_subdirectory(util)
 # add_subdirectory(objects)
-# add_subdirectory(test)
+add_subdirectory(tests)
 
 target_link_libraries(flosion
 	PUBLIC

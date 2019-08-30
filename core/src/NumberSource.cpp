@@ -44,6 +44,9 @@ namespace flo {
         : NumberInput(defaultValue) {
         // NOTE: this is done here to prevent a call to a yet-unimplemented
         // virtual function (getStateOwner() in canAddDependency())
+        // TODO: the above note is obsolete now. This can be cleaned up
+        // by moving the following line of code to NumberInput
+        // and by making m_constant private
         addDependency(&m_constant);
         owner->addDependency(this);
     }
