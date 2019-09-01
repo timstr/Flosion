@@ -5,11 +5,7 @@ namespace flo {
     NumberInput::NumberInput(double defaultValue) noexcept
         : m_constant(defaultValue)
         , m_source(&m_constant) {
-        // NOTE: there would be a call to addDependency(&m_constant)
-        // but that would call a yet-unimplemented virtual function,
-        // specifically getStateOwner() in canAddDependency().
-        // For this reason, the dependency is added in the derived
-        // SoundNumberInput and NumberSourceInput.
+        addDependency(&m_constant);
     }
 
     double NumberInput::getValue(const SoundState* context) const noexcept {
@@ -42,12 +38,6 @@ namespace flo {
 
     NumberSourceInput::NumberSourceInput(NumberSource* owner, double defaultValue)
         : NumberInput(defaultValue) {
-        // NOTE: this is done here to prevent a call to a yet-unimplemented
-        // virtual function (getStateOwner() in canAddDependency())
-        // TODO: the above note is obsolete now. This can be cleaned up
-        // by moving the following line of code to NumberInput
-        // and by making m_constant private
-        addDependency(&m_constant);
         owner->addDependency(this);
     }
 

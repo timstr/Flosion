@@ -70,7 +70,9 @@ namespace flo {
     }
 
     bool SoundNode::canRemoveDependency(const SoundNode* node) const noexcept {
-        assert(hasDirectDependency(node));
+        if (!hasDirectDependency(node)){
+            return false;
+        }
 
         // TODO: make sure that no numbersources would lose access to the
         // state they need

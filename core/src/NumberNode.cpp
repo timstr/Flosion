@@ -22,17 +22,19 @@ namespace flo {
 
         // make sure every stateful dependent's state owner is a depencency of every stateful dependency's state owner.
         // That might sound confusing but trust me.
-        for (const auto& dependency : getAllDependencies()){
-            const auto dependencyStateOwner = dependency->getStateOwner();
-            if (!dependencyStateOwner){
+        const auto dcs = node->getAllDependencies();
+        const auto dts = getAllDependents();
+        for (const auto& dc : dcs){
+            const auto dcso = dc->getStateOwner();
+            if (!dcso){
                 continue;
             }
-            for (const auto& dependent : getAllDependents()){
-                const auto dependentStateOwner = dependent->getStateOwner();
-                if (!dependentStateOwner){
+            for (const auto& dt : dts){
+                const auto dtso = dt->getStateOwner();
+                if (!dtso){
                     continue;
                 }
-                if (!dependencyStateOwner->hasDependency(dependentStateOwner)){
+                if (!dcso->hasDependency(dtso)){
                     return false;
                 }
             }
