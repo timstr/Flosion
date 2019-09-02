@@ -29,14 +29,9 @@ namespace flo {
         // make sure that the node doesn't already have other
         // dependencies whose number sources it depends on
         {
-            const auto dependents = getAllDependents();
             for (const auto& nn : node->getNumberNodes()){
-                for (const auto& nd : nn->getAllDependencies()){
-                    const auto ndo = nd->getStateOwner();
-                    if (!ndo){
-                        continue;
-                    }
-                    if (dependents.find(ndo) != dependents.end()){
+                for (const auto& nndc : nn->getAllDependencies()){
+                    if (const auto so = nndc->getStateOwner(); so != node){
                         return false;
                     }
                 }

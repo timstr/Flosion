@@ -809,3 +809,5 @@ TEST(SoundNodeTest, DependencySafety2){
 
     EXPECT_FALSE(root2.canAddDependency(&leaf));
 }
+
+// TODO: uncontrolled soundnodes and dependency safety
