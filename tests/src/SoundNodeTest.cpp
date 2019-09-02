@@ -760,7 +760,17 @@ TEST(SoundNodeTest, DependencySafety1){
     EXPECT_FALSE(root.node.canAddDependency(&leaf.node));
     EXPECT_TRUE(leaf.node.canAddDependency(&root.node));
     
+    EXPECT_FALSE(root.canAddDependency(&leaf));
+    EXPECT_FALSE(leaf.canAddDependency(&root));
+    EXPECT_TRUE(root.canRemoveDependency(&leaf));
+    EXPECT_FALSE(leaf.canRemoveDependency(&root));
+    
     leaf.node.addDependency(&root.node);
+    
+    EXPECT_FALSE(root.canAddDependency(&leaf));
+    EXPECT_FALSE(leaf.canAddDependency(&root));
+    EXPECT_FALSE(root.canRemoveDependency(&leaf));
+    EXPECT_FALSE(leaf.canRemoveDependency(&root));
     
     EXPECT_TRUE(set_disjoint(root.node.getDirectDependencies(), {&root.node, &leaf.node}));
     EXPECT_TRUE(set_contains(leaf.node.getDirectDependencies(), {&root.node}));
@@ -785,7 +795,17 @@ TEST(SoundNodeTest, DependencySafety1){
 }
 
 TEST(SoundNodeTest, DependencySafety2){
-    // TODO: Connect two soundnodes and their number nodes,
-    // then verify that a third soundnode cannot be added
-    // if it wouldn't provide access to the same number node
+    auto root1 = NumberSoundNode{};
+    auto root2 = NumberSoundNode{};
+    auto leaf = NumberSoundNode{};
+
+    root1.addDependency(&leaf);
+    
+    EXPECT_TRUE(root1.canRemoveDependency(&leaf));
+
+    leaf.node.addDependency(&root1.node);
+
+    EXPECT_FALSE(root1.canRemoveDependency(&leaf));
+
+    EXPECT_FALSE(root2.canAddDependency(&leaf));
 }

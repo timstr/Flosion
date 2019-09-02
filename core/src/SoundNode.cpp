@@ -74,25 +74,31 @@ namespace flo {
             return false;
         }
 
-        // TODO: make sure that no numbersources would lose access to the
-        // state they need
-        std::function<bool(const SoundNode*, const NumberNode*)> searchFn = [&](const SoundNode* sn, const NumberNode* nn){
-            const auto so = nn->getStateOwner();
-            if (!so || so == sn){
+        std::function<bool(const SoundNode*, const SoundNode*)> wouldStillHaveDependency = [&](const SoundNode* dt, const SoundNode* dc){
+            if (dt == this){
+                return false;
+            }
+            if (dt == dc){
                 return true;
             }
-            if (so != node){
-                for (const auto& d : sn->getDirectDependents()){
-                    if (!searchFn(d, nn)){
-                        return false;
-                    }
+            for (const auto& dtdc : dt->getDirectDependencies()){
+                if (wouldStillHaveDependency(dtdc, dc)){
+                    return true;
                 }
             }
-            return true;
+            return false;
         };
-        for (const auto& nn : node->getNumberNodes()){
-            if (!searchFn(node, nn)){
-                return false;
+
+        std::set<const NumberNode*> nndcs;
+        for (const auto& dc : node->getAllDependencies()){
+            for (const auto& dcnn : dc->getNumberNodes()){
+                for (const auto& nndc : dcnn->getAllDependencies()){
+                    if (const auto sn = nndc->getStateOwner()){
+                        if (!wouldStillHaveDependency(sn, dc)){
+                            return false;
+                        }
+                    }
+                }
             }
         }
 
