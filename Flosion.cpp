@@ -1,5 +1,7 @@
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
+// TODO: make it easier to use SFML
+// consider adding SFML as a submodule (directly or in tims-gui?)
+// #include <SFML/Graphics.hpp>
+// #include <SFML/Audio.hpp>
 
 #include <Network.hpp>
 #include <SoundResult.hpp>
@@ -11,9 +13,6 @@
 
 #include <iostream>
 #include <random>
-
-#include <conio.h>
-
 
 // TODO: include and dynamically link to ffmpeg for additional audio formats?
 
@@ -530,7 +529,7 @@ private:
     std::vector<std::unique_ptr<flo::SingleSoundInput>> m_inputs;
 };
 
-class DAC : public sf::SoundStream {
+/* class DAC : public sf::SoundStream {
 public:
     DAC(){
         initialize(2, 44100);
@@ -563,7 +562,7 @@ private:
     void onSeek(sf::Time) override {
         // Nothing to do
     }
-};
+};*/
 
 class ResamplerState : public flo::SoundState {
 public:
@@ -637,7 +636,7 @@ public:
 int main() {
 
     {
-        auto dac = DAC{};
+        //auto dac = DAC{};
 
         auto osc = Oscillator{};
 
@@ -669,13 +668,13 @@ int main() {
 
         osc.frequency.setSource(&mul);
 
-        dac.soundResult.setSource(&ens);
+        /*dac.soundResult.setSource(&ens);
 
         dac.play();
         std::cout << "Playing...\n";
         std::this_thread::sleep_for(std::chrono::seconds(8));
         std::cout << "Paused\n";
-        dac.pause();
+        dac.pause();*/
 
         return 0;
     }

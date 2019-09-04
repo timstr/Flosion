@@ -2,7 +2,9 @@
 
 #include <State.hpp>
 
+#include <cstddef>
 #include <type_traits>
+#include <utility>
 
 namespace flo {
 
@@ -17,8 +19,8 @@ namespace flo {
         virtual void moveConstruct(void* dst, void* src) noexcept = 0;
         virtual void destroy(void* dst) noexcept = 0;
 
-        virtual size_t getSize() const noexcept = 0;
-        virtual size_t getAlignment() const noexcept = 0;
+        virtual std::size_t getSize() const noexcept = 0;
+        virtual std::size_t getAlignment() const noexcept = 0;
     };
 
     
@@ -34,7 +36,7 @@ namespace flo {
                 auto s = new (dst) StateType();
                 s->reset();
             } else {
-                static_assert(false, "The template parameter passed to ConcreteStateAllocator must derive from State or SoundState.");
+                static_assert(!std::is_same_v<StateType, StateType>, "The template parameter passed to ConcreteStateAllocator must derive from State or SoundState.");
             }
         }
         void moveConstruct(void* dst, void* src) noexcept override final {
@@ -44,10 +46,10 @@ namespace flo {
             (*static_cast<StateType*>(dst)).~StateType();
         }
 
-        size_t getSize() const noexcept override final {
+        std::size_t getSize() const noexcept override final {
             return sizeof(StateType);
         }
-        size_t getAlignment() const noexcept override final {
+        std::size_t getAlignment() const noexcept override final {
             return alignof(StateType);
         }
     };

@@ -61,12 +61,13 @@ namespace flo {
         [[nodiscard]]
         Lock getScopedWriteLock() noexcept;
 
+        virtual double getTimeSpeed(const SoundState* mainState) const noexcept = 0;
+        
     private:
 
         virtual bool isDivergent() const noexcept = 0;
         virtual bool isUncontrolled() const noexcept = 0;
         virtual bool isOutOfSync() const noexcept = 0;
-        virtual double getTimeSpeed(const SoundState* mainState) const noexcept = 0;
 
         virtual void findDependentSoundResults(std::vector<SoundResult*>& soundResults) noexcept;
 

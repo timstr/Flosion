@@ -14,9 +14,11 @@ if(MSVC)
 
 	# disable warning C4250 ("class X inherits virtual member function Y via dominance")
 	add_definitions(/wd4250)
+else()
+	SET(CMAKE_CXX_FLAGS -pthread)
 endif()
 
-add_subdirectory(tims-gui)
+# add_subdirectory(tims-gui)
 add_subdirectory(core)
 # add_subdirectory(ui)
 # add_subdirectory(util)
@@ -25,7 +27,7 @@ add_subdirectory(tests)
 
 target_link_libraries(flosion
 	PUBLIC
-	tims-gui
+#	tims-gui
 	flosion_core
 #	flosion-ui
 #	flosion-util

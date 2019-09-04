@@ -3,6 +3,7 @@
 #include <SoundResult.hpp>
 
 #include <algorithm>
+#include <functional>
 #include <set>
 
 namespace flo {

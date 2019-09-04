@@ -1,4 +1,3 @@
-#include "..\include\SoundInput.hpp"
 #include <SoundInput.hpp>
 
 #include <SoundSource.hpp>

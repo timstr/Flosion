@@ -1,3 +1,5 @@
+#include <SoundNode.hpp>
+
 namespace flo {
 
     template<typename StateType>

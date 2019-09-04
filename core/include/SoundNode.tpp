@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cassert>
 
 namespace flo {
@@ -93,7 +94,7 @@ namespace flo {
     template<typename SoundNodeType, typename SoundStateType, typename KeyType>
     void Divergent<SoundNodeType, SoundStateType, KeyType>::addKey(const KeyType& key){
         assert(!hasKey(key));
-        auto lock = getScopedWriteLock();
+        auto lock = this->getScopedWriteLock();
         m_keys.push_back(key);
         const auto size = m_keys.size();
         StateTable::insertKeys(size - 1, size);
@@ -106,7 +107,7 @@ namespace flo {
 
     template<typename SoundNodeType, typename SoundStateType, typename KeyType>
     void Divergent<SoundNodeType, SoundStateType, KeyType>::removeKey(const KeyType& key){
-        auto lock = getScopedWriteLock();
+        auto lock = this->getScopedWriteLock();
         auto it = std::find(m_keys.begin(), m_keys.end(), key);
         assert(it != m_keys.end());
         auto idx = static_cast<size_t>(it - m_keys.begin());
