@@ -33,11 +33,18 @@ bool set_equals(const Collection& c, const std::initializer_list<typename Collec
 
 using namespace flo;
 
-using BasicSoundNode =  Realtime<Singular<SoundNode, EmptySoundState>>;
+class BasicSoundNode : public Realtime<Singular<SoundNode, EmptySoundState>> {
+public:
+    BasicSoundNode(std::string _name) : name(std::move(_name)){
+    
+    }
+
+    const std::string name;
+};
 
 TEST(SoundNodeTest, ShallowDependencies1){
-    auto root = BasicSoundNode{};
-    auto leaf = BasicSoundNode{};
+    auto root = BasicSoundNode{"root"};
+    auto leaf = BasicSoundNode{"leaf"};
     
     EXPECT_TRUE(root.hasDependency(&root));
     EXPECT_TRUE(leaf.hasDependency(&leaf));
@@ -110,9 +117,9 @@ TEST(SoundNodeTest, ShallowDependencies1){
 }
 
 TEST(SoundNodeTest, ShallowDependencies2){
-    auto root = BasicSoundNode{};
-    auto leaf1 = BasicSoundNode{};
-    auto leaf2 = BasicSoundNode{};
+    auto root = BasicSoundNode{"root"};
+    auto leaf1 = BasicSoundNode{"leaf1"};
+    auto leaf2 = BasicSoundNode{"leaf2"};
     
     EXPECT_FALSE(root.hasDependency(&leaf1));
     EXPECT_FALSE(root.hasDependency(&leaf2));
@@ -217,12 +224,12 @@ TEST(SoundNodeTest, ShallowDependencies2){
 }
 
 TEST(SoundNodeTest, ShallowDependencies3){
-    auto root = BasicSoundNode{};
-    auto leaf1 = BasicSoundNode{};
-    auto leaf2 = BasicSoundNode{};
-    auto leaf3 = BasicSoundNode{};
-    auto leaf4 = BasicSoundNode{};
-    auto leaf5 = BasicSoundNode{};
+    auto root = BasicSoundNode{"root"};
+    auto leaf1 = BasicSoundNode{"leaf1"};
+    auto leaf2 = BasicSoundNode{"leaf2"};
+    auto leaf3 = BasicSoundNode{"leaf3"};
+    auto leaf4 = BasicSoundNode{"leaf4"};
+    auto leaf5 = BasicSoundNode{"leaf5"};
     
     EXPECT_FALSE(root.hasDependency(&leaf1));
     EXPECT_FALSE(root.hasDependency(&leaf2));
@@ -340,9 +347,9 @@ TEST(SoundNodeTest, ShallowDependencies3){
 }
 
 TEST(SoundNodeTest, ShallowDependencies4){
-    auto root1 = BasicSoundNode{};
-    auto root2 = BasicSoundNode{};
-    auto leaf = BasicSoundNode{};
+    auto root1 = BasicSoundNode{"root1"};
+    auto root2 = BasicSoundNode{"root2"};
+    auto leaf = BasicSoundNode{"leaf"};
     
     EXPECT_FALSE(root1.hasDependency(&leaf));
     EXPECT_FALSE(root1.hasDependency(&root2));
@@ -383,12 +390,12 @@ TEST(SoundNodeTest, ShallowDependencies4){
 }
 
 TEST(SoundNodeTest, ShallowDependencies5){
-    auto root1 = BasicSoundNode{};
-    auto root2 = BasicSoundNode{};
-    auto root3 = BasicSoundNode{};
-    auto root4 = BasicSoundNode{};
-    auto root5 = BasicSoundNode{};
-    auto leaf = BasicSoundNode{};
+    auto root1 = BasicSoundNode{"root1"};
+    auto root2 = BasicSoundNode{"root2"};
+    auto root3 = BasicSoundNode{"root3"};
+    auto root4 = BasicSoundNode{"root4"};
+    auto root5 = BasicSoundNode{"root5"};
+    auto leaf = BasicSoundNode{"leaf"};
     
     EXPECT_FALSE(root1.hasDependency(&leaf));
     EXPECT_FALSE(root1.hasDependency(&root2));
@@ -506,9 +513,9 @@ TEST(SoundNodeTest, ShallowDependencies5){
 }
 
 TEST(SoundNodeTest, DeepDependencies1){
-    auto root = BasicSoundNode{};
-    auto inner = BasicSoundNode{};
-    auto leaf = BasicSoundNode{};
+    auto root = BasicSoundNode{"root"};
+    auto inner = BasicSoundNode{"inner"};
+    auto leaf = BasicSoundNode{"leaf"};
 
     EXPECT_FALSE(root.hasDependency(&inner));
     EXPECT_FALSE(root.hasDependency(&leaf));
@@ -555,11 +562,11 @@ TEST(SoundNodeTest, DeepDependencies1){
 }
 
 TEST(SoundNodeTest, DeepDependencies2){
-    auto root = BasicSoundNode{};
-    auto inner1 = BasicSoundNode{};
-    auto inner2 = BasicSoundNode{};
-    auto inner3 = BasicSoundNode{};
-    auto leaf = BasicSoundNode{};
+    auto root = BasicSoundNode{"root"};
+    auto inner1 = BasicSoundNode{"inner1"};
+    auto inner2 = BasicSoundNode{"inner2"};
+    auto inner3 = BasicSoundNode{"inner3"};
+    auto leaf = BasicSoundNode{"leaf"};
     
     EXPECT_FALSE(root.hasDependency(&inner1));
     EXPECT_FALSE(root.hasDependency(&inner2));
@@ -649,10 +656,10 @@ TEST(SoundNodeTest, DeepDependencies2){
 }
 
 TEST(SoundNodeTest, CrissCross1){
-    auto root = BasicSoundNode{};
-    auto inner1 = BasicSoundNode{};
-    auto inner2 = BasicSoundNode{};
-    auto leaf = BasicSoundNode{};
+    auto root = BasicSoundNode{"root"};
+    auto inner1 = BasicSoundNode{"inner1"};
+    auto inner2 = BasicSoundNode{"inner2"};
+    auto leaf = BasicSoundNode{"leaf"};
 
     EXPECT_FALSE(root.hasDependency(&inner1));
     EXPECT_FALSE(root.hasDependency(&inner2));
@@ -705,8 +712,9 @@ TEST(SoundNodeTest, CrissCross1){
 
 class NumberSoundNode : public BasicSoundNode {
 public:
-    NumberSoundNode()
-        : node(this){
+    NumberSoundNode(std::string name)
+        : BasicSoundNode(std::move(name))
+        , node(this){
     
     }
 
@@ -719,8 +727,8 @@ public:
 };
 
 TEST(SoundNodeTest, DependencySafety1){
-    auto root = NumberSoundNode{};
-    auto leaf = NumberSoundNode{};
+    auto root = NumberSoundNode{"root"};
+    auto leaf = NumberSoundNode{"leaf"};
 
     EXPECT_TRUE(root.canAddDependency(&leaf));
     EXPECT_TRUE(leaf.canAddDependency(&root));
@@ -795,9 +803,9 @@ TEST(SoundNodeTest, DependencySafety1){
 }
 
 TEST(SoundNodeTest, DependencySafety2){
-    auto root1 = NumberSoundNode{};
-    auto root2 = NumberSoundNode{};
-    auto leaf = NumberSoundNode{};
+    auto root1 = NumberSoundNode{"root1"};
+    auto root2 = NumberSoundNode{"root2"};
+    auto leaf = NumberSoundNode{"leaf"};
 
     root1.addDependency(&leaf);
     
@@ -808,6 +816,99 @@ TEST(SoundNodeTest, DependencySafety2){
     EXPECT_FALSE(root1.canRemoveDependency(&leaf));
 
     EXPECT_FALSE(root2.canAddDependency(&leaf));
+}
+
+TEST(SoundNodeTest, DependencySafety3){
+    auto root = NumberSoundNode{"root"};
+    auto inner1 = NumberSoundNode{"inner1"};
+    auto inner2 = NumberSoundNode{"inner2"};
+    auto leaf = NumberSoundNode{"leaf"};
+
+    root.addDependency(&inner1);
+    root.addDependency(&inner2);
+    inner1.addDependency(&leaf);
+    inner2.addDependency(&leaf);
+    
+    EXPECT_TRUE(inner1.canRemoveDependency(&leaf));
+    EXPECT_TRUE(inner2.canRemoveDependency(&leaf));
+
+    leaf.node.addDependency(&root.node);
+    
+    EXPECT_TRUE(root.canRemoveDependency(&inner1));
+    EXPECT_TRUE(root.canRemoveDependency(&inner2));
+    EXPECT_TRUE(inner1.canRemoveDependency(&leaf));
+    EXPECT_TRUE(inner2.canRemoveDependency(&leaf));
+
+    inner2.removeDependency(&leaf);
+    
+    EXPECT_FALSE(root.canRemoveDependency(&inner1));
+    EXPECT_TRUE(root.canRemoveDependency(&inner2));
+    EXPECT_FALSE(inner1.canRemoveDependency(&leaf));
+    EXPECT_TRUE(inner2.canAddDependency(&leaf));
+
+    inner2.addDependency(&leaf);
+    
+    EXPECT_TRUE(root.canRemoveDependency(&inner1));
+    EXPECT_TRUE(root.canRemoveDependency(&inner2));
+    EXPECT_TRUE(inner1.canRemoveDependency(&leaf));
+    EXPECT_TRUE(inner2.canRemoveDependency(&leaf));
+
+    inner1.removeDependency(&leaf);
+    
+    EXPECT_TRUE(root.canRemoveDependency(&inner1));
+    EXPECT_FALSE(root.canRemoveDependency(&inner2));
+    EXPECT_TRUE(inner1.canAddDependency(&leaf));
+    EXPECT_FALSE(inner2.canRemoveDependency(&leaf));
+}
+
+TEST(SoundNodeTest, DependencySafety4){
+    auto root = NumberSoundNode{"root"};
+    auto innera1 = NumberSoundNode{"innera1"};
+    auto innera2 = NumberSoundNode{"innera2"};
+    auto innerb1 = NumberSoundNode{"innerb1"};
+    auto innerb2 = NumberSoundNode{"innerb2"};
+    auto leaf = NumberSoundNode{"leaf"};
+
+    root.addDependency(&innera1);
+    root.addDependency(&innera2);
+    innera1.addDependency(&innerb1);
+    innera2.addDependency(&innerb2);
+    innerb1.addDependency(&leaf);
+    innerb2.addDependency(&leaf);
+    
+    EXPECT_TRUE(innerb1.canRemoveDependency(&leaf));
+    EXPECT_TRUE(innerb2.canRemoveDependency(&leaf));
+    EXPECT_TRUE(innera1.canRemoveDependency(&innerb1));
+    EXPECT_TRUE(innera2.canRemoveDependency(&innerb2));
+    EXPECT_TRUE(root.canRemoveDependency(&innera1));
+    EXPECT_TRUE(root.canRemoveDependency(&innera2));
+
+    leaf.node.addDependency(&root.node);
+    
+    EXPECT_TRUE(innerb1.canRemoveDependency(&leaf));
+    EXPECT_TRUE(innerb2.canRemoveDependency(&leaf));
+    EXPECT_TRUE(innera1.canRemoveDependency(&innerb1));
+    EXPECT_TRUE(innera2.canRemoveDependency(&innerb2));
+    EXPECT_TRUE(root.canRemoveDependency(&innera1));
+    EXPECT_TRUE(root.canRemoveDependency(&innera2));
+
+    innerb2.removeDependency(&leaf);
+    
+    EXPECT_FALSE(innerb1.canRemoveDependency(&leaf));
+    EXPECT_TRUE(innerb2.canAddDependency(&leaf));
+    EXPECT_FALSE(innera1.canRemoveDependency(&innerb1));
+    EXPECT_TRUE(innera2.canRemoveDependency(&innerb2));
+    EXPECT_FALSE(root.canRemoveDependency(&innera1));
+    EXPECT_TRUE(root.canRemoveDependency(&innera2));
+
+    innerb2.addDependency(&leaf);
+    
+    EXPECT_TRUE(innerb1.canRemoveDependency(&leaf));
+    EXPECT_TRUE(innerb2.canRemoveDependency(&leaf));
+    EXPECT_TRUE(innera1.canRemoveDependency(&innerb1));
+    EXPECT_TRUE(innera2.canRemoveDependency(&innerb2));
+    EXPECT_TRUE(root.canRemoveDependency(&innera1));
+    EXPECT_TRUE(root.canRemoveDependency(&innera2));
 }
 
 // TODO: uncontrolled soundnodes and dependency safety

@@ -29,10 +29,14 @@ namespace flo {
         // make sure that the node doesn't already have other
         // dependencies whose number sources it depends on
         {
-            for (const auto& nn : node->getNumberNodes()){
-                for (const auto& nndc : nn->getAllDependencies()){
-                    if (const auto so = nndc->getStateOwner(); so != node){
-                        return false;
+            for (const auto& dc : node->getAllDependencies()){
+                for (const auto& nn : dc->getNumberNodes()){
+                    for (const auto& nndc : nn->getAllDependencies()){
+                        if (const auto so = nndc->getStateOwner()){
+                            if (!node->hasDependency(so) && !so->hasDependency(this)){
+                                return false;
+                            }
+                        }
                     }
                 }
             }
@@ -70,21 +74,19 @@ namespace flo {
         }
 
         std::function<bool(const SoundNode*, const SoundNode*)> wouldStillHaveDependency = [&](const SoundNode* dt, const SoundNode* dc){
-            if (dt == this){
-                return false;
-            }
             if (dt == dc){
                 return true;
             }
             for (const auto& dtdc : dt->getDirectDependencies()){
-                if (wouldStillHaveDependency(dtdc, dc)){
-                    return true;
+                if (!(dt == this && dtdc == node)){
+                    if (wouldStillHaveDependency(dtdc, dc)){
+                        return true;
+                    }
                 }
             }
             return false;
         };
 
-        std::set<const NumberNode*> nndcs;
         for (const auto& dc : node->getAllDependencies()){
             for (const auto& dcnn : dc->getNumberNodes()){
                 for (const auto& nndc : dcnn->getAllDependencies()){
