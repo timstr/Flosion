@@ -39,7 +39,8 @@ namespace flo {
 
     class NumberNode : private Immovable {
     public:
-        NumberNode() noexcept;
+        NumberNode();
+        virtual ~NumberNode();
 
         bool canAddDependency(const NumberNode*) const noexcept;
         void addDependency(NumberNode* node);

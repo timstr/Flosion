@@ -9,10 +9,19 @@
 
 namespace flo {
 
-    NumberNode::NumberNode() noexcept
+    NumberNode::NumberNode()
         : m_network(nullptr)
         , m_stateOwner(nullptr) {
 
+    }
+
+    NumberNode::~NumberNode(){
+        while (m_dependencies.size() > 0){
+            removeDependency(m_dependencies.back());
+        }
+        while (m_dependents.size() > 0){
+            m_dependents.back()->removeDependency(this);
+        }
     }
 
     bool NumberNode::canAddDependency(const NumberNode* node) const noexcept {
@@ -68,19 +77,31 @@ namespace flo {
     }
 
     const std::vector<NumberNode*>& NumberNode::getDirectDependencies() const noexcept {
+        assert(std::all_of(
+            m_dependencies.begin(),
+            m_dependencies.end(),
+            [](const NumberNode* n){
+                return n != nullptr;
+            }
+        ));
         return m_dependencies;
     }
 
     const std::vector<NumberNode*>& NumberNode::getDirectDependents() const noexcept {
+        assert(std::all_of(
+            m_dependents.begin(),
+            m_dependents.end(),
+            [](const NumberNode* n){
+                return n != nullptr;
+            }
+        ));
         return m_dependents;
     }
 
     std::set<const NumberNode*> NumberNode::getAllDependencies() const noexcept {
         std::set<const NumberNode*> nodes;
         std::function<void(const NumberNode*)> search = [&](const NumberNode* n){
-            if (!n){
-                return;
-            }
+            assert(n);
             nodes.insert(n);
             for (const auto& d : n->getDirectDependencies()){
                 search(d);
@@ -92,10 +113,8 @@ namespace flo {
 
     std::set<const NumberNode*> NumberNode::getAllDependents() const noexcept {
         std::set<const NumberNode*> nodes;
-        std::function<void(const NumberNode*)> search = [&](const NumberNode* n){
-            if (!n){
-                return;
-            }
+        const std::function<void(const NumberNode*)> search = [&](const NumberNode* n){
+            assert(n);
             nodes.insert(n);
             for (const auto& d : n->getDirectDependents()){
                 search(d);

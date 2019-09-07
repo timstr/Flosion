@@ -17,8 +17,8 @@ namespace flo {
     // basic sound node type
     class SoundNode : public StateTable {
     public:
-        SoundNode() noexcept;
-        virtual ~SoundNode() noexcept;
+        SoundNode();
+        virtual ~SoundNode();
         
         bool canAddDependency(const SoundNode*) const noexcept;
         bool canRemoveDependency(const SoundNode*) const noexcept;

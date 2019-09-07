@@ -8,12 +8,12 @@
 
 namespace flo {
 
-    SoundNode::SoundNode() noexcept
+    SoundNode::SoundNode()
         : StateTable(this)
         , m_network(nullptr) {
     }
 
-    SoundNode::~SoundNode() noexcept {
+    SoundNode::~SoundNode(){
         while (m_dependencies.size() > 0){
             removeDependency(m_dependencies.back());
         }
