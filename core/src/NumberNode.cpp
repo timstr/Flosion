@@ -71,7 +71,7 @@ namespace flo {
             m_dependencies.end()
         );
         node->m_dependents.erase(
-            std::remove(node->m_dependents.begin(), node->m_dependents.end(), node),
+            std::remove(node->m_dependents.begin(), node->m_dependents.end(), this),
             node->m_dependents.end()
         );
     }
