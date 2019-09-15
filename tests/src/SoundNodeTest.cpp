@@ -33,14 +33,15 @@ bool set_equals(const Collection& c, const std::initializer_list<typename Collec
 
 using namespace flo;
 
-class BasicSoundNode : public Realtime<Singular<SoundNode, EmptySoundState>> {
+template<typename Base>
+class Named : public Base {
 public:
-    BasicSoundNode(std::string _name) : name(std::move(_name)){
-    
-    }
+    Named(std::string n) : name(std::move(n)) {}
 
     const std::string name;
 };
+
+using BasicSoundNode = Named<Realtime<Singular<SoundNode, EmptySoundState>>>;
 
 TEST(SoundNodeTest, ShallowDependencies1){
     auto root = BasicSoundNode{"root"};
@@ -911,4 +912,9 @@ TEST(SoundNodeTest, DependencySafety4){
     EXPECT_TRUE(root.canRemoveDependency(&innera2));
 }
 
-// TODO: uncontrolled soundnodes and dependency safety
+using BasicUncontrolled = Named<Realtime<Uncontrolled<SoundNode, EmptySoundState>>>;
+
+TEST(SoundNodeTest, Uncontrolled1){
+    auto unode = BasicUncontrolled{"uncontrolled node"};
+    // TODO
+}
