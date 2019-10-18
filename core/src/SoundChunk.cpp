@@ -1,4 +1,4 @@
-#include <SoundChunk.hpp>
+#include <Flosion/Core/SoundChunk.hpp>
 
 #include <cassert>
 

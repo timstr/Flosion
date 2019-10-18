@@ -18,16 +18,16 @@ else()
 	SET(CMAKE_CXX_FLAGS -pthread)
 endif()
 
-# add_subdirectory(tims-gui)
+add_subdirectory(tims-gui)
 add_subdirectory(core)
-# add_subdirectory(ui)
+add_subdirectory(objects)
+add_subdirectory(ui)
 # add_subdirectory(util)
-# add_subdirectory(objects)
 add_subdirectory(tests)
 
 target_link_libraries(flosion
 	PUBLIC
-#	tims-gui
+	tims-gui
 	flosion_core
 #	flosion-ui
 #	flosion-util
@@ -37,14 +37,14 @@ target_link_libraries(flosion
 # copy fonts to current build directory
 add_custom_command(TARGET flosion POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
-		"${PROJECT_SOURCE_DIR}/ui/fonts"
+		"${PROJECT_SOURCE_DIR}/ui/core/fonts"
 		"$<TARGET_FILE_DIR:flosion>/fonts"
 )
 
 # copy fonts to binary directory for debugger
 add_custom_command(TARGET flosion POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
-		"${PROJECT_SOURCE_DIR}/ui/fonts"
+		"${PROJECT_SOURCE_DIR}/ui/core/fonts"
 		"${PROJECT_BINARY_DIR}/fonts"
 )
 

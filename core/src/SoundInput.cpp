@@ -1,6 +1,6 @@
-#include <SoundInput.hpp>
+#include <Flosion/Core/SoundInput.hpp>
 
-#include <SoundSource.hpp>
+#include <Flosion/Core/SoundSource.hpp>
 
 namespace flo {
 

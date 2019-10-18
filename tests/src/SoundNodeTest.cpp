@@ -1,4 +1,5 @@
-#include <SoundSourceTemplate.hpp>
+#include <Flosion/Core/SoundSourceTemplate.hpp>
+
 #include <algorithm>
 #include <type_traits>
 

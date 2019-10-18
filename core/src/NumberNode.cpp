@@ -1,7 +1,7 @@
-#include <NumberNode.hpp>
+#include <Flosion/Core/NumberNode.hpp>
 
-#include <SoundNode.hpp>
-#include <SoundResult.hpp>
+#include <Flosion/Core/SoundNode.hpp>
+#include <Flosion/Core/SoundResult.hpp>
 
 #include <algorithm>
 #include <cassert>

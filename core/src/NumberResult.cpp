@@ -1,4 +1,4 @@
-#include <NumberResult.hpp>
+#include <Flosion/Core/NumberResult.hpp>
 
 namespace flo {
 

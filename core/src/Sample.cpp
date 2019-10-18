@@ -1,4 +1,4 @@
-#include <Sample.hpp>
+#include <Flosion/Core/Sample.hpp>
 
 namespace flo {
 

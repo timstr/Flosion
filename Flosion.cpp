@@ -3,13 +3,13 @@
 // #include <SFML/Graphics.hpp>
 // #include <SFML/Audio.hpp>
 
-#include <Network.hpp>
-#include <SoundResult.hpp>
-#include <SoundState.hpp>
-#include <SoundSourceTemplate.hpp>
-#include <MultiSoundInput.hpp>
-#include <NumberSource.hpp>
-#include <BorrowingNumberSource.hpp>
+#include <Flosion/Core/Network.hpp>
+#include <Flosion/Core/SoundResult.hpp>
+#include <Flosion/Core/SoundState.hpp>
+#include <Flosion/Core/SoundSourceTemplate.hpp>
+#include <Flosion/Core/MultiSoundInput.hpp>
+#include <Flosion/Core/NumberSource.hpp>
+#include <Flosion/Core/BorrowingNumberSource.hpp>
 
 #include <iostream>
 #include <random>

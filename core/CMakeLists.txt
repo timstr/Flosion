@@ -1,34 +1,36 @@
 cmake_minimum_required(VERSION 3.10.0)
 
+set(include_path "include/Flosion/Core")
+
 set(flosion_core_headers
-	include/BorrowingNumberSource.hpp
-	include/BorrowingNumberSource.tpp
-	include/Immovable.hpp
-	include/MultiSoundInput.hpp
-	include/MultiSoundInput.tpp
-	include/Network.hpp
-	include/NumberNode.hpp
-	include/NumberResult.hpp
-	include/NumberSource.hpp
-	include/RecursiveSharedMutex.hpp
-	include/Sample.hpp
-	include/SingleSoundInput.hpp
-	include/SoundChunk.hpp
-	include/SoundInput.hpp
-	include/SoundNode.hpp
-	include/SoundNode.tpp
-	include/SoundResult.hpp
-	include/SoundSource.hpp
-	include/SoundSource.tpp
-	include/SoundSourceTemplate.hpp
-	include/SoundSourceTemplate.tpp
-	include/SoundState.hpp
-	include/SoundState.tpp
-	include/State.hpp
-	include/StateAllocator.hpp
-	include/StateTable.hpp
-	include/StateBorrower.hpp
-	include/StatefulNumberSource.hpp
+	${include_path}/BorrowingNumberSource.hpp
+	${include_path}/BorrowingNumberSource.tpp
+	${include_path}/Immovable.hpp
+	${include_path}/MultiSoundInput.hpp
+	${include_path}/MultiSoundInput.tpp
+	${include_path}/Network.hpp
+	${include_path}/NumberNode.hpp
+	${include_path}/NumberResult.hpp
+	${include_path}/NumberSource.hpp
+	${include_path}/RecursiveSharedMutex.hpp
+	${include_path}/Sample.hpp
+	${include_path}/SingleSoundInput.hpp
+	${include_path}/SoundChunk.hpp
+	${include_path}/SoundInput.hpp
+	${include_path}/SoundNode.hpp
+	${include_path}/SoundNode.tpp
+	${include_path}/SoundResult.hpp
+	${include_path}/SoundSource.hpp
+	${include_path}/SoundSource.tpp
+	${include_path}/SoundSourceTemplate.hpp
+	${include_path}/SoundSourceTemplate.tpp
+	${include_path}/SoundState.hpp
+	${include_path}/SoundState.tpp
+	${include_path}/State.hpp
+	${include_path}/StateAllocator.hpp
+	${include_path}/StateTable.hpp
+	${include_path}/StateBorrower.hpp
+	${include_path}/StatefulNumberSource.hpp
 )
 
 set(flosion_core_srcs

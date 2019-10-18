@@ -1,6 +1,6 @@
-#include <SoundNode.hpp>
+#include <Flosion/Core/SoundNode.hpp>
 
-#include <SoundResult.hpp>
+#include <Flosion/Core/SoundResult.hpp>
 
 #include <algorithm>
 #include <functional>

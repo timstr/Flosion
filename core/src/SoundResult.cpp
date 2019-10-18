@@ -1,4 +1,4 @@
-#include <SoundResult.hpp>
+#include <Flosion/Core/SoundResult.hpp>
 
 #include <cassert>
 

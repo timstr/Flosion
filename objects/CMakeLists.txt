@@ -1,45 +1,21 @@
-cmake_minimum_required(VERSION 3.9.0)
+cmake_minimum_required(VERSION 3.10.0)
 
-add_library(flosion-objects INTERFACE)
-add_library(flosion-objects-base INTERFACE)
+set(include_path "include/Flosion/Objects")
 
-target_link_libraries(flosion-objects-base
-	INTERFACE flosion-core
-	INTERFACE flosion-ui
-	INTERFACE flosion-util
+set(flosion_objects_headers
+	${include_path}/Functions.hpp
 )
 
-# list of all header-only sub-libraries
-set(flosion-objects-header-libraries
-	audio
-	constants
-	convolver
-	distortion
-	ensemble
-	filter
-	functions
-	phasevocoder
-	sampler
-	spline
-	timestretch
-	wavegen
-	wavetable
+set(flosion_objects_srcs
+	src/Functions.cpp
 )
 
-# list of all compiled libraries that need to be linked to
-set(flosion-objects-link-libraries
-	dac
-)
+add_library(flosion_objects STATIC ${flosion_objects_srcs})
 
-# include every header-only library and give it access to required headers
-foreach(objlib ${flosion-objects-header-libraries})
-	add_subdirectory(${objlib})
-	target_include_directories(flosion-objects INTERFACE ${objlib})
-endforeach(objlib)
+target_include_directories(flosion_objects PUBLIC include)
 
-# include and link to every compiled library and give it required headers
-foreach(objlib ${flosion-objects-link-libraries})
-	add_subdirectory(${objlib})
-	target_link_libraries(flosion-objects INTERFACE ${objlib})
-	target_include_directories(flosion-objects INTERFACE ${objlib})
-endforeach(objlib)
+set_target_properties(flosion_objects PROPERTIES LINKER_LANGUAGE CXX)
+
+set_property(TARGET flosion_objects PROPERTY CXX_STANDARD 17)
+
+target_link_libraries(flosion_objects PUBLIC flosion_core)

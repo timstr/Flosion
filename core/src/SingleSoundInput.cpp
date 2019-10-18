@@ -1,5 +1,5 @@
-#include <SingleSoundInput.hpp>
-#include <SoundSource.hpp>
+#include <Flosion/Core/SingleSoundInput.hpp>
+#include <Flosion/Core/SoundSource.hpp>
 
 #include <cassert>
 

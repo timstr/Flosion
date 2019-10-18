@@ -1,5 +1,5 @@
-#include <BorrowingNumberSource.hpp>
-#include <SoundNode.hpp>
+#include <Flosion/Core/BorrowingNumberSource.hpp>
+#include <Flosion/Core/SoundNode.hpp>
 
 namespace flo {
 

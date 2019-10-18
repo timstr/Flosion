@@ -1,4 +1,4 @@
-#include <SoundSource.hpp>
+#include <Flosion/Core/SoundSource.hpp>
 
 namespace flo {
 

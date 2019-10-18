@@ -1,7 +1,8 @@
-#include <StateTable.hpp>
-#include <StateAllocator.hpp>
-#include <SoundNode.hpp>
-#include <BorrowingNumberSource.hpp>
+#include <Flosion/Core/StateTable.hpp>
+
+#include <Flosion/Core/StateAllocator.hpp>
+#include <Flosion/Core/SoundNode.hpp>
+#include <Flosion/Core/BorrowingNumberSource.hpp>
 
 #include <algorithm>
 #include <cassert>

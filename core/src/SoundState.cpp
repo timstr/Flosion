@@ -1,7 +1,7 @@
-#include <SoundState.hpp>
+#include <Flosion/Core/SoundState.hpp>
 
-#include <Sample.hpp>
-#include <SoundNode.hpp>
+#include <Flosion/Core/Sample.hpp>
+#include <Flosion/Core/SoundNode.hpp>
 
 #include <cassert>
 
