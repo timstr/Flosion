@@ -444,11 +444,6 @@ namespace flo {
             ) != m_dependentOffsets.end()
         );
 
-        assert(beginIndex < endIndex);
-        assert(beginIndex < m_numDependentStates);
-        assert(endIndex <= m_numDependentStates);
-        assert(m_numDependentStates >= endIndex - beginIndex);
-
         if (m_isMonostate){
             assert(m_dependentOffsets.size() == 1);
             assert(m_dependentOffsets[0].dependent == dependent);
@@ -473,6 +468,11 @@ namespace flo {
             ));
             return;
         }
+
+        assert(beginIndex < endIndex);
+        assert(beginIndex < m_numDependentStates);
+        assert(endIndex <= m_numDependentStates);
+        assert(m_numDependentStates >= endIndex - beginIndex);
 
         // allocate new array
         auto newNumSlots = numKeys() * (numDependentStates() - (endIndex - beginIndex));

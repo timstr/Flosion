@@ -43,6 +43,7 @@ public:
 };
 
 using BasicSoundNode = Named<Realtime<Singular<SoundNode, EmptySoundState>>>;
+using DivergentSoundNode = Named<Realtime<Divergent<SoundNode, EmptySoundState, int>>>;
 
 TEST(SoundNodeTest, ShallowDependencies1){
     auto root = BasicSoundNode{"root"};
@@ -916,6 +917,32 @@ TEST(SoundNodeTest, DependencySafety4){
 using BasicUncontrolled = Named<Realtime<Uncontrolled<SoundNode, EmptySoundState>>>;
 
 TEST(SoundNodeTest, Uncontrolled1){
-    auto unode = BasicUncontrolled{"uncontrolled node"};
-    // TODO
+    auto uncontrolled = BasicUncontrolled{"uncontrolled node"};
+    
+    auto singular = BasicSoundNode{"singular"};
+    auto divergent = DivergentSoundNode{"divergent"};
+    
+    ASSERT_TRUE(singular.canAddDependency(&uncontrolled));
+    ASSERT_FALSE(divergent.canAddDependency(&uncontrolled));
+    
+    EXPECT_FALSE(singular.hasUncontrolledDependency());
+    EXPECT_FALSE(divergent.hasUncontrolledDependency());
+    EXPECT_TRUE(uncontrolled.hasUncontrolledDependency());
+
+    singular.addDependency(&uncontrolled);
+
+    EXPECT_TRUE(singular.hasUncontrolledDependency());
+    EXPECT_TRUE(uncontrolled.hasUncontrolledDependency());
+
+    ASSERT_FALSE(divergent.canAddDependency(&singular));
+    
+    EXPECT_TRUE(uncontrolled.canAddDependency(&divergent));
+    uncontrolled.addDependency(&divergent);
+
+    auto singular2 = BasicSoundNode{"singular"};
+    EXPECT_TRUE(uncontrolled.canAddDependency(&singular2));
+    uncontrolled.addDependency(&singular2);
+
+    EXPECT_FALSE(divergent.hasUncontrolledDependency());
+    EXPECT_FALSE(singular2.hasUncontrolledDependency());
 }
