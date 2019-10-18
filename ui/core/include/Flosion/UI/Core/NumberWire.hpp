@@ -1,13 +1,10 @@
 #pragma once
 
-#include <GUI/GUI.hpp>
-
-#include <Flosion/UI/Core/Object.hpp>
-#include <Flosion/UI/Core/WireBase.hpp>
-#include <Flosion/Core/NumberSource.hpp>
-
 namespace flui {
 	
+    // TODO: rethink this whole shebang
+
+    /*
 	struct NumberInput : WireInputBase<flo::NumberSource, flo::NumberInput> {
 		NumberInput(ui::Ref<Object> parent_object, flo::NumberInput& target, std::string label) :
 			WireInputBase(parent_object, target),
@@ -89,6 +86,6 @@ namespace flui {
 			dst.setSource(nullptr);
 		}
 	};
-
+    */
 
 } // namespace flui

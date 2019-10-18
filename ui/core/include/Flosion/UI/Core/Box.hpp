@@ -2,18 +2,20 @@
 
 #include <GUI/GUI.hpp>
 
-namespace ui {
+namespace flui {
 
     class Object;
     class NumberWire;
     class SoundWire;
 	
 	// Box is what holds all objects
-	class Box : ui::FreeElement {
+	class Box : public ui::FreeContainer, public ui::Control, public ui::BoxElement {
     public:
 		Box();
 
-		void addObject(std::unique_ptr<Object> object);
+        // TODO
+
+		/*void addObject(std::unique_ptr<Object> object);
 
 		void releaseObject(ui::Ref<Object> object);
 
@@ -23,9 +25,11 @@ namespace ui {
 
 		void addNumberWire(ui::Ref<NumberWire> wire);
 
-		void removeNumberWire(NumberWire& wire);
+		void removeNumberWire(NumberWire& wire);*/
 
-	protected:
+	private:
+
+        void render(sf::RenderWindow& rw) override;
 
 		std::vector<Object*> m_objects;
 		std::vector<NumberWire*> m_numberwires;
@@ -36,18 +40,14 @@ namespace ui {
 		// calculate the bounding box of all contents
 		// returns { top-left, bottom-right } as positions
 		// in local space
-		std::pair<vec2, vec2> getContentBounds();
+		//std::pair<ui::vec2, ui::vec2> getContentBounds();
 
 		// move all objects and wires by delta
-		void shiftContents(vec2 delta);
+		//void shiftContents(vec2 delta);
 
 	private:
 
 		bool onLeftClick(int) override;
-
-		struct InputPanel;
-
-		friend struct CollapsibleBox;
 	};
 
     // TODO
@@ -83,9 +83,6 @@ namespace ui {
 	class MainBox : public Box {
     public:
 		MainBox();
-
-	private:
-		void render(sf::RenderWindow&) override;
 	};
 
 } // namespace flui

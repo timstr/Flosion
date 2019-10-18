@@ -29,9 +29,10 @@ target_link_libraries(flosion
 	PUBLIC
 	tims-gui
 	flosion_core
-#	flosion-ui
-#	flosion-util
-#	flosion-objects
+	flosion_objects
+	flosion_ui_core
+    flosion_ui_objects
+#	flosion_util
 )
 
 # copy fonts to current build directory

@@ -1,13 +1,10 @@
 #pragma once
 
-#include <GUI/GUI.hpp>
-#include "objectUI.h"
-#include "WireBase.h"
-#include "SoundSource.h"
-#include "SoundInput.h"
-
 namespace flui {
 
+    // TODO: rethink this whole shebang
+
+    /*
 	struct SoundInput : WireInputBase<flo::SoundSource, flo::SoundInput> {
 		SoundInput(ui::Ref<Object> parent_object, flo::SoundInput& target, std::string label) :
 			WireInputBase(parent_object, target),
@@ -90,5 +87,7 @@ namespace flui {
 			dst.setSource(nullptr);
 		}
 	};
+
+    */
 
 } // namespace flui

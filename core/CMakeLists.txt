@@ -54,6 +54,8 @@ set(flosion_core_srcs
 
 add_library(flosion_core STATIC ${flosion_core_headers} ${flosion_core_srcs})
 
+set_property(TARGET flosion_core PROPERTY CXX_STANDARD 17)
+
 set_target_properties(flosion_core PROPERTIES LINKER_LANGUAGE CXX)
 
 set_property(TARGET flosion_core PROPERTY CXX_STANDARD 17)

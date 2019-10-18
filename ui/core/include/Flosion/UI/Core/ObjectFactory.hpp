@@ -1,11 +1,6 @@
 #pragma once
 
-#include <cctype>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-
+#include <GUI/GUI.hpp>
 
 namespace flui {
 
@@ -13,62 +8,54 @@ namespace flui {
 
 	// factory for creating Objects from strings
 	// which have been pre-registered
-	struct Factory {
+	class Factory {
+    public:
 		using ObjectCreator = std::function<std::unique_ptr<Object>()>;
 
-		static ui::Ref<Object> createObject(const std::string& name);
+		static std::unique_ptr<Object> createObject(ui::String name);
 
 		static const std::map<std::string, ObjectCreator>& getObjectCreators();
 
+        static void addCreator(const std::vector<ui::String>& names, ObjectCreator creator);
+
+        static void removeCreator(const std::vector<ui::String>& names);
+
+    private:
 		// RegisterObject for registering an Object type with the factory under a set of names
 		// RegisterObject is intended to be used as a static object,
 		// one with each Object sub-class definition
 		template<typename ObjectType>
-		struct RegisterObject {
-			RegisterObject(std::vector<std::string> _names) :
-				names(Factory::makeLowerCase(_names)) {
+		class Registrator {
+        public:
+			Registrator(std::vector<std::string> names);
+			~Registrator();
 
-				static_assert(std::is_base_of<Object, ObjectType>::value, "The provided object type must derive from Object");
-
-				auto& objectMap = Factory::getObjectMap();
-				for (const std::string& name : names) {
-					objectMap[name] = [](){ return ui::create<ObjectType>(); };
-				}
-			}
-			~RegisterObject() {
-				auto& objectMap = Factory::getObjectMap();
-				for (const std::string& name : names){
-					auto it = objectMap.find(name);
-					if (it != objectMap.end()){
-						objectMap.erase(it);
-					}
-				}
-			}
-
-		private:
-
-			const std::vector<std::string> names;
+        private:
+			const std::vector<ui::String> m_names;
 		};
 
 
 	private:
-
 		Factory() = delete;
-
-		static std::vector<std::string>& makeLowerCase(std::vector<std::string>& strings) {
-			for (auto& str : strings){
-				std::transform(
-					str.begin(),
-					str.end(),
-					str.begin(),
-					[](unsigned char c){ return std::tolower(c); }
-				);
-			}
-			return strings;
-		}
 
 		static std::map<std::string, ObjectCreator>& getObjectMap();
 	};
+
+    // TODO: move these to a .tpp file
+    template<typename ObjectType>
+    inline Factory::Registrator<ObjectType>::Registrator(std::vector<std::string> names)
+        : m_names(Factory::makeLowerCase(std::move(names))) {
+
+		static_assert(std::is_base_of<Object, ObjectType>::value, "The provided object type must derive from Object");
+        static_assert(std::is_default_constructible<ObjectType>, "The provided object type must be default constructible");
+
+        addCreator(m_names, [](){ return std::make_unique<ObjectType>(); });
+    }
+
+    template<typename ObjectType>
+    inline Factory::Registrator<ObjectType>::~Registrator(){
+        removeCreator(m_names);
+    }
 
 	// convenience macro for registering a type. Creates an anonymouse namespace
 	// which contains a uniquely named RegisterObject of the provided type.
@@ -78,8 +65,8 @@ namespace flui {
 	// RegisterObject(CrazyCoolObject, "CrazyCoolObject", "crazyobject", "coolObject")
 	#ifndef RegisterFactoryObject
 	#define RegisterFactoryObject(objectType, ...) \
-	namespace { \
-		::flui::Factory::RegisterObject<objectType> factoryRegisterObject_##objectType { std::vector<std::string> { __VA_ARGS__ } }; \
+	namespace FlosionUIFactoryImpl { \
+		::flui::Factory::RegisterObject<objectType> s_registratorFor_##objectType { std::vector<std::string> { __VA_ARGS__ } }; \
 	}
 	#endif // RegisterFactoryObject
 

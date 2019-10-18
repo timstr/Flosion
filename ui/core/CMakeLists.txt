@@ -4,7 +4,7 @@ set(include_path "include/Flosion/UI/Core")
 
 set(flosion_ui_core_headers
     ${include_path}/Box.hpp
-    ${include_path}/Flosion.hpp
+    ${include_path}/FlosionUI.hpp
     ${include_path}/Font.hpp
     ${include_path}/NumberWire.hpp
     ${include_path}/Object.hpp
@@ -15,7 +15,7 @@ set(flosion_ui_core_headers
 
 set(flosion_ui_core_srcs
     src/Box.cpp
-    src/Flosion.cpp
+    src/FlosionUI.cpp
     src/Font.cpp
     src/NumberWire.cpp
     src/Object.cpp
@@ -25,6 +25,8 @@ set(flosion_ui_core_srcs
 )
 
 add_library(flosion_ui_core STATIC ${flosion_ui_core_headers} ${flosion_ui_core_srcs})
+
+set_property(TARGET flosion_ui_core PROPERTY CXX_STANDARD 17)
 
 target_link_libraries(flosion_ui_core
     PUBLIC flosion_core

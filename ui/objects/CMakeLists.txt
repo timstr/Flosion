@@ -12,6 +12,8 @@ set(flosion_ui_objects_srcs
 
 add_library(flosion_ui_objects STATIC ${flosion_ui_objects_headers} ${flosion_ui_objects_srcs})
 
+set_property(TARGET flosion_ui_objects PROPERTY CXX_STANDARD 17)
+
 target_link_libraries(flosion_ui_objects
     PUBLIC flosion_ui_core
 )

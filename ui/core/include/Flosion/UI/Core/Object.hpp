@@ -2,17 +2,16 @@
 
 #include <GUI/GUI.hpp>
 
-#include <Flosion/UI/Core/Font.hpp>
-
 #include <Flosion/Core/SoundInput.hpp>
+#include <Flosion/Core/NumberNode.hpp>
 
 namespace flui {
 
-	class NumberInput;
-	class NumberOutput;
+	class NumberInputPeg;
+	class NumberOutputPeg;
 	class NumberWire;
-	class SoundInput;
-	class SoundOutput;
+	class SoundInputPeg;
+	class SoundOutputPeg;
 	class SoundWire;
 	class Box;
 
@@ -24,30 +23,18 @@ namespace flui {
 
 		Box* getParentBox();
 
-        SoundInput* addSoundInput(flo::SoundInput* si, ui::String label = "sound input");
-        void removeSoundInput(const SoundInput* si);
+        // Constructs a peg for the given number/sound input/output, with a desired label
+        SoundInputPeg* addSoundInput(flo::SoundInput* si, ui::String label = "sound input");
+        SoundOutputPeg* addSoundOutput(flo::SoundSource* so, ui::String label = "sound output");
+        NumberInputPeg* addNumberInput(flo::NumberInput* ni, ui::String label = "number input");
+        NumberOutputPeg* addNumberOutput(flo::NumberSource* no, ui::String label = "number output");
 
-        SoundOutput* addSoundOutput(flo::SoundSource* so, ui::String label = "sound output");
-        void removeSoundOutput(const SoundOutput* so);
+        // Removes a previously added peg
+        void removeSoundInput(const SoundInputPeg* si);
+        void removeSoundOutput(const SoundOutputPeg* so);
+        void removeNumberInput(const NumberInputPeg* ni);
+        void removeNumberOutput(const NumberOutputPeg* no);
 
-        NumberInput* addNumberInput(flo::NumberInput* ni, ui::String label = "number input");
-        void removeNumberInput(const NumberInput* ni);
-
-        NumberOutput* addNumberOutput(flo::NumberSource* no, ui::String label = "number output");
-        void removeNumberOutput(const NumberOutput* no);
-
-        /*
-		void registerSoundInput(SoundInput* si);
-		void unregisterSoundInput(const SoundInput* si);
-
-		void registerSoundOutput(SoundOutput* si);
-		void unregisterSoundOutput(const SoundOutput* si);
-
-		void registerNumberInput(NumberInput* si);
-		void unregisterNumberInput(const NumberInput* si);
-
-		void registerNumberOutput(NumberOutput* si);
-		void unregisterNumberOutput(const NumberOutput* si);*/
 
     private:
 		bool onLeftClick(int) override;
@@ -64,13 +51,13 @@ namespace flui {
 		void showSoundInputList(SoundWire* wire, ui::vec2 pos);
 		void showSoundOutputList(SoundWire* wire, ui::vec2 pos);
 
-		void showWireDropList(const std::vector<std::pair<std::string, std::function<void()>>>& items, ui::vec2 pos);
+		void showList(const std::vector<std::pair<std::string, std::function<void()>>>& items, ui::vec2 pos);
 
 		Box* m_parentbox;
-		std::vector<SoundInput*> sound_inputs;
-		std::vector<SoundOutput*> sound_outputs;
-		std::vector<NumberInput*> number_inputs;
-		std::vector<NumberOutput*> number_outputs;
+		std::vector<SoundInputPeg*> m_soundInputs;
+		std::vector<SoundOutputPeg*> m_soundOutputs;
+		std::vector<NumberInputPeg*> m_numberInputs;
+		std::vector<NumberOutputPeg*> m_numberOutputs;
 
 		friend class Box;
 	};

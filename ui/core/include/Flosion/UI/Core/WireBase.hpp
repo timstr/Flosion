@@ -1,13 +1,10 @@
 #pragma once
 
-#include "boxUI.h"
-#include "objectUI.h"
-#include <cassert>
-
 namespace flui {
 
+    // TODO: rethink this whole shebang
 
-
+    /*
 	template<typename SourceType, typename DestinationType>
 	struct WireInputBase;
 
@@ -498,5 +495,7 @@ namespace flui {
 		// pair of nodes/endpoints
 		std::vector<sf::Vertex> m_vertices;
 	};
+
+    */
 
 }; // namespace flui
