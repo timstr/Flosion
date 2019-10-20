@@ -1,21 +1,30 @@
 #include <Flosion/Objects/Functions.hpp>
 
 namespace flo {
-
-    Add::Add() : inputA(this, 1.0), inputB(this, 1.0) {
-        
-    }
     
     double Add::evaluate(const flo::SoundState* context) const noexcept {
-        return inputA.getValue(context) + inputB.getValue(context);
+        return input1.getValue(context) + input2.getValue(context);
     }
 
-    Multiply::Multiply() : inputA(this, 1.0), inputB(this, 1.0) {
+    Multiply::Multiply() : BinaryFunction(1.0, 1.0) {
         
     }
 
     double Multiply::evaluate(const flo::SoundState* context) const noexcept {
-        return inputA.getValue(context) * inputB.getValue(context);
+        return input1.getValue(context) * input2.getValue(context);
+    }
+
+    double Subtract::evaluate(const flo::SoundState* context) const noexcept {
+        return input1.getValue(context) - input2.getValue(context);
+    }
+
+    Divide::Divide() : BinaryFunction(1.0, 1.0) {
+
+    }
+
+    double Divide::evaluate(const flo::SoundState* context) const noexcept {
+        return input1.getValue(context) / input2.getValue(context);
     }
 
 } // namespace flo
+

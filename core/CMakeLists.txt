@@ -63,3 +63,7 @@ set_property(TARGET flosion_core PROPERTY CXX_STANDARD 17)
 target_include_directories(flosion_core
 	PUBLIC include
 )
+
+target_link_libraries(flosion_core
+    PUBLIC flosion_util
+)

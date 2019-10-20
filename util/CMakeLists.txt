@@ -1,18 +1,16 @@
 cmake_minimum_required(VERSION 3.10.0)
 
-project(flosion)
+set(include_path "include/Flosion/Util")
 
 set(flosion_util_headers
-	fft.h
-	filebrowser.h
-	hannwindow.h
-	pi.h
-	sstreamutil.h
+	${include_path}/FFT.hpp
+	${include_path}/FileBrowser.hpp
+	${include_path}/Pi.hpp
+    ${include_path}/RNG.hpp
 )
 
 set(flosion_util_srcs
-	hannwindow.cpp
-	stringutil.cpp
+    src/RNG.cpp
 )
 
 add_library(flosion_util STATIC ${flosion_util_headers} ${flosion_util_srcs})
@@ -20,8 +18,5 @@ add_library(flosion_util STATIC ${flosion_util_headers} ${flosion_util_srcs})
 set_property(TARGET flosion_util PROPERTY CXX_STANDARD 17)
 
 target_include_directories(flosion_util
-	PUBLIC "."
-	PUBLIC ${flosion_core_SOURCE_DIR}
+	PUBLIC include
 )
-
-target_link_libraries(flosion_util flosion_core)

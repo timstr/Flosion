@@ -7,8 +7,6 @@
 
 namespace flui {
 
-	
-
     NumberWire::NumberWire(Box* parentBox)
         : m_parentBox(parentBox)
         , m_headPeg(nullptr)
@@ -109,6 +107,7 @@ namespace flui {
         setBackgroundColor(0xFFFFFFFF);
         setBorderColor(0xFF);
         setBorderThickness(1.0f);
+        setBorderRadius(10.0f);
     }
 
     NumberWire* NumberWire::Head::getParentWire(){
@@ -134,7 +133,7 @@ namespace flui {
         : m_parentWire(parentWire) {
 
         setSize({20.0f, 20.0f}, true);
-        setBackgroundColor(0xFF);
+        setBackgroundColor(0x4040FFFF);
         setBorderColor(0xFF);
         setBorderThickness(1.0f);
         setBorderRadius(10.0f);

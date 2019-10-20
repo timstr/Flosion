@@ -6,6 +6,12 @@ namespace flui {
 
     class Object;
 
+    // TODO: allow arguments to be passed and parsed
+    // Examples:
+    // constant 6
+    // slider 0 10
+    // expression x+(1/y)
+
 	// factory for creating Objects from strings
 	// which have been pre-registered
 	class Factory {

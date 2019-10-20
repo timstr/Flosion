@@ -40,7 +40,7 @@ namespace flui {
         , m_topContainer(putCell<ui::GridContainer>(1, 0, 0, 1)) 
         , m_rightContainer(
             putCell<ui::FreeContainer>(2, 1)
-            .add<ui::GridContainer>(ui::FreeContainer::InsideLeft, ui::FreeContainer::Center, 0, 1)
+            .add<ui::GridContainer>(ui::FreeContainer::InsideLeft, ui::FreeContainer::Center, 1, 0)
         ) {
         
         putCell<DragButton>(0, 0, this);
@@ -59,8 +59,38 @@ namespace flui {
 
     }
 
+    Object::~Object(){
+        
+    }
+
     Box* Object::getParentBox(){
         return m_parentBox;
+    }
+
+    SoundInputPeg* Object::addSoundInput(flo::SoundInput * si, ui::String label){
+        m_leftContainer.appendRow();
+        auto& p = m_leftContainer.putCell<SoundInputPeg>(
+            0,
+            m_leftContainer.rows() - 1,
+            this,
+            si,
+            label
+        );
+        m_soundInputs.push_back(&p);
+        return &p;
+    }
+
+    SoundOutputPeg* Object::addSoundOutput(flo::SoundSource* so, ui::String label){
+        m_rightContainer.appendRow();
+        auto& p = m_rightContainer.putCell<SoundOutputPeg>(
+            0,
+            m_rightContainer.rows() - 1,
+            this,
+            so,
+            label
+        );
+        m_soundOutputs.push_back(&p);
+        return &p;
     }
 
     NumberInputPeg* Object::addNumberInput(flo::NumberInput* ni, ui::String label){
@@ -77,7 +107,7 @@ namespace flui {
     }
 
     NumberOutputPeg* Object::addNumberOutput(flo::NumberSource* no, ui::String label){
-        m_rightContainer.appendColumn();
+        m_rightContainer.appendRow();
         auto& p = m_rightContainer.putCell<NumberOutputPeg>(
             0,
             m_rightContainer.rows() - 1,
@@ -113,7 +143,29 @@ namespace flui {
                 w->updatePositions();
             }
         }
-        // TODO: update sound wires
+        for (const auto& p : m_soundInputs){
+            if (auto w = p->getAttachedWire()){
+                w->updatePositions();
+            }
+        }
+        for (const auto& p : m_soundOutputs){
+            for (auto w : p->getAttachedWires()){
+                w->updatePositions();
+            }
+        }
+    }
+
+    void Object::setBody(std::unique_ptr<Element> e){
+        assert(e);
+        putCell(1, 1, std::move(e));
+    }
+
+    ui::Element* Object::getBody(){
+        return getCell(1, 1);
+    }
+
+    const ui::Element* Object::getBody() const {
+        return getCell(1, 1);
     }
 
 } // namespace flui

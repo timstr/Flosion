@@ -21,6 +21,9 @@ namespace flui {
         NumberWire* addNumberWire();
         void removeNumberWire(const NumberWire*);
 
+        SoundWire* addSoundWire();
+        void removeSoundWire(const SoundWire*);
+
 		/*void releaseObject(ui::Ref<Object> object);
 
 		void addSoundWire(ui::Ref<SoundWire> wire);

@@ -3,6 +3,7 @@
 #include <Flosion/UI/Core/Object.hpp>
 #include <Flosion/UI/Core/BoxContextMenu.hpp>
 #include <Flosion/UI/Core/NumberWire.hpp>
+#include <Flosion/UI/Core/SoundWire.hpp>
 
 namespace flui {
 
@@ -11,10 +12,7 @@ namespace flui {
     }
 
     Box::Box(){
-        setBackgroundColor(0x808080FF);
-        setBorderColor(0xFF);
-        setBorderRadius(20.0f);
-        setBorderThickness(1.0f);
+        setBackgroundColor(0x080820FF);
     }
 
     void Box::addObject(std::unique_ptr<Object> object){
@@ -27,6 +25,12 @@ namespace flui {
     NumberWire* Box::addNumberWire(){
         auto& w = add<NumberWire>(this);
         m_numberwires.push_back(&w);
+        return &w;
+    }
+
+    SoundWire* Box::addSoundWire(){
+        auto& w = add<SoundWire>(this);
+        m_soundwires.push_back(&w);
         return &w;
     }
 

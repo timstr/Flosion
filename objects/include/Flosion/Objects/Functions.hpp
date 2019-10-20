@@ -1,29 +1,35 @@
 #pragma once
 
-#include <Flosion/Core/NumberSource.hpp>
+#include <Flosion/Objects/FunctionsBase.hpp>
 
 namespace flo {
-    
-    class Add : public flo::NumberSource {
-    public:
-        Add();
 
-        flo::NumberSourceInput inputA;
-        flo::NumberSourceInput inputB;
-
+    class Add : public BinaryFunction {
     private:
         double evaluate(const flo::SoundState* context) const noexcept override;
     };
 
-    class Multiply : public flo::NumberSource {
+    class Subtract : public BinaryFunction {
+    private:
+        double evaluate(const flo::SoundState* context) const noexcept override;
+    };
+
+    class Multiply : public BinaryFunction {
     public:
         Multiply();
 
-        flo::NumberSourceInput inputA;
-        flo::NumberSourceInput inputB;
+    private:
+        double evaluate(const flo::SoundState* context) const noexcept override;
+    };
+
+    class Divide : public BinaryFunction {
+    public:
+        Divide();
 
     private:
         double evaluate(const flo::SoundState* context) const noexcept override;
     };
+
+    // TODO: more functions
 
 } // namespace flo

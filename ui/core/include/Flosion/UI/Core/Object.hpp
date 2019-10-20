@@ -20,6 +20,7 @@ namespace flui {
 	class Object : public ui::GridContainer, public ui::Control, public ui::Draggable {
     public:
 		Object();
+        ~Object();
 
 		Box* getParentBox();
 
@@ -35,9 +36,9 @@ namespace flui {
         void removeNumberInput(const NumberInputPeg* ni);
         void removeNumberOutput(const NumberOutputPeg* no);
 
-        void setBody(std::unique_ptr<Element>);
-        Element* getBody();
-        const Element* getBody() const;
+        void setBody(std::unique_ptr<ui::Element>);
+        ui::Element* getBody();
+        const ui::Element* getBody() const;
 
 
     private:

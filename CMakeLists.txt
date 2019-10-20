@@ -22,7 +22,7 @@ add_subdirectory(tims-gui)
 add_subdirectory(core)
 add_subdirectory(objects)
 add_subdirectory(ui)
-# add_subdirectory(util)
+add_subdirectory(util)
 add_subdirectory(tests)
 
 target_link_libraries(flosion
@@ -32,8 +32,16 @@ target_link_libraries(flosion
 	flosion_objects
 	flosion_ui_core
     flosion_ui_objects
-#	flosion_util
+	flosion_util
 )
+
+# Ensure that symbols from ui libraries are always included.
+# This is needed because these symbols include objects that need
+# to run code before main(), but compilers like to exclude them.
+if(MSVC)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /WHOLEARCHIVE:flosion_ui_core /WHOLEARCHIVE:flosion_ui_objects")
+endif()
+
 
 # copy fonts to current build directory
 add_custom_command(TARGET flosion POST_BUILD

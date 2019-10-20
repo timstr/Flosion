@@ -1,8 +1,11 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
 
 namespace flo {
+
+    inline const std::size_t sampleFrequency = 44100;
 
     class Sample;
     class SampleProxy;

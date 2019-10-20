@@ -16,7 +16,7 @@
 
 #include <Flosion/UI/Core/FlosionUI.hpp>
 
-#include <Flosion/UI/Objects/Functions.hpp>
+//#include <Flosion/UI/Objects/Functions.hpp>
 
 // TODO: include and dynamically link to ffmpeg for additional audio formats?
 
@@ -26,36 +26,6 @@
 
 std::random_device ranDev;
 auto ranEng = std::default_random_engine{ranDev()};
-
-class Sine : public flo::NumberSource {
-public:
-    Sine() : input(this) {
-    
-    }
-
-    flo::NumberSourceInput input;
-
-private:
-    double evaluate(const flo::SoundState* context) const noexcept override {
-        return std::sin(input.getValue(context) * 2.0 * 3.141592654);
-    }
-};
-
-class Saw : public flo::NumberSource {
-public:
-    Saw() : input(this) {
-    
-    }
-
-    flo::NumberSourceInput input;
-
-private:
-    double evaluate(const flo::SoundState* context) const noexcept override {
-        const auto v = input.getValue(context);
-        return 2.0 * (v - std::floor(v)) - 1.0;
-    }
-};
-
 
 
 class SmootherState : public flo::State {
@@ -120,71 +90,7 @@ private:
     }
 };
 
-class Oscillator;
 
-class OscillatorState : public flo::ConcreteSoundState<Oscillator> {
-public:
-    using ConcreteSoundState::ConcreteSoundState;
-
-    void reset() noexcept override;
-
-    double phase {};
-};
-
-class Oscillator : public flo::Realtime<flo::ControlledSoundSource<OscillatorState>> {
-public:
-    Oscillator()
-        : phase(this)
-        , waveFunction(this)
-        , frequency(this, 250.0)
-        , m_phaseSync(true) {
-
-    }
-
-    void renderNextChunk(flo::SoundChunk& chunk, OscillatorState* state) override {
-        for (size_t i = 0; i < flo::SoundChunk::size; ++i){
-            state->adjustTime(static_cast<std::uint32_t>(i));
-            float val = static_cast<float>(waveFunction.getValue(state));
-            chunk.l(i) = val;
-            chunk.r(i) = val;
-            state->phase += frequency.getValue(state) / static_cast<double>(flo::Sample::frequency);
-            state->phase -= std::floor(state->phase);
-        }
-    }
-
-    class Phase : public flo::SoundNumberSource<Oscillator> {
-    public:
-        using SoundNumberSource::SoundNumberSource;
-
-    private:
-        double evaluate(const OscillatorState* state, const flo::SoundState* context) const noexcept override {
-            return state->phase;
-        }
-    } phase;
-
-    flo::SoundNumberInput waveFunction;
-    flo::SoundNumberInput frequency;
-
-    void setPhaseSync(bool enable){
-        m_phaseSync.store(enable, std::memory_order_relaxed);
-    }
-
-    bool getPhaseSync() const noexcept {
-        return m_phaseSync.load(std::memory_order_relaxed);
-    }
-    
-private:
-    std::atomic<bool> m_phaseSync;
-};
-
-void OscillatorState::reset() noexcept {
-    if (getOwner().getPhaseSync()){
-        phase = 0.0;
-    } else {
-        auto dist = std::uniform_real_distribution<double>{0.0, 1.0};
-        phase = dist(ranEng);
-    }
-}
 
 class EnsembleInputState : public flo::SoundState {
 public:
@@ -506,41 +412,6 @@ private:
     std::vector<std::unique_ptr<flo::SingleSoundInput>> m_inputs;
 };
 
-class DAC : public sf::SoundStream {
-public:
-    DAC(){
-        initialize(2, 44100);
-    }
-
-    flo::WithCurrentTime<flo::SoundResult> soundResult;
-
-private:
-    flo::SoundChunk m_chunk;
-    std::array<sf::Int16, 2 * flo::SoundChunk::size> m_buffer;
-
-    bool onGetData(sf::SoundStream::Chunk& out) override {
-        
-        soundResult.getNextChunk(m_chunk);
-        for (size_t i = 0; i < flo::SoundChunk::size; ++i){
-            const auto lClamped = std::clamp(m_chunk.l(i), -1.0f, 1.0f);
-            const auto rClamped = std::clamp(m_chunk.r(i), -1.0f, 1.0f);
-            const auto lScaled = static_cast<float>(std::numeric_limits<std::int16_t>::max()) * lClamped;
-            const auto rScaled = static_cast<float>(std::numeric_limits<std::int16_t>::max()) * rClamped;
-            m_buffer[2 * i + 0] = static_cast<sf::Int16>(lScaled);
-            m_buffer[2 * i + 1] = static_cast<sf::Int16>(rScaled);
-        }
-
-        out.sampleCount = 2 * flo::SoundChunk::size;
-        out.samples = &m_buffer[0];
-
-        return true;
-    }
-
-    void onSeek(sf::Time) override {
-        // Nothing to do
-    }
-};
-
 class ResamplerState : public flo::SoundState {
 public:
     using SoundState::SoundState;
@@ -611,10 +482,6 @@ public:
 };
 
 int main() {
-
-    flui::Add add;
-
-    //flui::Factory::addCreator({"add", "+", "sum"}, [](){ return std::make_unique<flui::Add>(); });
 
     {
         auto& win = ui::Window::create(1000, 700, "Flosion haha");

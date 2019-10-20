@@ -4,9 +4,6 @@
 
 #include <cctype>
 
-// TODO: remove
-#include <iostream>
-
 namespace flui {
 
     namespace {
@@ -41,7 +38,6 @@ namespace flui {
     void Factory::addCreator(const std::vector<ui::String>& names, ObjectCreator creator){
         auto& map = getObjectMap();
         for (const auto& name : names){
-            std::cout << "Registering \"" << name.toAnsiString() << "\"\n";
             auto n = name;
             makeLowerCase(n);
             map.insert_or_assign(std::move(n), creator);
@@ -61,16 +57,6 @@ namespace flui {
 
 	Factory::ObjectCreatorMap& Factory::getObjectMap(){
 		static ObjectCreatorMap theMap;
-        static bool init;
-        if (!init){
-            theMap = {
-                {"Apples", {}},
-                {"Bananas", {}},
-                {"Yogurt", {}},
-                {"Guerilla Warfare", {}}
-            };
-            init = true;
-        }
 		return theMap;
 	}
 

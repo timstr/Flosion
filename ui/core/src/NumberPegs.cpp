@@ -12,7 +12,7 @@ namespace flui {
         , m_wireIn(nullptr) {
         
         setSize({30.0f, 30.0f}, true);
-        setBackgroundColor(0xFFFFFFFF);
+        setBackgroundColor(0x8080FFFF);
         setBorderColor(0xFF);
         setBorderThickness(1.0f);
         setBorderRadius(5.0f);
@@ -66,9 +66,9 @@ namespace flui {
 
     bool NumberInputPeg::onLeftClick(int clicks){
         if (m_wireIn){
-            detachWire();
             m_wireIn->m_head.startDrag();
             transferEventResposeTo(&m_wireIn->m_head);
+            detachWire();
         } else {
             auto w = m_parent->getParentBox()->addNumberWire();
             attachWire(w);
@@ -103,8 +103,8 @@ namespace flui {
     }
 
     NumberOutputPeg::~NumberOutputPeg(){
-        for (const auto& w : m_wiresOut){
-            detachWire(w);
+        while (m_wiresOut.size() > 0){
+            detachWire(m_wiresOut.back());
         }
     }
 

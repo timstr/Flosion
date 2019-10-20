@@ -1,93 +1,73 @@
 #pragma once
 
+#include <GUI/GUI.hpp>
+
 namespace flui {
 
-    // TODO: rethink this whole shebang
+    class Box;
+    class SoundInputPeg;
+    class SoundOutputPeg;
 
-    /*
-	struct SoundInput : WireInputBase<flo::SoundSource, flo::SoundInput> {
-		SoundInput(ui::Ref<Object> parent_object, flo::SoundInput& target, std::string label) :
-			WireInputBase(parent_object, target),
-				m_label(label) {
+    class SoundWire : public ui::FreeContainer {
+    public:
+        SoundWire(Box* parentBox);
+        
+        class Head : public ui::Control, public ui::BoxElement, public ui::Draggable {
+        public:
+            Head(SoundWire* parentWire);
 
-			parent_object->addSoundInput(thisAs<SoundInput>());
+            SoundWire* getParentWire();
 
-			setMinSize({30, 30});
-			setBorderColor(sf::Color(0xFF));
-			setBorderRadius(10);
-			setBorderThickness(2);
-			setBackgroundColor(sf::Color(0x00FF00FF));
-			setMargin(5);
-		}
-		~SoundInput(){
-			if (auto p = parentObject()){
-				p->removeSoundInput(*this);
-			}
-		}
+        private:
+            bool onLeftClick(int) override;
 
-		const std::string& label() const {
-			return m_label;
-		}
+            void onLeftRelease() override;
 
-	private:
+            void onMove() override;
 
-		ui::Ref<WireType> createWire(ui::Ref<Box> box) override;
+            SoundWire* const m_parentWire;
+        };
 
-		const std::string m_label;
-	};
+        class Tail : public ui::Control, public ui::BoxElement, public ui::Draggable {
+        public:
+            Tail(SoundWire* parentWire);
 
-	struct SoundOutput : WireOutputBase<flo::SoundSource, flo::SoundInput> {
-		SoundOutput(ui::Ref<Object> parent_object, flo::SoundSource& target, std::string label) :
-			WireOutputBase(parent_object, target),
-			m_label(label) {
+            SoundWire* getParentWire();
 
-			parent_object->addSoundOutput(thisAs<SoundOutput>());
+        private:
+            bool onLeftClick(int) override;
 
-			setMinSize({30, 30});
-			setBorderColor(sf::Color(0xFF));
-			setBorderRadius(10);
-			setBorderThickness(2);
-			setBackgroundColor(sf::Color(0x008000FF));
-			setMargin(5);
-		}
-		~SoundOutput(){
-			if (auto p = parentObject()){
-				p->removeSoundOutput(*this);
-			}
-		}
+            void onLeftRelease() override;
 
-		const std::string& label() const {
-			return m_label;
-		}
+            void onMove() override;
 
-	private:
+            SoundWire* const m_parentWire;
+        };
 
-		ui::Ref<WireType> createWire(ui::Ref<Box> box) override;
+        void attachHeadTo(SoundInputPeg*);
+        void detachHead();
 
-		const std::string m_label;
-	};
+        void attachTailTo(SoundOutputPeg*);
+        void detachTail();
 
-	struct SoundWire : WireBase<flo::SoundSource, flo::SoundInput> {
-		SoundWire(ui::Ref<Box> parent_box) : 
-			WireBase(parent_box) {
-			
-			parent_box->addSoundWire(thisAs<SoundWire>());
-		}
-		~SoundWire(){
-			if (auto pb = parentBox()) {
-				pb->removeSoundWire(*this);
-			}
-		}
+        SoundInputPeg* getHeadPeg();
+        SoundOutputPeg* getTailPeg();
 
-		void onConnect(flo::SoundSource& src, flo::SoundInput& dst) override {
-			dst.setSource(&src);
-		}
+    private:
 
-		void onDisconnect(flo::SoundSource& src, flo::SoundInput& dst) override {
-			dst.setSource(nullptr);
-		}
-	};
+        void updatePositions();
 
-    */
+        void render(sf::RenderWindow&) override;
+
+        Box* const m_parentBox;
+        SoundInputPeg* m_headPeg;
+        SoundOutputPeg* m_tailPeg;
+        Head& m_head;
+        Tail& m_tail;
+
+        friend class SoundInputPeg;
+        friend class SoundOutputPeg;
+        friend class Object;
+    };
 
 } // namespace flui
