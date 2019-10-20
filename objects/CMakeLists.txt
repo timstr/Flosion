@@ -10,7 +10,7 @@ set(flosion_objects_srcs
 	src/Functions.cpp
 )
 
-add_library(flosion_objects STATIC ${flosion_objects_srcs})
+add_library(flosion_objects STATIC ${flosion_objects_headers} ${flosion_objects_srcs})
 
 target_include_directories(flosion_objects PUBLIC include)
 

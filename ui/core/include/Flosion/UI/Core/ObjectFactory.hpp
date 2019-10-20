@@ -12,22 +12,24 @@ namespace flui {
     public:
 		using ObjectCreator = std::function<std::unique_ptr<Object>()>;
 
+        using ObjectCreatorMap = std::map<ui::String, ObjectCreator>;
+
 		static std::unique_ptr<Object> createObject(ui::String name);
 
-		static const std::map<std::string, ObjectCreator>& getObjectCreators();
+		static const ObjectCreatorMap& getObjectCreators();
 
         static void addCreator(const std::vector<ui::String>& names, ObjectCreator creator);
 
         static void removeCreator(const std::vector<ui::String>& names);
 
-    private:
+    public:
 		// RegisterObject for registering an Object type with the factory under a set of names
 		// RegisterObject is intended to be used as a static object,
 		// one with each Object sub-class definition
 		template<typename ObjectType>
 		class Registrator {
         public:
-			Registrator(std::vector<std::string> names);
+			Registrator(std::vector<ui::String> names);
 			~Registrator();
 
         private:
@@ -38,16 +40,16 @@ namespace flui {
 	private:
 		Factory() = delete;
 
-		static std::map<std::string, ObjectCreator>& getObjectMap();
+		static ObjectCreatorMap& getObjectMap();
 	};
 
     // TODO: move these to a .tpp file
     template<typename ObjectType>
-    inline Factory::Registrator<ObjectType>::Registrator(std::vector<std::string> names)
-        : m_names(Factory::makeLowerCase(std::move(names))) {
+    inline Factory::Registrator<ObjectType>::Registrator(std::vector<ui::String> names)
+        : m_names(std::move(names)) {
 
 		static_assert(std::is_base_of<Object, ObjectType>::value, "The provided object type must derive from Object");
-        static_assert(std::is_default_constructible<ObjectType>, "The provided object type must be default constructible");
+        static_assert(std::is_default_constructible_v<ObjectType>, "The provided object type must be default constructible");
 
         addCreator(m_names, [](){ return std::make_unique<ObjectType>(); });
     }
@@ -63,11 +65,10 @@ namespace flui {
 	// Usage:
 	// struct CrazyCoolObject : flui::Object { /* ... */ };
 	// RegisterObject(CrazyCoolObject, "CrazyCoolObject", "crazyobject", "coolObject")
-	#ifndef RegisterFactoryObject
 	#define RegisterFactoryObject(objectType, ...) \
-	namespace FlosionUIFactoryImpl { \
-		::flui::Factory::RegisterObject<objectType> s_registratorFor_##objectType { std::vector<std::string> { __VA_ARGS__ } }; \
-	}
-	#endif // RegisterFactoryObject
+	    namespace FlosionUIFactoryImpl { \
+		    ::flui::Factory::Registrator<objectType> s_registratorFor_##objectType { std::vector<ui::String> { __VA_ARGS__ } }; \
+            auto s_objPointerFor_##objectType = &s_registratorFor_##objectType; \
+	    }
 
 }

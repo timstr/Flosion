@@ -35,6 +35,10 @@ namespace flui {
         void removeNumberInput(const NumberInputPeg* ni);
         void removeNumberOutput(const NumberOutputPeg* no);
 
+        void setBody(std::unique_ptr<Element>);
+        Element* getBody();
+        const Element* getBody() const;
+
 
     private:
 		bool onLeftClick(int) override;
@@ -53,11 +57,15 @@ namespace flui {
 
 		void showList(const std::vector<std::pair<std::string, std::function<void()>>>& items, ui::vec2 pos);
 
-		Box* m_parentbox;
+		Box* m_parentBox;
 		std::vector<SoundInputPeg*> m_soundInputs;
 		std::vector<SoundOutputPeg*> m_soundOutputs;
 		std::vector<NumberInputPeg*> m_numberInputs;
 		std::vector<NumberOutputPeg*> m_numberOutputs;
+
+        ui::GridContainer& m_leftContainer;
+        ui::GridContainer& m_topContainer;
+        ui::GridContainer& m_rightContainer;
 
 		friend class Box;
 	};

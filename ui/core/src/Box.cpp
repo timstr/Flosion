@@ -1,6 +1,8 @@
 #include <Flosion/UI/Core/Box.hpp>
 
-#include <Flosion/UI/Core/Font.hpp>
+#include <Flosion/UI/Core/Object.hpp>
+#include <Flosion/UI/Core/BoxContextMenu.hpp>
+#include <Flosion/UI/Core/NumberWire.hpp>
 
 namespace flui {
 
@@ -15,16 +17,32 @@ namespace flui {
         setBorderThickness(1.0f);
     }
 
+    void Box::addObject(std::unique_ptr<Object> object){
+        assert(object->m_parentBox == nullptr);
+        object->m_parentBox = this;
+        m_objects.push_back(object.get());
+        adopt(std::move(object));
+    }
+
+    NumberWire* Box::addNumberWire(){
+        auto& w = add<NumberWire>(this);
+        m_numberwires.push_back(&w);
+        return &w;
+    }
+
     void Box::render(sf::RenderWindow& rw){
         ui::BoxElement::render(rw);
         ui::FreeContainer::render(rw);
     }
 
     bool Box::onLeftClick(int clicks){
-        auto mp = localMousePos();
-        assert(mp);
-        auto& txt = add<ui::Text>("Haha", getFont());
-        txt.setPos(*mp - txt.size() * 0.5f);
+        if (clicks == 2){
+            auto cm = std::make_unique<BoxContextMenu>(*this);
+            auto& cmr = *cm;
+            cm->setPos(localMousePos() - cm->size() * 0.5f);
+            adopt(std::move(cm));
+            cmr.startTyping();
+        }
         return true;
     }
 

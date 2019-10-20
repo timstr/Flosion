@@ -4,9 +4,12 @@
 
 #include <cctype>
 
+// TODO: remove
+#include <iostream>
+
 namespace flui {
 
-    namespace detail {
+    namespace {
         void makeLowerCase(ui::String& str) {
 			std::transform(
 			    str.begin(),
@@ -24,22 +27,23 @@ namespace flui {
 
     std::unique_ptr<Object> Factory::createObject(ui::String name){
         const auto& creators = getObjectCreators();
-        detail::makeLowerCase(name);
+        makeLowerCase(name);
         if (auto it = creators.find(name); it != creators.end()){
             return it->second();
         }
         return nullptr;
     }
 
-	const std::map<std::string, Factory::ObjectCreator>& Factory::getObjectCreators() {
+	const Factory::ObjectCreatorMap& Factory::getObjectCreators() {
 		return getObjectMap();
 	}
 
     void Factory::addCreator(const std::vector<ui::String>& names, ObjectCreator creator){
         auto& map = getObjectMap();
         for (const auto& name : names){
+            std::cout << "Registering \"" << name.toAnsiString() << "\"\n";
             auto n = name;
-            detail::makeLowerCase(n);
+            makeLowerCase(n);
             map.insert_or_assign(std::move(n), creator);
         }
     }
@@ -48,15 +52,25 @@ namespace flui {
         auto& map = getObjectMap();
         for (const auto& name : names){
             auto n = name;
-            detail::makeLowerCase(n);
+            makeLowerCase(n);
             auto it = map.find(n);
             assert(it != map.end());
             map.erase(it);
         }
     }
 
-	std::map<std::string, Factory::ObjectCreator>& Factory::getObjectMap(){
-		static std::map<std::string, Factory::ObjectCreator> theMap;
+	Factory::ObjectCreatorMap& Factory::getObjectMap(){
+		static ObjectCreatorMap theMap;
+        static bool init;
+        if (!init){
+            theMap = {
+                {"Apples", {}},
+                {"Bananas", {}},
+                {"Yogurt", {}},
+                {"Guerilla Warfare", {}}
+            };
+            init = true;
+        }
 		return theMap;
 	}
 

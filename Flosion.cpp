@@ -16,6 +16,8 @@
 
 #include <Flosion/UI/Core/FlosionUI.hpp>
 
+#include <Flosion/UI/Objects/Functions.hpp>
+
 // TODO: include and dynamically link to ffmpeg for additional audio formats?
 
 // TODO: add graphs back (in a safe and clean way)
@@ -54,35 +56,7 @@ private:
     }
 };
 
-class Multiply : public flo::NumberSource {
-public:
-    Multiply() : inputA(this, 1.0), inputB(this, 1.0) {
-        
-    }
 
-    flo::NumberSourceInput inputA;
-    flo::NumberSourceInput inputB;
-
-private:
-    double evaluate(const flo::SoundState* context) const noexcept override {
-        return inputA.getValue(context) * inputB.getValue(context);
-    }
-};
-
-class Add : public flo::NumberSource {
-public:
-    Add() : inputA(this, 1.0), inputB(this, 1.0) {
-        
-    }
-
-    flo::NumberSourceInput inputA;
-    flo::NumberSourceInput inputB;
-
-private:
-    double evaluate(const flo::SoundState* context) const noexcept override {
-        return inputA.getValue(context) + inputB.getValue(context);
-    }
-};
 
 class SmootherState : public flo::State {
 public:
@@ -637,6 +611,10 @@ public:
 };
 
 int main() {
+
+    flui::Add add;
+
+    //flui::Factory::addCreator({"add", "+", "sum"}, [](){ return std::make_unique<flui::Add>(); });
 
     {
         auto& win = ui::Window::create(1000, 700, "Flosion haha");

@@ -16,6 +16,7 @@ set_property(TARGET flosion_ui_objects PROPERTY CXX_STANDARD 17)
 
 target_link_libraries(flosion_ui_objects
     PUBLIC flosion_ui_core
+    PUBLIC flosion_objects
 )
 
 target_include_directories(flosion_ui_objects PUBLIC include)

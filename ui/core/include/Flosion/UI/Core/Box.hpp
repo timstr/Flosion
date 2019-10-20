@@ -15,9 +15,13 @@ namespace flui {
 
         // TODO
 
-		/*void addObject(std::unique_ptr<Object> object);
+		void addObject(std::unique_ptr<Object>);
+        void removeObject(const Object*);
 
-		void releaseObject(ui::Ref<Object> object);
+        NumberWire* addNumberWire();
+        void removeNumberWire(const NumberWire*);
+
+		/*void releaseObject(ui::Ref<Object> object);
 
 		void addSoundWire(ui::Ref<SoundWire> wire);
 
