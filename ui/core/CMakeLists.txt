@@ -7,12 +7,14 @@ set(flosion_ui_core_headers
     ${include_path}/BoxContextMenu.hpp
     ${include_path}/FlosionUI.hpp
     ${include_path}/Font.hpp
+    ${include_path}/NumberObject.hpp
     ${include_path}/NumberPegs.hpp
     ${include_path}/NumberWire.hpp
     ${include_path}/Object.hpp
     ${include_path}/ObjectFactory.hpp
-    ${include_path}/SoundWire.hpp
+    ${include_path}/SoundObject.hpp
     ${include_path}/SoundPegs.hpp
+    ${include_path}/SoundWire.hpp
     ${include_path}/WireBase.hpp
 )
 
@@ -21,12 +23,14 @@ set(flosion_ui_core_srcs
     src/BoxContextMenu.cpp
     src/FlosionUI.cpp
     src/Font.cpp
-    src/NumberWire.cpp
+    src/NumberObject.cpp
     src/NumberPegs.cpp
+    src/NumberWire.cpp
     src/Object.cpp
     src/ObjectFactory.cpp
-    src/SoundWire.cpp
+    src/SoundObject.cpp
     src/SoundPegs.cpp
+    src/SoundWire.cpp
     src/WireBase.cpp
 )
 

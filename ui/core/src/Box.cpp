@@ -7,36 +7,101 @@
 
 namespace flui {
 
-    MainBox::MainBox() {
-        
-    }
-
     Box::Box(){
         setBackgroundColor(0x080820FF);
+    }
+
+    Box::~Box(){
+        while (m_objects.size() > 0){
+            removeObject(m_objects.back());
+        }
     }
 
     void Box::addObject(std::unique_ptr<Object> object){
         assert(object->m_parentBox == nullptr);
         object->m_parentBox = this;
-        m_objects.push_back(object.get());
+        auto op = object.get();
+        m_objects.push_back(op);
         adopt(std::move(object));
+        
+        // TODO: number pegs
+
+        for (const auto& p : op->getSoundInputPegs()){
+            assert(m_soundInputPegs.find(p->getSoundInput()) == m_soundInputPegs.end());
+            m_soundInputPegs.emplace(p->getSoundInput(), p);
+        }
+        for (const auto& p : op->getSoundOutputPegs()){
+            assert(m_soundOutputPegs.find(p->getSoundSource()) == m_soundOutputPegs.end());
+            m_soundOutputPegs.emplace(p->getSoundSource(), p);
+        }
     }
 
-    NumberWire* Box::addNumberWire(){
-        auto& w = add<NumberWire>(this);
-        m_numberwires.push_back(&w);
-        return &w;
+    void Box::removeObject(const Object* o){
+        assert(o->m_parentBox == this);
+        assert(std::count(m_objects.begin(), m_objects.end(), o) == 1);
+        auto it = std::find(m_objects.begin(), m_objects.end(), o);
+        assert(it != m_objects.end());
+        auto op = *it;
+        op->m_parentBox = nullptr;
+
+        // TODO: number pegs
+        
+        for (const auto& p : op->getSoundInputPegs()){
+            if (p->getAttachedWire()){
+                p->getAttachedWire()->destroy();
+            }
+            auto pi = m_soundInputPegs.find(p->getSoundInput());
+            assert(pi != m_soundInputPegs.end());
+            m_soundInputPegs.erase(pi);
+        }
+        for (const auto& p : op->getSoundOutputPegs()){
+            while (p->getAttachedWires().size() > 0){
+                p->getAttachedWires().back()->destroy();
+            }
+            auto pi = m_soundOutputPegs.find(p->getSoundSource());
+            assert(pi != m_soundOutputPegs.end());
+            m_soundOutputPegs.erase(pi);
+        }
+
+        m_objects.erase(it);
     }
 
-    SoundWire* Box::addSoundWire(){
-        auto& w = add<SoundWire>(this);
+    SoundWire* Box::addSoundWire(flo::SoundSource* src, flo::SoundInput* dst){
+        auto& w = add<SoundWire>(this, src, dst);
         m_soundwires.push_back(&w);
         return &w;
+    }
+
+    void Box::removeSoundWire(SoundWire* w){
+        if (w->getHeadPeg() && w->getTailPeg()){
+            w->destroy();
+        } else {
+            assert(std::count(m_soundwires.begin(), m_soundwires.end(), w) == 1);
+            auto it = std::find(m_soundwires.begin(), m_soundwires.end(), w);
+            assert(it != m_soundwires.end());
+            auto w2 = *it;
+            m_soundwires.erase(it);
+            w2->close();
+        }
     }
 
     void Box::render(sf::RenderWindow& rw){
         ui::BoxElement::render(rw);
         ui::FreeContainer::render(rw);
+    }
+
+    SoundInputPeg* Box::findPegFor(const flo::SoundInput* si){
+        if (auto it = m_soundInputPegs.find(si); it != m_soundInputPegs.end()){
+            return it->second;
+        }
+        return nullptr;
+    }
+
+    SoundOutputPeg* Box::findPegFor(const flo::SoundSource* ss){
+        if (auto it = m_soundOutputPegs.find(ss); it != m_soundOutputPegs.end()){
+            return it->second;
+        }
+        return nullptr;
     }
 
     bool Box::onLeftClick(int clicks){
@@ -48,6 +113,10 @@ namespace flui {
             cmr.startTyping();
         }
         return true;
+    }
+
+    MainBox::MainBox() {
+        
     }
 
 } // namespace flui

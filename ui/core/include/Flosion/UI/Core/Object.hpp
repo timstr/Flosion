@@ -4,6 +4,8 @@
 
 #include <Flosion/Core/SoundInput.hpp>
 #include <Flosion/Core/NumberNode.hpp>
+#include <Flosion/UI/Core/NumberPegs.hpp>
+#include <Flosion/UI/Core/SoundPegs.hpp>
 
 namespace flui {
 
@@ -24,22 +26,30 @@ namespace flui {
 
 		Box* getParentBox();
 
+    protected:
         // Constructs a peg for the given number/sound input/output, with a desired label
-        SoundInputPeg* addSoundInput(flo::SoundInput* si, ui::String label = "sound input");
-        SoundOutputPeg* addSoundOutput(flo::SoundSource* so, ui::String label = "sound output");
-        NumberInputPeg* addNumberInput(flo::NumberInput* ni, ui::String label = "number input");
-        NumberOutputPeg* addNumberOutput(flo::NumberSource* no, ui::String label = "number output");
+        std::unique_ptr<NumberInputPeg> makeNumberInput(flo::NumberInput* ni, ui::String label = "number input");
+        std::unique_ptr<NumberOutputPeg> makeNumberOutput(flo::NumberSource* no, ui::String label = "number output");
+        std::unique_ptr<SoundInputPeg> makeSoundInput(flo::SoundInput* si, ui::String label = "sound input");
+        std::unique_ptr<SoundOutputPeg> makeSoundOutput(flo::SoundSource* so, ui::String label = "sound output");
 
-        // Removes a previously added peg
-        void removeSoundInput(const SoundInputPeg* si);
-        void removeSoundOutput(const SoundOutputPeg* so);
-        void removeNumberInput(const NumberInputPeg* ni);
-        void removeNumberOutput(const NumberOutputPeg* no);
+        std::unique_ptr<ui::Element> makeSimpleBody(ui::String caption);
+        
+        const std::vector<NumberInputPeg*>& getNumberInputPegs();
+        const std::vector<NumberOutputPeg*>& getNumberOutputPegs();
+        const std::vector<SoundInputPeg*>& getSoundInputPegs();
+        const std::vector<SoundOutputPeg*>& getSoundOutputPegs();
+
+    protected:
+        void addToLeft(std::unique_ptr<ui::Element>);
+        void addToTop(std::unique_ptr<ui::Element>);
+        void addtoRight(std::unique_ptr<ui::Element>);
+
+        void addDragButton();
 
         void setBody(std::unique_ptr<ui::Element>);
-        ui::Element* getBody();
-        const ui::Element* getBody() const;
 
+		void showList(const std::vector<std::pair<std::string, std::function<void()>>>& items, ui::vec2 pos);
 
     private:
 		bool onLeftClick(int) override;
@@ -51,24 +61,37 @@ namespace flui {
 		void updateWires();
 
 		// TODO: hide invalid inputs/outputs
-		void showNumberInputList(NumberWire* wire, ui::vec2 pos);
-		void showNumberOutputList(NumberWire* wire, ui::vec2 pos);
-		void showSoundInputList(SoundWire* wire, ui::vec2 pos);
-		void showSoundOutputList(SoundWire* wire, ui::vec2 pos);
-
-		void showList(const std::vector<std::pair<std::string, std::function<void()>>>& items, ui::vec2 pos);
+		//void showNumberInputList(NumberWire* wire, ui::vec2 pos);
+		//void showNumberOutputList(NumberWire* wire, ui::vec2 pos);
+		//void showSoundInputList(SoundWire* wire, ui::vec2 pos);
+		//void showSoundOutputList(SoundWire* wire, ui::vec2 pos);
 
 		Box* m_parentBox;
-		std::vector<SoundInputPeg*> m_soundInputs;
-		std::vector<SoundOutputPeg*> m_soundOutputs;
-		std::vector<NumberInputPeg*> m_numberInputs;
-		std::vector<NumberOutputPeg*> m_numberOutputs;
 
+		friend class Box;
+
+    private:
         ui::GridContainer& m_leftContainer;
         ui::GridContainer& m_topContainer;
         ui::GridContainer& m_rightContainer;
 
-		friend class Box;
+    private:
+		std::vector<SoundInputPeg*> m_soundInputs;
+		std::vector<SoundOutputPeg*> m_soundOutputs;
+		std::vector<NumberInputPeg*> m_numberInputs;
+		std::vector<NumberOutputPeg*> m_numberOutputs;
+        
+        void addSoundInputPeg(SoundInputPeg*);
+        void removeSoundInputPeg(const SoundInputPeg*);
+        void addSoundOutputPeg(SoundOutputPeg*);
+        void removeSoundOutputPeg(const SoundOutputPeg*);
+        void addNumberInputPeg(NumberInputPeg*);
+        void removeNumberInputPeg(const NumberInputPeg*);
+        void addNumberOutputPeg(NumberOutputPeg*);
+        void removeNumberOutputPeg(const NumberOutputPeg*);
+
+        friend class SoundInputPeg;
+        friend class SoundOutputPeg;
 	};
 
 } // namespace flui

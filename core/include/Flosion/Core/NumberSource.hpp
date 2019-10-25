@@ -5,18 +5,31 @@
 
 namespace flo {
 
+    class NumberInput;
+
+    // TODO: split this into multiple files
+
     // TODO: how can NumberSources be "simulated?"
     // I.e. how can a NumberSource be made to effectively return a different
     // value when called through the same network of SoundNodes when a client
     // requests it, without affecting the normal functioning of the network?
+
     class NumberSource : public NumberNode {
     public:
         virtual double evaluate(const SoundState* context) const noexcept = 0;
     };
 
-    class ConstantNumberSource : public NumberSource {
+
+    class Constant;
+
+    class ConstantReactor : public Reactor<ConstantReactor, Constant> {
     public:
-        ConstantNumberSource(double value = 0.0) noexcept;
+        virtual void onValueChanged(double value);
+    };
+
+    class Constant : public NumberSource, public Reactable<Constant, ConstantReactor> {
+    public:
+        Constant(double value = 0.0) noexcept;
 
         double getValue() const noexcept;
         void setValue(double) noexcept;
@@ -26,7 +39,19 @@ namespace flo {
         double evaluate(const SoundState* context) const noexcept override final;
     };
 
-    class NumberInput : public NumberNode {
+
+
+    class NumberInput;
+
+    class NumberInputReactor : public Reactor<NumberInputReactor, NumberInput> {
+    public:
+        virtual void onDefaultValueChanged(double value);
+        virtual void afterSourceAdded(const NumberSource*);
+        virtual void beforeSourceRemoved(const NumberSource*);
+    };
+
+
+    class NumberInput : public NumberNode, public Reactable<NumberInput, NumberInputReactor> {
     private:
         NumberInput(double defaultValue = 0.0) noexcept;
         friend class NumberSourceInput;
@@ -45,7 +70,7 @@ namespace flo {
 
     private:
         NumberSource* m_source;
-        ConstantNumberSource m_constant;
+        Constant m_constant;
     };
 
     class NumberSourceInput : public NumberInput {

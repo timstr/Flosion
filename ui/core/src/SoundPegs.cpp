@@ -6,12 +6,34 @@
 
 namespace flui {
 
-    // TODO: this code is nearly identical to NumberPegs.cpp. Remove this duplication.
+    // TODO: Now that sound wires/pegs are working, convert this to a set of templated classes
+    // whose variations are described by a traits class
+    // Example:
+    // struct SoundTraits {
+    //     using InputType = flo::SoundInput;
+    //     using OutputType = flo::SoundSource;
+    //     static void connect(InputType, SourceType);
+    //     static void disconnect(InputType, SourceType);
+    //     // TODO: peg and wire styles
+    // };
+    //
+    // template<typename Traits>
+    // class Wire;
+    //
+    // template<typename Traits>
+    // class InputPeg;
+    //
+    // template<typename Traits>
+    // class OutputPeg;
+    //
 
     SoundInputPeg::SoundInputPeg(Object* parent, flo::SoundInput* input, ui::String label)
         : m_parent(parent)
         , m_input(input)
         , m_wireIn(nullptr) {
+
+        assert(m_parent);
+        m_parent->addSoundInputPeg(this);
         
         // TODO: these styles differ from NumberInputPeg
         setSize({30.0f, 30.0f}, true);
@@ -22,41 +44,12 @@ namespace flui {
     }
 
     SoundInputPeg::~SoundInputPeg(){
-        detachWire();
-    }
-
-    bool SoundInputPeg::canAttachWire(SoundWire* w) const {
-        if (auto p = w->getTailPeg()){
-            return m_input->canAddDependency(p->getSoundSource());
-        }
-        return true;
-    }
-
-    void SoundInputPeg::attachWire(SoundWire* w){
-        assert(w);
-        detachWire();
-        assert(m_wireIn == nullptr);
-        if (w->getHeadPeg()){
-            throw std::runtime_error("Whoops! Please detach that wire's head first.");
-        }
-        m_wireIn = w;
-        w->m_headPeg = this;
-        if (auto tail = w->getTailPeg()){
-            m_input->setSource(tail->m_output);
-        }
-        w->updatePositions();
-    }
-
-    void SoundInputPeg::detachWire(){
         if (m_wireIn){
-            assert(m_wireIn->getHeadPeg() == this);
-            if (auto tail = m_wireIn->getTailPeg()){
-                assert(m_input->getSource() == tail->m_output);
-                m_input->setSource(nullptr);
-            }
-            m_wireIn->m_headPeg = nullptr;
-            m_wireIn = nullptr;
+            m_wireIn->destroy();
         }
+
+        assert(m_parent);
+        m_parent->removeSoundInputPeg(this);
     }
 
     SoundWire* SoundInputPeg::getAttachedWire(){
@@ -69,27 +62,41 @@ namespace flui {
 
     bool SoundInputPeg::onLeftClick(int clicks){
         if (m_wireIn){
-            m_wireIn->m_head.startDrag();
-            transferEventResposeTo(&m_wireIn->m_head);
-            detachWire();
+            auto h = m_wireIn->getHead();
+            h->disconnectAndDrag();
+            transferEventResposeTo(h);
         } else {
-            // TODO: this differs from NumberInputPeg
-            auto w = m_parent->getParentBox()->addSoundWire();
-            attachWire(w);
-            assert(m_wireIn = w);
-            w->m_tail.setPos(localMousePos() + rootPos() - w->m_tail.getParentWire()->rootPos() - w->m_tail.size() * 0.5f);
-            w->m_tail.startDrag();
-            transferEventResposeTo(&w->m_tail);
+            auto w = m_parent->getParentBox()->addSoundWire(nullptr, m_input);
+            assert(w->getHeadPeg() == this);
+            assert(w->getTailPeg() == nullptr);
+            w->getTail()->disconnectAndDrag();
+            transferEventResposeTo(w->getTail());
         }
         return true;
     }
 
     bool SoundInputPeg::onDrop(ui::Draggable* d){
         if (auto wh = dynamic_cast<SoundWire::Head*>(d)){
-            attachWire(wh->getParentWire());
+            auto w = wh->getParentWire();
+            assert(w->getTailPeg());
+            assert(w->getTailPeg()->getSoundSource());
+            assert(w->getHeadPeg() == nullptr);
+            if (m_wireIn){
+                // NOTE: this will sever the previous connection
+                m_wireIn->destroy();
+            }
+            assert(!m_wireIn);
+            m_wireIn = w;
+            w->m_headPeg = this;
+            w->updatePositions();
+            m_input->setSource(w->getTailPeg()->getSoundSource());
             return true;
         }
         return false;
+    }
+
+    void SoundInputPeg::setAttachedWire(SoundWire* w){
+        m_wireIn = w;
     }
 
 
@@ -97,7 +104,10 @@ namespace flui {
     SoundOutputPeg::SoundOutputPeg(Object* parent, flo::SoundSource* output, ui::String label)
         : m_parent(parent)
         , m_output(output) {
-        
+
+        assert(m_parent);
+        m_parent->addSoundOutputPeg(this);
+
         // TODO: these styles differ from NumberOutputPeg
         setSize({30.0f, 30.0f}, true);
         setBackgroundColor(0x808080FF);
@@ -109,43 +119,9 @@ namespace flui {
 
     SoundOutputPeg::~SoundOutputPeg(){
         while (m_wiresOut.size() > 0){
-            detachWire(m_wiresOut.back());
+            m_wiresOut.back()->destroy();
         }
-    }
-
-    bool SoundOutputPeg::canAttachWire(SoundWire* w) const {
-        if (auto p = w->getHeadPeg()){
-            return p->getSoundInput()->canAddDependency(m_output);
-        }
-        return true;
-    }
-
-    void SoundOutputPeg::attachWire(SoundWire* w){
-        assert(w);
-        assert(!hasAttachedWire(w));
-        if (w->getTailPeg()){
-            throw std::runtime_error("Whoops! Please detach that wire's tail first.");
-        }
-        m_wiresOut.push_back(w);
-        w->m_tailPeg = this;
-        if (auto head = w->getHeadPeg()){
-            head->getSoundInput()->setSource(m_output);
-        }
-        w->updatePositions();
-    }
-
-    void SoundOutputPeg::detachWire(const SoundWire* w){
-        assert(std::count(m_wiresOut.begin(), m_wiresOut.end(), w) == 1);
-        auto it = std::find(m_wiresOut.begin(), m_wiresOut.end(), w);
-        assert(it != m_wiresOut.end());
-
-        assert((*it)->getTailPeg() == this);
-        if (auto head = (*it)->getHeadPeg()){
-            assert(head->getSoundInput()->getSource() == m_output);
-            head->getSoundInput()->setSource(nullptr);
-        }
-        (*it)->m_tailPeg = nullptr;
-        m_wiresOut.erase(it);
+        m_parent->removeSoundOutputPeg(this);
     }
 
     bool SoundOutputPeg::hasAttachedWire(const SoundWire* w) const {
@@ -160,28 +136,50 @@ namespace flui {
         return m_output;
     }
 
+    void SoundOutputPeg::addAttachedWire(SoundWire* w){
+        assert(std::count(m_wiresOut.begin(), m_wiresOut.end(), w) == 0);
+        m_wiresOut.push_back(w);
+    }
+
+    void SoundOutputPeg::removeAttachedWire(SoundWire* w){
+        assert(std::count(m_wiresOut.begin(), m_wiresOut.end(), w) == 1);
+        auto it = std::find(m_wiresOut.begin(), m_wiresOut.end(), w);
+        assert(it != m_wiresOut.end());
+        m_wiresOut.erase(it);
+    }
+
     bool SoundOutputPeg::onLeftClick(int clicks){
         bool shift = keyDown(ui::Key::LShift) || keyDown(ui::Key::RShift);
         if (shift && m_wiresOut.size() > 0){
             auto w = m_wiresOut.back();
-            detachWire(w);
-            w->m_tail.startDrag();
-            transferEventResposeTo(&w->m_tail);
+            assert(w->getHeadPeg());
+            assert(w->getHeadPeg()->getSoundInput());
+            assert(w->getHeadPeg()->getSoundInput()->getSource() == m_output);
+            w->getTail()->disconnectAndDrag();
+            transferEventResposeTo(w->getTail());
         } else {
             // TODO: this differs from NumberOutputPeg
-            auto w = m_parent->getParentBox()->addSoundWire();
-            attachWire(w);
-            assert(hasAttachedWire(w));
-            w->m_head.setPos(localMousePos() + rootPos() - w->m_head.getParentWire()->rootPos() - w->m_head.size() * 0.5f);
-            w->m_head.startDrag();
-            transferEventResposeTo(&w->m_head);
+            auto w = m_parent->getParentBox()->addSoundWire(m_output, nullptr);
+            assert(w->getTailPeg() == this);
+            assert(w->getHeadPeg() == nullptr);
+            w->getHead()->disconnectAndDrag();
+            transferEventResposeTo(w->getHead());
         }
         return true;
     }
 
     bool SoundOutputPeg::onDrop(ui::Draggable* d){
         if (auto wt = dynamic_cast<SoundWire::Tail*>(d)){
-            attachWire(wt->getParentWire());
+            auto w = wt->getParentWire();
+            assert(w->getHeadPeg());
+            assert(w->getHeadPeg()->getSoundInput());
+            assert(w->getTailPeg() == nullptr);
+            assert(!hasAttachedWire(w));
+            addAttachedWire(w);
+            w->m_tailPeg = this;
+            auto i = w->getHeadPeg()->getSoundInput();
+            w->updatePositions();
+            i->setSource(w->getTailPeg()->getSoundSource());
             return true;
         }
         return false;

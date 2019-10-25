@@ -1,28 +1,39 @@
 #pragma once
 
 #include <GUI/GUI.hpp>
+#include <Flosion/Core/SoundSource.hpp>
+#include <Flosion/Core/SoundInput.hpp>
+
+#include <map>
 
 namespace flui {
 
     class Object;
+    class NumberInputPeg;
+    class NumberOutputPeg;
     class NumberWire;
+    class SoundInputPeg;
+    class SoundOutputPeg;
     class SoundWire;
 	
 	// Box is what holds all objects
 	class Box : public ui::FreeContainer, public ui::Control, public ui::BoxElement {
     public:
 		Box();
+        ~Box();
 
         // TODO
 
 		void addObject(std::unique_ptr<Object>);
         void removeObject(const Object*);
 
-        NumberWire* addNumberWire();
+        NumberWire* addNumberWire(flo::NumberSource* src, flo::NumberInput* dst);
         void removeNumberWire(const NumberWire*);
 
-        SoundWire* addSoundWire();
-        void removeSoundWire(const SoundWire*);
+        // Adds a SoundWire to the box.
+        // At most one of src and dst may be null.
+        SoundWire* addSoundWire(flo::SoundSource* src, flo::SoundInput* dst);
+        void removeSoundWire(SoundWire*);
 
 		/*void releaseObject(ui::Ref<Object> object);
 
@@ -41,8 +52,20 @@ namespace flui {
 		std::vector<Object*> m_objects;
 		std::vector<NumberWire*> m_numberwires;
 		std::vector<SoundWire*> m_soundwires;
-		//ui::Ref<FreeElement> m_object_container;
-		//ui::Ref<FreeElement> m_wire_container;
+
+    private:
+
+        NumberInputPeg* findPegFor(const flo::NumberInput*);
+        NumberOutputPeg* findPegFor(const flo::NumberSource*);
+        SoundInputPeg* findPegFor(const flo::SoundInput*);
+        SoundOutputPeg* findPegFor(const flo::SoundSource*);
+
+        friend class SoundWire;
+        
+        std::map<const flo::NumberInput*, NumberInputPeg*> m_numberInputPegs;
+        std::map<const flo::NumberSource*, NumberOutputPeg*> m_numberOutputPegs;
+        std::map<const flo::SoundInput*, SoundInputPeg*> m_soundInputPegs;
+        std::map<const flo::SoundSource*, SoundOutputPeg*> m_soundOutputPegs;
 
 		// calculate the bounding box of all contents
 		// returns { top-left, bottom-right } as positions

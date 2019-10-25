@@ -19,13 +19,16 @@ namespace flo {
 
     void NumberInput::setDefaultValue(double value) noexcept {
         m_constant.setValue(value);
+        notifyReactors(&NumberInputReactor::onDefaultValueChanged, value);
     }
 
     void NumberInput::setSource(NumberSource* source) noexcept {
         assert(m_source);
+        notifyReactors(&NumberInputReactor::beforeSourceRemoved, const_cast<const NumberSource*>(source));
         removeDependency(m_source);
         m_source = (source == nullptr ? &m_constant : source);
         addDependency(m_source);
+        notifyReactors(&NumberInputReactor::afterSourceAdded, const_cast<const NumberSource*>(source));
     }
 
     NumberSource* NumberInput::getSource() noexcept {
@@ -41,20 +44,37 @@ namespace flo {
         owner->addDependency(this);
     }
 
-    ConstantNumberSource::ConstantNumberSource(double value) noexcept 
+    Constant::Constant(double value) noexcept 
         : m_value(value) {
     }
 
-    double ConstantNumberSource::getValue() const noexcept {
+    double Constant::getValue() const noexcept {
         return m_value.load(std::memory_order_relaxed);
     }
 
-    void ConstantNumberSource::setValue(double value) noexcept {
+    void Constant::setValue(double value) noexcept {
         m_value.store(value, std::memory_order_relaxed);
+        notifyReactors(&ConstantReactor::onValueChanged, value);
     }
 
-    double ConstantNumberSource::evaluate(const SoundState* /* context */) const noexcept {
+    double Constant::evaluate(const SoundState* /* context */) const noexcept {
         return m_value.load(std::memory_order_relaxed);
+    }
+
+    void ConstantReactor::onValueChanged(double){
+
+    }
+
+    void NumberInputReactor::onDefaultValueChanged(double value){
+
+    }
+
+    void NumberInputReactor::afterSourceAdded(const NumberSource*){
+
+    }
+
+    void NumberInputReactor::beforeSourceRemoved(const NumberSource*){
+
     }
 
 } // namespace flo

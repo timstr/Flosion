@@ -52,7 +52,8 @@ namespace flo {
         return true;
     }
 
-    void NumberNode::addDependency(NumberNode* node) {
+    void NumberNode::addDependency(NumberNode* node){
+        assert(node);
         assert(std::count(m_dependencies.begin(), m_dependencies.end(), node) == 0);
         assert(std::count(node->m_dependents.begin(), node->m_dependents.end(), this) == 0);
         if (!canAddDependency(node)){
@@ -63,6 +64,7 @@ namespace flo {
     }
 
     void NumberNode::removeDependency(NumberNode* node){
+        assert(node);
         assert(std::count(m_dependencies.begin(), m_dependencies.end(), node) == 1);
         assert(std::count(node->m_dependents.begin(), node->m_dependents.end(), this) == 1);
 

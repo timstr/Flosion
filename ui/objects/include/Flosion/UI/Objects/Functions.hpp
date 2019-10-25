@@ -12,7 +12,7 @@ namespace flui {
         Constant();
 
     private:
-        flo::ConstantNumberSource m_constant;
+        flo::Constant m_constant;
     };
 
     class Slider : public Object {
@@ -20,7 +20,7 @@ namespace flui {
         Slider();
 
     private:
-        flo::ConstantNumberSource m_constant;
+        flo::Constant m_constant;
     };
 
     class Add : public Object {
@@ -28,6 +28,9 @@ namespace flui {
         Add();
 
     private:
+        // TODO: when this is destroyed, it severs its own connections,
+        // but the Object's pegs and attached wires remain pointing to
+        // this object. This is a problem.
         flo::Add m_add;
     };
 

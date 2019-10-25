@@ -1,17 +1,28 @@
 #pragma once
 
 #include <Flosion/Core/NumberSource.hpp>
+#include <Flosion/Core/Reactable.hpp>
 #include <Flosion/Core/SoundChunk.hpp>
 #include <Flosion/Core/SoundNode.hpp>
 #include <Flosion/Core/SoundState.hpp>
-#include <Flosion/Core/SoundInput.hpp>
 
 #include <vector>
 
 namespace flo {
 
-    class SoundSource : public SoundNode {
+    class SoundInput;
+    class SoundSource;
+
+    class SoundSourceReactor : public Reactor<SoundSourceReactor, SoundSource> {
     public:
+        virtual void afterInputAdded(const SoundInput*) = 0;
+        virtual void beforeInputRemoved(const SoundInput*) = 0;
+        virtual void onDestroySoundSource() = 0;
+    };
+
+    class SoundSource : public SoundNode, public Reactable<SoundSource, SoundSourceReactor> {
+    public:
+        ~SoundSource();
 
         /**
          * Produces the next chunk of sound. The SoundSource's state corresponding
@@ -23,6 +34,11 @@ namespace flo {
         //class Decorator : public SoundNode::Decorator {
             // TODO: ???
         //};
+
+    private:
+        std::vector<SoundInput*> m_inputs;
+
+        friend class SoundInput;
     };
     
     

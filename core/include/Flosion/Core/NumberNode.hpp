@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Flosion/Core/Immovable.hpp>
+#include <Flosion/Core/Reactable.hpp>
 #include <Flosion/Core/StateBorrower.hpp>
 
 #include <atomic>
@@ -37,7 +38,7 @@ namespace flo {
     class Network;
     class SoundNode;
 
-    class NumberNode : private Immovable {
+    class NumberNode {
     public:
         NumberNode();
         virtual ~NumberNode();

@@ -8,7 +8,7 @@
 namespace flui {
 
     DAC::DAC(){
-        addSoundInput(&m_dac.soundResult.getInput(), "Input");
+        addToLeft(makeSoundInput(&m_dac.soundResult.getInput(), "Input"));
         auto bod = std::make_unique<ui::Boxed<ui::GridContainer>>(1, 3);
         bod->putCell<ui::Text>(0, 0, "DAC", getFont());
         bod->putCell<ui::ToggleButton>(

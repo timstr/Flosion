@@ -12,6 +12,7 @@ set(flosion_core_headers
 	${include_path}/NumberNode.hpp
 	${include_path}/NumberResult.hpp
 	${include_path}/NumberSource.hpp
+	${include_path}/Reactable.hpp
 	${include_path}/RecursiveSharedMutex.hpp
 	${include_path}/Sample.hpp
 	${include_path}/SingleSoundInput.hpp
@@ -30,7 +31,6 @@ set(flosion_core_headers
 	${include_path}/StateAllocator.hpp
 	${include_path}/StateTable.hpp
 	${include_path}/StateBorrower.hpp
-	${include_path}/StatefulNumberSource.hpp
 )
 
 set(flosion_core_srcs
