@@ -1,13 +1,12 @@
 #pragma once
 
-#include <Flosion/Core/Immovable.hpp>
+#include <Flosion/Core/NodeBase.hpp>
 #include <Flosion/Core/Reactable.hpp>
+#include <Flosion/Core/StateBorrower.hpp>
 #include <Flosion/Core/StateBorrower.hpp>
 
 #include <atomic>
 #include <cassert>
-#include <set>
-#include <vector>
 
 namespace flo {
 
@@ -38,26 +37,17 @@ namespace flo {
     class Network;
     class SoundNode;
 
-    class NumberNode {
+    class NumberNode : public NodeBase<NumberNode> {
     public:
         NumberNode();
-        virtual ~NumberNode();
+        virtual ~NumberNode() = default;
 
         bool canAddDependency(const NumberNode*) const noexcept;
-        void addDependency(NumberNode* node);
-        void removeDependency(NumberNode* node);
+        bool canRemoveDependency(const NumberNode*) const noexcept;
 
-        const std::vector<NumberNode*>& getDirectDependencies() const noexcept;
-        const std::vector<NumberNode*>& getDirectDependents() const noexcept;
-
-        std::set<const NumberNode*> getAllDependencies() const noexcept;
-        std::set<const NumberNode*> getAllDependents() const noexcept;
-
-        /**
-         * Returns true if this node depends (directly or indirectly)
-         * on the given node.
-         */
-        bool hasDependency(const NumberNode*) const noexcept;
+        // TODO: hide these
+        void afterDependencyAdded(NumberNode*);
+        void beforeDependencyRemoved(NumberNode*);
 
         SoundNode* getStateOwner() noexcept;
         const SoundNode* getStateOwner() const noexcept;
@@ -67,8 +57,6 @@ namespace flo {
 
     private:
         Network* m_network;
-        std::vector<NumberNode*> m_dependents;
-        std::vector<NumberNode*> m_dependencies;
         SoundNode* m_stateOwner;
     };
 

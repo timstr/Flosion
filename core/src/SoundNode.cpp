@@ -13,15 +13,6 @@ namespace flo {
         , m_network(nullptr) {
     }
 
-    SoundNode::~SoundNode(){
-        while (m_dependencies.size() > 0){
-            removeDependency(m_dependencies.back());
-        }
-        while (m_dependents.size() > 0){
-            m_dependents.back()->removeDependency(this);
-        }
-    }
-
     bool SoundNode::canAddDependency(const SoundNode* node) const noexcept {
         if (hasDependency(node) || node->hasDependency(this)){
             return false;
@@ -103,13 +94,7 @@ namespace flo {
         return true;
     }
 
-    void SoundNode::addDependency(SoundNode* node){
-        if (!canAddDependency(node)){
-            throw std::runtime_error("Don't do that.");
-        }
-        auto lock = getScopedWriteLock();
-        m_dependencies.push_back(node);
-        node->m_dependents.push_back(this);
+    void SoundNode::afterDependencyAdded(SoundNode* node){
         node->addDependentOffset(this);
         if (numSlots() > 0){
             node->insertDependentStates(this, 0, numSlots());
@@ -117,94 +102,16 @@ namespace flo {
         }
     }
 
-    void SoundNode::removeDependency(SoundNode* node){
-        if (!canRemoveDependency(node)){
-            throw std::runtime_error("Don't do that.");
-        }
-        if (std::find(m_dependencies.begin(), m_dependencies.end(), node) == m_dependencies.end()){
-            throw std::runtime_error("Don't do that.");
-        }
-        
-        auto lock = getScopedWriteLock();
+    void SoundNode::beforeDependencyRemoved(SoundNode* node){
         if (numSlots() > 0){
             node->eraseDependentStates(this, 0, numSlots());
         }
         node->removeDependentOffset(this);
-
-        m_dependencies.erase(
-            std::remove(m_dependencies.begin(), m_dependencies.end(), node),
-            m_dependencies.end()
-        );
-        node->m_dependents.erase(
-            std::remove(node->m_dependents.begin(), node->m_dependents.end(), this),
-            node->m_dependents.end()
-        );
-    }
-
-    const std::vector<SoundNode*>& SoundNode::getDirectDependencies() const noexcept {
-        return m_dependencies;
-    }
-
-    const std::vector<SoundNode*>& SoundNode::getDirectDependents() const noexcept {
-        return m_dependents;
-    }
-
-    std::set<const SoundNode*> SoundNode::getAllDependencies() const noexcept {
-        std::set<const SoundNode*> nodes;
-        std::function<void(const SoundNode*)> search = [&](const SoundNode* n){
-            if (!n){
-                return;
-            }
-            nodes.insert(n);
-            for (const auto& d : n->getDirectDependencies()){
-                search(d);
-            }
-        };
-        search(this);
-        return nodes;
-    }
-
-    std::set<const SoundNode*> SoundNode::getAllDependents() const noexcept {
-        std::set<const SoundNode*> nodes;
-        std::function<void(const SoundNode*)> search = [&](const SoundNode* n){
-            if (!n){
-                return;
-            }
-            nodes.insert(n);
-            for (const auto& d : n->getDirectDependents()){
-                search(d);
-            }
-        };
-        search(this);
-        return nodes;
-    }
-
-    bool SoundNode::hasDependency(const SoundNode* node) const noexcept {
-        if (this == node){
-            return true;
-        }
-        for (const auto& d : m_dependencies){
-            if (d->hasDependency(node)){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool SoundNode::hasDirectDependency(const SoundNode* node) const noexcept {
-        return std::find(
-            m_dependencies.begin(),
-            m_dependencies.end(),
-            node
-        ) != m_dependencies.end();
     }
 
     bool SoundNode::hasUncontrolledDependency() const noexcept {
-        if (isUncontrolled()){
-            return true;
-        }
-        for (const auto& d : m_dependencies){
-            if (d->hasUncontrolledDependency()){
+        for (auto d : getAllDependencies()){
+            if (d->isUncontrolled()){
                 return true;
             }
         }
@@ -220,7 +127,7 @@ namespace flo {
         
     }
 
-    SoundNode::Lock SoundNode::getScopedWriteLock() noexcept {
+    SoundNode::Lock SoundNode::acquireLock() noexcept {
         // Find all dependent sound results
         std::vector<SoundResult*> soundResults;
         findDependentSoundResults(soundResults);
@@ -252,7 +159,7 @@ namespace flo {
     }
 
     void SoundNode::findDependentSoundResults(std::vector<SoundResult*>& out) noexcept {
-        for (const auto& d : m_dependents){
+        for (const auto& d : getDirectDependents()){
             d->findDependentSoundResults(out);
         }
     }

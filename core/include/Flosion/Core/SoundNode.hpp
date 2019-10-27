@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Flosion/Core/Immovable.hpp>
+#include <Flosion/Core/NodeBase.hpp>
 #include <Flosion/Core/NumberSource.hpp>
 #include <Flosion/Core/RecursiveSharedMutex.hpp>
 #include <Flosion/Core/SoundState.hpp>
@@ -15,24 +15,17 @@ namespace flo {
     class SoundState;
 
     // basic sound node type
-    class SoundNode : public StateTable {
+    class SoundNode : public StateTable, public NodeBase<SoundNode> {
     public:
         SoundNode();
-        virtual ~SoundNode();
+        virtual ~SoundNode() = default;
         
         bool canAddDependency(const SoundNode*) const noexcept;
         bool canRemoveDependency(const SoundNode*) const noexcept;
-        void addDependency(SoundNode* node);
-        void removeDependency(SoundNode* node);
 
-        const std::vector<SoundNode*>& getDirectDependencies() const noexcept;
-        const std::vector<SoundNode*>& getDirectDependents() const noexcept;
-
-        std::set<const SoundNode*> getAllDependencies() const noexcept;
-        std::set<const SoundNode*> getAllDependents() const noexcept;
-
-        bool hasDependency(const SoundNode*) const noexcept;
-        bool hasDirectDependency(const SoundNode*) const noexcept;
+        // TODO: hide these
+        void afterDependencyAdded(SoundNode*);
+        void beforeDependencyRemoved(SoundNode*);
 
         bool hasUncontrolledDependency() const noexcept;
 
@@ -59,7 +52,7 @@ namespace flo {
         };
 
         [[nodiscard]]
-        Lock getScopedWriteLock() noexcept;
+        Lock acquireLock() noexcept;
 
         virtual double getTimeSpeed(const SoundState* mainState) const noexcept = 0;
         
@@ -78,8 +71,6 @@ namespace flo {
         friend class NumberNode;
 
     private:
-        std::vector<SoundNode*> m_dependents;
-        std::vector<SoundNode*> m_dependencies;
 
         // TODO: populate this with number inputs and sources that belong to this soundnode,
         // and with stateful numbernodes that are borrowing state from this soundnode.

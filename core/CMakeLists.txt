@@ -9,6 +9,7 @@ set(flosion_core_headers
 	${include_path}/MultiSoundInput.hpp
 	${include_path}/MultiSoundInput.tpp
 	${include_path}/Network.hpp
+	${include_path}/NodeBase.hpp
 	${include_path}/NumberNode.hpp
 	${include_path}/NumberResult.hpp
 	${include_path}/NumberSource.hpp

@@ -14,7 +14,7 @@ namespace flo {
     }
 
     void SoundInput::setSource(SoundSource* source){
-        auto lock = getScopedWriteLock();
+        auto lock = acquireLock();
         if (m_source){
 
             m_source->notifyReactors(&SoundSourceReactor::beforeInputRemoved, const_cast<const SoundInput*>(this));
