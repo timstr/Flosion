@@ -24,7 +24,14 @@ namespace flui {
         m_objects.push_back(op);
         adopt(std::move(object));
         
-        // TODO: number pegs
+        for (const auto& p : op->getNumberInputPegs()){
+            assert(m_numberInputPegs.find(p->getNumberInput()) == m_numberInputPegs.end());
+            m_numberInputPegs.emplace(p->getNumberInput(), p);
+        }
+        for (const auto& p : op->getNumberOutputPegs()){
+            assert(m_numberOutputPegs.find(p->getNumberSource()) == m_numberOutputPegs.end());
+            m_numberOutputPegs.emplace(p->getNumberSource(), p);
+        }
 
         for (const auto& p : op->getSoundInputPegs()){
             assert(m_soundInputPegs.find(p->getSoundInput()) == m_soundInputPegs.end());
@@ -44,7 +51,22 @@ namespace flui {
         auto op = *it;
         op->m_parentBox = nullptr;
 
-        // TODO: number pegs
+        for (const auto& p : op->getNumberInputPegs()){
+            if (p->getAttachedWire()){
+                p->getAttachedWire()->destroy();
+            }
+            auto pi = m_numberInputPegs.find(p->getNumberInput());
+            assert(pi != m_numberInputPegs.end());
+            m_numberInputPegs.erase(pi);
+        }
+        for (const auto& p : op->getNumberOutputPegs()){
+            while (p->getAttachedWires().size() > 0){
+                p->getAttachedWires().back()->destroy();
+            }
+            auto pi = m_numberOutputPegs.find(p->getNumberSource());
+            assert(pi != m_numberOutputPegs.end());
+            m_numberOutputPegs.erase(pi);
+        }
         
         for (const auto& p : op->getSoundInputPegs()){
             if (p->getAttachedWire()){
@@ -64,6 +86,25 @@ namespace flui {
         }
 
         m_objects.erase(it);
+    }
+
+    NumberWire* Box::addNumberWire(flo::NumberSource* src, flo::NumberInput* dst){
+        auto& w = add<NumberWire>(this, src, dst);
+        m_numberwires.push_back(&w);
+        return &w;
+    }
+
+    void Box::removeNumberWire(NumberWire* w){
+        if (w->getHeadPeg() && w->getTailPeg()){
+            w->destroy();
+        } else {
+            assert(std::count(m_numberwires.begin(), m_numberwires.end(), w) == 1);
+            auto it = std::find(m_numberwires.begin(), m_numberwires.end(), w);
+            assert(it != m_numberwires.end());
+            auto w2 = *it;
+            m_numberwires.erase(it);
+            w2->close();
+        }
     }
 
     SoundWire* Box::addSoundWire(flo::SoundSource* src, flo::SoundInput* dst){
@@ -88,6 +129,20 @@ namespace flui {
     void Box::render(sf::RenderWindow& rw){
         ui::BoxElement::render(rw);
         ui::FreeContainer::render(rw);
+    }
+
+    NumberInputPeg* Box::findPegFor(const flo::NumberInput* ni){
+        if (auto it = m_numberInputPegs.find(ni); it != m_numberInputPegs.end()){
+            return it->second;
+        }
+        return nullptr;
+    }
+
+    NumberOutputPeg* Box::findPegFor(const flo::NumberSource* ns){
+        if (auto it = m_numberOutputPegs.find(ns); it != m_numberOutputPegs.end()){
+            return it->second;
+        }
+        return nullptr;
     }
 
     SoundInputPeg* Box::findPegFor(const flo::SoundInput* si){

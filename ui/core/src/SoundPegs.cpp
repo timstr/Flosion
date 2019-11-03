@@ -6,27 +6,6 @@
 
 namespace flui {
 
-    // TODO: Now that sound wires/pegs are working, convert this to a set of templated classes
-    // whose variations are described by a traits class
-    // Example:
-    // struct SoundTraits {
-    //     using InputType = flo::SoundInput;
-    //     using OutputType = flo::SoundSource;
-    //     static void connect(InputType, SourceType);
-    //     static void disconnect(InputType, SourceType);
-    //     // TODO: peg and wire styles
-    // };
-    //
-    // template<typename Traits>
-    // class Wire;
-    //
-    // template<typename Traits>
-    // class InputPeg;
-    //
-    // template<typename Traits>
-    // class OutputPeg;
-    //
-
     SoundInputPeg::SoundInputPeg(Object* parent, flo::SoundInput* input, ui::String label)
         : m_parent(parent)
         , m_input(input)
@@ -86,10 +65,11 @@ namespace flui {
                 m_wireIn->destroy();
             }
             assert(!m_wireIn);
-            m_wireIn = w;
-            w->m_headPeg = this;
-            w->updatePositions();
+            assert(!m_input->hasReactor(w));
+            m_input->attachReactor(w);
             m_input->setSource(w->getTailPeg()->getSoundSource());
+            assert(w->getHeadPeg() == this);
+            assert(m_wireIn == w);
             return true;
         }
         return false;
@@ -110,7 +90,7 @@ namespace flui {
 
         // TODO: these styles differ from NumberOutputPeg
         setSize({30.0f, 30.0f}, true);
-        setBackgroundColor(0x808080FF);
+        setBackgroundColor(0x408040FF);
         setBorderColor(0xFF);
         setBorderThickness(1.0f);
         setBorderRadius(5.0f);
@@ -175,11 +155,11 @@ namespace flui {
             assert(w->getHeadPeg()->getSoundInput());
             assert(w->getTailPeg() == nullptr);
             assert(!hasAttachedWire(w));
-            addAttachedWire(w);
-            w->m_tailPeg = this;
-            auto i = w->getHeadPeg()->getSoundInput();
-            w->updatePositions();
-            i->setSource(w->getTailPeg()->getSoundSource());
+            assert(!m_output->hasReactor(w));
+            m_output->attachReactor(w);
+            w->getHeadPeg()->getSoundInput()->setSource(m_output);
+            assert(w->getTailPeg() == this);
+            assert(hasAttachedWire(w));
             return true;
         }
         return false;

@@ -11,6 +11,8 @@
 
 namespace flo {
 
+    // TODO: use static_cast<Derived*> instead of dynamic_cast where possible
+
     // NOTE: it's possible to make Reactor and Reactable moveable,
     // but for now they're simply Immovable for simplicity
 
@@ -69,7 +71,7 @@ namespace flo {
     template<typename Self, typename ReactorType>
     class Reactable : private Immovable {
     public:
-        virtual ~Reactable() noexcept = default;
+        virtual ~Reactable();
     
         void attachReactor(ReactorType* reactor);
         void detachReactor(const ReactorType* reactor);
@@ -105,7 +107,14 @@ namespace flo {
     template<typename Self, typename Target>
     inline const Target& Reactor<Self, Target>::target() const noexcept {
         assert(m_target);
-        return *m_target;
+        return *static_cast<Target*>(m_target);
+    }
+
+    template<typename Self, typename ReactorType>
+    inline Reactable<Self, ReactorType>::~Reactable(){
+        while (m_reactors.size() > 0){
+            detachReactor(m_reactors.back());
+        }
     }
 
     template<typename Self, typename ReactorType>

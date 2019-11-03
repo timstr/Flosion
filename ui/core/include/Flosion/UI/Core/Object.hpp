@@ -92,6 +92,8 @@ namespace flui {
 
         friend class SoundInputPeg;
         friend class SoundOutputPeg;
+        friend class NumberInputPeg;
+        friend class NumberOutputPeg;
 	};
 
 } // namespace flui

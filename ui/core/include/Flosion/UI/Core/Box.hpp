@@ -28,7 +28,7 @@ namespace flui {
         void removeObject(const Object*);
 
         NumberWire* addNumberWire(flo::NumberSource* src, flo::NumberInput* dst);
-        void removeNumberWire(const NumberWire*);
+        void removeNumberWire(NumberWire*);
 
         // Adds a SoundWire to the box.
         // At most one of src and dst may be null.
@@ -61,6 +61,7 @@ namespace flui {
         SoundOutputPeg* findPegFor(const flo::SoundSource*);
 
         friend class SoundWire;
+        friend class NumberWire;
         
         std::map<const flo::NumberInput*, NumberInputPeg*> m_numberInputPegs;
         std::map<const flo::NumberSource*, NumberOutputPeg*> m_numberOutputPegs;

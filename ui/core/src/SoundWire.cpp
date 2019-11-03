@@ -21,11 +21,13 @@ namespace flui {
         if (m_headPeg){
             assert(m_headPeg->getAttachedWire() == nullptr);
             m_headPeg->setAttachedWire(this);
+            m_headPeg->getSoundInput()->attachReactor(this);
         }
 
         if (m_tailPeg){
             assert(!m_tailPeg->hasAttachedWire(this));
             m_tailPeg->addAttachedWire(this);
+            m_tailPeg->getSoundSource()->attachReactor(this);
         }
 
         // NOTE: It is expected that either both pegs are connected, or that
@@ -39,35 +41,24 @@ namespace flui {
 
     void SoundWire::destroy(){
         if (m_headPeg && m_tailPeg){
-            assert(m_headPeg->getAttachedWire() == this);
-            assert(m_tailPeg->hasAttachedWire(this));
-            assert(m_headPeg->getSoundInput());
-            assert(m_tailPeg->getSoundSource());
-
-            auto h = m_headPeg;
-            auto t = m_tailPeg;
-
-            h->setAttachedWire(nullptr);
+            auto i = m_headPeg->getSoundInput();
+            auto o = m_tailPeg->getSoundSource();
+            assert(i->getSource() == o);
+            m_headPeg->getSoundInput()->setSource(nullptr);
+            i->detachReactor(this);
+            o->detachReactor(this);
+            assert(m_headPeg == nullptr);
+            assert(m_tailPeg == nullptr);
+        } else if (m_headPeg){
+            m_headPeg->getSoundInput()->detachReactor(this);
+            m_headPeg->setAttachedWire(nullptr);
             m_headPeg = nullptr;
-
-            t->removeAttachedWire(this);
+        } else if (m_tailPeg){
+            m_tailPeg->getSoundSource()->detachReactor(this);
+            m_tailPeg->removeAttachedWire(this);
             m_tailPeg = nullptr;
-
-            if (h->getSoundInput()->getSource()){
-                assert(h->getSoundInput()->getSource() == t->getSoundSource());
-                h->getSoundInput()->setSource(nullptr);
-            }
-        } else {
-            if (m_headPeg){
-                m_headPeg->setAttachedWire(nullptr);
-                m_headPeg = nullptr;
-            }
-                
-            if (m_tailPeg){
-                m_tailPeg->removeAttachedWire(this);
-                m_tailPeg = nullptr;
-            }
         }
+        
         m_parentBox->removeSoundWire(this);
     }
 
@@ -104,20 +95,36 @@ namespace flui {
     }
 
     void SoundWire::afterSourceAdded(const flo::SoundSource* ss){
-        assert(!m_tailPeg);
-        assert(m_headPeg);
-        auto p = m_parentBox->findPegFor(ss);
-        assert(p);
-        m_tailPeg = p;
+        if (!m_headPeg){
+            auto& si = flo::SoundInputReactor::target();
+            auto p = m_parentBox->findPegFor(&si);
+            assert(p);
+            assert(p->getAttachedWire() != this);
+            m_headPeg = p;
+            p->setAttachedWire(this);
+        }
+        if (!m_tailPeg){
+            auto p = m_parentBox->findPegFor(ss);
+            assert(p);
+            assert(!p->hasAttachedWire(this));
+            m_tailPeg = p;
+            p->addAttachedWire(this);
+        }
         updatePositions();
     }
 
     void SoundWire::beforeSourceRemoved(const flo::SoundSource* ss){
-        assert(m_headPeg);
-        assert(m_tailPeg);
-        if (m_head.dragging()){
+        if (!m_tail.dragging()){
+            assert(m_headPeg);
+            assert(m_headPeg->getAttachedWire() == this);
+            m_headPeg->setAttachedWire(nullptr);
             m_headPeg = nullptr;
-        } else if (m_tail.dragging()){
+        }
+        
+        if (!m_head.dragging()){
+            assert(m_tailPeg);
+            assert(m_tailPeg->hasAttachedWire(this));
+            m_tailPeg->removeAttachedWire(this);
             m_tailPeg = nullptr;
         }
     }
@@ -202,11 +209,12 @@ namespace flui {
             assert(m_parentWire->m_headPeg->getSoundInput());
             assert(m_parentWire->m_tailPeg->getSoundSource());
             auto i = m_parentWire->m_headPeg->getSoundInput();
-            assert(i->getSource() == m_parentWire->m_tailPeg->getSoundSource());
+            auto o = m_parentWire->m_tailPeg->getSoundSource();
+            assert(i->getSource() == o);
             assert(m_parentWire->m_headPeg->getAttachedWire() == m_parentWire);
-            m_parentWire->m_headPeg->setAttachedWire(nullptr);
-            m_parentWire->m_headPeg = nullptr;
             i->setSource(nullptr);
+            i->detachReactor(m_parentWire);
+            assert(m_parentWire->m_headPeg == nullptr);
         }
     }
 
@@ -263,13 +271,14 @@ namespace flui {
             assert(m_parentWire->m_headPeg->getSoundInput());
             assert(m_parentWire->m_tailPeg->getSoundSource());
             auto i = m_parentWire->m_headPeg->getSoundInput();
-            assert(i->getSource() == m_parentWire->m_tailPeg->getSoundSource());
-            assert(m_parentWire->m_headPeg->getAttachedWire() == m_parentWire);
-
-            m_parentWire->m_tailPeg->removeAttachedWire(m_parentWire);
-            m_parentWire->m_tailPeg = nullptr;
+            auto o = m_parentWire->m_tailPeg->getSoundSource();
+            assert(i->getSource() == o);
+            assert(m_parentWire->m_tailPeg->hasAttachedWire(m_parentWire));
 
             i->setSource(nullptr);
+            o->detachReactor(m_parentWire);
+
+            assert(m_parentWire->m_tailPeg == nullptr);
         }
     }
 

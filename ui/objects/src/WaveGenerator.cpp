@@ -8,9 +8,9 @@
 namespace flui {
 
     WaveGenerator::WaveGenerator(){
-        //addToTop(makeNumberOutput(&m_waveGen.phase, "Phase"));
-        //addToLeft(makeNumberInput(&m_waveGen.waveFunction, "Wave Function"));
-        //addToLeft(makeNumberInput(&m_waveGen.frequency, "Frequency"));
+        addToTop(makeNumberOutput(&m_waveGen.phase, "Phase"));
+        addToLeft(makeNumberInput(&m_waveGen.waveFunction, "Wave Function"));
+        addToLeft(makeNumberInput(&m_waveGen.frequency, "Frequency"));
         addtoRight(makeSoundOutput(&m_waveGen, "Output"));
 
         auto bod = std::make_unique<ui::Boxed<ui::GridContainer>>(1, 2);

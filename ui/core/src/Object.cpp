@@ -80,8 +80,12 @@ namespace flui {
             m_parentBox->removeObject(this);
         }
 
-        // TODO: number pegs
-
+        while (m_numberInputs.size() > 0){
+            m_numberInputs.back()->close();
+        }
+        while (m_numberOutputs.size() > 0){
+            m_numberOutputs.back()->close();
+        }
         while (m_soundInputs.size() > 0){
             m_soundInputs.back()->close();
         }
@@ -92,6 +96,14 @@ namespace flui {
 
     Box* Object::getParentBox(){
         return m_parentBox;
+    }
+
+    std::unique_ptr<NumberInputPeg> Object::makeNumberInput(flo::NumberInput* ni, ui::String label){
+        return std::make_unique<NumberInputPeg>(this, ni, label);
+    }
+
+    std::unique_ptr<NumberOutputPeg> Object::makeNumberOutput(flo::NumberSource* no, ui::String label){
+        return std::make_unique<NumberOutputPeg>(this, no, label);
     }
 
     std::unique_ptr<SoundInputPeg> Object::makeSoundInput(flo::SoundInput* si, ui::String label){
@@ -143,7 +155,16 @@ namespace flui {
     }
 
     void Object::updateWires(){
-        // TODO: update number wires
+        for (const auto& p : m_numberInputs){
+            if (auto w = p->getAttachedWire()){
+                w->updatePositions();
+            }
+        }
+        for (const auto& p : m_numberOutputs){
+            for (auto w : p->getAttachedWires()){
+                w->updatePositions();
+            }
+        }
         for (const auto& p : m_soundInputs){
             if (auto w = p->getAttachedWire()){
                 w->updatePositions();
