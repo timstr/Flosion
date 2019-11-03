@@ -7,15 +7,25 @@
 
 namespace flui {
 
-    class Constant : public Object {
+    class Constant : public Object, private flo::ConstantReactor {
     public:
         Constant();
 
+        static std::unique_ptr<Constant> parseConstant(const std::string&);
+
+        flo::Constant& getConstant() noexcept;
+
     private:
+        void onChangeValue(double) override;
+
+        // TODO: shift-click or double-click to edit value
+
         flo::Constant m_constant;
+        ui::Text* m_label;
     };
 
-    class Slider : public Object {
+    // TODO
+    class Slider : public Object, private flo::ConstantReactor {
     public:
         Slider();
 
@@ -28,9 +38,6 @@ namespace flui {
         Add();
 
     private:
-        // TODO: when this is destroyed, it severs its own connections,
-        // but the Object's pegs and attached wires remain pointing to
-        // this object. This is a problem.
         flo::Add m_add;
     };
 

@@ -106,7 +106,12 @@ namespace flui {
         b->setBackgroundColor(0x202040FF);
         b->setBorderColor(0xFFFFFFFF);
         b->setBorderThickness(2.0f);
-        auto& c = b->add<ui::Text>(caption, getFont(), 0xFFFFFFFF);
+        auto& c = b->add<ui::Text>(
+            ui::FreeContainer::Center,
+            ui::FreeContainer::Center,
+            caption,
+            getFont(),
+            0xFFFFFFFF);
         // TODO: use container margin instead
         b->setMinSize(c.size() + ui::vec2{20.0f, 20.0f});
         return b;

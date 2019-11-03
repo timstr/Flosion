@@ -10,23 +10,25 @@ namespace flui {
     // Examples:
     // constant 6
     // slider 0 10
+    // random uniform 0 1
+    // random normal 10 1
     // expression x+(1/y)
 
 	// factory for creating Objects from strings
 	// which have been pre-registered
 	class Factory {
     public:
-		using ObjectCreator = std::function<std::unique_ptr<Object>()>;
+		using ObjectCreator = std::function<std::unique_ptr<Object>(const std::string&)>;
 
-        using ObjectCreatorMap = std::map<ui::String, ObjectCreator>;
+        using ObjectCreatorMap = std::map<std::string, ObjectCreator>;
 
-		static std::unique_ptr<Object> createObject(ui::String name);
+		static std::unique_ptr<Object> createObject(std::string args);
 
 		static const ObjectCreatorMap& getObjectCreators();
 
-        static void addCreator(const std::vector<ui::String>& names, ObjectCreator creator);
+        static void addCreator(const std::vector<std::string>& names, ObjectCreator creator);
 
-        static void removeCreator(const std::vector<ui::String>& names);
+        static void removeCreator(const std::vector<std::string>& names);
 
     public:
 		// RegisterObject for registering an Object type with the factory under a set of names
@@ -35,11 +37,11 @@ namespace flui {
 		template<typename ObjectType>
 		class Registrator {
         public:
-			Registrator(std::vector<ui::String> names);
+			Registrator(std::vector<std::string> names, ObjectCreator);
 			~Registrator();
 
         private:
-			const std::vector<ui::String> m_names;
+			const std::vector<std::string> m_names;
 		};
 
 
@@ -51,13 +53,13 @@ namespace flui {
 
     // TODO: move these to a .tpp file
     template<typename ObjectType>
-    inline Factory::Registrator<ObjectType>::Registrator(std::vector<ui::String> names)
+    inline Factory::Registrator<ObjectType>::Registrator(std::vector<std::string> names, ObjectCreator oc)
         : m_names(std::move(names)) {
 
 		static_assert(std::is_base_of<Object, ObjectType>::value, "The provided object type must derive from Object");
         static_assert(std::is_default_constructible_v<ObjectType>, "The provided object type must be default constructible");
 
-        addCreator(m_names, [](){ return std::make_unique<ObjectType>(); });
+        addCreator(m_names, std::move(oc));
     }
 
     template<typename ObjectType>
@@ -71,10 +73,20 @@ namespace flui {
 	// Usage:
 	// struct CrazyCoolObject : flui::Object { /* ... */ };
 	// RegisterObject(CrazyCoolObject, "CrazyCoolObject", "crazyobject", "coolObject")
-	#define RegisterFactoryObject(objectType, ...) \
+	#define RegisterFactoryObject(ObjectType, ...) \
 	    namespace FlosionUIFactoryImpl { \
-		    ::flui::Factory::Registrator<objectType> s_registratorFor_##objectType { std::vector<ui::String> { __VA_ARGS__ } }; \
-            auto s_objPointerFor_##objectType = &s_registratorFor_##objectType; \
+		    ::flui::Factory::Registrator<ObjectType> s_registratorFor_##ObjectType { \
+                std::vector<std::string> { __VA_ARGS__ }, \
+                [](const std::string&){ return std::make_unique<ObjectType>(); } \
+            }; \
 	    }
+
+    #define RegisterFactoryObjectEx(ObjectType, Name, CreatorFunction) \
+        namespace FlosionUIFactoryImpl { \
+            ::flui::Factory::Registrator<ObjectType> s_registratorFor_##ObjectType { \
+                std::vector<std::string> { Name }, \
+                CreatorFunction \
+            }; \
+        }
 
 }

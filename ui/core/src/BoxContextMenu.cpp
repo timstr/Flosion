@@ -9,13 +9,12 @@
 #include <GUI/Helpers/CallbackButton.hpp>
 
 #include <cctype>
-#include <iostream> // TODO: remove
 
 namespace flui {
     
     // TODO: this is duplicated from ObjectFactory.cpp
     namespace {
-        void makeLowerCase(ui::String& str) {
+        void makeLowerCase(std::string& str) {
 			std::transform(
 			    str.begin(),
 			    str.end(),
@@ -28,6 +27,24 @@ namespace flui {
                 }
 		    );
 		}
+
+        std::pair<std::string, std::string> splitArgs(const std::string& s){
+            auto n = s.find_first_not_of(" \t", 0);
+            if (n == std::string::npos){
+                return {"", ""};
+            }
+            n = s.find_first_of(" \t", n);
+            if (n == std::string::npos){
+                return {s, ""};
+            }
+            auto name = s.substr(0, n);
+            n = s.find_first_not_of(" \t", n);
+            if (n == std::string::npos){
+                return {name, ""};
+            }
+            auto args = s.substr(n);
+            return {std::move(name), std::move(args)};
+        }
     }
 
     BoxContextMenu::BoxContextMenu(Box& parent)
@@ -64,12 +81,10 @@ namespace flui {
         m_results.clear();
         m_results.setSize({0.0f, 0.0f});
         m_topResult = {};
+        
+        const auto [textEntered, args] = splitArgs(str.toAnsiString());
 
-        const auto textEntered = [&](){
-            auto s = str;
-            makeLowerCase(s);
-            return s;
-        }();
+        m_args = args;
 
         const auto maxResults = std::size_t{10};
 
@@ -77,11 +92,11 @@ namespace flui {
         // First results: all results with matching prefixes
         // Other results: all results with matching first letter and matching subsequence
 
-        const auto match = [&](const ui::String& s){
-            if (s.getSize() < textEntered.getSize()){
+        const auto match = [&](const std::string& s){
+            if (s.size() < textEntered.size()){
                 return false;
             }
-            auto ss = s.substring(0, textEntered.getSize());
+            auto ss = s.substr(0, textEntered.size());
             makeLowerCase(ss);
             return ss == textEntered;
         };
@@ -100,7 +115,7 @@ namespace flui {
                     it->first,
                     getFont(),
                     [this, &fn = it->second](){
-                        addAndClose(fn());
+                        addAndClose(fn(m_args));
                     }
                 );
                 ++count;
@@ -110,7 +125,7 @@ namespace flui {
 
     void BoxContextMenu::handleSubmit(){
         if (m_topResult){
-            addAndClose(m_topResult());
+            addAndClose(m_topResult(m_args));
         } else {
             close();
         }

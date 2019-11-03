@@ -35,7 +35,14 @@ namespace flo {
         friend class NumberInput;
     };
 
-    class Constant : public NumberSource {
+    class Constant;
+
+    class ConstantReactor : public Reactor<ConstantReactor, Constant> {
+    public:
+        virtual void onChangeValue(double) = 0;
+    };
+
+    class Constant : public NumberSource, public Reactable<Constant, ConstantReactor> {
     public:
         Constant(double value = 0.0) noexcept;
 

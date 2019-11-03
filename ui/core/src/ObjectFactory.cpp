@@ -7,7 +7,7 @@
 namespace flui {
 
     namespace {
-        void makeLowerCase(ui::String& str) {
+        void makeLowerCase(std::string& str) {
 			std::transform(
 			    str.begin(),
 			    str.end(),
@@ -22,11 +22,15 @@ namespace flui {
 		}
     }
 
-    std::unique_ptr<Object> Factory::createObject(ui::String name){
+    std::unique_ptr<Object> Factory::createObject(std::string args){
         const auto& creators = getObjectCreators();
+        auto n = args.find_first_not_of(" \t", 0);
+        n = args.find_first_of(" \t", n);
+        auto name = args.substr(n);
+        args = args.substr(args.find_first_not_of(" \t", n));
         makeLowerCase(name);
         if (auto it = creators.find(name); it != creators.end()){
-            return it->second();
+            return it->second(args);
         }
         return nullptr;
     }
@@ -35,7 +39,7 @@ namespace flui {
 		return getObjectMap();
 	}
 
-    void Factory::addCreator(const std::vector<ui::String>& names, ObjectCreator creator){
+    void Factory::addCreator(const std::vector<std::string>& names, ObjectCreator creator){
         auto& map = getObjectMap();
         for (const auto& name : names){
             auto n = name;
@@ -44,7 +48,7 @@ namespace flui {
         }
     }
 
-    void Factory::removeCreator(const std::vector<ui::String>& names){
+    void Factory::removeCreator(const std::vector<std::string>& names){
         auto& map = getObjectMap();
         for (const auto& name : names){
             auto n = name;

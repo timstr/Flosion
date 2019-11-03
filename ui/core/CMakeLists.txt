@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.10.0)
 set(include_path "include/Flosion/UI/Core")
 
 set(flosion_ui_core_headers
+    ${include_path}/ArgumentParser.hpp
     ${include_path}/Box.hpp
     ${include_path}/BoxContextMenu.hpp
     ${include_path}/FlosionUI.hpp
@@ -19,6 +20,7 @@ set(flosion_ui_core_headers
 )
 
 set(flosion_ui_core_srcs
+    src/ArgumentParser.cpp
     src/Box.cpp
     src/BoxContextMenu.cpp
     src/FlosionUI.cpp

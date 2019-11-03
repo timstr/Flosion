@@ -28,6 +28,7 @@ namespace flui {
         ui::VerticalList& m_results;
         ui::TextEntry& m_textEntry;
         Factory::ObjectCreator m_topResult;
+        std::string m_args;
     };
 
 }

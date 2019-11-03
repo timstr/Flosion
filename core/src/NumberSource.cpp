@@ -89,6 +89,7 @@ namespace flo {
 
     void Constant::setValue(double value) noexcept {
         m_value.store(value, std::memory_order_relaxed);
+        Reactable<Constant, ConstantReactor>::notifyReactors(&ConstantReactor::onChangeValue, value);
     }
 
     double Constant::evaluate(const SoundState* /* context */) const noexcept {

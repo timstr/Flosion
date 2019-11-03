@@ -1,5 +1,6 @@
 #include <Flosion/UI/Objects/Functions.hpp>
 
+#include <Flosion/UI/Core/ArgumentParser.hpp>
 #include <Flosion/UI/Core/Font.hpp>
 
 namespace flui {
@@ -36,5 +37,46 @@ namespace flui {
     }
     RegisterFactoryObject(Divide, "divide", "/");
 
+
+    Constant::Constant(){
+        addtoRight(makeNumberOutput(&m_constant));
+        auto b = std::make_unique<ui::Boxed<ui::FreeContainer>>();
+        b->setBackgroundColor(0x202040FF);
+        b->setBorderColor(0xFFFFFFFF);
+        b->setBorderThickness(2.0f);
+        m_label = &b->add<ui::Text>(
+            ui::FreeContainer::Center,
+            ui::FreeContainer::Center,
+            std::to_string(m_constant.getValue()),
+            getFont(),
+            0xFFFFFFFF);
+        setBody(std::move(b));
+        m_constant.flo::Reactable<flo::Constant, flo::ConstantReactor>::attachReactor(this);
+    }
+
+    std::unique_ptr<Constant> Constant::parseConstant(const std::string& s){
+        auto p = ArgumentParser{};
+        
+        std::optional<double> v;
+        p.add(v);
+
+        p.parse(s);
+
+        auto c = std::make_unique<Constant>();
+        c->getConstant().setValue(v.value_or(0.0f));
+
+        return c;
+    }
+
+    flo::Constant& Constant::getConstant() noexcept {
+        return m_constant;
+    }
+
+    void Constant::onChangeValue(double v){
+        assert(m_label);
+        m_label->setText(std::to_string(v));
+    }
+
+    RegisterFactoryObjectEx(Constant, "constant", Constant::parseConstant); // TODO: pass arguments to factory
 
 } // namespace flui
