@@ -9,11 +9,11 @@ namespace flui {
 
     DAC::DAC(){
         addToLeft(makeSoundInput(&m_dac.soundResult.getInput(), "Input"));
-        auto bod = std::make_unique<ui::Boxed<ui::GridContainer>>(1, 3);
-        bod->putCell<ui::Text>(0, 0, "DAC", getFont());
-        bod->putCell<ui::ToggleButton>(
-            0,
-            1,
+
+
+        auto bod = std::make_unique<ui::Boxed<ui::VerticalList>>();
+        bod->push_back<ui::Text>("DAC", getFont());
+        bod->push_back<ui::ToggleButton>(
             false,
             getFont(),
             [&](bool v){
@@ -25,15 +25,15 @@ namespace flui {
             },
             std::pair<ui::String, ui::String>{"Play", "Pause"}
         );
-        bod->putCell<ui::CallbackButton>(
-            0,
-            2,
+        bod->push_back<ui::CallbackButton>(
             "Reset",
             getFont(),
             [&](){
                 m_dac.soundResult.reset();
             }
         );
+        bod->setPadding(5.0f);
+        bod->setBackgroundColor(0x22BB22FF);
         setBody(std::move(bod));
     }
     RegisterFactoryObject(DAC, "DAC");

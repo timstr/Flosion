@@ -25,7 +25,7 @@ namespace flui {
         void addAndClose(std::unique_ptr<Object>);
 
         Box& m_parent;
-        ui::GridContainer& m_results;
+        ui::VerticalList& m_results;
         ui::TextEntry& m_textEntry;
         Factory::ObjectCreator m_topResult;
     };

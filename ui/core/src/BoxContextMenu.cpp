@@ -32,7 +32,7 @@ namespace flui {
 
     BoxContextMenu::BoxContextMenu(Box& parent)
         : m_parent(parent)
-        , m_results(add<ui::GridContainer>(
+        , m_results(add<ui::VerticalList>(
             ui::FreeContainer::InsideLeft,
             ui::FreeContainer::OutsideBottom
         ))
@@ -61,7 +61,7 @@ namespace flui {
     }
 
     void BoxContextMenu::refreshResults(const ui::String& str){
-        m_results.setRows(0);
+        m_results.clear();
         m_results.setSize({0.0f, 0.0f});
         m_topResult = {};
 
@@ -96,16 +96,13 @@ namespace flui {
                     m_topResult = it->second;
                 }
 
-                m_results.setRows(count + 1);
-
-
-                m_results.putCell(0, count, std::make_unique<ui::CallbackButton>(
+                m_results.push_back<ui::CallbackButton>(
                     it->first,
                     getFont(),
                     [this, &fn = it->second](){
                         addAndClose(fn());
                     }
-                ));
+                );
                 ++count;
             }
         }

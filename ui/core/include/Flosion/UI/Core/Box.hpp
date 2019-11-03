@@ -17,7 +17,7 @@ namespace flui {
     class SoundWire;
 	
 	// Box is what holds all objects
-	class Box : public ui::FreeContainer, public ui::Control, public ui::BoxElement {
+	class Box : public ui::Boxed<ui::FreeContainer>, public ui::Control {
     public:
 		Box();
         ~Box();
@@ -46,8 +46,6 @@ namespace flui {
 		void removeNumberWire(NumberWire& wire);*/
 
 	private:
-
-        void render(sf::RenderWindow& rw) override;
 
 		std::vector<Object*> m_objects;
 		std::vector<NumberWire*> m_numberwires;

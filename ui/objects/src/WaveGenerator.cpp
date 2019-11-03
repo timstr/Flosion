@@ -13,11 +13,9 @@ namespace flui {
         addToLeft(makeNumberInput(&m_waveGen.frequency, "Frequency"));
         addtoRight(makeSoundOutput(&m_waveGen, "Output"));
 
-        auto bod = std::make_unique<ui::Boxed<ui::GridContainer>>(1, 2);
-        bod->putCell<ui::Text>(0, 0, "Wave Generator", getFont());
-        bod->putCell<ui::ToggleButton>(
-            0,
-            1,
+        auto bod = std::make_unique<ui::Boxed<ui::VerticalList>>();
+        bod->push_back<ui::Text>("Wave Generator", getFont());
+        bod->push_back<ui::ToggleButton>(
             false,
             getFont(),
             [&](bool v){
@@ -25,6 +23,8 @@ namespace flui {
             },
             std::pair<ui::String, ui::String>{"Sync Off", "Sync On"}
         );
+        bod->setPadding(5.0f);
+        bod->setBackgroundColor(0x22BB22FF);
         setBody(std::move(bod));
     }
     RegisterFactoryObject(WaveGenerator, "WaveGenerator");

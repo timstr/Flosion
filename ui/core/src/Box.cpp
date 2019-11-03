@@ -126,11 +126,6 @@ namespace flui {
         }
     }
 
-    void Box::render(sf::RenderWindow& rw){
-        ui::BoxElement::render(rw);
-        ui::FreeContainer::render(rw);
-    }
-
     NumberInputPeg* Box::findPegFor(const flo::NumberInput* ni){
         if (auto it = m_numberInputPegs.find(ni); it != m_numberInputPegs.end()){
             return it->second;

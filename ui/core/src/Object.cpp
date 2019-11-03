@@ -53,26 +53,13 @@ namespace flui {
         , m_parentBox(nullptr)
         , m_leftContainer(
             putCell<ui::FreeContainer>(0, 1)
-            .add<ui::GridContainer>(ui::FreeContainer::Center, ui::FreeContainer::Center, 1, 0)
+            .add<ui::VerticalList>(ui::FreeContainer::Center, ui::FreeContainer::Center)
         )
-        , m_topContainer(putCell<ui::GridContainer>(1, 0, 0, 1)) 
+        , m_topContainer(putCell<ui::HorizontalList>(1, 0)) 
         , m_rightContainer(
             putCell<ui::FreeContainer>(2, 1)
-            .add<ui::GridContainer>(ui::FreeContainer::Center, ui::FreeContainer::Center, 1, 0)
+            .add<ui::VerticalList>(ui::FreeContainer::Center, ui::FreeContainer::Center)
         ) {
-        
-        class BoxContainer : public ui::FreeContainer, public ui::BoxElement {
-        private:
-            void render(sf::RenderWindow& rw) override {
-                ui::BoxElement::render(rw);
-                ui::FreeContainer::render(rw);
-            }
-        };
-
-        auto& body = putCell<BoxContainer>(1, 1);
-        body.add<ui::Text>(ui::FreeContainer::Center, ui::FreeContainer::Center, "Object", getFont());
-        body.setBackgroundColor(0x8080FFFF);
-
     }
 
     Object::~Object(){
@@ -183,30 +170,15 @@ namespace flui {
     }
 
     void Object::addToLeft(std::unique_ptr<ui::Element> e){
-        m_leftContainer.appendRow();
-        m_leftContainer.putCell(
-            0,
-            m_leftContainer.rows() - 1,
-            std::move(e)
-        );
+        m_leftContainer.push_back(std::move(e));
     }
 
     void Object::addToTop(std::unique_ptr<ui::Element> e){
-        m_topContainer.appendColumn();
-        m_topContainer.putCell(
-            m_topContainer.columns() - 1,
-            0,
-            std::move(e)
-        );
+        m_topContainer.push_back(std::move(e));
     }
 
     void Object::addtoRight(std::unique_ptr<ui::Element> e){
-        m_rightContainer.appendRow();
-        m_rightContainer.putCell(
-            0,
-            m_rightContainer.rows() - 1,
-            std::move(e)
-        );
+        m_rightContainer.push_back(std::move(e));
     }
 
     void Object::addDragButton(){
