@@ -15,9 +15,9 @@ namespace flui {
                 auto c = (*it)->parse(w);
                 if (c < 0){
                     return false;
-                } else if (c == 0){
-                    ++it;
-                } else {
+                }
+                ++it;
+                if (c > 0){
                     break;
                 }
             }

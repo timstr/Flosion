@@ -2,8 +2,9 @@
 
 #include <Flosion/UI/Core/Object.hpp>
 #include <Flosion/Objects/Functions.hpp>
-
 #include <Flosion/UI/Core/ObjectFactory.hpp>
+#include <GUI/Helpers/Slider.hpp>
+
 
 namespace flui {
 
@@ -13,7 +14,8 @@ namespace flui {
 
         static std::unique_ptr<Constant> parseConstant(const std::string&);
 
-        flo::Constant& getConstant() noexcept;
+        double getValue() const noexcept;
+        void setValue(double);
 
     private:
         void onChangeValue(double) override;
@@ -29,8 +31,21 @@ namespace flui {
     public:
         Slider();
 
+        static std::unique_ptr<Slider> parseSlider(const std::string&);
+
+        double getValue() const noexcept;
+        double getMinimum() const noexcept;
+        double getMaximum() const noexcept;
+
+        void setValue(double);
+        void setMinimum(double);
+        void setMaximum(double);
+
     private:
+        void onChangeValue(double) override;
+
         flo::Constant m_constant;
+        ui::Slider<double>* m_slider;
     };
 
     class Add : public Object {
