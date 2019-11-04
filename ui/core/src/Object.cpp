@@ -101,9 +101,9 @@ namespace flui {
         return std::make_unique<SoundOutputPeg>(this, so, label);
     }
 
-    std::unique_ptr<ui::Element> Object::makeSimpleBody(ui::String caption){
+    std::unique_ptr<ui::Element> Object::makeSimpleBody(ui::String caption, ui::Color color){
         auto b = std::make_unique<ui::Boxed<ui::FreeContainer>>();
-        b->setBackgroundColor(0x202040FF);
+        b->setBackgroundColor(color);
         b->setBorderColor(0xFFFFFFFF);
         b->setBorderThickness(2.0f);
         auto& c = b->add<ui::Text>(

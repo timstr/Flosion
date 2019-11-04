@@ -11,7 +11,7 @@ namespace flui {
         addToLeft(makeNumberInput(&m_sineWave.input));
         addtoRight(makeNumberOutput(&m_sineWave));
 
-        setBody(makeSimpleBody("Sine Wave"));
+        setBody(makeSimpleBody("Sine Wave", 0x402060FF));
     }
     RegisterFactoryObject(SineWave, "Sine Wave", "Unit Sine");
 
@@ -19,7 +19,7 @@ namespace flui {
         addToLeft(makeNumberInput(&m_sawWave.input));
         addtoRight(makeNumberOutput(&m_sawWave));
 
-        setBody(makeSimpleBody("Saw Wave"));
+        setBody(makeSimpleBody("Saw Wave", 0x402060FF));
     }
     RegisterFactoryObject(SawWave, "Saw Wave");
 
@@ -27,7 +27,7 @@ namespace flui {
         addToLeft(makeNumberInput(&m_squareWave.input));
         addtoRight(makeNumberOutput(&m_squareWave));
 
-        setBody(makeSimpleBody("Square Wave"));
+        setBody(makeSimpleBody("Square Wave", 0x402060FF));
     }
     RegisterFactoryObject(SquareWave, "Square Wave");
 
@@ -35,7 +35,7 @@ namespace flui {
         addToLeft(makeNumberInput(&m_triangleWave.input));
         addtoRight(makeNumberOutput(&m_triangleWave));
 
-        setBody(makeSimpleBody("Triangle Wave"));
+        setBody(makeSimpleBody("Triangle Wave", 0x402060FF));
     }
     RegisterFactoryObject(TriangleWave, "Triangle Wave");
 

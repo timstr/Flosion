@@ -24,16 +24,12 @@ namespace flo {
     public:
         ~SoundSource();
 
+        // TODO: this can and should be made const
         /**
          * Produces the next chunk of sound. The SoundSource's state corresponding
          * to the given context may be updated.
          */
         virtual void getNextChunkFor(SoundChunk& chunk, const SoundInput* dependent, const SoundState* context) = 0;
-
-
-        //class Decorator : public SoundNode::Decorator {
-            // TODO: ???
-        //};
 
     private:
         std::vector<SoundInput*> m_inputs;

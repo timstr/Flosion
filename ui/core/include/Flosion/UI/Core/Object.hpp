@@ -33,7 +33,7 @@ namespace flui {
         std::unique_ptr<SoundInputPeg> makeSoundInput(flo::SoundInput* si, ui::String label = "sound input");
         std::unique_ptr<SoundOutputPeg> makeSoundOutput(flo::SoundSource* so, ui::String label = "sound output");
 
-        std::unique_ptr<ui::Element> makeSimpleBody(ui::String caption);
+        std::unique_ptr<ui::Element> makeSimpleBody(ui::String caption, ui::Color color);
         
         const std::vector<NumberInputPeg*>& getNumberInputPegs();
         const std::vector<NumberOutputPeg*>& getNumberOutputPegs();

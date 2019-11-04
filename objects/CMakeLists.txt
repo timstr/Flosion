@@ -4,6 +4,7 @@ set(include_path "include/Flosion/Objects")
 
 set(flosion_objects_headers
 	${include_path}/DAC.hpp
+	${include_path}/Ensemble.hpp
 	${include_path}/Functions.hpp
 	${include_path}/FunctionsBase.hpp
 	${include_path}/WaveForms.hpp
@@ -12,6 +13,7 @@ set(flosion_objects_headers
 
 set(flosion_objects_srcs
 	src/DAC.cpp
+    src/Ensemble.cpp
 	src/Functions.cpp
 	src/FunctionsBase.cpp
 	src/WaveForms.cpp

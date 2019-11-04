@@ -9,7 +9,7 @@ namespace flui {
         addToLeft(makeNumberInput(&m_add.input1, "Input 1"));
         addToLeft(makeNumberInput(&m_add.input2, "Input 2"));
         addtoRight(makeNumberOutput(&m_add, "Output"));
-        setBody(makeSimpleBody("Add"));
+        setBody(makeSimpleBody("Add", 0x202040FF));
     }
     RegisterFactoryObject(Add, "add", "+");
 
@@ -17,7 +17,7 @@ namespace flui {
         addToLeft(makeNumberInput(&m_subtract.input1, "Input 1"));
         addToLeft(makeNumberInput(&m_subtract.input2, "Input 2"));
         addtoRight(makeNumberOutput(&m_subtract, "Output"));
-        setBody(makeSimpleBody("Subtract"));
+        setBody(makeSimpleBody("Subtract", 0x202040FF));
     }
     RegisterFactoryObject(Subtract, "subtract", "-");
 
@@ -25,7 +25,7 @@ namespace flui {
         addToLeft(makeNumberInput(&m_multiply.input1, "Input 1"));
         addToLeft(makeNumberInput(&m_multiply.input2, "Input 2"));
         addtoRight(makeNumberOutput(&m_multiply, "Output"));
-        setBody(makeSimpleBody("Multiply"));
+        setBody(makeSimpleBody("Multiply", 0x202040FF));
     }
     RegisterFactoryObject(Multiply, "multiply", "*");
 
@@ -33,7 +33,7 @@ namespace flui {
         addToLeft(makeNumberInput(&m_divide.input1, "Numerator"));
         addToLeft(makeNumberInput(&m_divide.input2, "Denominator"));
         addtoRight(makeNumberOutput(&m_divide, "Output"));
-        setBody(makeSimpleBody("Divide"));
+        setBody(makeSimpleBody("Divide", 0x202040FF));
     }
     RegisterFactoryObject(Divide, "divide", "/");
 
