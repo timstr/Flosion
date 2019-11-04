@@ -8,7 +8,7 @@ namespace flui {
     class Object;
     class NumberWire;
 
-    class NumberInputPeg : public ui::Control, public ui::BoxElement {
+    class NumberInputPeg : public ui::Control, public ui::Boxed<ui::FreeContainer> {
     public:
         NumberInputPeg(Object* parent, flo::NumberInput* input, ui::String label);
         ~NumberInputPeg();
@@ -22,6 +22,10 @@ namespace flui {
 
         bool onDrop(ui::Draggable*) override;
 
+        void onMouseOver() override;
+
+        void onMouseOut() override;
+
     private:
         void setAttachedWire(NumberWire*);
 
@@ -29,11 +33,12 @@ namespace flui {
         Object* const m_parent;
         flo::NumberInput* const m_input;
         NumberWire* m_wireIn;
+        ui::Text& m_label;
 
         friend class NumberWire;
     };
 
-    class NumberOutputPeg : public ui::Control, public ui::BoxElement {
+    class NumberOutputPeg : public ui::Control, public ui::Boxed<ui::FreeContainer> {
     public:
         NumberOutputPeg(Object* parent, flo::NumberSource* output, ui::String label);
         ~NumberOutputPeg();
@@ -51,10 +56,15 @@ namespace flui {
         bool onLeftClick(int) override;
 
         bool onDrop(ui::Draggable*) override;
+
+        void onMouseOver() override;
+
+        void onMouseOut() override;
         
         Object* const m_parent;
         flo::NumberSource* const m_output;
         std::vector<NumberWire*> m_wiresOut;
+        ui::Text& m_label;
 
         friend class NumberWire;
     };

@@ -28,10 +28,10 @@ namespace flui {
 
     protected:
         // Constructs a peg for the given number/sound input/output, with a desired label
-        std::unique_ptr<NumberInputPeg> makeNumberInput(flo::NumberInput* ni, ui::String label = "number input");
-        std::unique_ptr<NumberOutputPeg> makeNumberOutput(flo::NumberSource* no, ui::String label = "number output");
-        std::unique_ptr<SoundInputPeg> makeSoundInput(flo::SoundInput* si, ui::String label = "sound input");
-        std::unique_ptr<SoundOutputPeg> makeSoundOutput(flo::SoundSource* so, ui::String label = "sound output");
+        std::unique_ptr<NumberInputPeg> makeNumberInput(flo::NumberInput* ni, ui::String label = "Number Input");
+        std::unique_ptr<NumberOutputPeg> makeNumberOutput(flo::NumberSource* no, ui::String label = "Number Output");
+        std::unique_ptr<SoundInputPeg> makeSoundInput(flo::SoundInput* si, ui::String label = "Sound Input");
+        std::unique_ptr<SoundOutputPeg> makeSoundOutput(flo::SoundSource* so, ui::String label = "Sound Output");
 
         std::unique_ptr<ui::Element> makeSimpleBody(ui::String caption, ui::Color color);
         
