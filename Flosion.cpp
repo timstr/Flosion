@@ -22,6 +22,10 @@
 
 // TODO: add graphs back (in a safe and clean way)
 
+// TODO: safeguard number sources from deletion while they are being used
+// (i.e. do some kind of locking to prevent them from being deleted
+// during their use in sound processing)
+
 // UI-related things:
 // TODO: decide on a user interface for borrowing number sources
 // - wire link between borrower and its lender?
@@ -30,8 +34,6 @@
 // TODO: remove duplication between sound/number pegs/wires
 // TODO: add posRelativeTo(const Element* ancestor) to ui
 // TODO: when a connected head is moused over, show the peg's label
-// TODO: selections
-// TODO: deleting objects
 // TODO: serialization/deserialization for objects and wires
 // TODO: cut/copy/paste
 // TODO: load/save project files (.flo extension???)
@@ -63,6 +65,16 @@
 // TODO: pointwise function
 // TODO: how to implement vocoder (i.e. synth filtered by human voice) without breaking scope?
 // TODO: custom waveform
+// TODO: spline (with points that can be moved by numberinputs)
+// TODO: cubic spline
+// TODO: bezier spline
+// TODO: gaussian radial basis function
+// TODO: linear smoother (borrower; takes constant step size)
+// TODO: exponential smoother (borrower; takes step size proportional to difference)
+// TODO: random walk (borrower)
+// TODO: oscillator (borrower; takes speed as input and outputs phase in range [0,1])
+// TODO: accumulator (borrower)
+// TODO: variable (borrower; when called, stores current input and returns previous value)
 
 // TODO: put all the following lovely objects into their own files in the flosion_objects target
 

@@ -76,7 +76,50 @@ namespace flui {
 
 	private:
 
+        void makeSelection(ui::vec2 topLeft, ui::vec2 size);
+
+        class SelectedObjects : public ui::FreeContainer, public ui::Control, public ui::Draggable {
+        public:
+            SelectedObjects(Panel& parentPanel, const std::vector<Object*>&);
+
+        private:
+            bool onLeftClick(int) override;
+
+            void onLeftRelease() override;
+
+            bool onKeyDown(ui::Key) override;
+
+            void onLoseFocus() override;
+
+            void onDrag() override;
+
+            void render(sf::RenderWindow&) override;
+
+            class FrontCover : public ui::Control, public ui::BoxElement {
+            public:
+                FrontCover(SelectedObjects& parent);
+
+            private:
+                bool onLeftClick(int) override;
+
+                SelectedObjects& m_parent;
+            };
+
+            Panel& m_parentPanel;
+
+            // vector of (selected object, base position) pairs
+            std::vector<std::pair<Object*, ui::vec2>> m_objects;
+            ui::vec2 m_lastPos;
+        };
+
 		bool onLeftClick(int) override;
+
+        void onLeftRelease() override;
+
+        void render(sf::RenderWindow&) override;
+
+        std::optional<ui::vec2> m_selectionStart;
+        ui::Draggable* m_selectionDragger;
 	};
 
     // TODO: collapsible panel

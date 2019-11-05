@@ -79,6 +79,7 @@ namespace flo {
     Other
         gaussian
         summation
+        lerp
 
     */
 
