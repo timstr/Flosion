@@ -22,8 +22,6 @@ namespace flui {
 		Box();
         ~Box();
 
-        // TODO
-
 		void addObject(std::unique_ptr<Object>);
         void removeObject(const Object*);
 

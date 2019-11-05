@@ -22,6 +22,49 @@
 
 // TODO: add graphs back (in a safe and clean way)
 
+// UI-related things:
+// TODO: decide on a user interface for borrowing number sources
+// - wire link between borrower and its lender?
+// - Borrowers get placed into a panel in or with the lender?
+// - 
+// TODO: remove duplication between sound/number pegs/wires
+// TODO: add posRelativeTo(const Element* ancestor) to ui
+// TODO: when a connected head is moused over, show the peg's label
+// TODO: selections
+// TODO: deleting objects
+// TODO: serialization/deserialization for objects and wires
+// TODO: cut/copy/paste
+// TODO: load/save project files (.flo extension???)
+// TODO: Rename box to panel
+// TODO: Collapsible panels
+// TODO: obstacle-avoiding wires
+// TODO: hand-written math expressions
+// TODO: record sound streams into an audioclip
+// TODO: put wires in front of objects always
+
+// TODO: audioclip
+// - one-shot vs loop
+// - start time
+// - wave visualization and editing
+// - number inputs for current time OR current speed
+// TODO: feedback
+// TODO: delay
+// TODO: melody (previously known as sampler)
+// TODO: scatter
+// TODO: sequence
+// TODO: phase vocoder (consider reimplementing for efficiency)
+// TODO: convolver
+// TODO: FFT filter
+// TODO: lowpass filter https://en.wikipedia.org/wiki/Low-pass_filter#Simple_infinite_impulse_response_filter
+// TODO: bandpass filter
+// TODO: highpass filter https://en.wikipedia.org/wiki/High-pass_filter#Algorithmic_implementation
+// TODO: IDCT
+// TODO: IFFT
+// TODO: IDWT
+// TODO: pointwise function
+// TODO: how to implement vocoder (i.e. synth filtered by human voice) without breaking scope?
+// TODO: custom waveform
+
 // TODO: put all the following lovely objects into their own files in the flosion_objects target
 
 std::random_device ranDev;
