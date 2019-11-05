@@ -33,6 +33,11 @@ namespace flo {
     // TODO: more functions
 
     /*
+    Nullary:
+        pi
+        e
+        tau
+
     Unary:
         abs
         sqrt
@@ -59,6 +64,7 @@ namespace flo {
         ceil
         floor
         round
+        mod
         plusOne
         minusOne
         oneMinus
@@ -75,6 +81,11 @@ namespace flo {
         logb
         hypot
         atan2
+        randomUniform
+        randomNormal
+        roundTo
+        floorTo
+        ceilTo
 
     Other
         gaussian

@@ -9,6 +9,25 @@ set(flosion_objects_headers
 	${include_path}/FunctionsBase.hpp
 	${include_path}/WaveForms.hpp
 	${include_path}/WaveGenerator.hpp
+    ${include_path}/BitCrush.hpp
+    ${include_path}/Compressor.hpp
+    ${include_path}/Convolver.hpp
+    ${include_path}/Delay.hpp
+    ${include_path}/Distortion.hpp
+    ${include_path}/Equalizer.hpp
+    ${include_path}/Feedback.hpp
+    ${include_path}/Highpass.hpp
+    ${include_path}/Lowpass.hpp
+    ${include_path}/Melody.hpp
+    ${include_path}/Mixer.hpp
+    ${include_path}/PhaseVocoder.hpp
+    ${include_path}/Pointwise.hpp
+    ${include_path}/Resampler.hpp
+    ${include_path}/Router.hpp
+    ${include_path}/Scatter.hpp
+    ${include_path}/Sequencer.hpp
+    ${include_path}/Splicer.hpp
+    ${include_path}/StringModel.hpp
 )
 
 set(flosion_objects_srcs
@@ -18,6 +37,25 @@ set(flosion_objects_srcs
 	src/FunctionsBase.cpp
 	src/WaveForms.cpp
 	src/WaveGenerator.cpp
+    src/BitCrush.cpp
+    src/Compressor.cpp
+    src/Convolver.cpp
+    src/Delay.cpp
+    src/Distortion.cpp
+    src/Equalizer.cpp
+    src/Feedback.cpp
+    src/Highpass.cpp
+    src/Lowpass.cpp
+    src/Melody.cpp
+    src/Mixer.cpp
+    src/PhaseVocoder.cpp
+    src/Pointwise.cpp
+    src/Resampler.cpp
+    src/Router.cpp
+    src/Scatter.cpp
+    src/Sequencer.cpp
+    src/Splicer.cpp
+    src/StringModel.cpp
 )
 
 add_library(flosion_objects STATIC ${flosion_objects_headers} ${flosion_objects_srcs})

@@ -48,21 +48,10 @@
 // - start time
 // - wave visualization and editing
 // - number inputs for current time OR current speed
-// TODO: feedback
-// TODO: delay
-// TODO: melody (previously known as sampler)
-// TODO: scatter
-// TODO: sequence
-// TODO: phase vocoder (consider reimplementing for efficiency)
-// TODO: convolver
-// TODO: FFT filter
-// TODO: lowpass filter https://en.wikipedia.org/wiki/Low-pass_filter#Simple_infinite_impulse_response_filter
 // TODO: bandpass filter
-// TODO: highpass filter https://en.wikipedia.org/wiki/High-pass_filter#Algorithmic_implementation
 // TODO: IDCT
 // TODO: IFFT
 // TODO: IDWT
-// TODO: pointwise function
 // TODO: how to implement vocoder (i.e. synth filtered by human voice) without breaking scope?
 // TODO: custom waveform
 // TODO: spline (with points that can be moved by numberinputs)
