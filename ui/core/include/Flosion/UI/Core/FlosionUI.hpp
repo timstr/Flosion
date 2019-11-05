@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Flosion/UI/Core/Object.hpp>
-#include <Flosion/UI/Core/Box.hpp>
+#include <Flosion/UI/Core/Panel.hpp>
 #include <Flosion/UI/Core/NumberWire.hpp>
 #include <Flosion/UI/Core/SoundWire.hpp>
 
@@ -13,7 +13,7 @@ namespace flui {
 		FlosionUI();
 
 	private:
-		MainBox& m_box;
+		MainPanel& m_panel;
 	};
 
 }

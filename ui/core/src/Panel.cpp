@@ -1,25 +1,25 @@
-#include <Flosion/UI/Core/Box.hpp>
+#include <Flosion/UI/Core/Panel.hpp>
 
 #include <Flosion/UI/Core/Object.hpp>
-#include <Flosion/UI/Core/BoxContextMenu.hpp>
+#include <Flosion/UI/Core/PanelContextMenu.hpp>
 #include <Flosion/UI/Core/NumberWire.hpp>
 #include <Flosion/UI/Core/SoundWire.hpp>
 
 namespace flui {
 
-    Box::Box(){
+    Panel::Panel(){
         setBackgroundColor(0x080820FF);
     }
 
-    Box::~Box(){
+    Panel::~Panel(){
         while (m_objects.size() > 0){
             removeObject(m_objects.back());
         }
     }
 
-    void Box::addObject(std::unique_ptr<Object> object){
-        assert(object->m_parentBox == nullptr);
-        object->m_parentBox = this;
+    void Panel::addObject(std::unique_ptr<Object> object){
+        assert(object->m_parentPanel == nullptr);
+        object->m_parentPanel = this;
         auto op = object.get();
         m_objects.push_back(op);
         adopt(std::move(object));
@@ -43,13 +43,13 @@ namespace flui {
         }
     }
 
-    void Box::removeObject(const Object* o){
-        assert(o->m_parentBox == this);
+    void Panel::removeObject(const Object* o){
+        assert(o->m_parentPanel == this);
         assert(std::count(m_objects.begin(), m_objects.end(), o) == 1);
         auto it = std::find(m_objects.begin(), m_objects.end(), o);
         assert(it != m_objects.end());
         auto op = *it;
-        op->m_parentBox = nullptr;
+        op->m_parentPanel = nullptr;
 
         for (const auto& p : op->getNumberInputPegs()){
             if (p->getAttachedWire()){
@@ -88,13 +88,13 @@ namespace flui {
         m_objects.erase(it);
     }
 
-    NumberWire* Box::addNumberWire(flo::NumberSource* src, flo::NumberInput* dst){
+    NumberWire* Panel::addNumberWire(flo::NumberSource* src, flo::NumberInput* dst){
         auto& w = add<NumberWire>(this, src, dst);
         m_numberwires.push_back(&w);
         return &w;
     }
 
-    void Box::removeNumberWire(NumberWire* w){
+    void Panel::removeNumberWire(NumberWire* w){
         if (w->getHeadPeg() && w->getTailPeg()){
             w->destroy();
         } else {
@@ -107,13 +107,13 @@ namespace flui {
         }
     }
 
-    SoundWire* Box::addSoundWire(flo::SoundSource* src, flo::SoundInput* dst){
+    SoundWire* Panel::addSoundWire(flo::SoundSource* src, flo::SoundInput* dst){
         auto& w = add<SoundWire>(this, src, dst);
         m_soundwires.push_back(&w);
         return &w;
     }
 
-    void Box::removeSoundWire(SoundWire* w){
+    void Panel::removeSoundWire(SoundWire* w){
         if (w->getHeadPeg() && w->getTailPeg()){
             w->destroy();
         } else {
@@ -126,37 +126,37 @@ namespace flui {
         }
     }
 
-    NumberInputPeg* Box::findPegFor(const flo::NumberInput* ni){
+    NumberInputPeg* Panel::findPegFor(const flo::NumberInput* ni){
         if (auto it = m_numberInputPegs.find(ni); it != m_numberInputPegs.end()){
             return it->second;
         }
         return nullptr;
     }
 
-    NumberOutputPeg* Box::findPegFor(const flo::NumberSource* ns){
+    NumberOutputPeg* Panel::findPegFor(const flo::NumberSource* ns){
         if (auto it = m_numberOutputPegs.find(ns); it != m_numberOutputPegs.end()){
             return it->second;
         }
         return nullptr;
     }
 
-    SoundInputPeg* Box::findPegFor(const flo::SoundInput* si){
+    SoundInputPeg* Panel::findPegFor(const flo::SoundInput* si){
         if (auto it = m_soundInputPegs.find(si); it != m_soundInputPegs.end()){
             return it->second;
         }
         return nullptr;
     }
 
-    SoundOutputPeg* Box::findPegFor(const flo::SoundSource* ss){
+    SoundOutputPeg* Panel::findPegFor(const flo::SoundSource* ss){
         if (auto it = m_soundOutputPegs.find(ss); it != m_soundOutputPegs.end()){
             return it->second;
         }
         return nullptr;
     }
 
-    bool Box::onLeftClick(int clicks){
+    bool Panel::onLeftClick(int clicks){
         if (clicks == 2){
-            auto cm = std::make_unique<BoxContextMenu>(*this);
+            auto cm = std::make_unique<PanelContextMenu>(*this);
             auto& cmr = *cm;
             cm->setPos(localMousePos() - cm->size() * 0.5f);
             adopt(std::move(cm));
@@ -165,7 +165,7 @@ namespace flui {
         return true;
     }
 
-    MainBox::MainBox() {
+    MainPanel::MainPanel() {
         
     }
 

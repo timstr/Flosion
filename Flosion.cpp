@@ -25,7 +25,7 @@
 // UI-related things:
 // TODO: decide on a user interface for borrowing number sources
 // - wire link between borrower and its lender?
-// - Borrowers get placed into a panel in or with the lender?
+// - Borrowers get placed into a box inside/alongside the lender?
 // - 
 // TODO: remove duplication between sound/number pegs/wires
 // TODO: add posRelativeTo(const Element* ancestor) to ui
@@ -35,7 +35,6 @@
 // TODO: serialization/deserialization for objects and wires
 // TODO: cut/copy/paste
 // TODO: load/save project files (.flo extension???)
-// TODO: Rename box to panel
 // TODO: Collapsible panels
 // TODO: obstacle-avoiding wires
 // TODO: hand-written math expressions

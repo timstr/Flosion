@@ -1,6 +1,6 @@
 #include <Flosion/UI/Core/NumberPegs.hpp>
 
-#include <Flosion/UI/Core/Box.hpp>
+#include <Flosion/UI/Core/Panel.hpp>
 #include <Flosion/UI/Core/Font.hpp>
 #include <Flosion/UI/Core/NumberWire.hpp>
 #include <Flosion/UI/Core/Object.hpp>
@@ -55,7 +55,7 @@ namespace flui {
             h->disconnectAndDrag();
             transferEventResposeTo(h);
         } else {
-            auto w = m_parent->getParentBox()->addNumberWire(nullptr, m_input);
+            auto w = m_parent->getParentPanel()->addNumberWire(nullptr, m_input);
             assert(w->getHeadPeg() == this);
             assert(w->getTailPeg() == nullptr);
             w->getTail()->disconnectAndDrag();
@@ -203,7 +203,7 @@ namespace flui {
             transferEventResposeTo(w->getTail());
         } else {
             // TODO: this differs from NumberOutputPeg
-            auto w = m_parent->getParentBox()->addNumberWire(m_output, nullptr);
+            auto w = m_parent->getParentPanel()->addNumberWire(m_output, nullptr);
             assert(w->getTailPeg() == this);
             assert(w->getHeadPeg() == nullptr);
             w->getHead()->disconnectAndDrag();

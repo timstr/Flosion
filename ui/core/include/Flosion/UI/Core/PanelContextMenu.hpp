@@ -5,13 +5,13 @@
 
 namespace flui {
 
-    class Box;
+    class Panel;
 
-    // BoxContextMenu is the text field and list of search results that
+    // PanelContextMenu is the text field and list of search results that
     // appears when one double-clicks a box
-    class BoxContextMenu : public ui::FreeContainer, public ui::Control {
+    class PanelContextMenu : public ui::FreeContainer, public ui::Control {
     public:
-        BoxContextMenu(Box& parent);
+        PanelContextMenu(Panel& parent);
 
         void startTyping();
 
@@ -24,7 +24,7 @@ namespace flui {
 
         void addAndClose(std::unique_ptr<Object>);
 
-        Box& m_parent;
+        Panel& m_parent;
         ui::VerticalList& m_results;
         ui::TextEntry& m_textEntry;
         Factory::ObjectCreator m_topResult;

@@ -8,13 +8,13 @@ namespace flui {
 
     // TODO: this is virtually identical to SoundWire
 
-    class Box;
+    class Panel;
     class NumberInputPeg;
     class NumberOutputPeg;
 
     class NumberWire : public ui::FreeContainer, private flo::NumberInputReactor, private flo::NumberSourceReactor {
     public:
-        NumberWire(Box* parentBox, flo::NumberSource* src, flo::NumberInput* dst);
+        NumberWire(Panel* parentPanel, flo::NumberSource* src, flo::NumberInput* dst);
         ~NumberWire();
 
         class Head;
@@ -83,7 +83,7 @@ namespace flui {
 
         void render(sf::RenderWindow&) override;
 
-        Box* const m_parentBox;
+        Panel* const m_parentPanel;
         NumberInputPeg* m_headPeg;
         NumberOutputPeg* m_tailPeg;
         Head& m_head;

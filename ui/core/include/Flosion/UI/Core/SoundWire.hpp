@@ -7,13 +7,13 @@
 
 namespace flui {
 
-    class Box;
+    class Panel;
     class SoundInputPeg;
     class SoundOutputPeg;
 
     class SoundWire : public ui::FreeContainer, private flo::SoundInputReactor, private flo::SoundSourceReactor {
     public:
-        SoundWire(Box* parentBox, flo::SoundSource* src, flo::SoundInput* dst);
+        SoundWire(Panel* parentPanel, flo::SoundSource* src, flo::SoundInput* dst);
         ~SoundWire();
 
         class Head;
@@ -82,7 +82,7 @@ namespace flui {
 
         void render(sf::RenderWindow&) override;
 
-        Box* const m_parentBox;
+        Panel* const m_parentPanel;
         SoundInputPeg* m_headPeg;
         SoundOutputPeg* m_tailPeg;
         Head& m_head;

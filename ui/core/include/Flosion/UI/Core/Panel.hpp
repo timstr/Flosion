@@ -16,19 +16,21 @@ namespace flui {
     class SoundOutputPeg;
     class SoundWire;
 	
-	// Box is what holds all objects
-	class Box : public ui::Boxed<ui::FreeContainer>, public ui::Control {
+	// Panel is what holds all objects
+	class Panel : public ui::Boxed<ui::FreeContainer>, public ui::Control {
     public:
-		Box();
-        ~Box();
+		Panel();
+        ~Panel();
 
 		void addObject(std::unique_ptr<Object>);
         void removeObject(const Object*);
-
+        
+        // Adds a NumberWire to the panel.
+        // At most one of src and dst may be null.
         NumberWire* addNumberWire(flo::NumberSource* src, flo::NumberInput* dst);
         void removeNumberWire(NumberWire*);
 
-        // Adds a SoundWire to the box.
+        // Adds a SoundWire to the panel.
         // At most one of src and dst may be null.
         SoundWire* addSoundWire(flo::SoundSource* src, flo::SoundInput* dst);
         void removeSoundWire(SoundWire*);
@@ -77,39 +79,11 @@ namespace flui {
 		bool onLeftClick(int) override;
 	};
 
-    // TODO
-	// allows convenient clustering of objects and collapsing into a more compact view
-	/*struct CollapsibleBox : Object {
-		CollapsibleBox();
+    // TODO: collapsible panel
 
-		void collapse();
-
-		void expand();
-
-		// TODO: make inner Box resize to fit contents and reposition
-		// self as needed
-
-		// TODO: put wire inputs/outputs on the edges of collapsible boxes
-		// for wires leaving and entering the box
-
-	private:
-
-		void render(sf::RenderWindow& rw) override;
-
-		bool onLeftClick(int clicks) override;
-
-		void onLeftRelease() override;
-
-		bool m_iscollapsed;
-
-		ui::Ref<ui::Element> m_titlebar;
-		ui::Ref<Box> m_box;
-	};
-	RegisterFactoryObject(CollapsibleBox, "box", "container");*/
-
-	class MainBox : public Box {
+	class MainPanel : public Panel {
     public:
-		MainBox();
+		MainPanel();
 	};
 
 } // namespace flui

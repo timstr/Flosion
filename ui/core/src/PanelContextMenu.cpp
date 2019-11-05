@@ -1,6 +1,6 @@
-#include <Flosion/UI/Core/BoxContextMenu.hpp>
+#include <Flosion/UI/Core/PanelContextMenu.hpp>
 
-#include <Flosion/UI/Core/Box.hpp>
+#include <Flosion/UI/Core/Panel.hpp>
 #include <Flosion/UI/Core/Font.hpp>
 #include <Flosion/UI/Core/Object.hpp>
 #include <Flosion/UI/Core/ObjectFactory.hpp>
@@ -47,7 +47,7 @@ namespace flui {
         }
     }
 
-    BoxContextMenu::BoxContextMenu(Box& parent)
+    PanelContextMenu::PanelContextMenu(Panel& parent)
         : m_parent(parent)
         , m_results(add<ui::VerticalList>(
             ui::FreeContainer::InsideLeft,
@@ -69,15 +69,15 @@ namespace flui {
         m_textEntry.setMinWidth(100.0f);*/
     }
 
-    void BoxContextMenu::startTyping(){
+    void PanelContextMenu::startTyping(){
         m_textEntry.startTyping();
     }
 
-    void BoxContextMenu::onLoseFocus(){
+    void PanelContextMenu::onLoseFocus(){
         close();
     }
 
-    void BoxContextMenu::refreshResults(const ui::String& str){
+    void PanelContextMenu::refreshResults(const ui::String& str){
         m_results.clear();
         m_results.setSize({0.0f, 0.0f});
         m_topResult = {};
@@ -123,7 +123,7 @@ namespace flui {
         }
     }
 
-    void BoxContextMenu::handleSubmit(){
+    void PanelContextMenu::handleSubmit(){
         if (m_topResult){
             addAndClose(m_topResult(m_args));
         } else {
@@ -131,7 +131,7 @@ namespace flui {
         }
     }
 
-    void BoxContextMenu::addAndClose(std::unique_ptr<Object> obj){
+    void PanelContextMenu::addAndClose(std::unique_ptr<Object> obj){
         obj->setPos(pos() + (size() - obj->size()) * 0.5f);
         m_parent.addObject(std::move(obj));
         close();

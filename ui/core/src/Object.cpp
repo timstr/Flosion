@@ -1,6 +1,6 @@
 #include <Flosion/UI/Core/Object.hpp>
 
-#include <Flosion/UI/Core/Box.hpp>
+#include <Flosion/UI/Core/Panel.hpp>
 #include <Flosion/UI/Core/Font.hpp>
 #include <Flosion/UI/Core/NumberPegs.hpp>
 #include <Flosion/UI/Core/NumberWire.hpp>
@@ -50,7 +50,7 @@ namespace flui {
 
     Object::Object()
         : ui::GridContainer(3, 2)
-        , m_parentBox(nullptr)
+        , m_parentPanel(nullptr)
         , m_leftContainer(
             putCell<ui::FreeContainer>(0, 1)
             .add<ui::VerticalList>(ui::FreeContainer::Center, ui::FreeContainer::Center)
@@ -63,8 +63,8 @@ namespace flui {
     }
 
     Object::~Object(){
-        if (m_parentBox){
-            m_parentBox->removeObject(this);
+        if (m_parentPanel){
+            m_parentPanel->removeObject(this);
         }
 
         while (m_numberInputs.size() > 0){
@@ -81,8 +81,8 @@ namespace flui {
         }
     }
 
-    Box* Object::getParentBox(){
-        return m_parentBox;
+    Panel* Object::getParentPanel(){
+        return m_parentPanel;
     }
 
     std::unique_ptr<NumberInputPeg> Object::makeNumberInput(flo::NumberInput* ni, ui::String label){

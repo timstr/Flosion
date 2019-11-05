@@ -15,7 +15,7 @@ namespace flui {
 	class SoundInputPeg;
 	class SoundOutputPeg;
 	class SoundWire;
-	class Box;
+	class Panel;
 
 	// Object is the base class to all gui components representing sound and
 	// numerical processing, and their related components
@@ -24,7 +24,7 @@ namespace flui {
 		Object();
         ~Object();
 
-		Box* getParentBox();
+		Panel* getParentPanel();
 
     protected:
         // Constructs a peg for the given number/sound input/output, with a desired label
@@ -66,9 +66,9 @@ namespace flui {
 		//void showSoundInputList(SoundWire* wire, ui::vec2 pos);
 		//void showSoundOutputList(SoundWire* wire, ui::vec2 pos);
 
-		Box* m_parentBox;
+		Panel* m_parentPanel;
 
-		friend class Box;
+		friend class Panel;
 
     private:
         ui::VerticalList& m_leftContainer;

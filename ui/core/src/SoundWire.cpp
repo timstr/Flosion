@@ -1,16 +1,16 @@
 #include <Flosion/UI/Core/SoundWire.hpp>
 
-#include <Flosion/UI/Core/Box.hpp>
+#include <Flosion/UI/Core/Panel.hpp>
 #include <Flosion/UI/Core/SoundPegs.hpp>
 
 #include <array>
 
 namespace flui {
 
-    SoundWire::SoundWire(Box* parentBox, flo::SoundSource* src, flo::SoundInput* dst)
-        : m_parentBox(parentBox)
-        , m_tailPeg(m_parentBox->findPegFor(src))
-        , m_headPeg(m_parentBox->findPegFor(dst))
+    SoundWire::SoundWire(Panel* parentPanel, flo::SoundSource* src, flo::SoundInput* dst)
+        : m_parentPanel(parentPanel)
+        , m_tailPeg(m_parentPanel->findPegFor(src))
+        , m_headPeg(m_parentPanel->findPegFor(dst))
         , m_head(add<Head>(this))
         , m_tail(add<Tail>(this)) {
     
@@ -59,7 +59,7 @@ namespace flui {
             m_tailPeg = nullptr;
         }
         
-        m_parentBox->removeSoundWire(this);
+        m_parentPanel->removeSoundWire(this);
     }
 
     SoundWire::Head* SoundWire::getHead() noexcept {
@@ -97,14 +97,14 @@ namespace flui {
     void SoundWire::afterSourceAdded(const flo::SoundSource* ss){
         if (!m_headPeg){
             auto& si = flo::SoundInputReactor::target();
-            auto p = m_parentBox->findPegFor(&si);
+            auto p = m_parentPanel->findPegFor(&si);
             assert(p);
             assert(p->getAttachedWire() != this);
             m_headPeg = p;
             p->setAttachedWire(this);
         }
         if (!m_tailPeg){
-            auto p = m_parentBox->findPegFor(ss);
+            auto p = m_parentPanel->findPegFor(ss);
             assert(p);
             assert(!p->hasAttachedWire(this));
             m_tailPeg = p;
@@ -134,7 +134,7 @@ namespace flui {
     }
 
     void SoundWire::updatePositions(){
-        const auto bp = m_parentBox->rootPos();
+        const auto bp = m_parentPanel->rootPos();
         
         if (m_headPeg){
             m_head.setPos(m_headPeg->rootPos() + (m_headPeg->size() - m_head.size()) * 0.5f - bp);

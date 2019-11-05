@@ -4,8 +4,8 @@ set(include_path "include/Flosion/UI/Core")
 
 set(flosion_ui_core_headers
     ${include_path}/ArgumentParser.hpp
-    ${include_path}/Box.hpp
-    ${include_path}/BoxContextMenu.hpp
+    ${include_path}/Panel.hpp
+    ${include_path}/PanelContextMenu.hpp
     ${include_path}/FlosionUI.hpp
     ${include_path}/Font.hpp
     ${include_path}/NumberObject.hpp
@@ -21,8 +21,8 @@ set(flosion_ui_core_headers
 
 set(flosion_ui_core_srcs
     src/ArgumentParser.cpp
-    src/Box.cpp
-    src/BoxContextMenu.cpp
+    src/Panel.cpp
+    src/PanelContextMenu.cpp
     src/FlosionUI.cpp
     src/Font.cpp
     src/NumberObject.cpp

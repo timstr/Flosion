@@ -20,13 +20,13 @@ namespace flui {
     private:
         void onChangeValue(double) override;
 
-        // TODO: shift-click or double-click to edit value
+        // TODO: shift-click or double-click or button to edit value
+        // TODO: easier way to drag
 
         flo::Constant m_constant;
         ui::Text* m_label;
     };
 
-    // TODO
     class Slider : public Object, private flo::ConstantReactor {
     public:
         Slider();
@@ -42,6 +42,10 @@ namespace flui {
         void setMaximum(double);
 
     private:
+        // TODO: shift-click or double-click or button to edit value and limits
+        // TODO: easier way to drag
+
+
         void onChangeValue(double) override;
 
         flo::Constant m_constant;
