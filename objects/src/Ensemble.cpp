@@ -48,7 +48,8 @@ namespace flo {
     }
 
     Ensemble::Input::Input(Ensemble* ensemble)
-        : m_ensemble(ensemble)
+        : MultiSoundInput(ensemble)
+        , m_ensemble(ensemble)
         , frequencyOut(this) {
     
     }

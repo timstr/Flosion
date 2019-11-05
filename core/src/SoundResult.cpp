@@ -4,12 +4,11 @@
 
 namespace flo {
 
-    SoundResult::SoundResult(){
-        addDependency(&m_input);
+    SoundResult::SoundResult()
+        : m_input(this) {
+
     }
-    SoundResult::~SoundResult(){
-        removeDependency(&m_input);
-    }
+
     void SoundResult::getNextChunk(SoundChunk& chunk){
         // Acquire read lock to prevent race conditions
         auto lock = std::shared_lock{m_mutex};

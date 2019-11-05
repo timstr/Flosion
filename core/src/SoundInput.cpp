@@ -6,6 +6,7 @@ namespace flo {
 
     SoundInput::SoundInput() noexcept
         : m_source(nullptr) {
+
     }
 
     SoundInput::~SoundInput(){

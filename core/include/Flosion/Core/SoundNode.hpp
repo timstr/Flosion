@@ -186,7 +186,8 @@ namespace flo {
     template<typename SoundNodeType>
     class WithCurrentTime : public SoundNodeType {
     public:
-        WithCurrentTime();
+        template<typename... Args>
+        WithCurrentTime(Args&&...);
 
         CurrentTime currentTime;
     };

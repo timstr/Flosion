@@ -109,7 +109,7 @@ namespace flo {
     }
 
     Sample Sample::operator*(float value) const noexcept {
-        return {l() - value, r() - value};
+        return {l() * value, r() * value};
     }
 
     Sample Sample::operator/(float v) const noexcept {

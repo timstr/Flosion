@@ -17,7 +17,6 @@ namespace flo {
     class SoundResult : public Realtime<Uncontrolled<SoundNode, EmptySoundState>> {
     public:
         SoundResult();
-        ~SoundResult();
 
         void getNextChunk(SoundChunk&);
 

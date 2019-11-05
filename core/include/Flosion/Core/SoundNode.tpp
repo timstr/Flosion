@@ -165,8 +165,10 @@ namespace flo {
     }
     
     template<typename SoundNodeType>
-    inline WithCurrentTime<SoundNodeType>::WithCurrentTime()
-        : currentTime(this) {
+    template<typename... Args>
+    inline WithCurrentTime<SoundNodeType>::WithCurrentTime(Args&&... args)
+        : SoundNodeType(std::forward<Args>(args)...)
+        , currentTime(this) {
 
     }
 

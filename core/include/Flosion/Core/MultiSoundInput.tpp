@@ -1,4 +1,12 @@
+#include "MultiSoundInput.hpp"
 namespace flo {
+
+    template<typename StateType, typename KeyType>
+    MultiSoundInput<StateType, KeyType>::MultiSoundInput(SoundNode* parent){
+        if (parent){
+            parent->addDependency(this);
+        }
+    }
 
     template<typename StateType, typename KeyType>
     inline void MultiSoundInput<StateType, KeyType>::getNextChunkFor(SoundChunk& chunk, const SoundNode* node, const SoundState* state, const KeyType& key){

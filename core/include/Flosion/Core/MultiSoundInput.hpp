@@ -13,6 +13,7 @@ namespace flo {
     template<typename StateType, typename KeyType>
     class MultiSoundInput : public Divergent<SoundInput, StateType, KeyType> {
     public:
+        MultiSoundInput(SoundNode* parent);
         
         void getNextChunkFor(SoundChunk& chunk, const SoundNode* node, const SoundState* state, const KeyType& key);
     };

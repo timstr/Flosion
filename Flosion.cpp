@@ -266,7 +266,9 @@ private:
 
     class Input : public flo::SingleSoundInput {
     public:
-        Input(Router* router) : m_router(router) {
+        Input(Router* router)
+            : SingleSoundInput(nullptr)
+            , m_router(router) {
         
         }
 
@@ -362,7 +364,7 @@ public:
     }
 
     void addSource(SoundSource* source){
-        m_inputs.push_back(std::make_unique<flo::SingleSoundInput>());
+        m_inputs.push_back(std::make_unique<flo::SingleSoundInput>(nullptr));
         const auto& input = m_inputs.back();
         addDependency(input.get());
         input->setSource(source);
@@ -389,8 +391,9 @@ public:
 
 class Resampler : public flo::OutOfSync<flo::ControlledSoundSource<ResamplerState>> {
 public:
-    Resampler() : timeSpeed(this, 1.0) {
-        addDependency(&input);
+    Resampler()
+        : input(this)
+        , timeSpeed(this, 1.0) {
     }
 
     void renderNextChunk(flo::SoundChunk& chunk, ResamplerState* state) override {
