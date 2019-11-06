@@ -9,7 +9,7 @@ namespace flui {
 
     SineWave::SineWave(){
         addToLeft(makeNumberInput(&m_sineWave.input));
-        addtoRight(makeNumberOutput(&m_sineWave));
+        addToRight(makeNumberOutput(&m_sineWave));
 
         setBody(makeSimpleBody("Sine Wave", 0x402060FF));
     }
@@ -17,7 +17,7 @@ namespace flui {
 
     SawWave::SawWave(){
         addToLeft(makeNumberInput(&m_sawWave.input));
-        addtoRight(makeNumberOutput(&m_sawWave));
+        addToRight(makeNumberOutput(&m_sawWave));
 
         setBody(makeSimpleBody("Saw Wave", 0x402060FF));
     }
@@ -25,7 +25,7 @@ namespace flui {
 
     SquareWave::SquareWave(){
         addToLeft(makeNumberInput(&m_squareWave.input));
-        addtoRight(makeNumberOutput(&m_squareWave));
+        addToRight(makeNumberOutput(&m_squareWave));
 
         setBody(makeSimpleBody("Square Wave", 0x402060FF));
     }
@@ -33,7 +33,7 @@ namespace flui {
 
     TriangleWave::TriangleWave(){
         addToLeft(makeNumberInput(&m_triangleWave.input));
-        addtoRight(makeNumberOutput(&m_triangleWave));
+        addToRight(makeNumberOutput(&m_triangleWave));
 
         setBody(makeSimpleBody("Triangle Wave", 0x402060FF));
     }

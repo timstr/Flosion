@@ -11,7 +11,8 @@ namespace flui {
         addToTop(makeNumberOutput(&m_waveGen.phase, "Phase"));
         addToLeft(makeNumberInput(&m_waveGen.waveFunction, "Wave Function"));
         addToLeft(makeNumberInput(&m_waveGen.frequency, "Frequency"));
-        addtoRight(makeSoundOutput(&m_waveGen, "Output"));
+        addToTop(makeNumberOutput(&m_waveGen.currentTime, "Current Time"));
+        addToRight(makeSoundOutput(&m_waveGen, "Output"));
 
         auto bod = std::make_unique<ui::Boxed<ui::VerticalList>>();
         bod->push_back<ui::Text>("Wave Generator", getFont());

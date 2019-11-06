@@ -6,6 +6,8 @@
 
 namespace flo {
 
+    // TODO: sensible volume mixing
+
     class EnsembleInputState : public flo::SoundState {
     public:
         using SoundState::SoundState;

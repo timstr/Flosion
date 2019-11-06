@@ -43,7 +43,7 @@ namespace flui {
     protected:
         void addToLeft(std::unique_ptr<ui::Element>);
         void addToTop(std::unique_ptr<ui::Element>);
-        void addtoRight(std::unique_ptr<ui::Element>);
+        void addToRight(std::unique_ptr<ui::Element>);
 
         void addDragButton();
 

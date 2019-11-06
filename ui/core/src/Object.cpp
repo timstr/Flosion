@@ -182,7 +182,7 @@ namespace flui {
         m_topContainer.push_back(std::move(e));
     }
 
-    void Object::addtoRight(std::unique_ptr<ui::Element> e){
+    void Object::addToRight(std::unique_ptr<ui::Element> e){
         m_rightContainer.push_back(std::move(e));
     }
 

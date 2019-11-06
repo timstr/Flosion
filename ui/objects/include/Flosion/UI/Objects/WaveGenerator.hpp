@@ -8,7 +8,7 @@ namespace flui {
         WaveGenerator();
 
     private:
-        flo::WaveGenerator m_waveGen;
+        flo::WithCurrentTime<flo::WaveGenerator> m_waveGen;
     };
 
 } // namespace flui
