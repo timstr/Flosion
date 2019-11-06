@@ -399,7 +399,7 @@ namespace flui {
     OneMinus::OneMinus(){
         addToLeft(makeNumberInput(&m_oneMinus.input));
         addToRight(makeNumberOutput(&m_oneMinus));
-        setBody(makeSimpleBody("-1", 0x786538ff));
+        setBody(makeSimpleBody("1-", 0x786538ff));
     }
     RegisterFactoryObject(OneMinus, "oneminus", "1-");
 
