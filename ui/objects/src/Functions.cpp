@@ -352,7 +352,7 @@ namespace flui {
         addToRight(makeNumberOutput(&m_atanh));
         setBody(makeSimpleBody("abs", 0x647d63ff));
     }
-    RegisterFactoryObject(Atanh, "abs");
+    RegisterFactoryObject(Atanh, "atanh");
 
     Ceil::Ceil(){
         addToLeft(makeNumberInput(&m_ceil.input));
@@ -387,7 +387,7 @@ namespace flui {
         addToRight(makeNumberOutput(&m_plusOne));
         setBody(makeSimpleBody("+1", 0x786538ff));
     }
-    RegisterFactoryObject(PlusOne, "plusone", "-1");
+    RegisterFactoryObject(PlusOne, "plusone", "+1");
 
     MinusOne::MinusOne(){
         addToLeft(makeNumberInput(&m_minusOne.input));
@@ -490,7 +490,7 @@ namespace flui {
         addToLeft(makeNumberInput(&m_randomUniform.input1, "Minimum"));
         addToLeft(makeNumberInput(&m_randomUniform.input2, "Maximum"));
         addToRight(makeNumberOutput(&m_randomUniform));
-        setBody(makeSimpleBody("Random Uniform", 0xcfc800));
+        setBody(makeSimpleBody("Random Uniform", 0xcfc800ff));
     }
     RegisterFactoryObject(RandomUniform, "RandomUniform");
 
@@ -498,7 +498,7 @@ namespace flui {
         addToLeft(makeNumberInput(&m_randomNormal.input1, "Mean"));
         addToLeft(makeNumberInput(&m_randomNormal.input2, "Standard Deviation"));
         addToRight(makeNumberOutput(&m_randomNormal));
-        setBody(makeSimpleBody("Random Normal", 0xcfc800));
+        setBody(makeSimpleBody("Random Normal", 0xcfc800ff));
     }
     RegisterFactoryObject(RandomNormal, "RandomNormal");
 

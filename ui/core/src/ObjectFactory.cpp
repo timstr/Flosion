@@ -44,7 +44,11 @@ namespace flui {
         for (const auto& name : names){
             auto n = name;
             makeLowerCase(n);
-            map.insert_or_assign(std::move(n), creator);
+            auto it = map.find(n);
+            if (it != map.end()){
+                throw std::runtime_error("An object with the same name is already registered");
+            }
+            map.emplace(std::move(n), creator);
         }
     }
 
