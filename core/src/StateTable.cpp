@@ -107,7 +107,9 @@ namespace flo {
     }
 
     void StateTable::resetSlot(unsigned char* where){
-        reinterpret_cast<SoundState*>(where)->reset();
+        auto ss = reinterpret_cast<SoundState*>(where);
+        ss->reset();
+        ss->resetTime();
         for (auto& slot : m_slotItems){
             assert(slot.offset != static_cast<size_t>(-1));
             reinterpret_cast<State*>(where + slot.offset)->reset();

@@ -22,6 +22,8 @@ namespace flo {
         void adjustTime(std::uint32_t offset);
         
     private:
+        void resetTime();
+
         SoundNode* m_owner;
         const SoundState* m_dependentState;
         std::uint32_t m_coarseTime;

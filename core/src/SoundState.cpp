@@ -48,6 +48,11 @@ namespace flo {
         m_fineTime = offset;
     }
 
+    void SoundState::resetTime(){
+        m_coarseTime = 0;
+        m_fineTime = 0;
+    }
+
     void EmptySoundState::reset() noexcept {
 
     }
