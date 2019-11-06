@@ -34,7 +34,7 @@ namespace flo {
         return input1.getValue(context) / input2.getValue(context);
     }
 
-    double PiConstant::evaluate(const flo::SoundState * context) const noexcept {
+    double PiConstant::evaluate(const flo::SoundState* context) const noexcept {
         return pi;
     }
 
@@ -42,130 +42,130 @@ namespace flo {
         return eulersConstant;
     }
 
-    double TauConstant::evaluate(const flo::SoundState * context) const noexcept {
+    double TauConstant::evaluate(const flo::SoundState* context) const noexcept {
         return tau;
     }
 
-    double Abs::evaluate(const flo::SoundState * context) const noexcept {
+    double Abs::evaluate(const flo::SoundState* context) const noexcept {
         return std::abs(input.getValue(context));
     }
 
-    double SquareRoot::evaluate(const flo::SoundState * context) const noexcept {
+    double SquareRoot::evaluate(const flo::SoundState* context) const noexcept {
         return std::sqrt(input.getValue(context));
     }
 
-    double CubeRoot::evaluate(const flo::SoundState * context) const noexcept {
+    double CubeRoot::evaluate(const flo::SoundState* context) const noexcept {
         return std::cbrt(input.getValue(context));
     }
 
-    double Square::evaluate(const flo::SoundState * context) const noexcept {
+    double Square::evaluate(const flo::SoundState* context) const noexcept {
         const auto x = input.getValue(context);
         return x * x * x;
     }
 
-    double Log::evaluate(const flo::SoundState * context) const noexcept {
+    double Log::evaluate(const flo::SoundState* context) const noexcept {
         return std::log(input.getValue(context));
     }
 
-    double Log2::evaluate(const flo::SoundState * context) const noexcept {
+    double Log2::evaluate(const flo::SoundState* context) const noexcept {
         return std::log2(input.getValue(context));
     }
 
-    double Log10::evaluate(const flo::SoundState * context) const noexcept {
+    double Log10::evaluate(const flo::SoundState* context) const noexcept {
         return std::log10(input.getValue(context));
     }
 
-    double Exp::evaluate(const flo::SoundState * context) const noexcept {
+    double Exp::evaluate(const flo::SoundState* context) const noexcept {
         return std::exp(input.getValue(context));
     }
 
-    double Exp2::evaluate(const flo::SoundState * context) const noexcept {
+    double Exp2::evaluate(const flo::SoundState* context) const noexcept {
         return std::exp2(input.getValue(context));
     }
 
-    double Exp10::evaluate(const flo::SoundState * context) const noexcept {
+    double Exp10::evaluate(const flo::SoundState* context) const noexcept {
         constexpr auto log10 = 2.302585092994;
         return std::exp(log10 * input.getValue(context));
     }
 
-    double Sin::evaluate(const flo::SoundState * context) const noexcept {
+    double Sin::evaluate(const flo::SoundState* context) const noexcept {
         return std::sin(input.getValue(context));
     }
 
-    double Cos::evaluate(const flo::SoundState * context) const noexcept {
+    double Cos::evaluate(const flo::SoundState* context) const noexcept {
         return std::cos(input.getValue(context));
     }
 
-    double Tan::evaluate(const flo::SoundState * context) const noexcept {
+    double Tan::evaluate(const flo::SoundState* context) const noexcept {
         return std::tan(input.getValue(context));
     }
 
-    double Asin::evaluate(const flo::SoundState * context) const noexcept {
+    double Asin::evaluate(const flo::SoundState* context) const noexcept {
         return std::asin(input.getValue(context));
     }
 
-    double Acos::evaluate(const flo::SoundState * context) const noexcept {
+    double Acos::evaluate(const flo::SoundState* context) const noexcept {
         return std::acos(input.getValue(context));
     }
 
-    double Atan::evaluate(const flo::SoundState * context) const noexcept {
+    double Atan::evaluate(const flo::SoundState* context) const noexcept {
         return std::atan(input.getValue(context));
     }
 
-    double Sinh::evaluate(const flo::SoundState * context) const noexcept {
+    double Sinh::evaluate(const flo::SoundState* context) const noexcept {
         return std::sinh(input.getValue(context));
     }
 
-    double Cosh::evaluate(const flo::SoundState * context) const noexcept {
+    double Cosh::evaluate(const flo::SoundState* context) const noexcept {
         return std::cosh(input.getValue(context));
     }
 
-    double Tanh::evaluate(const flo::SoundState * context) const noexcept {
+    double Tanh::evaluate(const flo::SoundState* context) const noexcept {
         return std::tanh(input.getValue(context));
     }
 
-    double Asinh::evaluate(const flo::SoundState * context) const noexcept {
+    double Asinh::evaluate(const flo::SoundState* context) const noexcept {
         return std::atanh(input.getValue(context));
     }
 
-    double Acosh::evaluate(const flo::SoundState * context) const noexcept {
+    double Acosh::evaluate(const flo::SoundState* context) const noexcept {
         return std::acosh(input.getValue(context));
     }
 
-    double Atanh::evaluate(const flo::SoundState * context) const noexcept {
+    double Atanh::evaluate(const flo::SoundState* context) const noexcept {
         return std::atanh(input.getValue(context));
     }
 
-    double Ceil::evaluate(const flo::SoundState * context) const noexcept {
+    double Ceil::evaluate(const flo::SoundState* context) const noexcept {
         return std::ceil(input.getValue(context));
     }
 
-    double Floor::evaluate(const flo::SoundState * context) const noexcept {
+    double Floor::evaluate(const flo::SoundState* context) const noexcept {
         return std::floor(input.getValue(context));
     }
 
-    double Round::evaluate(const flo::SoundState * context) const noexcept {
+    double Round::evaluate(const flo::SoundState* context) const noexcept {
         return std::round(input.getValue(context));
     }
 
-    double Frac::evaluate(const flo::SoundState * context) const noexcept {
+    double Frac::evaluate(const flo::SoundState* context) const noexcept {
         const auto x = input.getValue(context);
         return x - std::floor(x);
     }
 
-    double PlusOne::evaluate(const flo::SoundState * context) const noexcept {
+    double PlusOne::evaluate(const flo::SoundState* context) const noexcept {
         return 1.0 + input.getValue(context);
     }
 
-    double MinusOne::evaluate(const flo::SoundState * context) const noexcept {
+    double MinusOne::evaluate(const flo::SoundState* context) const noexcept {
         return input.getValue(context) - 1.0;
     }
 
-    double OneMinus::evaluate(const flo::SoundState * context) const noexcept {
+    double OneMinus::evaluate(const flo::SoundState* context) const noexcept {
         return 1.0 - input.getValue(context);
     }
 
-    double Negate::evaluate(const flo::SoundState * context) const noexcept {
+    double Negate::evaluate(const flo::SoundState* context) const noexcept {
         return -input.getValue(context);
     }
 
@@ -174,27 +174,27 @@ namespace flo {
 
     }
 
-    double Reciprocal::evaluate(const flo::SoundState * context) const noexcept {
+    double Reciprocal::evaluate(const flo::SoundState* context) const noexcept {
         return 1.0 / input.getValue(context);
     }
 
-    double StdToNorm::evaluate(const flo::SoundState * context) const noexcept {
+    double StdToNorm::evaluate(const flo::SoundState* context) const noexcept {
         return input.getValue(context) * 0.5 + 0.5;
     }
 
-    double NormToStd::evaluate(const flo::SoundState * context) const noexcept {
+    double NormToStd::evaluate(const flo::SoundState* context) const noexcept {
         return input.getValue(context) * 2.0 - 1.0;
     }
 
-    double Sigmoid::evaluate(const flo::SoundState * context) const noexcept {
+    double Sigmoid::evaluate(const flo::SoundState* context) const noexcept {
         return 1.0 / (1.0 + std::exp(-input.getValue(context)));
     }
 
-    double Min::evaluate(const flo::SoundState * context) const noexcept {
+    double Min::evaluate(const flo::SoundState* context) const noexcept {
         return std::min(input1.getValue(context), input2.getValue(context));
     }
 
-    double Max::evaluate(const flo::SoundState * context) const noexcept {
+    double Max::evaluate(const flo::SoundState* context) const noexcept {
         return std::max(input1.getValue(context), input2.getValue(context));
     }
 
@@ -203,7 +203,7 @@ namespace flo {
 
     }
 
-    double Pow::evaluate(const flo::SoundState * context) const noexcept {
+    double Pow::evaluate(const flo::SoundState* context) const noexcept {
         return std::pow(input1.getValue(context), input2.getValue(context));
     }
 
@@ -211,11 +211,11 @@ namespace flo {
         : BinaryFunction(1.0, eulersConstant) {
     }
 
-    double LogBase::evaluate(const flo::SoundState * context) const noexcept {
+    double LogBase::evaluate(const flo::SoundState* context) const noexcept {
         return std::log(input1.getValue(context)) / std::log(input2.getValue(context));
     }
 
-    double Hypot::evaluate(const flo::SoundState * context) const noexcept {
+    double Hypot::evaluate(const flo::SoundState* context) const noexcept {
         return std::hypot(input1.getValue(context), input2.getValue(context));
     }
 
@@ -224,37 +224,45 @@ namespace flo {
     
     }
 
-    double Atan2::evaluate(const flo::SoundState * context) const noexcept {
+    double Atan2::evaluate(const flo::SoundState* context) const noexcept {
         return std::atan2(input2.getValue(context), input1.getValue(context));
     }
 
-    double RandomUniform::evaluate(const flo::SoundState * context) const noexcept {
+    RandomUniform::RandomUniform()
+        : m_dist(0.0, 1.0) {
+    
+    }
+
+    double RandomUniform::evaluate(const flo::SoundState* context) const noexcept {
         const auto min = input1.getValue(context);
         const auto max = input2.getValue(context);
-        const auto dist = std::uniform_real_distribution<double>(min, max);
-        return dist(util::getRandomEngine());
+        return min + m_dist(util::getRandomEngine()) * (max - min);
     }
 
-    double RandomNormal::evaluate(const flo::SoundState * context) const noexcept {
+    RandomNormal::RandomNormal()
+        : m_dist(0.0, 1.0) {
+    
+    }
+
+    double RandomNormal::evaluate(const flo::SoundState* context) const noexcept {
         const auto mean = input1.getValue(context);
         const auto stddev = input2.getValue(context);
-        auto dist = std::normal_distribution<double>(mean, stddev);
-        return dist(util::getRandomEngine());
+        return mean + stddev * m_dist(util::getRandomEngine());
     }
 
-    double RoundTo::evaluate(const flo::SoundState * context) const noexcept {
+    double RoundTo::evaluate(const flo::SoundState* context) const noexcept {
         const auto a = input1.getValue(context);
         const auto b = input2.getValue(context);
         return std::round(a / b) * b;
     }
 
-    double FloorTo::evaluate(const flo::SoundState * context) const noexcept {
+    double FloorTo::evaluate(const flo::SoundState* context) const noexcept {
         const auto a = input1.getValue(context);
         const auto b = input2.getValue(context);
         return std::floor(a / b) * b;
     }
 
-    double CeilTo::evaluate(const flo::SoundState * context) const noexcept {
+    double CeilTo::evaluate(const flo::SoundState* context) const noexcept {
         const auto a = input1.getValue(context);
         const auto b = input2.getValue(context);
         return std::ceil(a / b) * b;
@@ -265,7 +273,7 @@ namespace flo {
 
     }
 
-    double Remainder::evaluate(const flo::SoundState * context) const noexcept {
+    double Remainder::evaluate(const flo::SoundState* context) const noexcept {
         return std::fmod(input1.getValue(context), input2.getValue(context));
     }
 
@@ -277,7 +285,7 @@ namespace flo {
 
     }
 
-    double Gaussian::evaluate(const flo::SoundState * context) const noexcept {
+    double Gaussian::evaluate(const flo::SoundState* context) const noexcept {
         const auto a = amplitude.getValue(context);
         const auto d = input.getValue(context) - center.getValue(context);
         const auto c = width.getValue(context);
@@ -291,7 +299,7 @@ namespace flo {
 
     }
 
-    double LinearInterpolation::evaluate(const flo::SoundState * context) const noexcept {
+    double LinearInterpolation::evaluate(const flo::SoundState* context) const noexcept {
         const auto p0 = start.getValue(context);
         const auto p1 = end.getValue(context);
         const auto t = fraction.getValue(context);

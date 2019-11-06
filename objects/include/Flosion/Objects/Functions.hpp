@@ -2,6 +2,9 @@
 
 #include <Flosion/Objects/FunctionsBase.hpp>
 
+#include <cmath>
+#include <random>
+
 namespace flo {
 
     class Add : public BinaryFunction {
@@ -257,13 +260,23 @@ namespace flo {
     };
 
     class RandomUniform : public BinaryFunction {
+    public:
+        RandomUniform();
+
     private:
         double evaluate(const flo::SoundState* context) const noexcept override;
+
+        std::uniform_real_distribution<double> m_dist;
     };
 
     class RandomNormal : public BinaryFunction {
+    public:
+        RandomNormal();
+
     private:
         double evaluate(const flo::SoundState* context) const noexcept override;
+
+        mutable std::normal_distribution<double> m_dist;
     };
 
     class RoundTo : public BinaryFunction {
