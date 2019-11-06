@@ -24,6 +24,11 @@ namespace flo {
         r() = other.r();
     }
 
+    void Sample::silence(){
+        m_data[0] = 0.0f;
+        m_data[1] = 0.0f;
+    }
+
     float& Sample::l() noexcept {
         return m_data[0];
     }
@@ -129,6 +134,11 @@ namespace flo {
     SampleProxy::SampleProxy(float* ptr) noexcept
         : m_ptr(ptr) {
         
+    }
+
+    void SampleProxy::silence(){
+        m_ptr[0] = 0.0f;
+        m_ptr[1] = 0.0f;
     }
 
     float& SampleProxy::l() noexcept {

@@ -21,6 +21,7 @@ set(flosion_core_headers
 	${include_path}/SoundInput.hpp
 	${include_path}/SoundNode.hpp
 	${include_path}/SoundNode.tpp
+	${include_path}/SoundQueue.hpp
 	${include_path}/SoundResult.hpp
 	${include_path}/SoundSource.hpp
 	${include_path}/SoundSource.tpp
@@ -46,6 +47,7 @@ set(flosion_core_srcs
 	src/SoundChunk.cpp
 	src/SoundInput.cpp
 	src/SoundNode.cpp
+    src/SoundQueue.cpp
 	src/SoundResult.cpp
 	src/SoundSource.cpp
 	src/SoundState.cpp

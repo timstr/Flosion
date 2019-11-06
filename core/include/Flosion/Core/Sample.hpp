@@ -26,6 +26,8 @@ namespace flo {
 
         constexpr static std::uint32_t frequency = 44100;
 
+        void silence();
+
         float& l() noexcept;
         const float& l() const noexcept;
 
@@ -74,6 +76,8 @@ namespace flo {
         SampleProxy() = delete;
         SampleProxy(const SampleProxy&) noexcept = default;
         ~SampleProxy() noexcept = default;
+
+        void silence();
 
         float& l() noexcept;
         const float& l() const noexcept;
