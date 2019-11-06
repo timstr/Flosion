@@ -16,7 +16,6 @@ namespace flo {
         , frequencySpread(this, 0.005)
         , input(this) {
 
-        addDependency(&input);
         for (size_t k = 0; k < numVoices; ++k){
             input.addKey(k);
         }
@@ -26,7 +25,6 @@ namespace flo {
         for (size_t k = 0; k < numVoices; ++k){
             input.removeKey(k);
         }
-        removeDependency(&input);
     }
     
     void Ensemble::renderNextChunk(flo::SoundChunk& chunk, EnsembleState* state){

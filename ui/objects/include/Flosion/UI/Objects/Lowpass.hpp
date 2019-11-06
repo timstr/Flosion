@@ -8,7 +8,7 @@ namespace flui {
         Lowpass();
 
     private:
-        flo::Lowpass m_lowpass;
+        flo::WithCurrentTime<flo::Lowpass> m_lowpass;
     };
 
 } // namespace flui
