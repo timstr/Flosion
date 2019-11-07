@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.10.0)
 set(include_path "include/Flosion/Objects")
 
 set(flosion_objects_headers
+	${include_path}/AudioClip.hpp
 	${include_path}/DAC.hpp
 	${include_path}/Ensemble.hpp
 	${include_path}/Functions.hpp
@@ -31,6 +32,7 @@ set(flosion_objects_headers
 )
 
 set(flosion_objects_srcs
+    src/AudioClip.cpp
 	src/DAC.cpp
     src/Ensemble.cpp
 	src/Functions.cpp
