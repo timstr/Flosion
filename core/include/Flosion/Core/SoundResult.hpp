@@ -24,11 +24,11 @@ namespace flo {
 
         void setSource(SoundSource*) noexcept;
 
-        SingleSoundInput& getInput() noexcept;
-        const SingleSoundInput& getInput() const noexcept;
+        WithCurrentTime<SingleSoundInput>& getInput() noexcept;
+        const WithCurrentTime<SingleSoundInput>& getInput() const noexcept;
 
     private:
-        SingleSoundInput m_input;
+        WithCurrentTime<SingleSoundInput> m_input;
 
         RecursiveSharedMutex m_mutex;
 

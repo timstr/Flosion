@@ -9,6 +9,7 @@ namespace flui {
 
     DAC::DAC(){
         addToLeft(makeSoundInput(&m_dac.soundResult.getInput(), "Input"));
+        addToTop(makeNumberOutput(&m_dac.soundResult.getInput().currentTime, "Current Time"));
 
 
         auto bod = std::make_unique<ui::Boxed<ui::VerticalList>>();

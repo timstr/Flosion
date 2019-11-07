@@ -13,6 +13,8 @@ namespace flo {
 
         virtual void renderNextChunk(SoundChunk& chunk, SoundStateType* state) = 0;
 
+        const SoundStateType* findOwnState(const SoundState* context) const noexcept;
+
     private:
         void getNextChunkFor(SoundChunk& chunk, const SoundInput* dependent, const SoundState* dependentState) override final;
 
@@ -23,6 +25,8 @@ namespace flo {
     public:
 
         virtual void renderNextChunk(SoundChunk& chunk, SoundStateType* state) = 0;
+
+        const SoundStateType* findOwnState(const SoundState* context) const noexcept;
 
     private:
         void getNextChunkFor(SoundChunk& chunk, const SoundInput* dependent, const SoundState* dependentState) override final;

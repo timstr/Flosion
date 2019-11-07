@@ -22,6 +22,12 @@
 
 // TODO: add graphs back (in a safe and clean way)
 
+// TODO: update wires when objects change size
+
+// TODO: reinterpret_cast is used in many places to downcast polymorphic pointers.
+// This should be safe in the absence of multiple inheritance, but this should
+// be checked for in some compile-time way.
+
 // TODO: safeguard number sources from deletion while they are being used
 // (i.e. do some kind of locking to prevent them from being deleted
 // during their use in sound processing)
@@ -374,75 +380,7 @@ private:
     std::vector<std::unique_ptr<flo::SingleSoundInput>> m_inputs;
 };
 
-class ResamplerState : public flo::SoundState {
-public:
-    using SoundState::SoundState;
 
-    void reset() noexcept override {
-        buffer.silence();
-        posCoarse = 0;
-        posFine = 0.0;
-    }
-
-    flo::SoundChunk buffer;
-    std::uint16_t posCoarse;
-    double posFine;
-};
-
-class Resampler : public flo::OutOfSync<flo::ControlledSoundSource<ResamplerState>> {
-public:
-    Resampler()
-        : input(this)
-        , timeSpeed(this, 1.0) {
-    }
-
-    void renderNextChunk(flo::SoundChunk& chunk, ResamplerState* state) override {
-        // TODO: different types of interpolation and smoothing and junk
-
-        const auto refillBuffer = [&]() -> void {
-            input.getNextChunkFor(state->buffer, this, state);
-            assert(state->posCoarse + 1 == flo::SoundChunk::size);
-            state->posCoarse = 0;
-        };
-
-        const auto getNextSample = [&](double speed) -> flo::Sample {
-            auto acc = flo::Sample{};
-            auto count = std::uint8_t{0};
-
-            state->posFine += speed;
-
-            if (state->posFine < 1.0){
-                return flo::Sample{state->buffer[state->posCoarse]};
-            }
-
-            while (state->posFine >= 1.0){
-                state->posFine -= 1.0;
-                acc += state->buffer[state->posCoarse];
-                ++count;
-                ++state->posCoarse;
-                if (state->posCoarse == flo::SoundChunk::size){
-                    refillBuffer();
-                }
-            }
-
-            return acc / static_cast<float>(count);
-        };
-
-        for (std::uint16_t i = 0; i < flo::SoundChunk::size; ++i){
-            state->adjustTime(i);
-            const auto speed = timeSpeed.getValue(state);
-            chunk[i] = getNextSample(speed);
-        }
-    }
-
-    double getTimeSpeed(const flo::SoundState* context) const noexcept override {
-        return timeSpeed.getValue(context);
-    }
-
-    flo::WithCurrentTime<flo::SingleSoundInput> input;
-
-    flo::SoundNumberInput timeSpeed;
-};
 
 int main() {
 
