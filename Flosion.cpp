@@ -24,10 +24,6 @@
 
 // TODO: update wires when objects change size
 
-// TODO: reinterpret_cast is used in many places to downcast polymorphic pointers.
-// This should be safe in the absence of multiple inheritance, but this should
-// be checked for in some compile-time way.
-
 // TODO: safeguard number sources from deletion while they are being used
 // (i.e. do some kind of locking to prevent them from being deleted
 // during their use in sound processing)

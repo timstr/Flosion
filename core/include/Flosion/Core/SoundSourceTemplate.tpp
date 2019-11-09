@@ -14,7 +14,9 @@ namespace flo {
             context = context->getDependentState();
         }
         assert(context);
-        return reinterpret_cast<const SoundStateType*>(context);
+        auto derived = static_cast<const SoundStateType*>(context);
+        assert(dynamic_cast<const SoundStateType*>(context) == derived);
+        return derived;
     }
 
     template<typename SoundStateType>
@@ -44,7 +46,9 @@ namespace flo {
             context = context->getDependentState();
         }
         assert(context);
-        return reinterpret_cast<const SoundStateType*>(context);
+        auto derived = static_cast<const SoundStateType*>(context);
+        assert(dynamic_cast<const SoundStateType*>(context) == derived);
+        return derived;
     }
 
 } // namespace flo
