@@ -72,7 +72,7 @@ namespace flui {
         using InputType = typename Traits::InputType;
         using WireType = typename Traits::WireType;
 
-        InputPeg(Object* parentObject, InputType* source, ui::String label);
+        InputPeg(Object* parentObject, InputType* input, ui::String label);
         ~InputPeg();
 
         WireType* getAttachedWire() noexcept;
@@ -239,9 +239,9 @@ namespace flui {
 
 
     template<typename Traits>
-    inline InputPeg<Traits>::InputPeg(Object* parentObject, InputType* source, ui::String label)
+    inline InputPeg<Traits>::InputPeg(Object* parentObject, InputType* input, ui::String label)
         : Peg(parentObject, std::move(label))
-        , m_input(source)
+        , m_input(input)
         , m_wireIn(nullptr) {
 
         assert(getParentObject());
@@ -406,8 +406,8 @@ namespace flui {
         : m_parentPanel(parentPanel)
         , m_headPeg(nullptr)
         , m_tailPeg(nullptr)
-        , m_head(add<HeadType>(this))
-        , m_tail(add<TailType>(this)) {
+        , m_head(add<HeadType>(static_cast<typename Traits::WireType*>(this)))
+        , m_tail(add<TailType>(static_cast<typename Traits::WireType*>(this))) {
 
         assert(input || output);
 
@@ -502,7 +502,7 @@ namespace flui {
             detachTail();
         });
         m_onDestroyInputConn = i->onDestroy.connect([&](){
-            detachHead();
+            destroy();
         });
 
         updatePositions();
@@ -564,7 +564,7 @@ namespace flui {
         auto o = m_tailPeg->getOutput();
 
         m_onDestroyOutputConn = o->onDestroy.connect([&](){
-            detachTail();
+            destroy();
         });
 
         updatePositions();

@@ -208,8 +208,8 @@ namespace flo {
 
     template<typename Traits>
     inline InputNodeBase<Traits>::~InputNodeBase(){
-        setSource(nullptr);
         onDestroy.broadcast();
+        setSource(nullptr);
     }
 
     template<typename Traits>
@@ -257,11 +257,11 @@ namespace flo {
 
     template<typename Traits>
     inline OutputNodeBase<Traits>::~OutputNodeBase(){
+        onDestroy.broadcast();
         while (m_inputs.size() > 0){
             assert(m_inputs.back()->getSource() == static_cast<TraitsOutput<Traits>*>(this));
             m_inputs.back()->setSource(nullptr);
         }
-        onDestroy.broadcast();
     }
 
 } // namespace flo
