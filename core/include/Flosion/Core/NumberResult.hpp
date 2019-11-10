@@ -7,15 +7,15 @@
 namespace flo {
 
     class NumberResult : public flo::NumberNode {
-    private:
-        std::unique_ptr<SoundResult> m_hiddenNode;
-
     public:
         NumberResult() noexcept;
 
         double getValue() const noexcept;
 
         SoundNumberInput input;
+
+    private:
+        std::unique_ptr<SoundResult> m_hiddenNode;
     };
 
 } // namespace flo

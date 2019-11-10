@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Flosion/Core/SoundInput.hpp>
+#include <Flosion/Core/SoundSource.hpp>
 #include <Flosion/Core/SoundChunk.hpp>
 
 namespace flo {
 
-    class SingleSoundInput : public Singular<SoundInput, EmptySoundState> {
+    class SingleSoundInput : public Realtime<Singular<SoundInput, EmptySoundState>> {
     public:
         SingleSoundInput(SoundNode* parent);
 

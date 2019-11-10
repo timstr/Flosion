@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Flosion/Core/SoundInput.hpp>
+#include <Flosion/Core/SoundSource.hpp>
 #include <Flosion/Core/SoundState.hpp>
 
 #include <cassert>

@@ -16,7 +16,7 @@
 
 #include <Flosion/UI/Core/FlosionUI.hpp>
 
-//#include <Flosion/UI/Objects/Functions.hpp>
+// TODO: actually use flo::Network
 
 // TODO: include and dynamically link to ffmpeg for additional audio formats?
 
@@ -33,8 +33,9 @@
 // - wire link between borrower and its lender?
 // - Borrowers get placed into a box inside/alongside the lender?
 // - 
-// TODO: remove duplication between sound/number pegs/wires
-// TODO: add posRelativeTo(const Element* ancestor) to ui
+// TODO: **** remove duplication between sound/number pegs/wires ****
+// TODO: allow default value of NumberInput to be edited via NumberInputPeg
+// TODO: add posRelativeTo(const Element* ancestor) to ui and use it
 // TODO: when a connected head is moused over, show the peg's label
 // TODO: serialization/deserialization for objects and wires
 // TODO: cut/copy/paste

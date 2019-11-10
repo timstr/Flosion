@@ -1,5 +1,7 @@
 #include <Flosion/UI/Objects/DAC.hpp>
 #include <Flosion/UI/Core/ObjectFactory.hpp>
+#include <Flosion/UI/Core/NumberWire.hpp>
+#include <Flosion/UI/Core/SoundWire.hpp>
 #include <Flosion/UI/Core/Font.hpp>
 
 #include <GUI/Helpers/ToggleButton.hpp>
@@ -8,8 +10,8 @@
 namespace flui {
 
     DAC::DAC(){
-        addToLeft(makeSoundInput(&m_dac.soundResult.getInput(), "Input"));
-        addToTop(makeNumberOutput(&m_dac.soundResult.getInput().currentTime, "Current Time"));
+        addToLeft(makePeg(&m_dac.soundResult.getInput(), "Input"));
+        addToTop(makePeg(&m_dac.soundResult.getInput().currentTime, "Current Time"));
 
 
         auto bod = std::make_unique<ui::Boxed<ui::VerticalList>>();

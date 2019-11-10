@@ -2,11 +2,12 @@
 
 #include <Flosion/UI/Core/ArgumentParser.hpp>
 #include <Flosion/UI/Core/Font.hpp>
+#include <Flosion/UI/Core/NumberWire.hpp>
 
 namespace flui {
 
     Constant::Constant(){
-        addToRight(makeNumberOutput(&m_constant));
+        addToRight(makePeg(&m_constant));
         auto b = std::make_unique<ui::Boxed<ui::FreeContainer>>();
         b->setBackgroundColor(0x202040FF);
         b->setBorderColor(0xFFFFFFFF);
@@ -18,7 +19,11 @@ namespace flui {
             getFont(),
             0xFFFFFFFF);
         setBody(std::move(b));
-        m_constant.flo::Reactable<flo::Constant, flo::ConstantReactor>::attachReactor(this);
+
+        m_conn = m_constant.onChangeValue.connect([&](double v){
+            assert(m_label);
+            m_label->setText(std::to_string(v));
+        });
     }
 
     std::unique_ptr<Constant> Constant::parseConstant(const std::string& s){
@@ -43,17 +48,12 @@ namespace flui {
         m_constant.setValue(v);
     }
 
-    void Constant::onChangeValue(double v){
-        assert(m_label);
-        m_label->setText(std::to_string(v));
-    }
-
     RegisterFactoryObjectEx(Constant, "constant", Constant::parseConstant);
 
 
 
     Slider::Slider(){
-        addToRight(makeNumberOutput(&m_constant));
+        addToRight(makePeg(&m_constant));
 
         auto sp = std::make_unique<ui::Slider<double>>(
             0.0,
@@ -78,7 +78,9 @@ namespace flui {
         );
         setBody(std::move(b));
 
-        m_constant.Reactable<flo::Constant, flo::ConstantReactor>::attachReactor(this);
+        m_conn = m_constant.onChangeValue.connect([&](double v){
+            m_slider->setValue(v);
+        });
     }
 
     std::unique_ptr<Slider> Slider::parseSlider(const std::string& s){
@@ -139,42 +141,38 @@ namespace flui {
         m_slider->setMaximum(v);
     }
 
-    void Slider::onChangeValue(double v){
-        m_slider->setValue(v);
-    }
-
     RegisterFactoryObjectEx(Slider, "slider", Slider::parseSlider);
 
 
 
     Add::Add(){
-        addToLeft(makeNumberInput(&m_add.input1, "Input 1"));
-        addToLeft(makeNumberInput(&m_add.input2, "Input 2"));
-        addToRight(makeNumberOutput(&m_add, "Output"));
+        addToLeft(makePeg(&m_add.input1, "Input 1"));
+        addToLeft(makePeg(&m_add.input2, "Input 2"));
+        addToRight(makePeg(&m_add, "Output"));
         setBody(makeSimpleBody("Add", 0x202040FF));
     }
     RegisterFactoryObject(Add, "add", "+");
 
     Subtract::Subtract(){
-        addToLeft(makeNumberInput(&m_subtract.input1, "Input 1"));
-        addToLeft(makeNumberInput(&m_subtract.input2, "Input 2"));
-        addToRight(makeNumberOutput(&m_subtract, "Output"));
+        addToLeft(makePeg(&m_subtract.input1, "Input 1"));
+        addToLeft(makePeg(&m_subtract.input2, "Input 2"));
+        addToRight(makePeg(&m_subtract, "Output"));
         setBody(makeSimpleBody("Subtract", 0x202040FF));
     }
     RegisterFactoryObject(Subtract, "subtract", "-");
 
     Multiply::Multiply(){
-        addToLeft(makeNumberInput(&m_multiply.input1, "Input 1"));
-        addToLeft(makeNumberInput(&m_multiply.input2, "Input 2"));
-        addToRight(makeNumberOutput(&m_multiply, "Output"));
+        addToLeft(makePeg(&m_multiply.input1, "Input 1"));
+        addToLeft(makePeg(&m_multiply.input2, "Input 2"));
+        addToRight(makePeg(&m_multiply, "Output"));
         setBody(makeSimpleBody("Multiply", 0x202040FF));
     }
     RegisterFactoryObject(Multiply, "multiply", "*");
 
     Divide::Divide(){
-        addToLeft(makeNumberInput(&m_divide.input1, "Numerator"));
-        addToLeft(makeNumberInput(&m_divide.input2, "Denominator"));
-        addToRight(makeNumberOutput(&m_divide, "Output"));
+        addToLeft(makePeg(&m_divide.input1, "Numerator"));
+        addToLeft(makePeg(&m_divide.input2, "Denominator"));
+        addToRight(makePeg(&m_divide, "Output"));
         setBody(makeSimpleBody("Divide", 0x202040FF));
     }
     RegisterFactoryObject(Divide, "divide", "/");
@@ -183,372 +181,372 @@ namespace flui {
 
 
     PiConstant::PiConstant(){
-        addToRight(makeNumberOutput(&m_piConstant));
+        addToRight(makePeg(&m_piConstant));
         setBody(makeSimpleBody("Pi", 0x404040FF));
     }
     RegisterFactoryObject(PiConstant, "pi");
     
     EulersConstant::EulersConstant(){
-        addToRight(makeNumberOutput(&m_eulersConstant));
+        addToRight(makePeg(&m_eulersConstant));
         setBody(makeSimpleBody("e", 0x404040FF));
     }
     RegisterFactoryObject(EulersConstant, "e");
     
     TauConstant::TauConstant(){
-        addToRight(makeNumberOutput(&m_tauConstant));
+        addToRight(makePeg(&m_tauConstant));
         setBody(makeSimpleBody("tau", 0x404040FF));
     }
     RegisterFactoryObject(TauConstant, "tau");
 
     Abs::Abs(){
-        addToLeft(makeNumberInput(&m_abs.input));
-        addToRight(makeNumberOutput(&m_abs));
+        addToLeft(makePeg(&m_abs.input));
+        addToRight(makePeg(&m_abs));
         setBody(makeSimpleBody("abs", 0x2a3d4dff));
     }
     RegisterFactoryObject(Abs, "abs");
 
     SquareRoot::SquareRoot(){
-        addToLeft(makeNumberInput(&m_squareRoot.input));
-        addToRight(makeNumberOutput(&m_squareRoot));
+        addToLeft(makePeg(&m_squareRoot.input));
+        addToRight(makePeg(&m_squareRoot));
         setBody(makeSimpleBody("sqrt", 0x4a4b5eff));
     }
     RegisterFactoryObject(SquareRoot, "sqrt");
 
     CubeRoot::CubeRoot(){
-        addToLeft(makeNumberInput(&m_cubeRoot.input));
-        addToRight(makeNumberOutput(&m_cubeRoot));
+        addToLeft(makePeg(&m_cubeRoot.input));
+        addToRight(makePeg(&m_cubeRoot));
         setBody(makeSimpleBody("cbrt", 0x4a4b5eff));
     }
     RegisterFactoryObject(CubeRoot, "cbrt");
 
     Square::Square(){
-        addToLeft(makeNumberInput(&m_square.input));
-        addToRight(makeNumberOutput(&m_square));
+        addToLeft(makePeg(&m_square.input));
+        addToRight(makePeg(&m_square));
         setBody(makeSimpleBody("sqr", 0x520a73ff));
     }
     RegisterFactoryObject(Square, "sqr");
 
     Log::Log(){
-        addToLeft(makeNumberInput(&m_log.input));
-        addToRight(makeNumberOutput(&m_log));
+        addToLeft(makePeg(&m_log.input));
+        addToRight(makePeg(&m_log));
         setBody(makeSimpleBody("log", 0x335238ff));
     }
     RegisterFactoryObject(Log, "log");
 
     Log2::Log2(){
-        addToLeft(makeNumberInput(&m_log2.input));
-        addToRight(makeNumberOutput(&m_log2));
+        addToLeft(makePeg(&m_log2.input));
+        addToRight(makePeg(&m_log2));
         setBody(makeSimpleBody("log2", 0x335238ff));
     }
     RegisterFactoryObject(Log2, "log2");
 
     Log10::Log10(){
-        addToLeft(makeNumberInput(&m_log10.input));
-        addToRight(makeNumberOutput(&m_log10));
+        addToLeft(makePeg(&m_log10.input));
+        addToRight(makePeg(&m_log10));
         setBody(makeSimpleBody("log10", 0x335238ff));
     }
     RegisterFactoryObject(Log10, "log10");
 
     Exp::Exp(){
-        addToLeft(makeNumberInput(&m_exp.input));
-        addToRight(makeNumberOutput(&m_exp));
+        addToLeft(makePeg(&m_exp.input));
+        addToRight(makePeg(&m_exp));
         setBody(makeSimpleBody("exp", 0x7d1a66ff));
     }
     RegisterFactoryObject(Exp, "exp");
 
     Exp2::Exp2(){
-        addToLeft(makeNumberInput(&m_exp2.input));
-        addToRight(makeNumberOutput(&m_exp2));
+        addToLeft(makePeg(&m_exp2.input));
+        addToRight(makePeg(&m_exp2));
         setBody(makeSimpleBody("exp2", 0x622863ff));
     }
     RegisterFactoryObject(Exp2, "exp2");
 
     Exp10::Exp10(){
-        addToLeft(makeNumberInput(&m_exp10.input));
-        addToRight(makeNumberOutput(&m_exp10));
+        addToLeft(makePeg(&m_exp10.input));
+        addToRight(makePeg(&m_exp10));
         setBody(makeSimpleBody("exp10", 0x701453ff));
     }
     RegisterFactoryObject(Exp10, "exp10");
 
     Sin::Sin(){
-        addToLeft(makeNumberInput(&m_sin.input));
-        addToRight(makeNumberOutput(&m_sin));
+        addToLeft(makePeg(&m_sin.input));
+        addToRight(makePeg(&m_sin));
         setBody(makeSimpleBody("sin", 0x735b0bff));
     }
     RegisterFactoryObject(Sin, "sin");
 
     Cos::Cos(){
-        addToLeft(makeNumberInput(&m_cos.input));
-        addToRight(makeNumberOutput(&m_cos));
+        addToLeft(makePeg(&m_cos.input));
+        addToRight(makePeg(&m_cos));
         setBody(makeSimpleBody("cos", 0x735b0bff));
     }
     RegisterFactoryObject(Cos, "cos");
 
     Tan::Tan(){
-        addToLeft(makeNumberInput(&m_tan.input));
-        addToRight(makeNumberOutput(&m_tan));
+        addToLeft(makePeg(&m_tan.input));
+        addToRight(makePeg(&m_tan));
         setBody(makeSimpleBody("tan", 0x735b0bff));
     }
     RegisterFactoryObject(Tan, "tan");
 
     Asin::Asin(){
-        addToLeft(makeNumberInput(&m_asin.input));
-        addToRight(makeNumberOutput(&m_asin));
+        addToLeft(makePeg(&m_asin.input));
+        addToRight(makePeg(&m_asin));
         setBody(makeSimpleBody("asin", 0xc7b350ff));
     }
     RegisterFactoryObject(Asin, "asin");
 
     Acos::Acos(){
-        addToLeft(makeNumberInput(&m_acos.input));
-        addToRight(makeNumberOutput(&m_acos));
+        addToLeft(makePeg(&m_acos.input));
+        addToRight(makePeg(&m_acos));
         setBody(makeSimpleBody("acos", 0xc7b350ff));
     }
     RegisterFactoryObject(Acos, "acos");
 
     Atan::Atan(){
-        addToLeft(makeNumberInput(&m_atan.input));
-        addToRight(makeNumberOutput(&m_atan));
+        addToLeft(makePeg(&m_atan.input));
+        addToRight(makePeg(&m_atan));
         setBody(makeSimpleBody("atan", 0xc7b350ff));
     }
     RegisterFactoryObject(Atan, "atan");
 
     Sinh::Sinh(){
-        addToLeft(makeNumberInput(&m_sinh.input));
-        addToRight(makeNumberOutput(&m_sinh));
+        addToLeft(makePeg(&m_sinh.input));
+        addToRight(makePeg(&m_sinh));
         setBody(makeSimpleBody("sinh", 0x497d47ff));
     }
     RegisterFactoryObject(Sinh, "sinh");
 
     Cosh::Cosh(){
-        addToLeft(makeNumberInput(&m_cosh.input));
-        addToRight(makeNumberOutput(&m_cosh));
+        addToLeft(makePeg(&m_cosh.input));
+        addToRight(makePeg(&m_cosh));
         setBody(makeSimpleBody("cosh", 0x497d47ff));
     }
     RegisterFactoryObject(Cosh, "cosh");
 
     Tanh::Tanh(){
-        addToLeft(makeNumberInput(&m_tanh.input));
-        addToRight(makeNumberOutput(&m_tanh));
+        addToLeft(makePeg(&m_tanh.input));
+        addToRight(makePeg(&m_tanh));
         setBody(makeSimpleBody("tanh", 0x497d47ff));
     }
     RegisterFactoryObject(Tanh, "tanh");
 
     Asinh::Asinh(){
-        addToLeft(makeNumberInput(&m_asinh.input));
-        addToRight(makeNumberOutput(&m_asinh));
+        addToLeft(makePeg(&m_asinh.input));
+        addToRight(makePeg(&m_asinh));
         setBody(makeSimpleBody("asinh", 0x647d63ff));
     }
     RegisterFactoryObject(Asinh, "asinh");
 
     Acosh::Acosh(){
-        addToLeft(makeNumberInput(&m_acosh.input));
-        addToRight(makeNumberOutput(&m_acosh));
+        addToLeft(makePeg(&m_acosh.input));
+        addToRight(makePeg(&m_acosh));
         setBody(makeSimpleBody("acosh", 0x647d63ff));
     }
     RegisterFactoryObject(Acosh, "acosh");
 
     Atanh::Atanh(){
-        addToLeft(makeNumberInput(&m_atanh.input));
-        addToRight(makeNumberOutput(&m_atanh));
+        addToLeft(makePeg(&m_atanh.input));
+        addToRight(makePeg(&m_atanh));
         setBody(makeSimpleBody("abs", 0x647d63ff));
     }
     RegisterFactoryObject(Atanh, "atanh");
 
     Ceil::Ceil(){
-        addToLeft(makeNumberInput(&m_ceil.input));
-        addToRight(makeNumberOutput(&m_ceil));
+        addToLeft(makePeg(&m_ceil.input));
+        addToRight(makePeg(&m_ceil));
         setBody(makeSimpleBody("ceil", 0x36367dff));
     }
     RegisterFactoryObject(Ceil, "ceil");
 
     Floor::Floor(){
-        addToLeft(makeNumberInput(&m_floor.input));
-        addToRight(makeNumberOutput(&m_floor));
+        addToLeft(makePeg(&m_floor.input));
+        addToRight(makePeg(&m_floor));
         setBody(makeSimpleBody("floor", 0x36367dff));
     }
     RegisterFactoryObject(Floor, "floor");
 
     Round::Round(){
-        addToLeft(makeNumberInput(&m_round.input));
-        addToRight(makeNumberOutput(&m_round));
+        addToLeft(makePeg(&m_round.input));
+        addToRight(makePeg(&m_round));
         setBody(makeSimpleBody("round", 0x36367dff));
     }
     RegisterFactoryObject(Round, "round");
 
     Frac::Frac(){
-        addToLeft(makeNumberInput(&m_frac.input));
-        addToRight(makeNumberOutput(&m_frac));
+        addToLeft(makePeg(&m_frac.input));
+        addToRight(makePeg(&m_frac));
         setBody(makeSimpleBody("frac", 0x1e5924ff));
     }
     RegisterFactoryObject(Frac, "frac");
 
     PlusOne::PlusOne(){
-        addToLeft(makeNumberInput(&m_plusOne.input));
-        addToRight(makeNumberOutput(&m_plusOne));
+        addToLeft(makePeg(&m_plusOne.input));
+        addToRight(makePeg(&m_plusOne));
         setBody(makeSimpleBody("+1", 0x786538ff));
     }
     RegisterFactoryObject(PlusOne, "plusone", "+1");
 
     MinusOne::MinusOne(){
-        addToLeft(makeNumberInput(&m_minusOne.input));
-        addToRight(makeNumberOutput(&m_minusOne));
+        addToLeft(makePeg(&m_minusOne.input));
+        addToRight(makePeg(&m_minusOne));
         setBody(makeSimpleBody("-1", 0x786538ff));
     }
     RegisterFactoryObject(MinusOne, "minusone", "-1");
 
     OneMinus::OneMinus(){
-        addToLeft(makeNumberInput(&m_oneMinus.input));
-        addToRight(makeNumberOutput(&m_oneMinus));
+        addToLeft(makePeg(&m_oneMinus.input));
+        addToRight(makePeg(&m_oneMinus));
         setBody(makeSimpleBody("1-", 0x786538ff));
     }
     RegisterFactoryObject(OneMinus, "oneminus", "1-");
 
     Negate::Negate(){
-        addToLeft(makeNumberInput(&m_negate.input));
-        addToRight(makeNumberOutput(&m_negate));
+        addToLeft(makePeg(&m_negate.input));
+        addToRight(makePeg(&m_negate));
         setBody(makeSimpleBody("negate", 0x732a0aff));
     }
     RegisterFactoryObject(Negate, "negate");
 
     Reciprocal::Reciprocal(){
-        addToLeft(makeNumberInput(&m_reciprocal.input));
-        addToRight(makeNumberOutput(&m_reciprocal));
+        addToLeft(makePeg(&m_reciprocal.input));
+        addToRight(makePeg(&m_reciprocal));
         setBody(makeSimpleBody("reciprocal", 0x732a0aff));
     }
     RegisterFactoryObject(Reciprocal, "reciprocal");
 
     StdToNorm::StdToNorm(){
-        addToLeft(makeNumberInput(&m_stdToNorm.input));
-        addToRight(makeNumberOutput(&m_stdToNorm));
+        addToLeft(makePeg(&m_stdToNorm.input));
+        addToRight(makePeg(&m_stdToNorm));
         setBody(makeSimpleBody("Std to Norm", 0x546e66ff));
     }
     RegisterFactoryObject(StdToNorm, "StdToNorm");
 
     NormToStd::NormToStd(){
-        addToLeft(makeNumberInput(&m_normToStd.input));
-        addToRight(makeNumberOutput(&m_normToStd));
+        addToLeft(makePeg(&m_normToStd.input));
+        addToRight(makePeg(&m_normToStd));
         setBody(makeSimpleBody("Norm to Std", 0x546e66ff));
     }
     RegisterFactoryObject(NormToStd, "NormToStd");
 
     Sigmoid::Sigmoid(){
-        addToLeft(makeNumberInput(&m_sigmoid.input));
-        addToRight(makeNumberOutput(&m_sigmoid));
+        addToLeft(makePeg(&m_sigmoid.input));
+        addToRight(makePeg(&m_sigmoid));
         setBody(makeSimpleBody("sigmoid", 0xaba552ff));
     }
     RegisterFactoryObject(Sigmoid, "sigmoid");
 
     Min::Min(){
-        addToLeft(makeNumberInput(&m_min.input1));
-        addToLeft(makeNumberInput(&m_min.input2));
-        addToRight(makeNumberOutput(&m_min));
+        addToLeft(makePeg(&m_min.input1));
+        addToLeft(makePeg(&m_min.input2));
+        addToRight(makePeg(&m_min));
         setBody(makeSimpleBody("min", 0x535773ff));
     }
     RegisterFactoryObject(Min, "min");
 
     Max::Max(){
-        addToLeft(makeNumberInput(&m_max.input1));
-        addToLeft(makeNumberInput(&m_max.input2));
-        addToRight(makeNumberOutput(&m_max));
+        addToLeft(makePeg(&m_max.input1));
+        addToLeft(makePeg(&m_max.input2));
+        addToRight(makePeg(&m_max));
         setBody(makeSimpleBody("max", 0x535773ff));
     }
     RegisterFactoryObject(Max, "max");
 
     Pow::Pow(){
-        addToLeft(makeNumberInput(&m_pow.input1, "Base"));
-        addToLeft(makeNumberInput(&m_pow.input2, "Exponent"));
-        addToRight(makeNumberOutput(&m_pow));
+        addToLeft(makePeg(&m_pow.input1, "Base"));
+        addToLeft(makePeg(&m_pow.input2, "Exponent"));
+        addToRight(makePeg(&m_pow));
         setBody(makeSimpleBody("pow", 0x691500ff));
     }
     RegisterFactoryObject(Pow, "pow");
 
     LogBase::LogBase(){
-        addToLeft(makeNumberInput(&m_logBase.input1, "Input"));
-        addToLeft(makeNumberInput(&m_logBase.input2, "Base"));
-        addToRight(makeNumberOutput(&m_logBase));
+        addToLeft(makePeg(&m_logBase.input1, "Input"));
+        addToLeft(makePeg(&m_logBase.input2, "Base"));
+        addToRight(makePeg(&m_logBase));
         setBody(makeSimpleBody("Log Base", 0x59194bff));
     }
     RegisterFactoryObject(LogBase, "logbase");
 
     Hypot::Hypot(){
-        addToLeft(makeNumberInput(&m_hypot.input1));
-        addToLeft(makeNumberInput(&m_hypot.input2));
-        addToRight(makeNumberOutput(&m_hypot));
+        addToLeft(makePeg(&m_hypot.input1));
+        addToLeft(makePeg(&m_hypot.input2));
+        addToRight(makePeg(&m_hypot));
         setBody(makeSimpleBody("hypot", 0x335950ff));
     }
     RegisterFactoryObject(Hypot, "hypot");
 
     Atan2::Atan2(){
-        addToLeft(makeNumberInput(&m_atan2.input1, "X"));
-        addToLeft(makeNumberInput(&m_atan2.input2, "Y"));
-        addToRight(makeNumberOutput(&m_atan2));
+        addToLeft(makePeg(&m_atan2.input1, "X"));
+        addToLeft(makePeg(&m_atan2.input2, "Y"));
+        addToRight(makePeg(&m_atan2));
         setBody(makeSimpleBody("atan2", 0x335950ff));
     }
     RegisterFactoryObject(Atan2, "atan2");
 
     RandomUniform::RandomUniform(){
-        addToLeft(makeNumberInput(&m_randomUniform.input1, "Minimum"));
-        addToLeft(makeNumberInput(&m_randomUniform.input2, "Maximum"));
-        addToRight(makeNumberOutput(&m_randomUniform));
+        addToLeft(makePeg(&m_randomUniform.input1, "Minimum"));
+        addToLeft(makePeg(&m_randomUniform.input2, "Maximum"));
+        addToRight(makePeg(&m_randomUniform));
         setBody(makeSimpleBody("Random Uniform", 0xcfc800ff));
     }
     RegisterFactoryObject(RandomUniform, "RandomUniform");
 
     RandomNormal::RandomNormal(){
-        addToLeft(makeNumberInput(&m_randomNormal.input1, "Mean"));
-        addToLeft(makeNumberInput(&m_randomNormal.input2, "Standard Deviation"));
-        addToRight(makeNumberOutput(&m_randomNormal));
+        addToLeft(makePeg(&m_randomNormal.input1, "Mean"));
+        addToLeft(makePeg(&m_randomNormal.input2, "Standard Deviation"));
+        addToRight(makePeg(&m_randomNormal));
         setBody(makeSimpleBody("Random Normal", 0xcfc800ff));
     }
     RegisterFactoryObject(RandomNormal, "RandomNormal");
 
     RoundTo::RoundTo(){
-        addToLeft(makeNumberInput(&m_roundTo.input1, "Input"));
-        addToLeft(makeNumberInput(&m_roundTo.input2, "Base"));
-        addToRight(makeNumberOutput(&m_roundTo));
+        addToLeft(makePeg(&m_roundTo.input1, "Input"));
+        addToLeft(makePeg(&m_roundTo.input2, "Base"));
+        addToRight(makePeg(&m_roundTo));
         setBody(makeSimpleBody("Round To", 0x452c5cff));
     }
     RegisterFactoryObject(RoundTo, "RoundTo");
 
     FloorTo::FloorTo(){
-        addToLeft(makeNumberInput(&m_floorTo.input1, "Input"));
-        addToLeft(makeNumberInput(&m_floorTo.input2, "Base"));
-        addToRight(makeNumberOutput(&m_floorTo));
+        addToLeft(makePeg(&m_floorTo.input1, "Input"));
+        addToLeft(makePeg(&m_floorTo.input2, "Base"));
+        addToRight(makePeg(&m_floorTo));
         setBody(makeSimpleBody("Floor To", 0x452c5cff));
     }
     RegisterFactoryObject(FloorTo, "FloorTo");
 
     CeilTo::CeilTo(){
-        addToLeft(makeNumberInput(&m_ceilTo.input1, "Input"));
-        addToLeft(makeNumberInput(&m_ceilTo.input2, "Base"));
-        addToRight(makeNumberOutput(&m_ceilTo));
+        addToLeft(makePeg(&m_ceilTo.input1, "Input"));
+        addToLeft(makePeg(&m_ceilTo.input2, "Base"));
+        addToRight(makePeg(&m_ceilTo));
         setBody(makeSimpleBody("Ceil To", 0x452c5cff));
     }
     RegisterFactoryObject(CeilTo, "CeilTo");
 
     Remainder::Remainder(){
-        addToLeft(makeNumberInput(&m_remainder.input1, "Numerator"));
-        addToLeft(makeNumberInput(&m_remainder.input2, "Denominator"));
-        addToRight(makeNumberOutput(&m_remainder));
+        addToLeft(makePeg(&m_remainder.input1, "Numerator"));
+        addToLeft(makePeg(&m_remainder.input2, "Denominator"));
+        addToRight(makePeg(&m_remainder));
         setBody(makeSimpleBody("Remainder", 0x6b4c6aff));
     }
     RegisterFactoryObject(Remainder, "Remainder");
 
     Gaussian::Gaussian(){
-        addToLeft(makeNumberInput(&m_gaussian.input, "Input"));
-        addToLeft(makeNumberInput(&m_gaussian.amplitude, "Amplitude"));
-        addToLeft(makeNumberInput(&m_gaussian.center, "Center"));
-        addToLeft(makeNumberInput(&m_gaussian.width, "Width"));
-        addToRight(makeNumberOutput(&m_gaussian));
+        addToLeft(makePeg(&m_gaussian.input, "Input"));
+        addToLeft(makePeg(&m_gaussian.amplitude, "Amplitude"));
+        addToLeft(makePeg(&m_gaussian.center, "Center"));
+        addToLeft(makePeg(&m_gaussian.width, "Width"));
+        addToRight(makePeg(&m_gaussian));
         setBody(makeSimpleBody("Gaussian", 0x87807cff));
     }
     RegisterFactoryObject(Gaussian, "Gaussian");
 
     LinearInterpolation::LinearInterpolation(){
-        addToLeft(makeNumberInput(&m_linearInterpolation.start, "Start"));
-        addToLeft(makeNumberInput(&m_linearInterpolation.end, "End"));
-        addToLeft(makeNumberInput(&m_linearInterpolation.fraction, "Fraction"));
-        addToRight(makeNumberOutput(&m_linearInterpolation));
+        addToLeft(makePeg(&m_linearInterpolation.start, "Start"));
+        addToLeft(makePeg(&m_linearInterpolation.end, "End"));
+        addToLeft(makePeg(&m_linearInterpolation.fraction, "Fraction"));
+        addToRight(makePeg(&m_linearInterpolation));
         setBody(makeSimpleBody("lerp", 0x2f4857ff));
     }
     RegisterFactoryObject(LinearInterpolation, "LinearInterpolation", "lerp");

@@ -7,6 +7,7 @@
 
 namespace flui {
 
+    /*
     NumberInputPeg::NumberInputPeg(Object* parent, flo::NumberInput* input, ui::String label)
         : m_parent(parent)
         , m_input(input)
@@ -34,7 +35,7 @@ namespace flui {
 
     NumberInputPeg::~NumberInputPeg(){
         if (m_wireIn){
-            m_wireIn->destroy();
+            m_wireIn->detachHead();
         }
 
         assert(m_parent);
@@ -67,19 +68,7 @@ namespace flui {
     bool NumberInputPeg::onDrop(ui::Draggable* d){
         if (auto wh = dynamic_cast<NumberWire::Head*>(d)){
             auto w = wh->getParentWire();
-            assert(w->getTailPeg());
-            assert(w->getTailPeg()->getNumberSource());
-            assert(w->getHeadPeg() == nullptr);
-            if (m_wireIn){
-                // NOTE: this will sever the previous connection
-                m_wireIn->destroy();
-            }
-            assert(!m_wireIn);
-            assert(!m_input->hasReactor(w));
-            m_input->attachReactor(w);
-            m_input->setSource(w->getTailPeg()->getNumberSource());
-            assert(w->getHeadPeg() == this);
-            assert(m_wireIn == w);
+            w->attachHeadTo(this);
             return true;
         }
         return false;
@@ -163,7 +152,7 @@ namespace flui {
 
     NumberOutputPeg::~NumberOutputPeg(){
         while (m_wiresOut.size() > 0){
-            m_wiresOut.back()->destroy();
+            m_wiresOut.back()->detachTail();
         }
         m_parent->removeNumberOutputPeg(this);
     }
@@ -215,15 +204,7 @@ namespace flui {
     bool NumberOutputPeg::onDrop(ui::Draggable* d){
         if (auto wt = dynamic_cast<NumberWire::Tail*>(d)){
             auto w = wt->getParentWire();
-            assert(w->getHeadPeg());
-            assert(w->getHeadPeg()->getNumberInput());
-            assert(w->getTailPeg() == nullptr);
-            assert(!hasAttachedWire(w));
-            assert(!m_output->hasReactor(w));
-            m_output->attachReactor(w);
-            w->getHeadPeg()->getNumberInput()->setSource(m_output);
-            assert(w->getTailPeg() == this);
-            assert(hasAttachedWire(w));
+            w->attachTailTo(this);
             return true;
         }
         return false;
@@ -274,5 +255,6 @@ namespace flui {
             }
         );
     }
+    */
 
 } // namespace flui

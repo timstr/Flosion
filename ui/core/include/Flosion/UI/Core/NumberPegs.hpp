@@ -5,7 +5,7 @@
 
 namespace flui {
 
-    class Object;
+    /*class Object;
     class NumberWire;
 
     class NumberInputPeg : public ui::Control, public ui::Boxed<ui::FreeContainer> {
@@ -67,6 +67,6 @@ namespace flui {
         ui::Text& m_label;
 
         friend class NumberWire;
-    };
+    };*/
 
 } // namespace flui

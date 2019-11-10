@@ -13,9 +13,10 @@ set(flosion_core_headers
 	${include_path}/NumberNode.hpp
 	${include_path}/NumberResult.hpp
 	${include_path}/NumberSource.hpp
-	${include_path}/Reactable.hpp
 	${include_path}/RecursiveSharedMutex.hpp
 	${include_path}/Sample.hpp
+    ${include_path}/Signal.hpp
+    ${include_path}/Signal.tpp
 	${include_path}/SingleSoundInput.hpp
 	${include_path}/SoundChunk.hpp
 	${include_path}/SoundInput.hpp
@@ -43,6 +44,7 @@ set(flosion_core_srcs
 	src/NumberSource.cpp
 	src/RecursiveSharedMutex.cpp
 	src/Sample.cpp
+    src/Signal.cpp
 	src/SingleSoundInput.cpp
 	src/SoundChunk.cpp
 	src/SoundInput.cpp

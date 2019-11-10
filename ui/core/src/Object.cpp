@@ -85,19 +85,19 @@ namespace flui {
         return m_parentPanel;
     }
 
-    std::unique_ptr<NumberInputPeg> Object::makeNumberInput(flo::NumberInput* ni, ui::String label){
+    std::unique_ptr<NumberInputPeg> Object::makePeg(flo::NumberInput* ni, ui::String label){
         return std::make_unique<NumberInputPeg>(this, ni, label);
     }
 
-    std::unique_ptr<NumberOutputPeg> Object::makeNumberOutput(flo::NumberSource* no, ui::String label){
+    std::unique_ptr<NumberOutputPeg> Object::makePeg(flo::NumberSource* no, ui::String label){
         return std::make_unique<NumberOutputPeg>(this, no, label);
     }
 
-    std::unique_ptr<SoundInputPeg> Object::makeSoundInput(flo::SoundInput* si, ui::String label){
+    std::unique_ptr<SoundInputPeg> Object::makePeg(flo::SoundInput* si, ui::String label){
         return std::make_unique<SoundInputPeg>(this, si, label);
     }
 
-    std::unique_ptr<SoundOutputPeg> Object::makeSoundOutput(flo::SoundSource* so, ui::String label){
+    std::unique_ptr<SoundOutputPeg> Object::makePeg(flo::SoundSource* so, ui::String label){
         return std::make_unique<SoundOutputPeg>(this, so, label);
     }
 
@@ -190,35 +190,35 @@ namespace flui {
         putCell<DragButton>(0, 0, this);
     }
 
-    void Object::addSoundInputPeg(SoundInputPeg* p){
+    void Object::addPeg(SoundInputPeg* p){
         vectorSetAdd(m_soundInputs, p);
     }
 
-    void Object::removeSoundInputPeg(const SoundInputPeg* p){
+    void Object::removePeg(const SoundInputPeg* p){
         vectorSetRemove(m_soundInputs, p);
     }
 
-    void Object::addSoundOutputPeg(SoundOutputPeg* p){
+    void Object::addPeg(SoundOutputPeg* p){
         vectorSetAdd(m_soundOutputs, p);
     }
 
-    void Object::removeSoundOutputPeg(const SoundOutputPeg* p){
+    void Object::removePeg(const SoundOutputPeg* p){
         vectorSetRemove(m_soundOutputs, p);
     }
 
-    void Object::addNumberInputPeg(NumberInputPeg* p){
+    void Object::addPeg(NumberInputPeg* p){
         vectorSetAdd(m_numberInputs, p);
     }
 
-    void Object::removeNumberInputPeg(const NumberInputPeg* p){
+    void Object::removePeg(const NumberInputPeg* p){
         vectorSetRemove(m_numberInputs, p);
     }
 
-    void Object::addNumberOutputPeg(NumberOutputPeg* p){
+    void Object::addPeg(NumberOutputPeg* p){
         vectorSetAdd(m_numberOutputs, p);
     }
 
-    void Object::removeNumberOutputPeg(const NumberOutputPeg* p){
+    void Object::removePeg(const NumberOutputPeg* p){
         vectorSetRemove(m_numberOutputs, p);
     }
 

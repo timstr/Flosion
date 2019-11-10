@@ -8,7 +8,7 @@
 
 namespace flui {
 
-    class Constant : public Object, private flo::ConstantReactor {
+    class Constant : public Object {
     public:
         Constant();
 
@@ -18,16 +18,15 @@ namespace flui {
         void setValue(double);
 
     private:
-        void onChangeValue(double) override;
-
         // TODO: shift-click or double-click or button to edit value
         // TODO: easier way to drag
 
         flo::Constant m_constant;
         ui::Text* m_label;
+        flo::Connection m_conn;
     };
 
-    class Slider : public Object, private flo::ConstantReactor {
+    class Slider : public Object {
     public:
         Slider();
 
@@ -45,11 +44,9 @@ namespace flui {
         // TODO: shift-click or double-click or button to edit value and limits
         // TODO: easier way to drag
 
-
-        void onChangeValue(double) override;
-
         flo::Constant m_constant;
         ui::Slider<double>* m_slider;
+        flo::Connection m_conn;
     };
 
     class Add : public Object {

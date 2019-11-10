@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Flosion/Core/SoundInput.hpp>
 #include <Flosion/Core/SoundSource.hpp>
 #include <Flosion/Core/StateTable.hpp>
 #include <Flosion/Core/SoundChunk.hpp>
@@ -11,7 +10,7 @@
 namespace flo {
 
     template<typename StateType, typename KeyType>
-    class MultiSoundInput : public Divergent<SoundInput, StateType, KeyType> {
+    class MultiSoundInput : public Realtime<Divergent<SoundInput, StateType, KeyType>> {
     public:
         MultiSoundInput(SoundNode* parent);
         

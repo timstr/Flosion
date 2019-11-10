@@ -7,27 +7,20 @@
 
 namespace flui {
 
+    /*
     NumberWire::NumberWire(Panel* parentPanel, flo::NumberSource* src, flo::NumberInput* dst)
         : m_parentPanel(parentPanel)
-        , m_tailPeg(m_parentPanel->findPegFor(src))
-        , m_headPeg(m_parentPanel->findPegFor(dst))
+        , m_tailPeg(nullptr)
+        , m_headPeg(nullptr)
         , m_head(add<Head>(this))
         , m_tail(add<Tail>(this)) {
-    
-        assert(src || dst);
-        assert(!!src == !!m_tailPeg);
-        assert(!!dst == !!m_headPeg);
 
-        if (m_headPeg){
-            assert(m_headPeg->getAttachedWire() == nullptr);
-            m_headPeg->setAttachedWire(this);
-            m_headPeg->getNumberInput()->attachReactor(this);
+        if (src){
+            attachTailTo(m_parentPanel->findPegFor(src));
         }
 
-        if (m_tailPeg){
-            assert(!m_tailPeg->hasAttachedWire(this));
-            m_tailPeg->addAttachedWire(this);
-            m_tailPeg->getNumberSource()->attachReactor(this);
+        if (dst){
+            attachHeadTo(m_parentPanel->findPegFor(dst));
         }
 
         // NOTE: It is expected that either both pegs are connected, or that
@@ -40,26 +33,21 @@ namespace flui {
     }
 
     void NumberWire::destroy(){
-        if (m_headPeg && m_tailPeg){
-            auto i = m_headPeg->getNumberInput();
-            auto o = m_tailPeg->getNumberSource();
-            assert(i->getSource() == o);
-            m_headPeg->getNumberInput()->setSource(nullptr);
-            i->detachReactor(this);
-            o->detachReactor(this);
-            assert(m_headPeg == nullptr);
-            assert(m_tailPeg == nullptr);
-        } else if (m_headPeg){
-            m_headPeg->getNumberInput()->detachReactor(this);
+        if (m_headPeg){
+            assert(m_headPeg->getAttachedWire() == this);
             m_headPeg->setAttachedWire(nullptr);
             m_headPeg = nullptr;
-        } else if (m_tailPeg){
-            m_tailPeg->getNumberSource()->detachReactor(this);
+        }
+
+        if (m_tailPeg){
+            assert(m_tailPeg->hasAttachedWire(this));
             m_tailPeg->removeAttachedWire(this);
             m_tailPeg = nullptr;
         }
         
-        m_parentPanel->removeNumberWire(this);
+        if (m_parentPanel){
+            m_parentPanel->removeNumberWire(this);
+        }
     }
 
     NumberWire::Head* NumberWire::getHead() noexcept {
@@ -78,59 +66,96 @@ namespace flui {
         return m_tailPeg;
     }
 
-    void NumberWire::afterInputAdded(const flo::NumberInput*){
-        // Called when the attached Number source is connected to an input
-        // Nothing is done here; this is handled by afterNumberSourceAdded
-        // which is called simultaneously
-    }
-
-    void NumberWire::beforeInputRemoved(const flo::NumberInput*){
-        // Called when the attached Number source is disconnected from its input
-        // Nothing is done here; this is handled by beforeNumberSourceRemoved
-        // which is called simultaneously
-    }
-
-    void NumberWire::onDestroyNumberInput(){
-        destroy();
-    }
-
-    void NumberWire::afterSourceAdded(const flo::NumberSource* ns){
-        if (!m_headPeg){
-            auto& ni = flo::NumberInputReactor::target();
-            auto p = m_parentPanel->findPegFor(&ni);
-            assert(p);
-            assert(p->getAttachedWire() != this);
-            m_headPeg = p;
-            p->setAttachedWire(this);
+    void NumberWire::attachHeadTo(NumberInputPeg* p){
+        assert(p);
+        if (m_headPeg == p){
+            return;
         }
-        if (!m_tailPeg){
-            auto p = m_parentPanel->findPegFor(ns);
-            assert(p);
-            assert(!p->hasAttachedWire(this));
-            m_tailPeg = p;
-            p->addAttachedWire(this);
+
+        if (m_headPeg){
+            assert(m_headPeg->getAttachedWire() == this);
+            m_headPeg->setAttachedWire(nullptr);
         }
+
+        m_headPeg = p;
+        assert(m_headPeg->getAttachedWire() == nullptr);
+        m_headPeg->setAttachedWire(this);
+
+        auto i = p->getNumberInput();
+        
+        m_afterSourceAddedConn = i->afterSourceAdded.connect([&](const flo::NumberSource* src){
+            attachTailTo(m_parentPanel->findPegFor(src));
+        });
+        m_beforeSourceRemovedConn = i->beforeSourceRemoved.connect([&](const flo::NumberSource* src){
+            detachTail();
+        });
+        m_onDestroyNumberInputConn = i->onDestroy.connect([&](){
+            detachHead();
+        });
+
+        if (m_tailPeg){
+            auto o = m_tailPeg->getNumberSource();
+            if (i->getSource() != o){
+                i->setSource(o);
+            }
+        }
+
         updatePositions();
     }
 
-    void NumberWire::beforeSourceRemoved(const flo::NumberSource* ns){
-        if (!m_tail.dragging()){
-            assert(m_headPeg);
+    void NumberWire::detachHead(){
+        if (m_headPeg){
             assert(m_headPeg->getAttachedWire() == this);
             m_headPeg->setAttachedWire(nullptr);
             m_headPeg = nullptr;
         }
-        
+
+        m_afterSourceAddedConn.reset();
+        m_beforeSourceRemovedConn.reset();
+        m_onDestroyNumberInputConn.reset();
+
         if (!m_head.dragging()){
-            assert(m_tailPeg);
+            destroy();
+        }
+    }
+
+    void NumberWire::attachTailTo(NumberOutputPeg* p){
+        assert(p);
+
+        if (m_tailPeg == p){
+            return;
+        }
+
+        if (m_tailPeg){
+            assert(m_tailPeg->hasAttachedWire(this));
+            m_tailPeg->removeAttachedWire(this);
+        }
+
+        m_tailPeg = p;
+        assert(!m_tailPeg->hasAttachedWire(this));
+        m_tailPeg->addAttachedWire(this);
+
+        auto o = m_tailPeg->getNumberSource();
+
+        m_onDestroyNumberSourceConn = o->onDestroy.connect([&](){
+            detachTail();
+        });
+
+        updatePositions();
+    }
+
+    void NumberWire::detachTail(){
+        if (m_tailPeg){
             assert(m_tailPeg->hasAttachedWire(this));
             m_tailPeg->removeAttachedWire(this);
             m_tailPeg = nullptr;
         }
-    }
 
-    void NumberWire::onDestroyNumberSource(){
-        destroy();
+        m_onDestroyNumberSourceConn.reset();
+
+        if (!m_tail.dragging()){
+            destroy();
+        }
     }
 
     void NumberWire::updatePositions(){
@@ -146,25 +171,25 @@ namespace flui {
         // NOTE: this guarantees that even if the head and tail are moved,
         // the wire's rectangular area defined by its top left corner and size
         // is exactly small enough to contain the center of both ends.
-
-        // TODO: this doesn't work properly
-        /*auto headCenter = m_head.rootPos() + m_head.size() * 0.5f - bp;
-        auto tailCenter = m_tail.rootPos() + m_tail.size() * 0.5f - bp;
         
-        auto topLeft = ui::vec2{
-            std::min(headCenter.x, tailCenter.x),
-            std::min(headCenter.y, tailCenter.y)
-        };
-        auto bottomRight = ui::vec2{
-            std::min(headCenter.x, tailCenter.x),
-            std::min(headCenter.y, tailCenter.y)
-        };
-
-        setPos(pos() + topLeft);
-        m_head.setPos(m_head.pos() - topLeft);
-        m_tail.setPos(m_tail.pos() - topLeft);
-
-        setSize(bottomRight - topLeft);*/
+        // TODO: this doesn't work properly
+        //auto headCenter = m_head.rootPos() + m_head.size() * 0.5f - bp;
+        //auto tailCenter = m_tail.rootPos() + m_tail.size() * 0.5f - bp;
+        //
+        //auto topLeft = ui::vec2{
+        //    std::min(headCenter.x, tailCenter.x),
+        //    std::min(headCenter.y, tailCenter.y)
+        //};
+        //auto bottomRight = ui::vec2{
+        //    std::min(headCenter.x, tailCenter.x),
+        //    std::min(headCenter.y, tailCenter.y)
+        //};
+        //
+        //setPos(pos() + topLeft);
+        //m_head.setPos(m_head.pos() - topLeft);
+        //m_tail.setPos(m_tail.pos() - topLeft);
+        //
+        //setSize(bottomRight - topLeft);
     }
 
     void NumberWire::render(sf::RenderWindow& rw){
@@ -205,17 +230,7 @@ namespace flui {
         setPos(m_parentWire->localMousePos() - size() * 0.5f);
         startDrag();
 
-        if (m_parentWire->m_headPeg && m_parentWire->m_tailPeg){
-            assert(m_parentWire->m_headPeg->getNumberInput());
-            assert(m_parentWire->m_tailPeg->getNumberSource());
-            auto i = m_parentWire->m_headPeg->getNumberInput();
-            auto o = m_parentWire->m_tailPeg->getNumberSource();
-            assert(i->getSource() == o);
-            assert(m_parentWire->m_headPeg->getAttachedWire() == m_parentWire);
-            i->setSource(nullptr);
-            i->detachReactor(m_parentWire);
-            assert(m_parentWire->m_headPeg == nullptr);
-        }
+        m_parentWire->detachHead();
     }
 
     bool NumberWire::Head::onLeftClick(int){
@@ -267,15 +282,7 @@ namespace flui {
         setPos(m_parentWire->localMousePos() - size() * 0.5f);
         startDrag();
 
-        if (m_parentWire->m_headPeg && m_parentWire->m_tailPeg){
-            auto i = m_parentWire->m_headPeg->getNumberInput();
-            auto o = m_parentWire->m_tailPeg->getNumberSource();
-            assert(i->getSource() == o);
-            assert(m_parentWire->m_tailPeg->hasAttachedWire(m_parentWire));
-            i->setSource(nullptr);
-            o->detachReactor(m_parentWire);
-            assert(m_parentWire->m_tailPeg == nullptr);
-        }
+        m_parentWire->detachTail();
     }
 
     bool NumberWire::Tail::onLeftClick(int clicks){
@@ -308,5 +315,6 @@ namespace flui {
         }
         return false;
     }
+    */
 
 } // namespace flui

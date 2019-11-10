@@ -1,14 +1,16 @@
 #include <Flosion/UI/Objects/Ensemble.hpp>
 #include <Flosion/UI/Core/ObjectFactory.hpp>
+#include <Flosion/UI/Core/NumberWire.hpp>
+#include <Flosion/UI/Core/SoundWire.hpp>
 
 namespace flui {
 
     Ensemble::Ensemble(){
-        addToLeft(makeNumberOutput(&m_ensemble.input.frequencyOut, "Frequency Out"));
-        addToLeft(makeSoundInput(&m_ensemble.input));
-        addToLeft(makeNumberInput(&m_ensemble.frequencyIn, "Frequency In"));
-        addToLeft(makeNumberInput(&m_ensemble.frequencySpread, "Spread Factor"));
-        addToRight(makeSoundOutput(&m_ensemble));
+        addToLeft(makePeg(&m_ensemble.input.frequencyOut, "Frequency Out"));
+        addToLeft(makePeg(&m_ensemble.input));
+        addToLeft(makePeg(&m_ensemble.frequencyIn, "Frequency In"));
+        addToLeft(makePeg(&m_ensemble.frequencySpread, "Spread Factor"));
+        addToRight(makePeg(&m_ensemble));
         setBody(makeSimpleBody("Ensemble", 0x99BB22FF));
     }
     RegisterFactoryObject(Ensemble, "Ensemble");

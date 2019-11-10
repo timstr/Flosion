@@ -1,8 +1,8 @@
 #pragma once
 
-#include <GUI/GUI.hpp>
 #include <Flosion/Core/SoundSource.hpp>
-#include <Flosion/Core/SoundInput.hpp>
+#include <Flosion/Core/NumberSource.hpp>
+#include <GUI/GUI.hpp>
 
 #include <map>
 
@@ -16,6 +16,8 @@ namespace flui {
     class SoundOutputPeg;
     class SoundWire;
 	
+    // TODO: ctrl-A to select everything
+
 	// Panel is what holds all objects
 	class Panel : public ui::Boxed<ui::FreeContainer>, public ui::Control {
     public:
@@ -27,13 +29,13 @@ namespace flui {
         
         // Adds a NumberWire to the panel.
         // At most one of src and dst may be null.
-        NumberWire* addNumberWire(flo::NumberSource* src, flo::NumberInput* dst);
-        void removeNumberWire(NumberWire*);
+        NumberWire* addWire(flo::NumberSource* src, flo::NumberInput* dst);
+        void removeWire(NumberWire*);
 
         // Adds a SoundWire to the panel.
         // At most one of src and dst may be null.
-        SoundWire* addSoundWire(flo::SoundSource* src, flo::SoundInput* dst);
-        void removeSoundWire(SoundWire*);
+        SoundWire* addWire(flo::SoundSource* src, flo::SoundInput* dst);
+        void removeWire(SoundWire*);
 
 		/*void releaseObject(ui::Ref<Object> object);
 
@@ -58,8 +60,8 @@ namespace flui {
         SoundInputPeg* findPegFor(const flo::SoundInput*);
         SoundOutputPeg* findPegFor(const flo::SoundSource*);
 
-        friend class SoundWire;
-        friend class NumberWire;
+        template<typename Traits>
+        friend class Wire;
         
         std::map<const flo::NumberInput*, NumberInputPeg*> m_numberInputPegs;
         std::map<const flo::NumberSource*, NumberOutputPeg*> m_numberOutputPegs;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Flosion/Core/NodeBase.hpp>
-#include <Flosion/Core/Reactable.hpp>
 #include <Flosion/Core/StateBorrower.hpp>
 #include <Flosion/Core/StateBorrower.hpp>
 

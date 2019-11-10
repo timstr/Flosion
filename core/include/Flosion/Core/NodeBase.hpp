@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Flosion/Core/Immovable.hpp>
+#include <Flosion/Core/Signal.hpp>
 
 #include <algorithm>
 #include <cassert>
@@ -43,6 +44,57 @@ namespace flo {
     private:
         std::vector<DerivedNode*> m_dependencies;
         std::vector<DerivedNode*> m_dependents;
+    };
+
+    // TODO: consider putting these template parameters into a traits struct
+    
+    template<typename Traits>
+    using TraitsBase = typename Traits::Base;
+
+    template<typename Traits>
+    using TraitsInput= typename Traits::InputType;
+
+    template<typename Traits>
+    using TraitsOutput = typename Traits::OutputType;
+
+    template<typename Traits>
+    class InputNodeBase;
+
+    template<typename Traits>
+    class OutputNodeBase;
+
+    template<typename Traits>
+    class InputNodeBase : public TraitsBase<Traits> {
+    public:
+        InputNodeBase();
+        ~InputNodeBase();
+
+        void setSource(TraitsOutput<Traits>*);
+
+        TraitsOutput<Traits>* getSource() noexcept;
+        const TraitsOutput<Traits>* getSource() const noexcept;
+        
+        Signal<const TraitsOutput<Traits>*> afterSourceAdded;
+        Signal<const TraitsOutput<Traits>*> beforeSourceRemoved;
+        Signal<> onDestroy;
+
+    private:
+        TraitsOutput<Traits>* m_source;
+    };
+
+    template<typename Traits>
+    class OutputNodeBase : public TraitsBase<Traits> {
+    public:
+        ~OutputNodeBase();
+
+        Signal<const TraitsInput<Traits>*> afterInputAdded;
+        Signal<const TraitsInput<Traits>*> beforeInputRemoved;
+        Signal<> onDestroy;
+
+    private:
+        std::vector<TraitsInput<Traits>*> m_inputs;
+
+        friend InputNodeBase<Traits>;
     };
 
     // TODO: move the following definitions to a .tpp file
@@ -145,6 +197,71 @@ namespace flo {
     template<typename DerivedNode>
     inline bool NodeBase<DerivedNode>::hasDirectDependency(const DerivedNode* node) const noexcept {
         return std::find(m_dependencies.begin(), m_dependencies.end(), node) != m_dependencies.end();
+    }
+
+
+
+    template<typename Traits>
+    inline InputNodeBase<Traits>::InputNodeBase()
+        : m_source(nullptr) {
+    }
+
+    template<typename Traits>
+    inline InputNodeBase<Traits>::~InputNodeBase(){
+        setSource(nullptr);
+        onDestroy.broadcast();
+    }
+
+    template<typename Traits>
+    inline void InputNodeBase<Traits>::setSource(TraitsOutput<Traits>* source){
+        auto self = static_cast<TraitsInput<Traits>*>(this);
+        auto lock = self->acquireLock();
+        if (m_source){
+            m_source->beforeInputRemoved.broadcast(self);
+            beforeSourceRemoved.broadcast(m_source);
+
+            auto& inputs = m_source->m_inputs;
+
+            assert(std::count(inputs.begin(), inputs.end(), self) == 1);
+            auto it = std::find(inputs.begin(), inputs.end(), self);
+            assert(it != inputs.end());
+            inputs.erase(it);
+
+            removeDependency(m_source);
+        }
+        m_source = source;
+        if (m_source){
+            addDependency(m_source);
+            
+            auto& inputs = m_source->m_inputs;
+
+            assert(std::count(inputs.begin(), inputs.end(), self) == 0);
+            inputs.push_back(self);
+
+            afterSourceAdded.broadcast(m_source);
+            m_source->afterInputAdded.broadcast(self);
+        }
+    }
+
+    template<typename Traits>
+    inline TraitsOutput<Traits>* InputNodeBase<Traits>::getSource() noexcept {
+        return m_source;
+    }
+
+    template<typename Traits>
+    inline const TraitsOutput<Traits>* InputNodeBase<Traits>::getSource() const noexcept {
+        return m_source;
+    }
+
+
+
+    template<typename Traits>
+    inline OutputNodeBase<Traits>::~OutputNodeBase(){
+        while (m_inputs.size() > 0){
+            assert(m_inputs.back()->getSource() == static_cast<TraitsOutput<Traits>*>(this));
+            m_inputs.back()->setSource(nullptr);
+        }
+        onDestroy.broadcast();
     }
 
 } // namespace flo

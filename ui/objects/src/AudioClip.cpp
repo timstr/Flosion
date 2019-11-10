@@ -1,6 +1,7 @@
 #include <Flosion/UI/Objects/AudioClip.hpp>
 #include <Flosion/UI/Core/ObjectFactory.hpp>
 #include <Flosion/UI/Core/Font.hpp>
+#include <Flosion/UI/Core/SoundWire.hpp>
 
 #include <GUI/Helpers/CallbackButton.hpp>
 #include <Flosion/Util/FileBrowser.hpp>
@@ -8,7 +9,8 @@
 namespace flui {
 
     AudioClip::AudioClip(){
-        addToRight(makeSoundOutput(&m_audioClip));
+        // TODO
+        addToRight(makePeg(&m_audioClip));
 
 
         auto bod = std::make_unique<ui::Boxed<ui::VerticalList>>();
