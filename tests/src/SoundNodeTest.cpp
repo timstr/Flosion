@@ -813,15 +813,36 @@ TEST(SoundNodeTest, DependencySafety2){
     root1.addDependency(&leaf);
     
     EXPECT_TRUE(root1.canRemoveDependency(&leaf));
+    
+    ASSERT_TRUE(leaf.node.canAddDependency(&root1.node));
 
     leaf.node.addDependency(&root1.node);
+    
+    EXPECT_TRUE(leaf.node.canRemoveDependency(&root1.node));
 
     EXPECT_FALSE(root1.canRemoveDependency(&leaf));
 
     EXPECT_FALSE(root2.canAddDependency(&leaf));
+
+    EXPECT_FALSE(leaf.node.canAddDependency(&root2.node));
 }
 
 TEST(SoundNodeTest, DependencySafety3){
+    auto root1 = NumberSoundNode{"root1"};
+    auto root2 = NumberSoundNode{"root2"};
+    auto leaf = NumberSoundNode{"leaf"};
+    
+    root1.addDependency(&leaf);
+    root2.addDependency(&leaf);
+    
+    EXPECT_TRUE(root1.canRemoveDependency(&leaf));
+    EXPECT_TRUE(root2.canRemoveDependency(&leaf));
+    
+    EXPECT_FALSE(leaf.node.canAddDependency(&root1.node));
+    EXPECT_FALSE(leaf.node.canAddDependency(&root2.node));
+}
+
+TEST(SoundNodeTest, DependencySafety4){
     auto root = NumberSoundNode{"root"};
     auto inner1 = NumberSoundNode{"inner1"};
     auto inner2 = NumberSoundNode{"inner2"};
@@ -864,7 +885,7 @@ TEST(SoundNodeTest, DependencySafety3){
     EXPECT_FALSE(inner2.canRemoveDependency(&leaf));
 }
 
-TEST(SoundNodeTest, DependencySafety4){
+TEST(SoundNodeTest, DependencySafety5){
     auto root = NumberSoundNode{"root"};
     auto innera1 = NumberSoundNode{"innera1"};
     auto innera2 = NumberSoundNode{"innera2"};

@@ -20,7 +20,9 @@ namespace flo {
             return false;
         }
 
-        // make sure every stateful dependent's state owner is a dependency of every stateful dependency's state owner.
+        // make sure every stateful dependent's state owner is a dependency of every stateful dependency's state owner
+        // and that every dependent of the dependent's state owner is a dependent or dependency of the dependency's
+        // state owner.
         // That might sound confusing but trust me.
         const auto dcs = node->getAllDependencies();
         const auto dts = getAllDependents();
@@ -37,13 +39,18 @@ namespace flo {
                 if (!dcso->hasDependency(dtso)){
                     return false;
                 }
+                for (const auto dtsodt : dtso->getAllDependents()){
+                    if (!(dtsodt->hasDependency(dcso) || dcso->hasDependency(dtsodt))){
+                        return false;
+                    }
+                }
             }
         }
 
         return true;
     }
 
-    bool NumberNode::canRemoveDependency(const NumberNode *) const noexcept {
+    bool NumberNode::canRemoveDependency(const NumberNode*) const noexcept {
         return true;
     }
 
