@@ -74,8 +74,8 @@ namespace flo {
         TraitsOutput<Traits>* getSource() noexcept;
         const TraitsOutput<Traits>* getSource() const noexcept;
         
-        Signal<const TraitsOutput<Traits>*> afterSourceAdded;
-        Signal<const TraitsOutput<Traits>*> beforeSourceRemoved;
+        Signal<const TraitsOutput<Traits>*> onSourceAdded;
+        Signal<const TraitsOutput<Traits>*> onSourceRemoved;
         Signal<> onDestroy;
 
     private:
@@ -87,9 +87,11 @@ namespace flo {
     public:
         ~OutputNodeBase();
 
-        Signal<const TraitsInput<Traits>*> afterInputAdded;
-        Signal<const TraitsInput<Traits>*> beforeInputRemoved;
+        Signal<const TraitsInput<Traits>*> onInputAdded;
+        Signal<const TraitsInput<Traits>*> onInputRemoved;
         Signal<> onDestroy;
+
+        const std::vector<TraitsInput<Traits>*>& getInputs() const noexcept;
 
     private:
         std::vector<TraitsInput<Traits>*> m_inputs;
@@ -208,17 +210,16 @@ namespace flo {
 
     template<typename Traits>
     inline InputNodeBase<Traits>::~InputNodeBase(){
-        onDestroy.broadcast();
         setSource(nullptr);
+        onDestroy.broadcast();
     }
 
     template<typename Traits>
     inline void InputNodeBase<Traits>::setSource(TraitsOutput<Traits>* source){
         auto self = static_cast<TraitsInput<Traits>*>(this);
         auto lock = self->acquireLock();
+        const auto oldSource = m_source;
         if (m_source){
-            m_source->beforeInputRemoved.broadcast(self);
-            beforeSourceRemoved.broadcast(m_source);
 
             auto& inputs = m_source->m_inputs;
 
@@ -237,9 +238,14 @@ namespace flo {
 
             assert(std::count(inputs.begin(), inputs.end(), self) == 0);
             inputs.push_back(self);
-
-            afterSourceAdded.broadcast(m_source);
-            m_source->afterInputAdded.broadcast(self);
+        }
+        if (oldSource){
+            oldSource->onInputRemoved.broadcast(self);
+            onSourceRemoved.broadcast(oldSource);
+        }
+        if (m_source){
+            onSourceAdded.broadcast(m_source);
+            m_source->onInputAdded.broadcast(self);
         }
     }
 
@@ -257,11 +263,16 @@ namespace flo {
 
     template<typename Traits>
     inline OutputNodeBase<Traits>::~OutputNodeBase(){
-        onDestroy.broadcast();
         while (m_inputs.size() > 0){
             assert(m_inputs.back()->getSource() == static_cast<TraitsOutput<Traits>*>(this));
             m_inputs.back()->setSource(nullptr);
         }
+        onDestroy.broadcast();
+    }
+
+    template<typename Traits>
+    inline const std::vector<TraitsInput<Traits>*>& OutputNodeBase<Traits>::getInputs() const noexcept {
+        return m_inputs;
     }
 
 } // namespace flo

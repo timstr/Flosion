@@ -20,11 +20,14 @@ namespace flo {
     };
 
     class SoundInput : public InputNodeBase<SoundTraits> {
-
+    public:
+        ~SoundInput();
     };
 
     class SoundSource : public OutputNodeBase<SoundTraits> {
     public:
+        ~SoundSource();
+
         // TODO: this can and should be made const
         /**
          * Produces the next chunk of sound. The SoundSource's state corresponding

@@ -62,11 +62,6 @@ namespace flui {
 
         template<typename Traits>
         friend class Wire;
-        
-        std::map<const flo::NumberInput*, NumberInputPeg*> m_numberInputPegs;
-        std::map<const flo::NumberSource*, NumberOutputPeg*> m_numberOutputPegs;
-        std::map<const flo::SoundInput*, SoundInputPeg*> m_soundInputPegs;
-        std::map<const flo::SoundSource*, SoundOutputPeg*> m_soundOutputPegs;
 
 		// calculate the bounding box of all contents
 		// returns { top-left, bottom-right } as positions

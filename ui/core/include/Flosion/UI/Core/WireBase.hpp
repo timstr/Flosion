@@ -79,6 +79,9 @@ namespace flui {
 
         InputType* getInput() noexcept;
 
+        flo::Signal<const WireType*> onWireAdded;
+        flo::Signal<const WireType*> onWireRemoved;
+
     private:
         bool onLeftClick(int) override;
 
@@ -94,6 +97,7 @@ namespace flui {
     private:
         InputType* const m_input;
         WireType* m_wireIn;
+        flo::Connection m_destroyConn;
 
         friend Wire<Traits>;
         friend WireHead<Traits>;
@@ -116,6 +120,9 @@ namespace flui {
 
         OutputType* getOutput() noexcept;
 
+        flo::Signal<const WireType*> onWireAdded;
+        flo::Signal<const WireType*> onWireRemoved;
+
     private:
         void addAttachedWire(WireType*);
         void removeAttachedWire(WireType*);
@@ -129,9 +136,9 @@ namespace flui {
 
         void onMouseOut() override;
 
-        Object* m_parentObject;
         OutputType* m_output;
         std::vector<WireType*> m_wiresOut;
+        flo::Connection m_destroyConn;
 
         friend Wire<Traits>;
         friend WireTail<Traits>;
@@ -160,9 +167,11 @@ namespace flui {
         InputPegType* getHeadPeg() noexcept;
         OutputPegType* getTailPeg() noexcept;
 
+        bool canAttachHeadTo(const InputPegType*) const;
         void attachHeadTo(InputPegType*);
         void detachHead();
-
+        
+        bool canAttachTailTo(const OutputPegType*) const;
         void attachTailTo(OutputPegType*);
         void detachTail();
 
@@ -176,6 +185,8 @@ namespace flui {
     private:
 
         void updatePositions();
+
+        bool m_isUpdatingPositions;
 
         void render(sf::RenderWindow&) override;
 
@@ -207,7 +218,7 @@ namespace flui {
 
         void onLeftRelease() override;
 
-        void onMove() override;
+        void onDrag() override;
 
         bool onDrop(ui::Draggable*) override;
 
@@ -228,7 +239,7 @@ namespace flui {
 
         void onLeftRelease() override;
 
-        void onMove() override;
+        void onDrag() override;
 
         bool onDrop(ui::Draggable*) override;
 
@@ -247,6 +258,10 @@ namespace flui {
         assert(getParentObject());
         auto self = static_cast<typename Traits::InputPegType*>(this);
         getParentObject()->addPeg(self);
+
+        m_destroyConn = m_input->onDestroy.connect([&](){
+            close();
+        });
     }
 
     template<typename Traits>
@@ -288,6 +303,9 @@ namespace flui {
 
     template<typename Traits>
     inline bool InputPeg<Traits>::onDrop(ui::Draggable* d){
+        if (m_wireIn){
+            return false;
+        }
         if (auto wh = dynamic_cast<Traits::WireHeadType*>(d)){
             auto w = wh->getParentWire();
             auto self = static_cast<typename Traits::InputPegType*>(this);
@@ -320,6 +338,10 @@ namespace flui {
         assert(getParentObject());
         auto self = static_cast<typename Traits::OutputPegType*>(this);
         getParentObject()->addPeg(self);
+
+        m_destroyConn = m_output->onDestroy.connect([&](){
+            close();
+        });
     }
 
     template<typename Traits>
@@ -407,7 +429,8 @@ namespace flui {
         , m_headPeg(nullptr)
         , m_tailPeg(nullptr)
         , m_head(add<HeadType>(static_cast<typename Traits::WireType*>(this)))
-        , m_tail(add<TailType>(static_cast<typename Traits::WireType*>(this))) {
+        , m_tail(add<TailType>(static_cast<typename Traits::WireType*>(this)))
+        , m_isUpdatingPositions(false) {
 
         assert(input || output);
 
@@ -435,21 +458,25 @@ namespace flui {
 
     template<typename Traits>
     inline void Wire<Traits>::destroy(){
+        auto self = static_cast<typename Traits::WireType*>(this);
+
         if (m_headPeg){
+            auto h = m_headPeg;
             assert(m_headPeg->getAttachedWire() == this);
             m_headPeg->setAttachedWire(nullptr);
             m_headPeg = nullptr;
+            h->onWireRemoved.broadcast(self);
         }
 
         if (m_tailPeg){
-            auto self = static_cast<typename Traits::WireType*>(this);
+            auto t = m_tailPeg;
             assert(m_tailPeg->hasAttachedWire(self));
             m_tailPeg->removeAttachedWire(self);
             m_tailPeg = nullptr;
+            t->onWireRemoved.broadcast(self);
         }
         
         if (m_parentPanel){
-            auto self = static_cast<typename Traits::WireType*>(this);
             m_parentPanel->removeWire(self);
         }
     }
@@ -475,15 +502,27 @@ namespace flui {
     }
 
     template<typename Traits>
+    inline bool Wire<Traits>::canAttachHeadTo(const InputPegType*) const {
+        if (m_tailPeg){
+            auto i = p->getInput();
+            auto o = m_tailPeg->getOutput();
+            return i->canAddDependency(o);
+        }
+        return true;
+    }
+
+    template<typename Traits>
     inline void Wire<Traits>::attachHeadTo(InputPegType* p){
         assert(p);
+
         if (m_headPeg == p){
             return;
         }
 
-        if (m_headPeg){
-            assert(m_headPeg->getAttachedWire() == this);
-            m_headPeg->setAttachedWire(nullptr);
+        assert(!m_headPeg);
+
+        if (auto w = p->getAttachedWire()){
+            w->detachHead();
         }
 
         m_headPeg = p;
@@ -493,12 +532,12 @@ namespace flui {
 
         auto i = p->getInput();
         
-        m_afterOutputAddedConn = i->afterSourceAdded.connect([&](const OutputType* src){
+        m_afterOutputAddedConn = i->onSourceAdded.connect([&](const OutputType* src){
             auto p = m_parentPanel->findPegFor(src);
             assert(p);
             attachTailTo(p);
         });
-        m_beforeOutputRemovedConn = i->beforeSourceRemoved.connect([&](const OutputType* src){
+        m_beforeOutputRemovedConn = i->onSourceRemoved.connect([&](const OutputType* src){
             detachTail();
         });
         m_onDestroyInputConn = i->onDestroy.connect([&](){
@@ -514,6 +553,7 @@ namespace flui {
             }
         }
 
+        p->onWireAdded.broadcast(self);
     }
 
     template<typename Traits>
@@ -532,9 +572,15 @@ namespace flui {
 
         if (h && m_tailPeg){
             auto i = h->getInput();
-            auto o = m_tailPeg->getOutput();
-            assert(i->getSource() == o);
-            i->setSource(nullptr);
+            if (i->getSource()){
+                assert(i->getSource() == m_tailPeg->getOutput());
+                i->setSource(nullptr);
+            }
+        }
+
+        if (h){
+            auto self = static_cast<typename Traits::WireType*>(this);
+            h->onWireRemoved.broadcast(self);
         }
 
         if (!m_head.dragging()){
@@ -543,19 +589,26 @@ namespace flui {
     }
 
     template<typename Traits>
+    inline bool Wire<Traits>::canAttachTailTo(const OutputPegType* p) const {
+        if (m_headPeg){
+            auto i = m_headPeg->getInput();
+            auto o = p->getOutput();
+            return i->canAddDependency(o);
+        }
+        return true;
+    }
+
+    template<typename Traits>
     inline void Wire<Traits>::attachTailTo(OutputPegType* p){
         assert(p);
-
+        
         if (m_tailPeg == p){
             return;
         }
 
-        auto self = static_cast<typename Traits::WireType*>(this);
+        assert(!m_tailPeg);
 
-        if (m_tailPeg){
-            assert(m_tailPeg->hasAttachedWire(self));
-            m_tailPeg->removeAttachedWire(self);
-        }
+        auto self = static_cast<typename Traits::WireType*>(this);
 
         m_tailPeg = p;
         assert(!m_tailPeg->hasAttachedWire(self));
@@ -575,14 +628,16 @@ namespace flui {
                 i->setSource(o);
             }
         }
+
+        m_tailPeg->onWireAdded.broadcast(self);
     }
 
     template<typename Traits>
     inline void Wire<Traits>::detachTail(){
         auto t = m_tailPeg;
+        auto self = static_cast<typename Traits::WireType*>(this);
 
         if (m_tailPeg){
-            auto self = static_cast<typename Traits::WireType*>(this);
             assert(m_tailPeg->hasAttachedWire(self));
             m_tailPeg->removeAttachedWire(self);
             m_tailPeg = nullptr;
@@ -595,9 +650,14 @@ namespace flui {
 
         if (t && m_headPeg){
             auto i = m_headPeg->getInput();
-            auto o = t->getOutput();
-            assert(i->getSource() == o);
-            i->setSource(nullptr);
+            if (i->getSource()){
+                assert(i->getSource() == t->getOutput());
+                i->setSource(nullptr);
+            }
+        }
+
+        if (t){
+            t->onWireRemoved.broadcast(self);
         }
 
         if (!m_tail.dragging()){
@@ -607,6 +667,12 @@ namespace flui {
 
     template<typename Traits>
     inline void Wire<Traits>::updatePositions(){
+        if (m_isUpdatingPositions){
+            return;
+        }
+
+        m_isUpdatingPositions = true;
+
         const auto bp = m_parentPanel->rootPos();
         
         if (m_headPeg){
@@ -616,6 +682,8 @@ namespace flui {
             m_tail.setPos(m_tailPeg->rootPos() + (m_tailPeg->size() - m_tail.size()) * 0.5f - bp);
         }
         
+        m_isUpdatingPositions = false;
+
         // NOTE: this guarantees that even if the head and tail are moved,
         // the wire's rectangular area defined by its top left corner and size
         // is exactly small enough to contain the center of both ends.
@@ -702,7 +770,7 @@ namespace flui {
     }
 
     template<typename Traits>
-    inline void WireHead<Traits>::onMove(){
+    inline void WireHead<Traits>::onDrag(){
         m_parentWire->updatePositions();
     }
 
@@ -765,7 +833,7 @@ namespace flui {
     }
 
     template<typename Traits>
-    inline void WireTail<Traits>::onMove(){
+    inline void WireTail<Traits>::onDrag(){
         m_parentWire->updatePositions();
     }
 

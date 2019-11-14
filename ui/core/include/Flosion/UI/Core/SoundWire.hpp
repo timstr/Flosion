@@ -25,32 +25,40 @@ namespace flui {
 
     class SoundInputPeg : public InputPeg<SoundWireTraits> {
     public:
-        using InputPeg::InputPeg;
+        SoundInputPeg(Object* parentObject, flo::SoundInput* input, ui::String label);
+
         // TODO
     };
 
     class SoundOutputPeg : public OutputPeg<SoundWireTraits> {
     public:
-        using OutputPeg::OutputPeg;
+        SoundOutputPeg(Object* parentObject, flo::SoundSource* output, ui::String label);
+
         // TODO
     };
 
     class SoundWireHead : public WireHead<SoundWireTraits> {
     public:
-        using WireHead::WireHead;
+        SoundWireHead(SoundWire*);
+
         // TODO
     };
 
     class SoundWireTail : public WireTail<SoundWireTraits> {
     public:
-        using WireTail::WireTail;
+        SoundWireTail(SoundWire*);
+
         // TODO
     };
 
     class SoundWire : public Wire<SoundWireTraits> {
     public:
         using Wire::Wire;
+
         // TODO
+
+    private:
+        void render(sf::RenderWindow&) override;
     };
 
 } // namespace flui

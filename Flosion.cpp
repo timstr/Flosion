@@ -18,6 +18,9 @@
 
 // TODO: actually use flo::Network
 
+// TODO: safegaurd sound processing objects from being deleted
+// while they are inside getNextChunk
+
 // TODO: include and dynamically link to ffmpeg for additional audio formats?
 
 // TODO: add graphs back (in a safe and clean way)
@@ -33,7 +36,6 @@
 // - wire link between borrower and its lender?
 // - Borrowers get placed into a box inside/alongside the lender?
 // - 
-// TODO: **** remove duplication between sound/number pegs/wires ****
 // TODO: allow default value of NumberInput to be edited via NumberInputPeg
 // TODO: add posRelativeTo(const Element* ancestor) to ui and use it
 // TODO: when a connected head is moused over, show the peg's label
@@ -45,6 +47,22 @@
 // TODO: hand-written math expressions
 // TODO: record sound streams into an audioclip
 // TODO: put wires in front of objects always
+
+// TODO: full keyboard naviation
+// 'letter' is used to mean that each applicatable object
+// is highlighted with a letter from the keyboard, and
+// pressing that letter selects the indicated object
+// - panel scope:
+//     - [something] to create an object
+//     - arrow keys or letter to select nearby object
+// - object scope:
+//     - arrow keys or letter to select peg
+//     - shift + arrow keys to move object?
+//     - escape to return to panel scope
+// - peg scope:
+//     - letter to select target peg for adding/removing
+//       wire (only applicable pegs are indicated)
+
 
 // TODO: audioclip
 // - one-shot vs loop
@@ -140,242 +158,10 @@ private:
 
 
 
-class MixerState : public flo::SoundState {
-public:
-    using SoundState::SoundState;
-
-    void reset() noexcept override {
-        buffer.silence();
-    }
-
-    flo::SoundChunk buffer;
-};
-
-class Router {
-public:
-    Router() : m_input(this) {
-        
-    }
 
 
-    void addNumberSource(size_t n){
-        m_input.addNumberSource(n);
-        for (auto& o : m_outputs){
-            o->addNumberInput(n);
-            //m_input.getNumberSource(n)->addDependency(o->getNumberInput(n));
-        }
-    }
-    void removeNumberSource(size_t n){
-        for (auto& o : m_outputs){
-            o->removeNumberInput(n);
-        }
-        m_input.removeNumberSource(n);
-    }
-    size_t numNumberSources() const {
-        return m_input.numNumberSources();
-    }
 
-    void addSoundSource(size_t o){
-        assert(o <= m_outputs.size());
-        auto ss = std::make_unique<Output>(this);
-        ss->addDependency(&m_input);
-        for (size_t i = 0, iEnd = m_input.numNumberSources(); i != iEnd; ++i){
-            ss->addNumberInput(i);
-            //m_input.getNumberSource(i)->addDependency(ss->getNumberInput(i));
-        }
-        m_outputs.insert(m_outputs.begin() + o, std::move(ss));
-    }
-    void removeSoundSource(size_t o){
-        assert(o < m_outputs.size());
-        auto it = m_outputs.begin() + o;
-        const auto& ss = *it;
-        ss->removeDependency(&m_input);
-        m_outputs.erase(it);
-    }
-    size_t numSoundSources() const {
-        return m_outputs.size();
-    }
 
-    flo::NumberSource* getNumberSource(size_t n){
-        return m_input.getNumberSource(n);
-    }
-    const flo::NumberSource* getNumberSource(size_t n) const {
-        return m_input.getNumberSource(n);
-    }
-    
-    flo::NumberInput* getNumberInput(size_t n, size_t o){
-        assert(o < numSoundSources());
-        return m_outputs[o]->getNumberInput(n);
-    }
-    const flo::NumberInput* getNumberInput(size_t n, size_t o) const {
-        assert(o < numSoundSources());
-        return m_outputs[o]->getNumberInput(n);
-    }
-
-    flo::SoundSource* getSoundSource(size_t o){
-        assert(o < numSoundSources());
-        return m_outputs[o].get();
-    }
-    const flo::SoundSource* getSoundSource(size_t o) const {
-        assert(o < numSoundSources());
-        return m_outputs[o].get();
-    }
-
-    flo::SingleSoundInput* getSoundInput(){
-        return &m_input;
-    }
-    const flo::SingleSoundInput* getSoundInput() const {
-        return &m_input;
-    }
-
-private:
-    class Output : public flo::Realtime<flo::ControlledSoundSource<flo::EmptySoundState>> {
-    public:
-        Output(Router* parent) : m_parent(parent) {
-
-        }
-
-        void addNumberInput(size_t where){
-            assert(where <= m_numberInputs.size());
-            auto ni = std::make_unique<flo::SoundNumberInput>(this);
-            //m_parent->getNumberSource(where)->addDependency(ni.get());
-            m_numberInputs.insert(m_numberInputs.begin() + where, std::move(ni));
-        }
-        void removeNumberInput(size_t where){
-            assert(where < m_numberInputs.size());
-            auto it = m_numberInputs.begin() + where;
-            //m_parent->getNumberSource(where)->removeDependency(it->get());
-            m_numberInputs.erase(it);
-        }
-        flo::NumberInput* getNumberInput(size_t which){
-            assert(which < m_numberInputs.size());
-            return m_numberInputs[which].get();
-        }
-        const flo::NumberInput* getNumberInput(size_t which) const {
-            assert(which < m_numberInputs.size());
-            return m_numberInputs[which].get();
-        }
-
-    private:
-
-        void renderNextChunk(flo::SoundChunk& chunk, flo::EmptySoundState* state) override {
-            m_parent->m_input.getNextChunkFor(chunk, this, state);
-        }
-
-        Router* const m_parent;
-
-        std::vector<std::unique_ptr<flo::SoundNumberInput>> m_numberInputs;
-    };
-
-    class Input : public flo::SingleSoundInput {
-    public:
-        Input(Router* router)
-            : SingleSoundInput(nullptr)
-            , m_router(router) {
-        
-        }
-
-        void addNumberSource(size_t where){
-            assert(where <= m_numberSources.size());
-            auto ns = std::make_unique<InputNumberSource>(this);
-            m_numberSources.insert(m_numberSources.begin() + where, std::move(ns));
-            for (size_t i = 0, iEnd = m_numberSources.size(); i != iEnd; ++i){
-                m_numberSources[i]->m_numberSourceIdx = i;
-            }
-        }
-        void removeNumberSource(size_t where){
-            assert(where < m_numberSources.size());
-            m_numberSources.erase(m_numberSources.begin() + where);
-            for (size_t i = 0, iEnd = m_numberSources.size(); i != iEnd; ++i){
-                m_numberSources[i]->m_numberSourceIdx = i;
-            }
-        }
-        size_t numNumberSources() const {
-            return m_numberSources.size();
-        }
-
-        flo::NumberSource* getNumberSource(size_t which){
-            assert(which < m_numberSources.size());
-            return m_numberSources[which].get();
-        }
-        const flo::NumberSource* getNumberSource(size_t which) const {
-            assert(which < m_numberSources.size());
-            return m_numberSources[which].get();
-        }
-
-        Router* getRouter(){
-            return m_router;
-        }
-        const Router* getRouter() const {
-            return m_router;
-        }
-
-    private:
-        class InputNumberSource : public flo::SoundNumberSource<Input> {
-        public:
-            InputNumberSource(Input* parent)
-                : SoundNumberSource(parent)
-                , m_parent(parent)
-                , m_numberSourceIdx(-1) {
-                
-            }
-
-            double evaluate(const StateType* state, const flo::SoundState* context) const noexcept override final {
-                auto ds = state->getDependentState();
-                assert(ds);
-                auto router = m_parent->getRouter();
-                const auto& outputs = router->m_outputs;
-                const auto it = std::find_if(
-                    outputs.begin(),
-                    outputs.end(),
-                    [&](const std::unique_ptr<Output>& op){
-                        return ds->getOwner() == op.get();
-                    }
-                );
-                assert(it != outputs.end());
-                return (*it)->getNumberInput(m_numberSourceIdx)->getValue(context);
-            }
-
-        private:
-            const Input* m_parent;
-            size_t m_numberSourceIdx;
-
-            friend class Input;
-        };
-
-        Router* const m_router;
-
-        std::vector<std::unique_ptr<InputNumberSource>> m_numberSources;
-    };
-
-    Input m_input;
-    std::vector<std::unique_ptr<Output>> m_outputs;
-};
-
-class Mixer : public flo::Realtime<flo::ControlledSoundSource<MixerState>> {
-public:
-
-    void renderNextChunk(flo::SoundChunk& chunk, MixerState* state) override {
-        chunk.silence();
-
-        for (auto& input : m_inputs){
-            input->getNextChunkFor(state->buffer, this, state);
-            for (size_t i = 0; i < flo::SoundChunk::size; ++i){
-                chunk[i] += state->buffer[i] * 0.1f;
-            }
-        }
-    }
-
-    void addSource(SoundSource* source){
-        m_inputs.push_back(std::make_unique<flo::SingleSoundInput>(nullptr));
-        const auto& input = m_inputs.back();
-        addDependency(input.get());
-        input->setSource(source);
-    }
-
-private:
-    std::vector<std::unique_ptr<flo::SingleSoundInput>> m_inputs;
-};
 
 
 

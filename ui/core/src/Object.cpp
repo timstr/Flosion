@@ -60,6 +60,7 @@ namespace flui {
             putCell<ui::FreeContainer>(2, 1)
             .add<ui::VerticalList>(ui::FreeContainer::Center, ui::FreeContainer::Center)
         ) {
+        setShrink(true);
     }
 
     Object::~Object(){
@@ -67,18 +68,10 @@ namespace flui {
             m_parentPanel->removeObject(this);
         }
 
-        while (m_numberInputs.size() > 0){
-            m_numberInputs.back()->close();
-        }
-        while (m_numberOutputs.size() > 0){
-            m_numberOutputs.back()->close();
-        }
-        while (m_soundInputs.size() > 0){
-            m_soundInputs.back()->close();
-        }
-        while (m_soundOutputs.size() > 0){
-            m_soundOutputs.back()->close();
-        }
+        assert(m_numberInputs.size() == 0);
+        assert(m_numberOutputs.size() == 0);
+        assert(m_soundInputs.size() == 0);
+        assert(m_soundOutputs.size() == 0);
     }
 
     Panel* Object::getParentPanel(){

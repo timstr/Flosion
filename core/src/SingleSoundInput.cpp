@@ -5,9 +5,16 @@
 
 namespace flo {
 
-    SingleSoundInput::SingleSoundInput(SoundNode* parent){
-        if (parent){
-            parent->addDependency(this);
+    SingleSoundInput::SingleSoundInput(SoundNode* parent)
+        : m_parent(parent) {
+        if (m_parent){
+            m_parent->addDependency(this);
+        }
+    }
+
+    SingleSoundInput::~SingleSoundInput(){
+        if (m_parent){
+            m_parent->removeDependency(this);
         }
     }
 

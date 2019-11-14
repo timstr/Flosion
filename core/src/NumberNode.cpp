@@ -15,6 +15,10 @@ namespace flo {
 
     }
 
+    NumberNode::~NumberNode(){
+        setStateOwner(nullptr);
+    }
+
     bool NumberNode::canAddDependency(const NumberNode* node) const noexcept {
         if (hasDependency(node) || node->hasDependency(this)){
             return false;

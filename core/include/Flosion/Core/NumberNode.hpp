@@ -39,7 +39,7 @@ namespace flo {
     class NumberNode : public NodeBase<NumberNode> {
     public:
         NumberNode();
-        virtual ~NumberNode() = default;
+        virtual ~NumberNode();
 
         bool canAddDependency(const NumberNode*) const noexcept;
         bool canRemoveDependency(const NumberNode*) const noexcept;

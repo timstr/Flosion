@@ -30,24 +30,6 @@ namespace flui {
         auto op = object.get();
         m_objects.push_back(op);
         adopt(std::move(object));
-        
-        for (const auto& p : op->getNumberInputPegs()){
-            assert(m_numberInputPegs.find(p->getInput()) == m_numberInputPegs.end());
-            m_numberInputPegs.emplace(p->getInput(), p);
-        }
-        for (const auto& p : op->getNumberOutputPegs()){
-            assert(m_numberOutputPegs.find(p->getOutput()) == m_numberOutputPegs.end());
-            m_numberOutputPegs.emplace(p->getOutput(), p);
-        }
-
-        for (const auto& p : op->getSoundInputPegs()){
-            assert(m_soundInputPegs.find(p->getInput()) == m_soundInputPegs.end());
-            m_soundInputPegs.emplace(p->getInput(), p);
-        }
-        for (const auto& p : op->getSoundOutputPegs()){
-            assert(m_soundOutputPegs.find(p->getOutput()) == m_soundOutputPegs.end());
-            m_soundOutputPegs.emplace(p->getOutput(), p);
-        }
     }
 
     void Panel::removeObject(const Object* o){
@@ -59,37 +41,25 @@ namespace flui {
         op->m_parentPanel = nullptr;
 
         for (const auto& p : op->getNumberInputPegs()){
-            if (p->getAttachedWire()){
-                p->getAttachedWire()->destroy();
+            if (auto w = p->getAttachedWire()){
+                w->detachHead();
             }
-            auto pi = m_numberInputPegs.find(p->getInput());
-            assert(pi != m_numberInputPegs.end());
-            m_numberInputPegs.erase(pi);
         }
         for (const auto& p : op->getNumberOutputPegs()){
             while (p->getAttachedWires().size() > 0){
-                p->getAttachedWires().back()->destroy();
+                p->getAttachedWires().back()->detachTail();
             }
-            auto pi = m_numberOutputPegs.find(p->getOutput());
-            assert(pi != m_numberOutputPegs.end());
-            m_numberOutputPegs.erase(pi);
         }
         
         for (const auto& p : op->getSoundInputPegs()){
-            if (p->getAttachedWire()){
-                p->getAttachedWire()->destroy();
+            if (auto w = p->getAttachedWire()){
+                w->detachHead();
             }
-            auto pi = m_soundInputPegs.find(p->getInput());
-            assert(pi != m_soundInputPegs.end());
-            m_soundInputPegs.erase(pi);
         }
         for (const auto& p : op->getSoundOutputPegs()){
             while (p->getAttachedWires().size() > 0){
-                p->getAttachedWires().back()->destroy();
+                p->getAttachedWires().back()->detachTail();
             }
-            auto pi = m_soundOutputPegs.find(p->getOutput());
-            assert(pi != m_soundOutputPegs.end());
-            m_soundOutputPegs.erase(pi);
         }
 
         m_objects.erase(it);
@@ -132,29 +102,45 @@ namespace flui {
     }
 
     NumberInputPeg* Panel::findPegFor(const flo::NumberInput* ni){
-        if (auto it = m_numberInputPegs.find(ni); it != m_numberInputPegs.end()){
-            return it->second;
+        for (auto& o : m_objects){
+            for (auto& p : o->getNumberInputPegs()){
+                if (p->getInput() == ni){
+                    return p;
+                }
+            }
         }
         return nullptr;
     }
 
     NumberOutputPeg* Panel::findPegFor(const flo::NumberSource* ns){
-        if (auto it = m_numberOutputPegs.find(ns); it != m_numberOutputPegs.end()){
-            return it->second;
+        for (auto& o : m_objects){
+            for (auto& p : o->getNumberOutputPegs()){
+                if (p->getOutput() == ns){
+                    return p;
+                }
+            }
         }
         return nullptr;
     }
 
     SoundInputPeg* Panel::findPegFor(const flo::SoundInput* si){
-        if (auto it = m_soundInputPegs.find(si); it != m_soundInputPegs.end()){
-            return it->second;
+        for (auto& o : m_objects){
+            for (auto& p : o->getSoundInputPegs()){
+                if (p->getInput() == si){
+                    return p;
+                }
+            }
         }
         return nullptr;
     }
 
     SoundOutputPeg* Panel::findPegFor(const flo::SoundSource* ss){
-        if (auto it = m_soundOutputPegs.find(ss); it != m_soundOutputPegs.end()){
-            return it->second;
+        for (auto& o : m_objects){
+            for (auto& p : o->getSoundOutputPegs()){
+                if (p->getOutput() == ss){
+                    return p;
+                }
+            }
         }
         return nullptr;
     }
@@ -279,6 +265,10 @@ namespace flui {
             close();
             return true;
         } else if (key == ui::Key::Escape){
+            for (const auto& o : m_objects){
+                o.first->setPos(o.second);
+                o.first->updateWires();
+            }
             close();
             return true;
         } else if (key == ui::Key::Up){
@@ -299,10 +289,9 @@ namespace flui {
     }
 
     void Panel::SelectedObjects::onLoseFocus(){
-        std::vector<Object*> objs;
         for (auto& o : m_objects){
-            objs.push_back(o.first);
             o.first->setPos(o.second);
+            o.first->updateWires();
         }
         close();
     }

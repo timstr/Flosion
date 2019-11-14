@@ -967,3 +967,229 @@ TEST(SoundNodeTest, Uncontrolled1){
     EXPECT_FALSE(divergent.hasUncontrolledDependency());
     EXPECT_FALSE(singular2.hasUncontrolledDependency());
 }
+
+TEST(SoundNodeTest, Uncontrolled2){
+    auto root1 = BasicUncontrolled{"uncontrolled 1"};
+    auto root2 = BasicUncontrolled{"uncontrolled 2"};
+
+    EXPECT_EQ(root1.numSlots(), 1);
+    EXPECT_EQ(root2.numSlots(), 1);
+
+    {
+        auto leaf = BasicSoundNode{"basic"};
+
+        EXPECT_EQ(leaf.numSlots(), 0);
+
+        root1.addDependency(&leaf);
+
+        EXPECT_EQ(leaf.numSlots(), 1);
+
+        root2.addDependency(&leaf);
+
+        EXPECT_EQ(leaf.numSlots(), 2);
+    }
+}
+
+TEST(SoundNodeTest, Uncontrolled3){
+    auto root = BasicUncontrolled{"uncontrolled"};
+
+    EXPECT_EQ(root.numSlots(), 1);
+
+    {
+        auto leaf = DivergentSoundNode{"divergent 0"};
+
+        EXPECT_EQ(leaf.numSlots(), 0);
+
+        root.addDependency(&leaf);
+
+        EXPECT_EQ(leaf.numSlots(), 0);
+    }
+
+    ASSERT_EQ(root.getDirectDependencies().size(), 0);
+
+    {
+        auto leaf = DivergentSoundNode{"divergent 1"};
+        leaf.addKey(1);
+
+        EXPECT_EQ(leaf.numSlots(), 0);
+
+        root.addDependency(&leaf);
+
+        EXPECT_EQ(leaf.numSlots(), 1);
+    }
+
+    ASSERT_EQ(root.getDirectDependencies().size(), 0);
+
+    {
+        auto leaf = DivergentSoundNode{"divergent 2"};
+        leaf.addKey(1);
+        leaf.addKey(2);
+
+        EXPECT_EQ(leaf.numSlots(), 0);
+
+        root.addDependency(&leaf);
+
+        EXPECT_EQ(leaf.numSlots(), 2);
+    }
+
+    ASSERT_EQ(root.getDirectDependencies().size(), 0);
+
+    {
+        auto leaf = DivergentSoundNode{"divergent 4"};
+        leaf.addKey(1);
+        leaf.addKey(2);
+        leaf.addKey(3);
+        leaf.addKey(4);
+
+        EXPECT_EQ(leaf.numSlots(), 0);
+
+        root.addDependency(&leaf);
+
+        EXPECT_EQ(leaf.numSlots(), 4);
+
+        leaf.removeKey(1);
+
+        EXPECT_EQ(leaf.numSlots(), 3);
+
+        leaf.removeKey(2);
+
+        EXPECT_EQ(leaf.numSlots(), 2);
+
+        leaf.removeKey(3);
+
+        EXPECT_EQ(leaf.numSlots(), 1);
+
+        leaf.removeKey(4);
+
+        EXPECT_EQ(leaf.numSlots(), 0);
+    }
+
+    ASSERT_EQ(root.getDirectDependencies().size(), 0);
+}
+
+TEST(SoundNodeTest, Uncontrolled4){
+    auto root1 = BasicUncontrolled{"uncontrolled root 1"};
+    auto root2 = BasicUncontrolled{"uncontrolled root 2"};
+
+    EXPECT_EQ(root1.numSlots(), 1);
+    EXPECT_EQ(root2.numSlots(), 1);
+
+    {
+        auto leaf = DivergentSoundNode{"divergent leaf"};
+
+        leaf.addKey(1);
+        leaf.addKey(2);
+
+        EXPECT_EQ(leaf.numSlots(), 0);
+
+        root1.addDependency(&leaf);
+
+        EXPECT_EQ(leaf.numSlots(), 2);
+
+        root2.addDependency(&leaf);
+
+        EXPECT_EQ(leaf.numSlots(), 4);
+
+        {
+            const auto r1k1 = leaf.getState(&root1, root1.getMonoState(), 1);
+            const auto r1k2 = leaf.getState(&root1, root1.getMonoState(), 2);
+            const auto r2k1 = leaf.getState(&root2, root2.getMonoState(), 1);
+            const auto r2k2 = leaf.getState(&root2, root2.getMonoState(), 2);
+            EXPECT_EQ(r1k1->getDependentState(), root1.getMonoState());
+            EXPECT_EQ(r1k2->getDependentState(), root1.getMonoState());
+            EXPECT_EQ(r2k1->getDependentState(), root2.getMonoState());
+            EXPECT_EQ(r2k2->getDependentState(), root2.getMonoState());
+            EXPECT_EQ(r1k1->getOwner(), &leaf);
+            EXPECT_EQ(r1k2->getOwner(), &leaf);
+            EXPECT_EQ(r2k1->getOwner(), &leaf);
+            EXPECT_EQ(r2k2->getOwner(), &leaf);
+        }
+
+        leaf.removeKey(2);
+
+        EXPECT_EQ(leaf.numSlots(), 2);
+
+        {
+            const auto r1k1 = leaf.getState(&root1, root1.getMonoState(), 1);
+            const auto r2k1 = leaf.getState(&root2, root2.getMonoState(), 1);
+            EXPECT_EQ(r1k1->getDependentState(), root1.getMonoState());
+            EXPECT_EQ(r2k1->getDependentState(), root2.getMonoState());
+            EXPECT_EQ(r1k1->getOwner(), &leaf);
+            EXPECT_EQ(r2k1->getOwner(), &leaf);
+        }
+
+        leaf.removeKey(1);
+
+        EXPECT_EQ(leaf.numSlots(), 0);
+
+        root1.removeDependency(&leaf);
+        root2.removeDependency(&leaf);
+    }
+}
+
+TEST(SoundNodeTest, Uncontrolled5){
+    auto root1 = BasicUncontrolled{"uncontrolled root 1"};
+    auto root2 = BasicUncontrolled{"uncontrolled root 2"};
+
+    auto inner = BasicSoundNode{"basic inner"};
+
+    EXPECT_EQ(root1.numSlots(), 1);
+    EXPECT_EQ(root2.numSlots(), 1);
+
+    
+    EXPECT_EQ(inner.numSlots(), 0);
+    root1.addDependency(&inner);
+    EXPECT_EQ(inner.numSlots(), 1);
+    root2.addDependency(&inner);
+    EXPECT_EQ(inner.numSlots(), 2);
+
+    {
+        auto leaf = DivergentSoundNode{"divergent leaf"};
+
+        leaf.addKey(1);
+        leaf.addKey(2);
+
+        EXPECT_EQ(leaf.numSlots(), 0);
+
+        inner.addDependency(&leaf);
+
+        EXPECT_EQ(leaf.numSlots(), 4);
+
+        {
+            const auto i1k1 = leaf.getState(&inner, inner.getState(0), 1);
+            const auto i1k2 = leaf.getState(&inner, inner.getState(0), 2);
+            const auto i2k1 = leaf.getState(&inner, inner.getState(1), 1);
+            const auto i2k2 = leaf.getState(&inner, inner.getState(1), 2);
+            EXPECT_EQ(i1k1->getDependentState(), inner.getState(0));
+            EXPECT_EQ(i1k2->getDependentState(), inner.getState(0));
+            EXPECT_EQ(i2k1->getDependentState(), inner.getState(1));
+            EXPECT_EQ(i2k2->getDependentState(), inner.getState(1));
+            EXPECT_EQ(i1k1->getOwner(), &leaf);
+            EXPECT_EQ(i1k2->getOwner(), &leaf);
+            EXPECT_EQ(i2k1->getOwner(), &leaf);
+            EXPECT_EQ(i2k2->getOwner(), &leaf);
+        }
+
+        leaf.removeKey(2);
+
+        EXPECT_EQ(leaf.numSlots(), 2);
+
+        {
+            const auto i1k1 = leaf.getState(&inner, inner.getState(0), 1);
+            const auto i2k1 = leaf.getState(&inner, inner.getState(1), 1);
+            EXPECT_EQ(i1k1->getDependentState(), inner.getState(0));
+            EXPECT_EQ(i2k1->getDependentState(), inner.getState(1));
+            EXPECT_EQ(i1k1->getOwner(), &leaf);
+            EXPECT_EQ(i2k1->getOwner(), &leaf);
+        }
+
+        leaf.removeKey(1);
+
+        EXPECT_EQ(leaf.numSlots(), 0);
+
+        root1.removeDependency(&inner);
+        root2.removeDependency(&inner);
+
+        inner.removeDependency(&leaf);
+    }
+}

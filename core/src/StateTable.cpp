@@ -33,6 +33,38 @@ namespace flo {
     }
 
     size_t StateTable::getDependentOffset(const SoundNode* dependent) const noexcept {
+        // Please excuse this massive check for invariants via immediately-invoked boolean lambda
+        assert([&](){
+            // Cumulative sum of expected offsets into state table.
+            size_t sum = 0;
+            for (const auto& dto : m_dependentOffsets){
+                // The offset must match the expected offset
+                if (sum != dto.offset){
+                    return false;
+                }
+                if (numKeys() == 0){
+                    // If there are zero keys, the offset must also be zero
+                    // because the state table is empty
+                    if (dto.offset != 0){
+                        return false;
+                    }
+                } else {
+                    // If there are keys, the offset must divide the number of keys
+                    if (dto.offset % numKeys() != 0){
+                        return false;
+                    }
+                }
+                // The next expected offset the current offset plus the number of
+                // dependent states times the number of keys
+                sum += dto.count * numKeys();
+            }
+            // The last offset must equal the total number of state slots
+            if (sum != numSlots()){
+                return false;
+            }
+            return true;
+        }());
+
         auto it = std::find_if(
             m_dependentOffsets.begin(),
             m_dependentOffsets.end(),
@@ -146,14 +178,22 @@ namespace flo {
     }
 
     void StateTable::repointStatesFor(const SoundNode* dependent) noexcept {
-        const auto dsBegin = getDependentOffset(dependent);
-        const auto dsEnd = dsBegin + dependent->numSlots();
-        for (size_t i = dsBegin; i < dsEnd; ++i){
-            const auto dependentState = dependent->getState(i - dsBegin);
-            for (size_t j = 0; j < numKeys(); ++j){
-                getState((i * numKeys()) + j)->m_dependentState = dependentState;
+        for (const auto& dto : m_dependentOffsets){
+            if (dto.dependent != dependent){
+                continue;
             }
+            if (numKeys() == 0){
+                return;
+            }
+            for (size_t i = 0; i < dto.count; ++i){
+                const auto dependentState = dependent->getState(i);
+                for (size_t k = 0; k < numKeys(); ++k){
+                    getState(dto.offset + (i * numKeys()) + k)->m_dependentState = dependentState;
+                }
+            }
+            return;
         }
+        assert(false);
     }
 
     void StateTable::addDependentOffset(const SoundNode* d){
@@ -166,7 +206,7 @@ namespace flo {
         ) == m_dependentOffsets.end());
         assert(!m_isMonostate || m_dependentOffsets.size() == 0);
 
-        const auto offset = std::accumulate(
+        const auto offset = m_numKeys * std::accumulate(
             m_dependentOffsets.begin(),
             m_dependentOffsets.end(),
             0ull,
@@ -201,7 +241,7 @@ namespace flo {
 
     const SoundState* StateTable::getState(const SoundNode* dependent, const SoundState* dependentState, size_t keyIndex) const noexcept {
         const auto offset = getDependentOffset(dependent);
-        return getState((offset + dependent->getStateIndex(dependentState) * numKeys()) + keyIndex);
+        return getState(offset + (dependent->getStateIndex(dependentState) * numKeys()) + keyIndex);
     }
 
     SoundState* StateTable::getState(size_t slotIndex) noexcept {
@@ -209,6 +249,9 @@ namespace flo {
     }
 
     const SoundState* StateTable::getState(size_t slotIndex) const noexcept {
+        if (slotIndex >= numSlots()){
+            rand();
+        }
         assert(slotIndex < numSlots());
         return reinterpret_cast<const SoundState*>(m_data + (slotIndex * m_slotSize));
     }
@@ -239,6 +282,8 @@ namespace flo {
     }
 
     size_t StateTable::getStateIndex(const SoundState* ownState) const noexcept {
+        assert(ownState->getOwner() == this);
+        assert(hasState(ownState));
         auto idx = (reinterpret_cast<const unsigned char*>(ownState) - m_data) / m_slotSize;
         assert(idx < numSlots());
         return static_cast<size_t>(idx);
@@ -251,7 +296,9 @@ namespace flo {
             return false;
         }
         const auto idx = diff / m_slotSize;
-        return (idx >= 0) && (idx < numSlots());
+        const bool isOwn = (idx >= 0) && (idx < numSlots());
+        assert(isOwn == (ownState->getOwner() == this));
+        return isOwn;
     }
 
     size_t StateTable::numSlots() const noexcept {
@@ -428,8 +475,8 @@ namespace flo {
         // propagate the changes
         {
             const auto offset = getDependentOffset(dependent);
-            const auto ownStartIndex = numKeys() * (offset + beginIndex);
-            const auto ownEndIndex = numKeys() * (offset + endIndex);
+            const auto ownStartIndex = offset + (numKeys() * beginIndex);
+            const auto ownEndIndex = offset + (numKeys() * endIndex);
             for (auto& d : m_owner->getDirectDependencies()){
                 d->insertDependentStates(m_owner, ownStartIndex, ownEndIndex);
                 d->repointStatesFor(m_owner);
@@ -623,8 +670,8 @@ namespace flo {
         // propagate the changes
         {
             const auto offset = getDependentOffset(dependent);
-            const auto ownStartIndex = numKeys() * (offset + beginIndex);
-            const auto ownEndIndex = numKeys() * (offset + endIndex);
+            const auto ownStartIndex = offset + (numKeys() * beginIndex);
+            const auto ownEndIndex = offset + (numKeys() * endIndex);
             for (auto& d : m_owner->getDirectDependencies()){
                 d->eraseDependentStates(m_owner, ownStartIndex, ownEndIndex);
                 d->repointStatesFor(m_owner);
@@ -646,10 +693,20 @@ namespace flo {
         auto oldSlotIndex = size_t{0};
         auto newSlotIndex = size_t{0};
 
+        // Update dependent offsets
+        {
+            size_t sum = 0;
+            for (auto& dto : m_dependentOffsets){
+                dto.offset = sum;
+                sum += dto.count * m_numKeys;
+            }
+            assert(sum == numSlots());
+        }
+
         auto currentDependent = m_dependentOffsets.begin();
         for (size_t i = 0; i < numDependentStates(); ++i){
             assert(currentDependent != m_dependentOffsets.end());
-            while (currentDependent->offset <= i){
+            while ((currentDependent->offset + (currentDependent->count * m_numKeys)) < (i * m_numKeys)){
                 ++currentDependent;
                 assert(currentDependent != m_dependentOffsets.end());
             }
@@ -710,13 +767,23 @@ namespace flo {
         auto oldSlotIndex = size_t{0};
         auto newSlotIndex = size_t{0};
 
+        // Update dependent offsets
+        {
+            size_t sum = 0;
+            for (auto& dto : m_dependentOffsets){
+                dto.offset = sum;
+                sum += dto.count * m_numKeys;
+            }
+            assert(sum == numSlots());
+        }
+
         auto currentDependent = m_dependentOffsets.begin();
         for (size_t i = 0; i < numDependentStates(); ++i){
             assert(oldSlotIndex == i * oldNumKeys);
             assert(newSlotIndex == i * m_numKeys);
 
             assert(currentDependent != m_dependentOffsets.end());
-            while (currentDependent->offset < i){
+            while ((currentDependent->offset + (currentDependent->count * m_numKeys)) < (i * m_numKeys)){
                 ++currentDependent;
                 assert(currentDependent != m_dependentOffsets.end());
             }

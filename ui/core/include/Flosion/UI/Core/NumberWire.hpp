@@ -23,32 +23,40 @@ namespace flui {
 
     class NumberInputPeg : public InputPeg<NumberWireTraits> {
     public:
-        using InputPeg::InputPeg;
+        NumberInputPeg(Object* parentObject, flo::NumberInput* input, ui::String label);
+
         // TODO
     };
 
     class NumberOutputPeg : public OutputPeg<NumberWireTraits> {
     public:
-        using OutputPeg::OutputPeg;
+        NumberOutputPeg(Object* parentObject, flo::NumberSource* output, ui::String label);
+
         // TODO
     };
 
     class NumberWireHead : public WireHead<NumberWireTraits> {
     public:
-        using WireHead::WireHead;
+        NumberWireHead(NumberWire*);
+
         // TODO
     };
 
     class NumberWireTail : public WireTail<NumberWireTraits> {
     public:
-        using WireTail::WireTail;
+        NumberWireTail(NumberWire*);
+
         // TODO
     };
 
     class NumberWire : public Wire<NumberWireTraits> {
     public:
         using Wire::Wire;
+
         // TODO
+
+    private:
+        void render(sf::RenderWindow&) override;
     };
 
 } // namespace flui
