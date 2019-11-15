@@ -16,6 +16,14 @@
 
 #include <Flosion/UI/Core/FlosionUI.hpp>
 
+// TODO: when a SoundSource (and SoundInput?) is destroyed, sever
+// any number connections that would be invalidated
+// This will require a deep search
+
+// TODO: clear DAC buffer when resetting
+
+// TODO: remove empty/unused files
+
 // TODO: actually use flo::Network
 
 // TODO: safegaurd sound processing objects from being deleted

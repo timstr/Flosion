@@ -35,7 +35,7 @@ namespace flo {
             for (std::size_t i = 0; i < chunk.size; ++i){
                 assert(state->index * 2 + 1 < l);
                 chunk.l(i) = s[state->index * 2 + 0] * k;
-                chunk.r(i) = s[state->index * 2 * 1] * k;
+                chunk.r(i) = s[state->index * 2 + 1] * k;
                 state->index = (state->index + 1) % l; // TODO: allow looping to be turned on an off
             }
             return;
