@@ -60,7 +60,7 @@ namespace flo {
         return true;
     }
 
-    bool SoundNode::canRemoveDependency(const SoundNode* node) const noexcept {
+    bool SoundNode::canSafelyRemoveDependency(const SoundNode* node) const noexcept {
         if (!hasDirectDependency(node)){
             return false;
         }
@@ -102,11 +102,57 @@ namespace flo {
         }
     }
 
-    void SoundNode::beforeDependencyRemoved(SoundNode* node){
-        if (numSlots() > 0){
-            node->eraseDependentStates(this, 0, numSlots());
+    void SoundNode::beforeDependencyRemoved(SoundNode* nodeToRemove){
+        // If any number nodes belonging to any dependencies of the given
+        // node would lose access to their state, break their connections
+        
+        std::function<bool(const SoundNode*, const SoundNode*)> wouldStillHaveAccess = [&](const SoundNode* dc, const SoundNode* dt){
+            if (dc == dt){
+                return true;
+            }
+            for (const auto& ddt : dc->getDirectDependents()){
+                if (dc == nodeToRemove && ddt == this){
+                    continue;
+                }
+                if (wouldStillHaveAccess(ddt, dt)){
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        // NOTE: connections to break are cached to avoid modifying
+        // containers while iterating over them
+        // The stored pairs are ordered as (some node, its direct dependency)
+        std::set<std::pair<NumberInput*, NumberNode*>> toDisconnect;
+
+        for (const auto& dc : nodeToRemove->getAllDependencies()){
+            for (const auto dcnn : dc->getNumberNodes()){
+                if (auto dcni = dcnn->toNumberInput()){
+                    for (const auto& dcniddc : dcni->getDirectDependencies()){
+                        for (const auto& dcnidc : dcniddc->getAllDependencies()){
+                            if (auto dcnidcso = dcnidc->getStateOwner()){
+                                if (!wouldStillHaveAccess(dc, dcnidcso)){
+                                    assert(dcni->hasDirectDependency(dcniddc));
+                                    toDisconnect.insert({dcni, dcniddc});
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-        node->removeDependentOffset(this);
+
+        for (const auto& [ni, dc] : toDisconnect){
+            assert(ni->hasDirectDependency(dc));
+            assert(ni->getSource() == dc);
+            ni->setSource(nullptr);
+        }
+
+        if (numSlots() > 0){
+            nodeToRemove->eraseDependentStates(this, 0, numSlots());
+        }
+        nodeToRemove->removeDependentOffset(this);
     }
 
     bool SoundNode::hasUncontrolledDependency() const noexcept {

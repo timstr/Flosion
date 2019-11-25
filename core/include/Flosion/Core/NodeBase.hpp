@@ -15,7 +15,6 @@ namespace flo {
      * NodeBase uses the CRTP to add directed graph node functions to a concrete type.
      * That type is expected to define these following member functions:
      * - bool canAddDependency(const DerivedNode*) const;
-     * - bool canRemoveDependency(const DerivedNode*) const;
      * - void afterDependencyAdded(DerivedNode*);
      * - void beforeDependencyRemoved(DerivedNode*);
      */
@@ -93,6 +92,8 @@ namespace flo {
 
         const std::vector<TraitsInput<Traits>*>& getInputs() const noexcept;
 
+        void disconnectAllInputs();
+
     private:
         std::vector<TraitsInput<Traits>*> m_inputs;
 
@@ -129,7 +130,7 @@ namespace flo {
         assert(node);
         assert(std::count(m_dependencies.begin(), m_dependencies.end(), node) == 1);
         assert(std::count(node->m_dependents.begin(), node->m_dependents.end(), this) == 1);
-        if (!static_cast<DerivedNode*>(this)->canRemoveDependency(node)){
+        if (!hasDirectDependency(node)){
             throw std::runtime_error("Don't do that.");
         }
         static_cast<DerivedNode*>(this)->beforeDependencyRemoved(node);
@@ -273,6 +274,13 @@ namespace flo {
     template<typename Traits>
     inline const std::vector<TraitsInput<Traits>*>& OutputNodeBase<Traits>::getInputs() const noexcept {
         return m_inputs;
+    }
+
+    template<typename Traits>
+    inline void OutputNodeBase<Traits>::disconnectAllInputs(){
+        while (m_inputs.size() > 0){
+            m_inputs.back()->setSource(nullptr);
+        }
     }
 
 } // namespace flo

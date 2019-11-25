@@ -11,6 +11,17 @@ namespace flo {
 
     }
 
+    const NumberInput* NumberInput::toNumberInput() const noexcept {
+        return this;
+    }
+
+    const NumberSource* NumberInput::toNumberSource() const noexcept {
+        // NOTE: this method, while it is no different from the one
+        // it overrides, helps guarantee mutual exclusion between
+        // NumberInput and NumberSource by being final
+        return nullptr;
+    }
+
     double NumberInput::getValue(const SoundState* context) const noexcept {
         if (auto s = getSource()){
             return s->evaluate(context);
@@ -47,6 +58,17 @@ namespace flo {
 
     double Constant::evaluate(const SoundState* /* context */) const noexcept {
         return m_value.load(std::memory_order_relaxed);
+    }
+
+    const NumberInput* NumberSource::toNumberInput() const noexcept {
+        // NOTE: this method, while it is no different from the one
+        // it overrides, helps guarantee mutual exclusion between
+        // NumberInput and NumberSource by being final
+        return nullptr;
+    }
+
+    const NumberSource* NumberSource::toNumberSource() const noexcept {
+        return this;
     }
 
 } // namespace flo

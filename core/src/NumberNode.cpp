@@ -54,10 +54,6 @@ namespace flo {
         return true;
     }
 
-    bool NumberNode::canRemoveDependency(const NumberNode*) const noexcept {
-        return true;
-    }
-
     void NumberNode::afterDependencyAdded(NumberNode*){
         // Nothing to do
     }
@@ -72,6 +68,22 @@ namespace flo {
 
     const SoundNode* NumberNode::getStateOwner() const noexcept {
         return m_stateOwner;
+    }
+
+    NumberInput* NumberNode::toNumberInput() noexcept {
+        return const_cast<NumberInput*>(const_cast<const NumberNode*>(this)->toNumberInput());
+    }
+
+    const NumberInput* NumberNode::toNumberInput() const noexcept {
+        return nullptr;
+    }
+
+    NumberSource* NumberNode::toNumberSource() noexcept {
+        return const_cast<NumberSource*>(const_cast<const NumberNode*>(this)->toNumberSource());
+    }
+
+    const NumberSource* NumberNode::toNumberSource() const noexcept {
+        return nullptr;
     }
 
     void NumberNode::setStateOwner(SoundNode* sn){

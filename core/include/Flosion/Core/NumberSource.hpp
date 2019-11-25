@@ -39,6 +39,9 @@ namespace flo {
         NumberInput(double defaultValue = 0.0) noexcept;
 
         double m_defaultValue;
+        
+        const NumberInput* toNumberInput() const noexcept override final;
+        const NumberSource* toNumberSource() const noexcept override final;
 
         friend class NumberSourceInput;
         friend class SoundNumberInput;
@@ -48,6 +51,10 @@ namespace flo {
     class NumberSource : public OutputNodeBase<NumberTraits> {
     public:
         virtual double evaluate(const SoundState* context) const noexcept = 0;
+
+    private:
+        const NumberInput* toNumberInput() const noexcept override final;
+        const NumberSource* toNumberSource() const noexcept override final;
     };
 
     class Constant : public NumberSource {

@@ -69,10 +69,10 @@ TEST(SoundNodeTest, ShallowDependencies1){
     EXPECT_FALSE(root.canAddDependency(&root));
     EXPECT_FALSE(leaf.canAddDependency(&leaf));
 
-    EXPECT_FALSE(root.canRemoveDependency(&leaf));
-    EXPECT_FALSE(leaf.canRemoveDependency(&root));
-    EXPECT_FALSE(root.canRemoveDependency(&root));
-    EXPECT_FALSE(leaf.canRemoveDependency(&leaf));
+    EXPECT_FALSE(root.canSafelyRemoveDependency(&leaf));
+    EXPECT_FALSE(leaf.canSafelyRemoveDependency(&root));
+    EXPECT_FALSE(root.canSafelyRemoveDependency(&root));
+    EXPECT_FALSE(leaf.canSafelyRemoveDependency(&leaf));
 
     root.addDependency(&leaf);
 
@@ -96,10 +96,10 @@ TEST(SoundNodeTest, ShallowDependencies1){
     EXPECT_FALSE(root.canAddDependency(&root));
     EXPECT_FALSE(leaf.canAddDependency(&leaf));
 
-    EXPECT_TRUE(root.canRemoveDependency(&leaf));
-    EXPECT_FALSE(leaf.canRemoveDependency(&root));
-    EXPECT_FALSE(root.canRemoveDependency(&root));
-    EXPECT_FALSE(leaf.canRemoveDependency(&leaf));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&leaf));
+    EXPECT_FALSE(leaf.canSafelyRemoveDependency(&root));
+    EXPECT_FALSE(root.canSafelyRemoveDependency(&root));
+    EXPECT_FALSE(leaf.canSafelyRemoveDependency(&leaf));
     
     root.removeDependency(&leaf);
     
@@ -139,12 +139,12 @@ TEST(SoundNodeTest, ShallowDependencies2){
     EXPECT_TRUE(leaf2.canAddDependency(&root));
     EXPECT_TRUE(leaf2.canAddDependency(&leaf1));
 
-    EXPECT_FALSE(root.canRemoveDependency(&leaf1));
-    EXPECT_FALSE(root.canRemoveDependency(&leaf2));
-    EXPECT_FALSE(leaf1.canRemoveDependency(&root));
-    EXPECT_FALSE(leaf1.canRemoveDependency(&leaf2));
-    EXPECT_FALSE(leaf2.canRemoveDependency(&root));
-    EXPECT_FALSE(leaf2.canRemoveDependency(&leaf1));
+    EXPECT_FALSE(root.canSafelyRemoveDependency(&leaf1));
+    EXPECT_FALSE(root.canSafelyRemoveDependency(&leaf2));
+    EXPECT_FALSE(leaf1.canSafelyRemoveDependency(&root));
+    EXPECT_FALSE(leaf1.canSafelyRemoveDependency(&leaf2));
+    EXPECT_FALSE(leaf2.canSafelyRemoveDependency(&root));
+    EXPECT_FALSE(leaf2.canSafelyRemoveDependency(&leaf1));
 
     root.addDependency(&leaf1);
     root.addDependency(&leaf2);
@@ -163,12 +163,12 @@ TEST(SoundNodeTest, ShallowDependencies2){
     EXPECT_FALSE(leaf2.canAddDependency(&root));
     EXPECT_TRUE(leaf2.canAddDependency(&leaf1));
 
-    EXPECT_TRUE(root.canRemoveDependency(&leaf1));
-    EXPECT_TRUE(root.canRemoveDependency(&leaf2));
-    EXPECT_FALSE(leaf1.canRemoveDependency(&root));
-    EXPECT_FALSE(leaf1.canRemoveDependency(&leaf2));
-    EXPECT_FALSE(leaf2.canRemoveDependency(&root));
-    EXPECT_FALSE(leaf2.canRemoveDependency(&leaf1));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&leaf1));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&leaf2));
+    EXPECT_FALSE(leaf1.canSafelyRemoveDependency(&root));
+    EXPECT_FALSE(leaf1.canSafelyRemoveDependency(&leaf2));
+    EXPECT_FALSE(leaf2.canSafelyRemoveDependency(&root));
+    EXPECT_FALSE(leaf2.canSafelyRemoveDependency(&leaf1));
 
     EXPECT_TRUE(set_equals(root.getDirectDependencies(), {&leaf1, &leaf2}));
     EXPECT_TRUE(set_equals(root.getDirectDependents(), {}));
@@ -203,12 +203,12 @@ TEST(SoundNodeTest, ShallowDependencies2){
     EXPECT_TRUE(leaf2.canAddDependency(&root));
     EXPECT_TRUE(leaf2.canAddDependency(&leaf1));
 
-    EXPECT_FALSE(root.canRemoveDependency(&leaf1));
-    EXPECT_FALSE(root.canRemoveDependency(&leaf2));
-    EXPECT_FALSE(leaf1.canRemoveDependency(&root));
-    EXPECT_FALSE(leaf1.canRemoveDependency(&leaf2));
-    EXPECT_FALSE(leaf2.canRemoveDependency(&root));
-    EXPECT_FALSE(leaf2.canRemoveDependency(&leaf1));
+    EXPECT_FALSE(root.canSafelyRemoveDependency(&leaf1));
+    EXPECT_FALSE(root.canSafelyRemoveDependency(&leaf2));
+    EXPECT_FALSE(leaf1.canSafelyRemoveDependency(&root));
+    EXPECT_FALSE(leaf1.canSafelyRemoveDependency(&leaf2));
+    EXPECT_FALSE(leaf2.canSafelyRemoveDependency(&root));
+    EXPECT_FALSE(leaf2.canSafelyRemoveDependency(&leaf1));
 
     EXPECT_TRUE(set_equals(root.getDirectDependencies(), {}));
     EXPECT_TRUE(set_equals(root.getDirectDependents(), {}));
@@ -773,15 +773,15 @@ TEST(SoundNodeTest, DependencySafety1){
     
     EXPECT_FALSE(root.canAddDependency(&leaf));
     EXPECT_FALSE(leaf.canAddDependency(&root));
-    EXPECT_TRUE(root.canRemoveDependency(&leaf));
-    EXPECT_FALSE(leaf.canRemoveDependency(&root));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&leaf));
+    EXPECT_FALSE(leaf.canSafelyRemoveDependency(&root));
     
     leaf.node.addDependency(&root.node);
     
     EXPECT_FALSE(root.canAddDependency(&leaf));
     EXPECT_FALSE(leaf.canAddDependency(&root));
-    EXPECT_FALSE(root.canRemoveDependency(&leaf));
-    EXPECT_FALSE(leaf.canRemoveDependency(&root));
+    EXPECT_FALSE(root.canSafelyRemoveDependency(&leaf));
+    EXPECT_FALSE(leaf.canSafelyRemoveDependency(&root));
     
     EXPECT_TRUE(set_disjoint(root.node.getDirectDependencies(), {&root.node, &leaf.node}));
     EXPECT_TRUE(set_contains(leaf.node.getDirectDependencies(), {&root.node}));
@@ -812,15 +812,13 @@ TEST(SoundNodeTest, DependencySafety2){
 
     root1.addDependency(&leaf);
     
-    EXPECT_TRUE(root1.canRemoveDependency(&leaf));
+    EXPECT_TRUE(root1.canSafelyRemoveDependency(&leaf));
     
     ASSERT_TRUE(leaf.node.canAddDependency(&root1.node));
 
     leaf.node.addDependency(&root1.node);
-    
-    EXPECT_TRUE(leaf.node.canRemoveDependency(&root1.node));
 
-    EXPECT_FALSE(root1.canRemoveDependency(&leaf));
+    EXPECT_FALSE(root1.canSafelyRemoveDependency(&leaf));
 
     EXPECT_FALSE(root2.canAddDependency(&leaf));
 
@@ -835,8 +833,8 @@ TEST(SoundNodeTest, DependencySafety3){
     root1.addDependency(&leaf);
     root2.addDependency(&leaf);
     
-    EXPECT_TRUE(root1.canRemoveDependency(&leaf));
-    EXPECT_TRUE(root2.canRemoveDependency(&leaf));
+    EXPECT_TRUE(root1.canSafelyRemoveDependency(&leaf));
+    EXPECT_TRUE(root2.canSafelyRemoveDependency(&leaf));
     
     EXPECT_FALSE(leaf.node.canAddDependency(&root1.node));
     EXPECT_FALSE(leaf.node.canAddDependency(&root2.node));
@@ -853,36 +851,36 @@ TEST(SoundNodeTest, DependencySafety4){
     inner1.addDependency(&leaf);
     inner2.addDependency(&leaf);
     
-    EXPECT_TRUE(inner1.canRemoveDependency(&leaf));
-    EXPECT_TRUE(inner2.canRemoveDependency(&leaf));
+    EXPECT_TRUE(inner1.canSafelyRemoveDependency(&leaf));
+    EXPECT_TRUE(inner2.canSafelyRemoveDependency(&leaf));
 
     leaf.node.addDependency(&root.node);
     
-    EXPECT_TRUE(root.canRemoveDependency(&inner1));
-    EXPECT_TRUE(root.canRemoveDependency(&inner2));
-    EXPECT_TRUE(inner1.canRemoveDependency(&leaf));
-    EXPECT_TRUE(inner2.canRemoveDependency(&leaf));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&inner1));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&inner2));
+    EXPECT_TRUE(inner1.canSafelyRemoveDependency(&leaf));
+    EXPECT_TRUE(inner2.canSafelyRemoveDependency(&leaf));
 
     inner2.removeDependency(&leaf);
     
-    EXPECT_FALSE(root.canRemoveDependency(&inner1));
-    EXPECT_TRUE(root.canRemoveDependency(&inner2));
-    EXPECT_FALSE(inner1.canRemoveDependency(&leaf));
+    EXPECT_FALSE(root.canSafelyRemoveDependency(&inner1));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&inner2));
+    EXPECT_FALSE(inner1.canSafelyRemoveDependency(&leaf));
     EXPECT_TRUE(inner2.canAddDependency(&leaf));
 
     inner2.addDependency(&leaf);
     
-    EXPECT_TRUE(root.canRemoveDependency(&inner1));
-    EXPECT_TRUE(root.canRemoveDependency(&inner2));
-    EXPECT_TRUE(inner1.canRemoveDependency(&leaf));
-    EXPECT_TRUE(inner2.canRemoveDependency(&leaf));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&inner1));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&inner2));
+    EXPECT_TRUE(inner1.canSafelyRemoveDependency(&leaf));
+    EXPECT_TRUE(inner2.canSafelyRemoveDependency(&leaf));
 
     inner1.removeDependency(&leaf);
     
-    EXPECT_TRUE(root.canRemoveDependency(&inner1));
-    EXPECT_FALSE(root.canRemoveDependency(&inner2));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&inner1));
+    EXPECT_FALSE(root.canSafelyRemoveDependency(&inner2));
     EXPECT_TRUE(inner1.canAddDependency(&leaf));
-    EXPECT_FALSE(inner2.canRemoveDependency(&leaf));
+    EXPECT_FALSE(inner2.canSafelyRemoveDependency(&leaf));
 }
 
 TEST(SoundNodeTest, DependencySafety5){
@@ -900,39 +898,39 @@ TEST(SoundNodeTest, DependencySafety5){
     innerb1.addDependency(&leaf);
     innerb2.addDependency(&leaf);
     
-    EXPECT_TRUE(innerb1.canRemoveDependency(&leaf));
-    EXPECT_TRUE(innerb2.canRemoveDependency(&leaf));
-    EXPECT_TRUE(innera1.canRemoveDependency(&innerb1));
-    EXPECT_TRUE(innera2.canRemoveDependency(&innerb2));
-    EXPECT_TRUE(root.canRemoveDependency(&innera1));
-    EXPECT_TRUE(root.canRemoveDependency(&innera2));
+    EXPECT_TRUE(innerb1.canSafelyRemoveDependency(&leaf));
+    EXPECT_TRUE(innerb2.canSafelyRemoveDependency(&leaf));
+    EXPECT_TRUE(innera1.canSafelyRemoveDependency(&innerb1));
+    EXPECT_TRUE(innera2.canSafelyRemoveDependency(&innerb2));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&innera1));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&innera2));
 
     leaf.node.addDependency(&root.node);
     
-    EXPECT_TRUE(innerb1.canRemoveDependency(&leaf));
-    EXPECT_TRUE(innerb2.canRemoveDependency(&leaf));
-    EXPECT_TRUE(innera1.canRemoveDependency(&innerb1));
-    EXPECT_TRUE(innera2.canRemoveDependency(&innerb2));
-    EXPECT_TRUE(root.canRemoveDependency(&innera1));
-    EXPECT_TRUE(root.canRemoveDependency(&innera2));
+    EXPECT_TRUE(innerb1.canSafelyRemoveDependency(&leaf));
+    EXPECT_TRUE(innerb2.canSafelyRemoveDependency(&leaf));
+    EXPECT_TRUE(innera1.canSafelyRemoveDependency(&innerb1));
+    EXPECT_TRUE(innera2.canSafelyRemoveDependency(&innerb2));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&innera1));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&innera2));
 
     innerb2.removeDependency(&leaf);
     
-    EXPECT_FALSE(innerb1.canRemoveDependency(&leaf));
+    EXPECT_FALSE(innerb1.canSafelyRemoveDependency(&leaf));
     EXPECT_TRUE(innerb2.canAddDependency(&leaf));
-    EXPECT_FALSE(innera1.canRemoveDependency(&innerb1));
-    EXPECT_TRUE(innera2.canRemoveDependency(&innerb2));
-    EXPECT_FALSE(root.canRemoveDependency(&innera1));
-    EXPECT_TRUE(root.canRemoveDependency(&innera2));
+    EXPECT_FALSE(innera1.canSafelyRemoveDependency(&innerb1));
+    EXPECT_TRUE(innera2.canSafelyRemoveDependency(&innerb2));
+    EXPECT_FALSE(root.canSafelyRemoveDependency(&innera1));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&innera2));
 
     innerb2.addDependency(&leaf);
     
-    EXPECT_TRUE(innerb1.canRemoveDependency(&leaf));
-    EXPECT_TRUE(innerb2.canRemoveDependency(&leaf));
-    EXPECT_TRUE(innera1.canRemoveDependency(&innerb1));
-    EXPECT_TRUE(innera2.canRemoveDependency(&innerb2));
-    EXPECT_TRUE(root.canRemoveDependency(&innera1));
-    EXPECT_TRUE(root.canRemoveDependency(&innera2));
+    EXPECT_TRUE(innerb1.canSafelyRemoveDependency(&leaf));
+    EXPECT_TRUE(innerb2.canSafelyRemoveDependency(&leaf));
+    EXPECT_TRUE(innera1.canSafelyRemoveDependency(&innerb1));
+    EXPECT_TRUE(innera2.canSafelyRemoveDependency(&innerb2));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&innera1));
+    EXPECT_TRUE(root.canSafelyRemoveDependency(&innera2));
 }
 
 using BasicUncontrolled = Named<Realtime<Uncontrolled<SoundNode, EmptySoundState>>>;

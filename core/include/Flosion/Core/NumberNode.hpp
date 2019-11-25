@@ -35,6 +35,8 @@ namespace flo {
 
     class Network;
     class SoundNode;
+    class NumberInput;
+    class NumberSource;
 
     class NumberNode : public NodeBase<NumberNode> {
     public:
@@ -42,7 +44,6 @@ namespace flo {
         virtual ~NumberNode();
 
         bool canAddDependency(const NumberNode*) const noexcept;
-        bool canRemoveDependency(const NumberNode*) const noexcept;
 
         // TODO: hide these
         void afterDependencyAdded(NumberNode*);
@@ -50,6 +51,12 @@ namespace flo {
 
         SoundNode* getStateOwner() noexcept;
         const SoundNode* getStateOwner() const noexcept;
+
+        NumberInput* toNumberInput() noexcept;
+        virtual const NumberInput* toNumberInput() const noexcept;
+
+        NumberSource* toNumberSource() noexcept;
+        virtual const NumberSource* toNumberSource() const noexcept;
 
     protected:
         void setStateOwner(SoundNode*);

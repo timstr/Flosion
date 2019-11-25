@@ -21,7 +21,7 @@ namespace flo {
         virtual ~SoundNode() = default;
         
         bool canAddDependency(const SoundNode*) const noexcept;
-        bool canRemoveDependency(const SoundNode*) const noexcept;
+        bool canSafelyRemoveDependency(const SoundNode*) const noexcept;
 
         // TODO: hide these
         void afterDependencyAdded(SoundNode*);
