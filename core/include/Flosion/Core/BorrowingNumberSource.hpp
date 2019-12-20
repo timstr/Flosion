@@ -1,4 +1,5 @@
 #include <Flosion/Core/NumberSource.hpp>
+#include <Flosion/Core/SoundNode.hpp>
 
 namespace flo {
 

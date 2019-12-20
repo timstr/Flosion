@@ -89,7 +89,7 @@ namespace flui {
 
     template<typename T>
     inline void ArgumentParser::add(T& target){
-        m_items.push_back(std::make_unique<ConcreteItem<T>(target));
+        m_items.push_back(std::make_unique<ConcreteItem<T>>(target));
     }
 
     template<typename T>
