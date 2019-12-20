@@ -229,11 +229,11 @@ namespace flo {
             assert(it != inputs.end());
             inputs.erase(it);
 
-            removeDependency(m_source);
+            this->removeDependency(m_source);
         }
         m_source = source;
         if (m_source){
-            addDependency(m_source);
+            this->addDependency(m_source);
             
             auto& inputs = m_source->m_inputs;
 

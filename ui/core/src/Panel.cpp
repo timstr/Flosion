@@ -7,6 +7,8 @@
 
 #include <GUI/Context.hpp>
 
+#include <cmath>
+
 namespace flui {
 
     namespace {
