@@ -1,9 +1,9 @@
-#include <Flosion/UI/Core/Object.hpp>
+#include <Flosion/UI/Core/SoundObject.hpp>
 #include <Flosion/Objects/Mixer.hpp>
 
 namespace flui {
 
-    class Mixer : public Object {
+    class Mixer : public SoundObject {
     public:
         Mixer();
 

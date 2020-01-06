@@ -1,27 +1,31 @@
-#include <Flosion/UI/Core/Object.hpp>
+#include <Flosion/UI/Core/SoundObject.hpp>
 #include <Flosion/Objects/Router.hpp>
 
 namespace flui {
 
+    // TODO: Router is NOT a SoundObject. It does not make
+    // sense to add borrowers to the side of a Router.
+    // Rather, each output is a SoundObject.
     class Router : public Object {
     public:
         Router();
 
     private:
+        void updateLayout(FlowDirection) override;
+
         void addSoundSource();
 
         void addNumberInput();
 
-        class OutputBlock : public ui::Boxed<ui::FreeContainer> {
+        class OutputBlock : public SoundObject {
         public:
-            OutputBlock(Router* parentRouter, const flo::SoundSource*);
+            OutputBlock(Router* parentRouter, flo::SoundSource*);
 
             void addItem(std::unique_ptr<ui::Element>);
 
         private:
             Router* const m_parentRouter;
-            const flo::SoundSource* const m_soundSource;
-            ui::VerticalList& m_list;
+            flo::SoundSource* const m_soundSource;
         };
 
         flo::Router m_router;

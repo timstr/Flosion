@@ -1,9 +1,9 @@
-#include <Flosion/UI/Core/Object.hpp>
+#include <Flosion/UI/Core/SoundObject.hpp>
 #include <Flosion/Objects/AudioClip.hpp>
 
 namespace flui {
 
-    class AudioClip : public Object {
+    class AudioClip : public SoundObject {
     public:
         AudioClip();
 

@@ -2,12 +2,9 @@
 
 namespace flui {
 
-    bool ArgumentParser::parse(const std::string& s){
+    bool ArgumentParser::parse(const std::vector<std::string>& args){
         auto it = m_items.begin();
-        std::stringstream ss;
-        ss.str(s);
-        std::string w;
-        while (ss >> w){
+        for (const auto& w : args){
             while (true){
                 if (it == m_items.end()){
                     return false;

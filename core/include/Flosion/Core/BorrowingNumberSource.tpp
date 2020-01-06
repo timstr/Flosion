@@ -1,3 +1,5 @@
+#include <Flosion/Core/SoundSource.hpp>
+
 namespace flo {
 
     template<typename StateType>

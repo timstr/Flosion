@@ -10,8 +10,8 @@
 namespace flui {
 
     DAC::DAC(){
-        addToLeft(makePeg(&m_dac.soundResult.getInput(), "Input"));
-        addToTop(makePeg(&m_dac.soundResult.getInput().currentTime, "Current Time"));
+        addToInflow(makePeg(&m_dac.soundResult.getInput(), "Input"));
+        addToInflow(makePeg(&m_dac.soundResult.getInput().currentTime, "Current Time"));
 
 
         auto bod = std::make_unique<ui::Boxed<ui::VerticalList>>();

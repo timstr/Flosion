@@ -29,6 +29,10 @@ namespace flo {
     class ConcreteStateAllocator : public StateAllocator {
     private:
         void construct(void* dst, SoundNode* owner, const SoundState* dependentState) override final {
+            // ignore possibly unused variables
+            (void)dependentState;
+            (void)owner;
+
             if constexpr (std::is_base_of_v<SoundState, StateType>){
                 auto s = new (dst) StateType(owner, dependentState);
                 s->reset();

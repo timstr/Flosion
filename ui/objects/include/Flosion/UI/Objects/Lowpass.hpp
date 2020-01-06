@@ -1,9 +1,9 @@
-#include <Flosion/UI/Core/Object.hpp>
+#include <Flosion/UI/Core/SoundObject.hpp>
 #include <Flosion/Objects/Lowpass.hpp>
 
 namespace flui {
 
-    class Lowpass : public Object {
+    class Lowpass : public SoundObject {
     public:
         Lowpass();
 

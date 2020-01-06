@@ -5,12 +5,13 @@
 
 namespace flui {
 
-    Ensemble::Ensemble(){
-        addToLeft(makePeg(&m_ensemble.input.frequencyOut, "Frequency Out"));
-        addToLeft(makePeg(&m_ensemble.input));
-        addToLeft(makePeg(&m_ensemble.frequencyIn, "Frequency In"));
-        addToLeft(makePeg(&m_ensemble.frequencySpread, "Spread Factor"));
-        addToRight(makePeg(&m_ensemble));
+    Ensemble::Ensemble()
+        : SoundObject(&m_ensemble) {
+        addToInflow(makePeg(&m_ensemble.input.frequencyOut, "Frequency Out"));
+        addToInflow(makePeg(&m_ensemble.input));
+        addToInflow(makePeg(&m_ensemble.frequencyIn, "Frequency In"));
+        addToInflow(makePeg(&m_ensemble.frequencySpread, "Spread Factor"));
+        addToOutflow(makePeg(&m_ensemble));
         setBody(makeSimpleBody("Ensemble", 0x99BB22FF));
     }
     RegisterFactoryObject(Ensemble, "Ensemble");

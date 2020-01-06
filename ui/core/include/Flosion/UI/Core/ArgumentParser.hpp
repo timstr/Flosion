@@ -31,7 +31,7 @@ namespace flui {
         //     void addVariadic(std::vector<T>&);
         // For simplicity, such a variadic list should only ever occur at the end
 
-        bool parse(const std::string&);
+        bool parse(const std::vector<std::string>&);
 
     private:
 

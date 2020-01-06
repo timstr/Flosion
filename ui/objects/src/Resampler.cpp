@@ -5,11 +5,12 @@
 
 namespace flui {
 
-    Resampler::Resampler(){
-        addToTop(makePeg(&m_resampler.currentTime, "Current Time"));
-        addToLeft(makePeg(&m_resampler.timeSpeed, "Time Speed"));
-        addToLeft(makePeg(&m_resampler.input));
-        addToRight(makePeg(&m_resampler));
+    Resampler::Resampler()
+        : SoundObject(&m_resampler) {
+        addToInflow(makePeg(&m_resampler.currentTime, "Current Time"));
+        addToInflow(makePeg(&m_resampler.timeSpeed, "Time Speed"));
+        addToInflow(makePeg(&m_resampler.input));
+        addToOutflow(makePeg(&m_resampler));
         setBody(makeSimpleBody("Resampler", 0xd47b00ff));
     }
     RegisterFactoryObject(Resampler, "Resampler");

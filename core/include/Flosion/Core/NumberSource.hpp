@@ -4,6 +4,8 @@
 #include <Flosion/Core/NumberNode.hpp>
 #include <Flosion/Core/Signal.hpp>
 
+#include <mutex>
+
 namespace flo {
 
     // TODO: split this into multiple files
@@ -33,12 +35,15 @@ namespace flo {
         Signal<double> onDefaultValueChanged;
 
         // TODO: get a real lock
-        int acquireLock();
+        std::lock_guard<std::mutex> acquireLock();
 
     private:
         NumberInput(double defaultValue = 0.0) noexcept;
 
         double m_defaultValue;
+
+        // TODO: remove
+        std::mutex m_uselessMutexPleaseRemove;
         
         const NumberInput* toNumberInput() const noexcept override final;
         const NumberSource* toNumberSource() const noexcept override final;

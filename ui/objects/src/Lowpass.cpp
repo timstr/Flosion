@@ -5,11 +5,12 @@
 
 namespace flui {
 
-    Lowpass::Lowpass(){
-        addToLeft(makePeg(&m_lowpass.cutoff, "Cutoff"));
-        addToLeft(makePeg(&m_lowpass.input, "Input"));
-        addToTop(makePeg(&m_lowpass.currentTime, "Current Time"));
-        addToRight(makePeg(&m_lowpass));
+    Lowpass::Lowpass()
+        : SoundObject(&m_lowpass) {
+        addToInflow(makePeg(&m_lowpass.cutoff, "Cutoff"));
+        addToInflow(makePeg(&m_lowpass.input, "Input"));
+        addToInflow(makePeg(&m_lowpass.currentTime, "Current Time"));
+        addToOutflow(makePeg(&m_lowpass));
         setBody(makeSimpleBody("Lowpass", 0x96471aFF));
     }
     RegisterFactoryObject(Lowpass, "Lowpass");

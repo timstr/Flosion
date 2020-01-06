@@ -14,7 +14,7 @@ namespace flo {
         : m_owner(owner)
         , m_numDependentStates(0)
         , m_numKeys(0)
-        , m_slotSize(-1)
+        , m_slotSize(static_cast<std::size_t>(-1))
         , m_isMonostate(false)
         , m_data(nullptr) {
 
@@ -873,6 +873,7 @@ namespace flo {
             item->offset = nextOffset;
             item->borrower->m_stateOffset = nextOffset;
             nextOffset += item->allocator->getSize();
+            ++item;
         }
 
         // infer position of next slot and update size
@@ -938,6 +939,7 @@ namespace flo {
             item->offset = nextOffset;
             item->borrower->m_stateOffset = nextOffset;
             nextOffset += item->allocator->getSize();
+            ++item;
         }
 
         // infer position of next slot and update size

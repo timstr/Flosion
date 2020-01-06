@@ -147,7 +147,7 @@ namespace flui {
 
 
     template<typename Traits>
-    class Wire : public ui::FreeContainer {
+    class Wire : public ui::FreeContainer, public ui::Control {
     public:
         using InputType = typename Traits::InputType;
         using OutputType = typename Traits::OutputType;
@@ -189,6 +189,8 @@ namespace flui {
         bool m_isUpdatingPositions;
 
         void render(sf::RenderWindow&) override;
+
+        void onGainFocus() override;
 
         Panel* m_parentPanel;
         InputPegType* m_headPeg;
@@ -537,7 +539,7 @@ namespace flui {
             assert(p);
             attachTailTo(p);
         });
-        m_beforeOutputRemovedConn = i->onSourceRemoved.connect([&](const OutputType* src){
+        m_beforeOutputRemovedConn = i->onSourceRemoved.connect([&](const OutputType*){
             detachTail();
         });
         m_onDestroyInputConn = i->onDestroy.connect([&](){
@@ -722,6 +724,11 @@ namespace flui {
             sf::Vertex{m_head.pos() + m_head.size() * 0.5f, sf::Color{0xFFFFFFFF}}
         };
         rw.draw(pts.data(), pts.size(), sf::PrimitiveType::Lines);
+    }
+
+    template<typename Traits>
+    inline void Wire<Traits>::onGainFocus(){
+        this->bringToFront();
     }
 
     template<typename Traits>

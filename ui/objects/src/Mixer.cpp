@@ -4,8 +4,9 @@
 
 namespace flui {
 
-    Mixer::Mixer(){
-        addToRight(makePeg(&m_mixer));
+    Mixer::Mixer()
+        : SoundObject(&m_mixer) {
+        addToOutflow(makePeg(&m_mixer));
         setBody(makeSimpleBody("Mixer", 0xa37546ff));
     }
 
@@ -22,10 +23,10 @@ namespace flui {
             }
             auto pp = makePeg(i);
             auto p = pp.get();
-            addToLeft(std::move(pp));
+            addToInflow(std::move(pp));
             w->attachHeadTo(p);
 
-            auto c = p->onWireRemoved.connect([this,p](const SoundWire* w){
+            auto c = p->onWireRemoved.connect([this,p](const SoundWire*){
                 auto it = m_connections.find(p);
                 assert(it != m_connections.end());
                 m_connections.erase(it);

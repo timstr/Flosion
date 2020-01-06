@@ -7,20 +7,21 @@
 #include <Flosion/UI/Core/NumberPegs.hpp>
 #include <Flosion/UI/Core/SoundPegs.hpp>
 
-namespace flui {
+#include <variant>
 
-    // TODO:
-    // give peg and wire functions same names for Sound and Number
-    // so that overloading can be used
-    // e.g. makeInput(flo::NumberInput*), makeInput(flo::SoundInput*)
+namespace flui {
 
 	class NumberInputPeg;
 	class NumberOutputPeg;
-	class NumberWire;
+	// class NumberWire;
 	class SoundInputPeg;
 	class SoundOutputPeg;
-	//class SoundWire;
+	// class SoundWire;
 	class Panel;
+
+    class NumberObject;
+    class BorrowingNumberObject;
+    class SoundObject;
 
 	// Object is the base class to all gui components representing sound and
 	// numerical processing, and their related components
@@ -30,6 +31,17 @@ namespace flui {
         ~Object();
 
 		Panel* getParentPanel();
+
+        enum class FlowDirection : std::uint8_t {
+            Left,
+            Right,
+            Up,
+            Down
+        };
+
+        // TODO
+        FlowDirection getFlowDirection() const noexcept;
+        void trySetFlowDirection(FlowDirection);
 
     protected:
         // Constructs a peg for the given number/sound input/output, with a desired label
@@ -45,16 +57,30 @@ namespace flui {
         const std::vector<SoundInputPeg*>& getSoundInputPegs();
         const std::vector<SoundOutputPeg*>& getSoundOutputPegs();
 
+        virtual FlowDirection getNewFlowDirection(FlowDirection desired) const;
+
     protected:
-        void addToLeft(std::unique_ptr<ui::Element>);
-        void addToTop(std::unique_ptr<ui::Element>);
-        void addToRight(std::unique_ptr<ui::Element>);
-
-        void addDragButton();
-
+        void addToInflow(std::unique_ptr<ui::Element>);
+        void addToOutflow(std::unique_ptr<ui::Element>);
+        
         void setBody(std::unique_ptr<ui::Element>);
 
 		// void showList(const std::vector<std::pair<std::string, std::function<void()>>>& items, ui::vec2 pos);
+
+    private:
+        virtual const NumberObject* toNumberObject() const noexcept;
+        virtual const BorrowingNumberObject* toBorrowingNumberObject() const noexcept;
+        virtual const SoundObject* toSoundObject() const noexcept;
+        
+        NumberObject* toNumberObject() noexcept;
+        BorrowingNumberObject* toBorrowingNumberObject() noexcept;
+        SoundObject* toSoundObject() noexcept;
+
+        // Called by Factory::createObject after most derived constructor is called.
+        // Used to set up base class things which depend on more derived things
+        virtual void initialize();
+
+        friend class Factory;
 
     private:
 		bool onLeftClick(int) override;
@@ -65,6 +91,12 @@ namespace flui {
 
 		void updateWires();
 
+        bool onKeyDown(ui::Key) override;
+
+        void onGainFocus() override;
+
+        virtual void updateLayout(FlowDirection);
+
 		// TODO: hide invalid inputs/outputs
 		//void showNumberInputList(NumberWire* wire, ui::vec2 pos);
 		//void showNumberOutputList(NumberWire* wire, ui::vec2 pos);
@@ -74,11 +106,15 @@ namespace flui {
 		Panel* m_parentPanel;
 
 		friend class Panel;
+        friend class SoundObject;
 
     private:
-        ui::VerticalList& m_leftContainer;
-        ui::HorizontalList& m_topContainer;
-        ui::VerticalList& m_rightContainer;
+        using ListVariant = std::variant<ui::Boxed<ui::VerticalList>*, ui::Boxed<ui::HorizontalList>*>;
+
+        ListVariant m_inflowList;
+        ListVariant m_outflowList;
+
+        FlowDirection m_flowDirection;
 
     private:
 		std::vector<SoundInputPeg*> m_soundInputs;

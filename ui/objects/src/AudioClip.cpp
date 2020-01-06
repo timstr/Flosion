@@ -8,9 +8,11 @@
 
 namespace flui {
 
-    AudioClip::AudioClip(){
+    AudioClip::AudioClip()
+        : SoundObject(&m_audioClip) {
+
         // TODO
-        addToRight(makePeg(&m_audioClip));
+        addToOutflow(makePeg(&m_audioClip));
 
 
         auto bod = std::make_unique<ui::Boxed<ui::VerticalList>>();

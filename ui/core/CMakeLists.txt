@@ -4,6 +4,7 @@ set(include_path "include/Flosion/UI/Core")
 
 set(flosion_ui_core_headers
     ${include_path}/ArgumentParser.hpp
+    ${include_path}/BorrowingNumberObject.hpp
     ${include_path}/Panel.hpp
     ${include_path}/PanelContextMenu.hpp
     ${include_path}/FlosionUI.hpp
@@ -21,6 +22,7 @@ set(flosion_ui_core_headers
 
 set(flosion_ui_core_srcs
     src/ArgumentParser.cpp
+    src/BorrowingNumberObject.cpp
     src/Panel.cpp
     src/PanelContextMenu.cpp
     src/FlosionUI.cpp

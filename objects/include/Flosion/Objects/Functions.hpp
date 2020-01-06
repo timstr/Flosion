@@ -48,6 +48,11 @@ namespace flo {
         double evaluate(const flo::SoundState* context) const noexcept override;
     };
 
+    class SampleFrequencyConstant : public flo::NumberSource {
+    private:
+        double evaluate(const flo::SoundState* context) const noexcept override;
+    };
+
     class Abs : public UnaryFunction {
     private:
         double evaluate(const flo::SoundState* context) const noexcept override;
@@ -280,6 +285,9 @@ namespace flo {
     };
 
     class RoundTo : public BinaryFunction {
+    public:
+        RoundTo();
+
     private:
         double evaluate(const flo::SoundState* context) const noexcept override;
     };

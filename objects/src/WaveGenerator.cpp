@@ -32,7 +32,7 @@ namespace flo {
         }
     }
 
-    double WaveGenerator::Phase::evaluate(const WaveGeneratorState* state, const flo::SoundState* context) const noexcept {
+    double WaveGenerator::Phase::evaluate(const WaveGeneratorState* state, const flo::SoundState*) const noexcept {
         return state->phase;
     }
 

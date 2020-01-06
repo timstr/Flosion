@@ -1,9 +1,9 @@
-#include <Flosion/UI/Core/Object.hpp>
+#include <Flosion/UI/Core/NumberObject.hpp>
 #include <Flosion/Objects/WaveForms.hpp>
 
 namespace flui {
 
-    class SineWave : public Object {
+    class SineWave : public NumberObject {
     public:
         SineWave();
 
@@ -11,7 +11,7 @@ namespace flui {
         flo::SineWave m_sineWave;
     };
 
-    class SawWave : public Object {
+    class SawWave : public NumberObject {
     public:
         SawWave();
 
@@ -19,7 +19,7 @@ namespace flui {
         flo::SawWave m_sawWave;
     };
 
-    class TriangleWave : public Object {
+    class TriangleWave : public NumberObject {
     public:
         TriangleWave();
 
@@ -27,7 +27,7 @@ namespace flui {
         flo::TriangleWave m_triangleWave;
     };
 
-    class SquareWave : public Object {
+    class SquareWave : public NumberObject {
     public:
         SquareWave();
 

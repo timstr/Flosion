@@ -9,16 +9,19 @@
 
 namespace flui {
 
-    WaveGenerator::WaveGenerator(){
-        addToTop(makePeg(&m_waveGen.phase, "Phase"));
-        addToLeft(makePeg(&m_waveGen.waveFunction, "Wave Function"));
-        addToLeft(makePeg(&m_waveGen.frequency, "Frequency"));
-        addToTop(makePeg(&m_waveGen.currentTime, "Current Time"));
-        addToRight(makePeg(&m_waveGen, "Output"));
+    WaveGenerator::WaveGenerator()
+        : SoundObject(&m_waveGen) {
+        addToInflow(makePeg(&m_waveGen.phase, "Phase"));
+        addToInflow(makePeg(&m_waveGen.waveFunction, "Wave Function"));
+        addToInflow(makePeg(&m_waveGen.frequency, "Frequency"));
+        addToInflow(makePeg(&m_waveGen.currentTime, "Current Time"));
+        addToOutflow(makePeg(&m_waveGen, "Output"));
 
-        auto bod = std::make_unique<ui::Boxed<ui::VerticalList>>();
-        bod->push_back<ui::Text>("Wave Generator", getFont());
-        bod->push_back<ui::ToggleButton>(
+        auto fc = std::make_unique<ui::Boxed<ui::FreeContainer>>();
+        fc->setBackgroundColor(0x22BB22FF);
+        auto& bod = fc->add<ui::VerticalList>(ui::FreeContainer::Center, ui::FreeContainer::Center);
+        bod.push_back<ui::Text>("Wave Generator", getFont());
+        bod.push_back<ui::ToggleButton>(
             false,
             getFont(),
             [&](bool v){
@@ -26,9 +29,8 @@ namespace flui {
             },
             std::pair<ui::String, ui::String>{"Sync Off", "Sync On"}
         );
-        bod->setPadding(5.0f);
-        bod->setBackgroundColor(0x22BB22FF);
-        setBody(std::move(bod));
+        bod.setPadding(5.0f);
+        setBody(std::move(fc));
     }
     RegisterFactoryObject(WaveGenerator, "WaveGenerator");
 

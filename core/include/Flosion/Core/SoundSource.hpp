@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Flosion/Core/BorrowingNumberSource.hpp>
 #include <Flosion/Core/NumberSource.hpp>
 #include <Flosion/Core/Signal.hpp>
 #include <Flosion/Core/SoundChunk.hpp>
@@ -34,6 +35,14 @@ namespace flo {
          * to the given context may be updated.
          */
         virtual void getNextChunkFor(SoundChunk& chunk, const SoundInput* dependent, const SoundState* context) = 0;
+
+        Signal<const BorrowingNumberSource*> onBorrowerAdded;
+        Signal<const BorrowingNumberSource*> onBorrowerRemoved;
+
+    private:
+        std::vector<BorrowingNumberSource*> m_borrowers;
+
+        friend BorrowingNumberSource;
     };
     
     

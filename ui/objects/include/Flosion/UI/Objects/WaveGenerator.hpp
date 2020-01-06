@@ -1,9 +1,9 @@
-#include <Flosion/UI/Core/Object.hpp>
+#include <Flosion/UI/Core/SoundObject.hpp>
 #include <Flosion/Objects/WaveGenerator.hpp>
 
 namespace flui {
 
-    class WaveGenerator : public Object {
+    class WaveGenerator : public SoundObject {
     public:
         WaveGenerator();
 

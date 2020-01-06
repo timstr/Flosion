@@ -26,10 +26,16 @@ namespace flo {
     }
 
     void SoundQueue::advance(std::size_t nSamples){
-        ++m_index;
-        while (m_front < m_index){
-            m_data[m_front].silence();
-            ++m_front;
+        if (nSamples > m_data.size()){
+            throw std::runtime_error("Too long");
+        }
+        m_index = (m_index + nSamples) % m_data.size();
+        while ((m_front + SoundChunk::size) % m_data.size() <= m_index){
+            SoundChunk ch;
+            for (std::size_t i = 0; i < ch.size; ++i){
+                m_data[m_front].silence();
+                ++m_front;
+            }
         }
     }
 

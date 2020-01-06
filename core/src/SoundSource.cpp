@@ -15,6 +15,11 @@ namespace flo {
                 ni->setSource(nullptr);
             }
         }
+        while (m_borrowers.size() > 0){
+            assert(m_borrowers.front()->getStateLender() == this);
+            assert(m_borrowers.front()->getStateOwner() == this);
+            m_borrowers.front()->borrowFrom(nullptr);
+        }
     }
 
     SoundInput::~SoundInput(){

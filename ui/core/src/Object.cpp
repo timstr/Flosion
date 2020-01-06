@@ -12,27 +12,6 @@ namespace flui {
     namespace {
         const float gridSize = 30.0f;
 
-        class DragButton : public ui::BoxElement, public ui::Control {
-        public:
-            DragButton(Object* parent) : m_parent(parent) {
-                setSize({gridSize, gridSize}, true);
-                setBackgroundColor(0x4040B0FF);
-                setBorderRadius(5.0f);
-            }
-
-            bool onLeftClick(int) override {
-                m_parent->startDrag();
-                return true;
-            }
-
-            void onLeftRelease() override {
-                m_parent->stopDrag();
-            }
-
-        private:
-            Object* m_parent;
-        };
-
         template<typename T, typename U>
         void vectorSetAdd(std::vector<T>& v, const U& x){
             assert(std::count(v.begin(), v.end(), x) == 0);
@@ -49,17 +28,18 @@ namespace flui {
     }
 
     Object::Object()
-        : ui::GridContainer(3, 2)
+        : ui::GridContainer(3, 3)
         , m_parentPanel(nullptr)
-        , m_leftContainer(
-            putCell<ui::FreeContainer>(0, 1)
-            .add<ui::VerticalList>(ui::FreeContainer::Center, ui::FreeContainer::Center)
+        , m_inflowList(
+            &putCell<ui::FreeContainer>(0, 1)
+            .add<ui::Boxed<ui::VerticalList>>(ui::FreeContainer::Center, ui::FreeContainer::Center)
         )
-        , m_topContainer(putCell<ui::HorizontalList>(1, 0)) 
-        , m_rightContainer(
-            putCell<ui::FreeContainer>(2, 1)
-            .add<ui::VerticalList>(ui::FreeContainer::Center, ui::FreeContainer::Center)
-        ) {
+        , m_outflowList(
+            &putCell<ui::FreeContainer>(2, 1)
+            .add<ui::Boxed<ui::VerticalList>>(ui::FreeContainer::Center, ui::FreeContainer::Center)
+        )
+        , m_flowDirection(FlowDirection::Right) {
+
         setShrink(true);
     }
 
@@ -76,6 +56,18 @@ namespace flui {
 
     Panel* Object::getParentPanel(){
         return m_parentPanel;
+    }
+
+    Object::FlowDirection Object::getFlowDirection() const noexcept {
+        return m_flowDirection;
+    }
+
+    void Object::trySetFlowDirection(FlowDirection fd){
+        if (fd == m_flowDirection){
+            return;
+        }
+        m_flowDirection = getNewFlowDirection(fd);
+        updateLayout(m_flowDirection);
     }
 
     std::unique_ptr<NumberInputPeg> Object::makePeg(flo::NumberInput* ni, ui::String label){
@@ -126,6 +118,32 @@ namespace flui {
         return m_soundOutputs;
     }
 
+    Object::FlowDirection Object::getNewFlowDirection(FlowDirection desired) const {
+        return desired;
+    }
+
+    void Object::addToInflow(std::unique_ptr<ui::Element> e){
+        std::visit(
+            [&](auto& l){
+                l->push_back(std::move(e));
+            },
+            m_inflowList
+        );
+    }
+
+    void Object::addToOutflow(std::unique_ptr<ui::Element> e){
+        std::visit(
+            [&](auto& l){
+                l->push_back(std::move(e));
+            },
+            m_outflowList
+        );
+    }
+
+    void Object::initialize(){
+
+    }
+
     bool Object::onLeftClick(int){
         startDrag();
         return true;
@@ -162,25 +180,169 @@ namespace flui {
         }
     }
 
+    bool Object::onKeyDown(ui::Key key){
+        if (!(keyDown(ui::Key::LShift) || keyDown(ui::Key::RShift))){
+            return false;
+        }
+
+        if (key == ui::Key::Left){
+            trySetFlowDirection(FlowDirection::Left);
+            return true;
+        } else if (key == ui::Key::Right){
+            trySetFlowDirection(FlowDirection::Right);
+            return true;
+        } else if (key == ui::Key::Up){
+            trySetFlowDirection(FlowDirection::Up);
+            return true;
+        } else if (key == ui::Key::Down){
+            trySetFlowDirection(FlowDirection::Down);
+            return true;
+        }
+        return false;
+    }
+
+    void Object::onGainFocus(){
+        bringToFront();
+        for (auto& ni : m_numberInputs){
+            if (auto w = ni->getAttachedWire()){
+                w->bringToFront();
+            }
+        }
+        for (auto& no : m_numberOutputs){
+            for (auto& w : no->getAttachedWires()){
+                w->bringToFront();
+            }
+        }
+        for (auto& si : m_soundInputs){
+            if (auto w = si->getAttachedWire()){
+                w->bringToFront();
+            }
+        }
+        for (auto& so : m_soundOutputs){
+            for (auto& w : so->getAttachedWires()){
+                w->bringToFront();
+            }
+        }
+    }
+
+    void Object::updateLayout(FlowDirection fd){
+        auto stealChildren = [](auto& l){
+            assert(dynamic_cast<ui::VerticalList*>(&*l) || dynamic_cast<ui::HorizontalList*>(&*l));
+            std::vector<std::unique_ptr<ui::Element>> ret;
+            while (!l->empty()){
+                ret.push_back(l->getChild(0)->orphan());
+            }
+            return ret;
+        };
+        
+        auto inflowElements = std::visit(stealChildren, m_inflowList);
+        auto outflowElements = std::visit(stealChildren, m_outflowList);
+        
+        clearCell(0, 0);
+        clearCell(0, 1);
+        clearCell(0, 2);
+
+        clearCell(1, 0);
+        // center cell is not cleared because it contains the object's body content
+        clearCell(1, 2);
+
+        clearCell(2, 0);
+        clearCell(2, 1);
+        clearCell(2, 2);
+        
+        auto makeVerticalList = [](std::vector<std::unique_ptr<Element>>& elems){
+            auto l = std::make_unique<ui::Boxed<ui::VerticalList>>();
+            for (auto& e : elems){
+                l->push_back(std::move(e));
+            }
+            return l;
+        };
+
+        auto makeHorizontalList = [](std::vector<std::unique_ptr<Element>>& elems){
+            auto l = std::make_unique<ui::Boxed<ui::HorizontalList>>();
+            for (auto& e : elems){
+                l->push_back(std::move(e));
+            }
+            return l;
+        };
+
+        auto makeCentered = [](auto& l){
+            auto fc = std::make_unique<ui::FreeContainer>();
+            fc->adopt(ui::FreeContainer::Center, ui::FreeContainer::Center, std::move(l));
+            return fc;
+        };
+
+        switch (fd){
+        case FlowDirection::Left:
+            {
+                auto i = makeVerticalList(inflowElements);
+                auto o = makeVerticalList(outflowElements);
+                m_inflowList = i.get();
+                m_outflowList = o.get();
+                putCell(2, 1, makeCentered(i));
+                putCell(0, 1, makeCentered(o));
+                break;
+            }
+        case FlowDirection::Right:
+            {
+                auto i = makeVerticalList(inflowElements);
+                auto o = makeVerticalList(outflowElements);
+                m_inflowList = i.get();
+                m_outflowList = o.get();
+                putCell(0, 1, makeCentered(i));
+                putCell(2, 1, makeCentered(o));
+                break;
+            }
+        case FlowDirection::Up:
+            {
+                auto i = makeHorizontalList(inflowElements);
+                auto o = makeHorizontalList(outflowElements);
+                m_inflowList = i.get();
+                m_outflowList = o.get();
+                putCell(1, 2, makeCentered(i));
+                putCell(1, 0, makeCentered(o));
+                break;
+            }
+        case FlowDirection::Down:
+            {
+                auto i = makeHorizontalList(inflowElements);
+                auto o = makeHorizontalList(outflowElements);
+                m_inflowList = i.get();
+                m_outflowList = o.get();
+                putCell(1, 0, makeCentered(i));
+                putCell(1, 2, makeCentered(o));
+                break;
+            }
+        }
+    }
+
     void Object::setBody(std::unique_ptr<Element> e){
         assert(e);
         putCell(1, 1, std::move(e));
     }
 
-    void Object::addToLeft(std::unique_ptr<ui::Element> e){
-        m_leftContainer.push_back(std::move(e));
+    const NumberObject* Object::toNumberObject() const noexcept {
+        return nullptr;
     }
 
-    void Object::addToTop(std::unique_ptr<ui::Element> e){
-        m_topContainer.push_back(std::move(e));
+    const BorrowingNumberObject* Object::toBorrowingNumberObject() const noexcept {
+        return nullptr;
     }
 
-    void Object::addToRight(std::unique_ptr<ui::Element> e){
-        m_rightContainer.push_back(std::move(e));
+    const SoundObject* Object::toSoundObject() const noexcept {
+        return nullptr;
     }
 
-    void Object::addDragButton(){
-        putCell<DragButton>(0, 0, this);
+    NumberObject* Object::toNumberObject() noexcept {
+        return const_cast<NumberObject*>(const_cast<const Object*>(this)->toNumberObject());
+    }
+
+    BorrowingNumberObject* Object::toBorrowingNumberObject() noexcept {
+        return const_cast<BorrowingNumberObject*>(const_cast<const Object*>(this)->toBorrowingNumberObject());
+    }
+
+    SoundObject* Object::toSoundObject() noexcept {
+        return const_cast<SoundObject*>(const_cast<const Object*>(this)->toSoundObject());
     }
 
     void Object::addPeg(SoundInputPeg* p){

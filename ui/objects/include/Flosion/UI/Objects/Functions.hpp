@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Flosion/UI/Core/Object.hpp>
+#include <Flosion/UI/Core/NumberObject.hpp>
 #include <Flosion/Objects/Functions.hpp>
 #include <Flosion/UI/Core/ObjectFactory.hpp>
 #include <GUI/Helpers/Slider.hpp>
@@ -8,11 +8,11 @@
 
 namespace flui {
 
-    class Constant : public Object {
+    class Constant : public NumberObject {
     public:
         Constant();
 
-        static std::unique_ptr<Constant> parseConstant(const std::string&);
+        static std::unique_ptr<Constant> parseConstant(const std::vector<std::string>&);
 
         double getValue() const noexcept;
         void setValue(double);
@@ -26,11 +26,11 @@ namespace flui {
         flo::Connection m_conn;
     };
 
-    class Slider : public Object {
+    class Slider : public NumberObject {
     public:
         Slider();
 
-        static std::unique_ptr<Slider> parseSlider(const std::string&);
+        static std::unique_ptr<Slider> parseSlider(const std::vector<std::string>&);
 
         double getValue() const noexcept;
         double getMinimum() const noexcept;
@@ -49,7 +49,7 @@ namespace flui {
         flo::Connection m_conn;
     };
 
-    class Add : public Object {
+    class Add : public NumberObject {
     public:
         Add();
 
@@ -57,7 +57,7 @@ namespace flui {
         flo::Add m_add;
     };
 
-    class Subtract : public Object {
+    class Subtract : public NumberObject {
     public:
         Subtract();
 
@@ -65,7 +65,7 @@ namespace flui {
         flo::Subtract m_subtract;
     };
 
-    class Multiply : public Object {
+    class Multiply : public NumberObject {
     public:
         Multiply();
 
@@ -73,7 +73,7 @@ namespace flui {
         flo::Multiply m_multiply;
     };
 
-    class Divide : public Object {
+    class Divide : public NumberObject {
     public:
         Divide();
 
@@ -81,7 +81,7 @@ namespace flui {
         flo::Divide m_divide;
     };
 
-    class PiConstant : public Object {
+    class PiConstant : public NumberObject {
     public:
         PiConstant();
 
@@ -89,7 +89,7 @@ namespace flui {
         flo::PiConstant m_piConstant;
     };
 
-    class EulersConstant : public Object {
+    class EulersConstant : public NumberObject {
     public:
         EulersConstant();
 
@@ -97,7 +97,7 @@ namespace flui {
         flo::EulersConstant m_eulersConstant;
     };
 
-    class TauConstant : public Object {
+    class TauConstant : public NumberObject {
     public:
         TauConstant();
 
@@ -105,7 +105,15 @@ namespace flui {
         flo::TauConstant m_tauConstant;
     };
 
-    class Abs : public Object {
+    class SampleFrequencyConstant : public NumberObject {
+    public:
+        SampleFrequencyConstant();
+
+    private:
+        flo::SampleFrequencyConstant m_sfreq;
+    };
+
+    class Abs : public NumberObject {
     public:
         Abs();
 
@@ -113,7 +121,7 @@ namespace flui {
         flo::Abs m_abs;
     };
 
-    class SquareRoot : public Object {
+    class SquareRoot : public NumberObject {
     public:
         SquareRoot();
 
@@ -121,7 +129,7 @@ namespace flui {
         flo::SquareRoot m_squareRoot;
     };
 
-    class CubeRoot : public Object {
+    class CubeRoot : public NumberObject {
     public:
         CubeRoot();
 
@@ -129,7 +137,7 @@ namespace flui {
         flo::CubeRoot m_cubeRoot;
     };
 
-    class Square : public Object {
+    class Square : public NumberObject {
     public:
         Square();
 
@@ -137,7 +145,7 @@ namespace flui {
         flo::Square m_square;
     };
 
-    class Log : public Object {
+    class Log : public NumberObject {
     public:
         Log();
 
@@ -145,7 +153,7 @@ namespace flui {
         flo::Log m_log;
     };
 
-    class Log2 : public Object {
+    class Log2 : public NumberObject {
     public:
         Log2();
 
@@ -153,7 +161,7 @@ namespace flui {
         flo::Log2 m_log2;
     };
 
-    class Log10 : public Object {
+    class Log10 : public NumberObject {
     public:
         Log10();
 
@@ -161,7 +169,7 @@ namespace flui {
         flo::Log10 m_log10;
     };
 
-    class Exp : public Object {
+    class Exp : public NumberObject {
     public:
         Exp();
 
@@ -169,7 +177,7 @@ namespace flui {
         flo::Exp m_exp;
     };
 
-    class Exp2 : public Object {
+    class Exp2 : public NumberObject {
     public:
         Exp2();
 
@@ -177,7 +185,7 @@ namespace flui {
         flo::Exp2 m_exp2;
     };
 
-    class Exp10 : public Object {
+    class Exp10 : public NumberObject {
     public:
         Exp10();
 
@@ -185,7 +193,7 @@ namespace flui {
         flo::Exp10 m_exp10;
     };
 
-    class Sin : public Object {
+    class Sin : public NumberObject {
     public:
         Sin();
 
@@ -193,7 +201,7 @@ namespace flui {
         flo::Sin m_sin;
     };
 
-    class Cos : public Object {
+    class Cos : public NumberObject {
     public:
         Cos();
 
@@ -201,7 +209,7 @@ namespace flui {
         flo::Cos m_cos;
     };
 
-    class Tan : public Object {
+    class Tan : public NumberObject {
     public:
         Tan();
 
@@ -209,7 +217,7 @@ namespace flui {
         flo::Tan m_tan;
     };
 
-    class Asin : public Object {
+    class Asin : public NumberObject {
     public:
         Asin();
 
@@ -217,7 +225,7 @@ namespace flui {
         flo::Asin m_asin;
     };
 
-    class Acos : public Object {
+    class Acos : public NumberObject {
     public:
         Acos();
 
@@ -225,7 +233,7 @@ namespace flui {
         flo::Acos m_acos;
     };
 
-    class Atan : public Object {
+    class Atan : public NumberObject {
     public:
         Atan();
 
@@ -233,7 +241,7 @@ namespace flui {
         flo::Atan m_atan;
     };
 
-    class Sinh : public Object {
+    class Sinh : public NumberObject {
     public:
         Sinh();
 
@@ -241,7 +249,7 @@ namespace flui {
         flo::Sinh m_sinh;
     };
 
-    class Cosh : public Object {
+    class Cosh : public NumberObject {
     public:
         Cosh();
 
@@ -249,7 +257,7 @@ namespace flui {
         flo::Cosh m_cosh;
     };
 
-    class Tanh : public Object {
+    class Tanh : public NumberObject {
     public:
         Tanh();
 
@@ -257,7 +265,7 @@ namespace flui {
         flo::Tanh m_tanh;
     };
 
-    class Asinh : public Object {
+    class Asinh : public NumberObject {
     public:
         Asinh();
 
@@ -265,7 +273,7 @@ namespace flui {
         flo::Asinh m_asinh;
     };
 
-    class Acosh : public Object {
+    class Acosh : public NumberObject {
     public:
         Acosh();
 
@@ -273,7 +281,7 @@ namespace flui {
         flo::Acosh m_acosh;
     };
 
-    class Atanh : public Object {
+    class Atanh : public NumberObject {
     public:
         Atanh();
 
@@ -281,7 +289,7 @@ namespace flui {
         flo::Atanh m_atanh;
     };
 
-    class Ceil : public Object {
+    class Ceil : public NumberObject {
     public:
         Ceil();
 
@@ -289,7 +297,7 @@ namespace flui {
         flo::Ceil m_ceil;
     };
 
-    class Floor : public Object {
+    class Floor : public NumberObject {
     public:
         Floor();
 
@@ -297,7 +305,7 @@ namespace flui {
         flo::Floor m_floor;
     };
 
-    class Round : public Object {
+    class Round : public NumberObject {
     public:
         Round();
 
@@ -305,7 +313,7 @@ namespace flui {
         flo::Round m_round;
     };
 
-    class Frac : public Object {
+    class Frac : public NumberObject {
     public:
         Frac();
 
@@ -313,7 +321,7 @@ namespace flui {
         flo::Frac m_frac;
     };
 
-    class PlusOne : public Object {
+    class PlusOne : public NumberObject {
     public:
         PlusOne();
 
@@ -321,7 +329,7 @@ namespace flui {
         flo::PlusOne m_plusOne;
     };
 
-    class MinusOne : public Object {
+    class MinusOne : public NumberObject {
     public:
         MinusOne();
 
@@ -329,7 +337,7 @@ namespace flui {
         flo::MinusOne m_minusOne;
     };
 
-    class OneMinus : public Object {
+    class OneMinus : public NumberObject {
     public:
         OneMinus();
 
@@ -337,7 +345,7 @@ namespace flui {
         flo::OneMinus m_oneMinus;
     };
     
-    class Negate : public Object {
+    class Negate : public NumberObject {
     public:
         Negate();
 
@@ -345,7 +353,7 @@ namespace flui {
         flo::Negate m_negate;
     };
 
-    class Reciprocal : public Object {
+    class Reciprocal : public NumberObject {
     public:
         Reciprocal();
 
@@ -353,7 +361,7 @@ namespace flui {
         flo::Reciprocal m_reciprocal;
     };
 
-    class StdToNorm : public Object {
+    class StdToNorm : public NumberObject {
     public:
         StdToNorm();
 
@@ -361,7 +369,7 @@ namespace flui {
         flo::StdToNorm m_stdToNorm;
     };
 
-    class NormToStd : public Object {
+    class NormToStd : public NumberObject {
     public:
         NormToStd();
 
@@ -369,7 +377,7 @@ namespace flui {
         flo::NormToStd m_normToStd;
     };
 
-    class Sigmoid : public Object {
+    class Sigmoid : public NumberObject {
     public:
         Sigmoid();
 
@@ -377,7 +385,7 @@ namespace flui {
         flo::Sigmoid m_sigmoid;
     };
 
-    class Min : public Object {
+    class Min : public NumberObject {
     public:
         Min();
 
@@ -385,7 +393,7 @@ namespace flui {
         flo::Min m_min;
     };
 
-    class Max : public Object {
+    class Max : public NumberObject {
     public:
         Max();
 
@@ -393,7 +401,7 @@ namespace flui {
         flo::Max m_max;
     };
 
-    class Pow : public Object {
+    class Pow : public NumberObject {
     public:
         Pow();
 
@@ -401,7 +409,7 @@ namespace flui {
         flo::Pow m_pow;
     };
 
-    class LogBase : public Object {
+    class LogBase : public NumberObject {
     public:
         LogBase();
 
@@ -409,7 +417,7 @@ namespace flui {
         flo::LogBase m_logBase;
     };
 
-    class Hypot : public Object {
+    class Hypot : public NumberObject {
     public:
         Hypot();
 
@@ -417,7 +425,7 @@ namespace flui {
         flo::Hypot m_hypot;
     };
 
-    class Atan2 : public Object {
+    class Atan2 : public NumberObject {
     public:
         Atan2();
 
@@ -425,7 +433,7 @@ namespace flui {
         flo::Atan2 m_atan2;
     };
 
-    class RandomUniform : public Object {
+    class RandomUniform : public NumberObject {
     public:
         RandomUniform();
 
@@ -433,7 +441,7 @@ namespace flui {
         flo::RandomUniform m_randomUniform;
     };
 
-    class RandomNormal : public Object {
+    class RandomNormal : public NumberObject {
     public:
         RandomNormal();
 
@@ -441,7 +449,7 @@ namespace flui {
         flo::RandomNormal m_randomNormal;
     };
 
-    class RoundTo : public Object {
+    class RoundTo : public NumberObject {
     public:
         RoundTo();
 
@@ -449,7 +457,7 @@ namespace flui {
         flo::RoundTo m_roundTo;
     };
 
-    class FloorTo : public Object {
+    class FloorTo : public NumberObject {
     public:
         FloorTo();
 
@@ -457,7 +465,7 @@ namespace flui {
         flo::FloorTo m_floorTo;
     };
 
-    class CeilTo : public Object {
+    class CeilTo : public NumberObject {
     public:
         CeilTo();
 
@@ -465,7 +473,7 @@ namespace flui {
         flo::CeilTo m_ceilTo;
     };
 
-    class Remainder : public Object {
+    class Remainder : public NumberObject {
     public:
         Remainder();
 
@@ -473,7 +481,7 @@ namespace flui {
         flo::Remainder m_remainder;
     };
 
-    class Gaussian : public Object {
+    class Gaussian : public NumberObject {
     public:
         Gaussian();
 
@@ -481,7 +489,7 @@ namespace flui {
         flo::Gaussian m_gaussian;
     };
 
-    class LinearInterpolation : public Object {
+    class LinearInterpolation : public NumberObject {
     public:
         LinearInterpolation();
 

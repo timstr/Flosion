@@ -1,6 +1,10 @@
+#pragma once
+
 #include <Flosion/Core/NumberSource.hpp>
 
 namespace flo {
+
+    class SoundSource;
 
     class BorrowingNumberSource : public NumberSource {
     public:
@@ -9,13 +13,16 @@ namespace flo {
 
         virtual std::unique_ptr<StateAllocator> makeAllocater() const = 0;
 
-        SoundNode* getStateLender() noexcept;
-        const SoundNode* getStateLender() const noexcept;
+        SoundSource* getStateLender() noexcept;
+        const SoundSource* getStateLender() const noexcept;
 
-        void borrowFrom(SoundNode*);
+        void borrowFrom(SoundSource*);
+
+        Signal<const SoundSource*> onStartBorrowing;
+        Signal<const SoundSource*> onStopBorrowing;
 
     private:
-        SoundNode* m_stateLender;
+        SoundSource* m_stateLender;
         size_t m_stateOffset;
 
         friend class StateTable;

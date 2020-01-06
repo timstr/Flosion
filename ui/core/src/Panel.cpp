@@ -4,6 +4,8 @@
 #include <Flosion/UI/Core/PanelContextMenu.hpp>
 #include <Flosion/UI/Core/NumberWire.hpp>
 #include <Flosion/UI/Core/SoundWire.hpp>
+#include <Flosion/UI/Core/BorrowingNumberObject.hpp>
+#include <Flosion/UI/Core/SoundObject.hpp>
 
 #include <GUI/Context.hpp>
 
@@ -14,7 +16,8 @@ namespace flui {
     }
 
     Panel::Panel()
-        : m_selectionDragger(nullptr) {
+        : m_selectionDragger(nullptr)
+        , m_selection(nullptr) {
         setBackgroundColor(0x080820FF);
     }
 
@@ -24,12 +27,13 @@ namespace flui {
         }
     }
 
-    void Panel::addObject(std::unique_ptr<Object> object){
+    void Panel::addObject(Object* object){
+        // TODO: ensure that contained objects from the same network are added too
+        // (i.e. attached borrowers and router outputs but NOT objects
+        // in nested networks like in Feedback or Splicer)
         assert(object->m_parentPanel == nullptr);
         object->m_parentPanel = this;
-        auto op = object.get();
-        m_objects.push_back(op);
-        adopt(std::move(object));
+        m_objects.push_back(object);
     }
 
     void Panel::removeObject(const Object* o){
@@ -145,19 +149,50 @@ namespace flui {
         return nullptr;
     }
 
-    void Panel::makeSelection(ui::vec2 topLeft, ui::vec2 size){
+    BorrowingNumberObject* Panel::findBorrowerFor(const flo::BorrowingNumberSource* bns){
+        for (auto& o : m_objects){
+            if (auto b = o->toBorrowingNumberObject()){
+                if (b->getBorrower() == bns){
+                    return b;
+                }
+            }
+        }
+        return nullptr;
+    }
+
+    std::vector<Object*> Panel::findObjectsInRect(ui::vec2 topLeft, ui::vec2 size){
         std::vector<Object*> objs;
         const auto sRect = sf::FloatRect{topLeft, size};
         for (auto& o : m_objects){
-            const auto oRect = sf::FloatRect{o->pos(), o->size()};
-            if (sRect.intersects(oRect)){
-                objs.push_back(o);
+            if (o->getParentContainer() == this){
+                const auto oRect = sf::FloatRect{o->pos(), o->size()};
+                if (sRect.intersects(oRect)){
+                    objs.push_back(o);
+                }
             }
         }
-        if (objs.size() > 0){
-            auto& so = add<SelectedObjects>(*this, objs);
-            so.grabFocus();
+        return objs;
+    }
+
+    void Panel::selectObjects(std::vector<Object*> objs){
+        if (m_selection){
+            m_selection->putObjectsBack();
+            m_selection->close();
+            m_selection = nullptr;
         }
+        if (objs.size() > 0){
+            m_selection = &add<SelectedObjects>(*this, objs);
+            m_selection->grabFocus();
+        }
+    }
+
+    bool Panel::onKeyDown(ui::Key key){
+        bool ctrl = keyDown(ui::Key::LControl) || keyDown(ui::Key::RControl);
+        if (key == ui::Key::A && ctrl){
+            
+            selectObjects(m_objects);
+        }
+        return false;
     }
 
     bool Panel::onLeftClick(int clicks){
@@ -186,10 +221,10 @@ namespace flui {
             m_selectionDragger = nullptr;
             m_selectionStart.reset();
 
-            makeSelection(
+            selectObjects(findObjectsInRect(
                 {std::min(p1.x, p2.x), std::min(p1.y, p2.y)},
                 {std::abs(p1.x - p2.x), std::abs(p1.y - p2.y)}
-            );
+            ));
         }
     }
 
@@ -217,14 +252,14 @@ namespace flui {
         assert(objs.size() > 0);
 
         for (auto& o : objs){
-            m_objects.push_back({o, o->pos()});
+            m_selectedObjects.push_back({o, o->pos()});
         }
 
         // Find the rectangular bounds of all selected objects
-        ui::vec2 min = m_objects.front().first->pos();
-        ui::vec2 max = m_objects.front().first->pos() + m_objects.front().first->size();
+        ui::vec2 min = m_selectedObjects.front().first->pos();
+        ui::vec2 max = m_selectedObjects.front().first->pos() + m_selectedObjects.front().first->size();
 
-        for (auto it = ++m_objects.begin(); it != m_objects.end(); ++it){
+        for (auto it = ++m_selectedObjects.begin(); it != m_selectedObjects.end(); ++it){
             min.x = std::min(min.x, it->first->left());
             min.y = std::min(min.y, it->first->top());
             max.x = std::max(max.x, it->first->left() + it->first->width());
@@ -241,6 +276,13 @@ namespace flui {
         fc.setSize(size + 2.0f * margin);
     }
 
+    void Panel::SelectedObjects::putObjectsBack(){
+        for (auto& o : m_selectedObjects){
+            o.first->setPos(o.second);
+            o.first->updateWires();
+        }
+    }
+
     bool Panel::SelectedObjects::onLeftClick(int){
         startDrag();
         return true;
@@ -252,23 +294,25 @@ namespace flui {
 
     bool Panel::SelectedObjects::onKeyDown(ui::Key key){
         const auto moveObjects = [&](ui::vec2 delta){
-            for (auto& o : m_objects){
+            for (auto& o : m_selectedObjects){
                 o.second += delta;
             }
             setPos(pos() + delta);
         };
 
         if (key == ui::Key::Delete){
-            for (const auto& o : m_objects){
+            for (const auto& o : m_selectedObjects){
                 o.first->close();
             }
+            m_parentPanel.m_selection = nullptr;
             close();
             return true;
         } else if (key == ui::Key::Escape){
-            for (const auto& o : m_objects){
+            for (const auto& o : m_selectedObjects){
                 o.first->setPos(o.second);
                 o.first->updateWires();
             }
+            m_parentPanel.m_selection = nullptr;
             close();
             return true;
         } else if (key == ui::Key::Up){
@@ -289,16 +333,14 @@ namespace flui {
     }
 
     void Panel::SelectedObjects::onLoseFocus(){
-        for (auto& o : m_objects){
-            o.first->setPos(o.second);
-            o.first->updateWires();
-        }
+        putObjectsBack();
+        m_parentPanel.m_selection = nullptr;
         close();
     }
 
     void Panel::SelectedObjects::onDrag(){
         auto delta = pos() - m_lastPos;
-        for (auto& o : m_objects){
+        for (auto& o : m_selectedObjects){
             o.second += delta;
         }
         m_lastPos = pos();
@@ -307,7 +349,7 @@ namespace flui {
     void Panel::SelectedObjects::render(sf::RenderWindow& rw){
         auto t = ui::Context::get().getProgramTime().asSeconds();
 
-        for (auto& o : m_objects){
+        for (auto& o : m_selectedObjects){
             const auto r = t * 2.0f * 3.141592654f;
             const auto offset = selectionDanceRadius * ui::vec2{std::cos(r), std::sin(2.0f * r)};
 

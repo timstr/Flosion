@@ -1,9 +1,9 @@
-#include <Flosion/UI/Core/Object.hpp>
+#include <Flosion/UI/Core/SoundObject.hpp>
 #include <Flosion/Objects/Resampler.hpp>
 
 namespace flui {
 
-    class Resampler : public Object {
+    class Resampler : public SoundObject {
     public:
         Resampler();
 

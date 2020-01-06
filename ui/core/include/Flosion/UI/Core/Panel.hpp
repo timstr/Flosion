@@ -15,6 +15,7 @@ namespace flui {
     class SoundInputPeg;
     class SoundOutputPeg;
     class SoundWire;
+    class BorrowingNumberObject;
 	
     // TODO: ctrl-A to select everything
 
@@ -24,28 +25,20 @@ namespace flui {
 		Panel();
         ~Panel();
 
-		void addObject(std::unique_ptr<Object>);
+		void addObject(Object*);
         void removeObject(const Object*);
         
         // Adds a NumberWire to the panel.
         // At most one of src and dst may be null.
+        // TODO: rename to createWire
         NumberWire* addWire(flo::NumberSource* src, flo::NumberInput* dst);
         void removeWire(NumberWire*);
 
         // Adds a SoundWire to the panel.
         // At most one of src and dst may be null.
+        // TODO: rename to createWire
         SoundWire* addWire(flo::SoundSource* src, flo::SoundInput* dst);
         void removeWire(SoundWire*);
-
-		/*void releaseObject(ui::Ref<Object> object);
-
-		void addSoundWire(ui::Ref<SoundWire> wire);
-
-		void removeSoundWire(SoundWire& wire);
-
-		void addNumberWire(ui::Ref<NumberWire> wire);
-
-		void removeNumberWire(NumberWire& wire);*/
 
 	private:
 
@@ -60,8 +53,12 @@ namespace flui {
         SoundInputPeg* findPegFor(const flo::SoundInput*);
         SoundOutputPeg* findPegFor(const flo::SoundSource*);
 
+        BorrowingNumberObject* findBorrowerFor(const flo::BorrowingNumberSource*);
+
         template<typename Traits>
         friend class Wire;
+
+        friend class SoundObject;
 
 		// calculate the bounding box of all contents
 		// returns { top-left, bottom-right } as positions
@@ -73,11 +70,15 @@ namespace flui {
 
 	private:
 
-        void makeSelection(ui::vec2 topLeft, ui::vec2 size);
+        std::vector<Object*> findObjectsInRect(ui::vec2 topLeft, ui::vec2 size);
+
+        void selectObjects(std::vector<Object*>);
 
         class SelectedObjects : public ui::FreeContainer, public ui::Control, public ui::Draggable {
         public:
             SelectedObjects(Panel& parentPanel, const std::vector<Object*>&);
+
+            void putObjectsBack();
 
         private:
             bool onLeftClick(int) override;
@@ -105,9 +106,12 @@ namespace flui {
             Panel& m_parentPanel;
 
             // vector of (selected object, base position) pairs
-            std::vector<std::pair<Object*, ui::vec2>> m_objects;
+            std::vector<std::pair<Object*, ui::vec2>> m_selectedObjects;
             ui::vec2 m_lastPos;
         };
+
+
+        bool onKeyDown(ui::Key) override;
 
 		bool onLeftClick(int) override;
 
@@ -117,6 +121,7 @@ namespace flui {
 
         std::optional<ui::vec2> m_selectionStart;
         ui::Draggable* m_selectionDragger;
+        SelectedObjects* m_selection;
 	};
 
     // TODO: collapsible panel

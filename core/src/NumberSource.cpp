@@ -2,8 +2,9 @@
 
 namespace flo {
 
-    int NumberInput::acquireLock(){
-        return 0;
+    std::lock_guard<std::mutex> NumberInput::acquireLock(){
+        // TODO: implement
+        return std::lock_guard{m_uselessMutexPleaseRemove};
     }
 
     NumberInput::NumberInput(double defaultValue) noexcept

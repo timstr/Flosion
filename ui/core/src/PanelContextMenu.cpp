@@ -9,6 +9,8 @@
 #include <GUI/Helpers/CallbackButton.hpp>
 
 #include <cctype>
+#include <iterator>
+#include <sstream>
 
 namespace flui {
     
@@ -19,31 +21,22 @@ namespace flui {
 			    str.begin(),
 			    str.end(),
 			    str.begin(),
-			    [](uint32_t c){
-                    if (c > std::numeric_limits<unsigned char>::max()){
-                        return c;
-                    }
-                    return static_cast<uint32_t>(std::tolower(static_cast<int>(c)));
+			    [](int c){
+                    return static_cast<char>(std::tolower(c));
                 }
 		    );
 		}
 
-        std::pair<std::string, std::string> splitArgs(const std::string& s){
-            auto n = s.find_first_not_of(" \t", 0);
-            if (n == std::string::npos){
-                return {"", ""};
+        std::vector<std::string> split(const std::string& s){
+            auto ss = std::istringstream{s};
+            auto v = std::vector<std::string>{
+                std::istream_iterator<std::string>{ss},
+                std::istream_iterator<std::string>{}
+            };
+            if (v.size() > 0){
+                makeLowerCase(v[0]);
             }
-            n = s.find_first_of(" \t", n);
-            if (n == std::string::npos){
-                return {s, ""};
-            }
-            auto name = s.substr(0, n);
-            n = s.find_first_not_of(" \t", n);
-            if (n == std::string::npos){
-                return {name, ""};
-            }
-            auto args = s.substr(n);
-            return {std::move(name), std::move(args)};
+            return v;
         }
     }
 
@@ -57,7 +50,7 @@ namespace flui {
             ui::FreeContainer::Center,
             ui::FreeContainer::Center,
             getFont(),
-            [&](const ui::String& s){ handleSubmit(); },
+            [&](const ui::String&){ handleSubmit(); },
             [&](const ui::String&){ return true; },
             [&](const ui::String& s){ refreshResults(s); }
         )) {
@@ -80,11 +73,16 @@ namespace flui {
     void PanelContextMenu::refreshResults(const ui::String& str){
         m_results.clear();
         m_results.setSize({0.0f, 0.0f});
-        m_topResult = {};
         
-        const auto [textEntered, args] = splitArgs(str.toAnsiString());
+        auto args = split(str.toAnsiString());
 
-        m_args = args;
+        if (args.size() == 0){
+            return;
+        }
+        m_objectName = std::move(args.front());
+        args.erase(args.begin());
+        m_args = std::move(args);
+
 
         const auto maxResults = std::size_t{10};
 
@@ -93,29 +91,29 @@ namespace flui {
         // Other results: all results with matching first letter and matching subsequence
 
         const auto match = [&](const std::string& s){
-            if (s.size() < textEntered.size()){
+            if (s.size() < m_objectName.size()){
                 return false;
             }
-            auto ss = s.substr(0, textEntered.size());
+            auto ss = s.substr(0, m_objectName.size());
             makeLowerCase(ss);
-            return ss == textEntered;
+            return ss == m_objectName;
         };
 
         auto count = std::size_t{0};
 
-        const auto& objCreators = Factory::getObjectCreators();
+        const auto& names = Factory::getObjectNames();
             
-        for (auto it = objCreators.begin(), end = objCreators.end(); it != end && count < maxResults; ++it){
-            if (match(it->first)){
+        for (auto it = names.begin(), end = names.end(); it != end && count < maxResults; ++it){
+            if (match(*it)){
                 if (count == 0){
-                    m_topResult = it->second;
+                    m_objectName = *it;
                 }
 
                 m_results.push_back<ui::CallbackButton>(
-                    it->first,
+                    *it,
                     getFont(),
-                    [this, &fn = it->second](){
-                        addAndClose(fn(m_args));
+                    [this, name =*it](){
+                        addAndClose(Factory::createObject(name, m_args));
                     }
                 );
                 ++count;
@@ -124,16 +122,20 @@ namespace flui {
     }
 
     void PanelContextMenu::handleSubmit(){
-        if (m_topResult){
-            addAndClose(m_topResult(m_args));
-        } else {
-            close();
+        if (m_objectName.size() > 0){
+            auto obj = Factory::createObject(m_objectName, m_args);
+            if (obj){
+                addAndClose(std::move(obj));
+                return;
+            }
         }
+        close();
     }
 
     void PanelContextMenu::addAndClose(std::unique_ptr<Object> obj){
         obj->setPos(pos() + (size() - obj->size()) * 0.5f);
-        m_parent.addObject(std::move(obj));
+        m_parent.addObject(obj.get());
+        m_parent.adopt(std::move(obj));
         close();
     }
 

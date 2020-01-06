@@ -197,7 +197,7 @@ namespace flo {
     Router::Input::InputNumberSource::InputNumberSource(Input* parent)
         : SoundNumberSource(parent)
         , m_parent(parent)
-        , m_numberSourceIdx(-1) {
+        , m_numberSourceIdx(static_cast<std::size_t>(-1)) {
 
     }
 

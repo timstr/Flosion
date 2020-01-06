@@ -1,5 +1,6 @@
 #include <Flosion/Objects/Functions.hpp>
 
+#include <Flosion/Core/Sample.hpp>
 #include <Flosion/Util/RNG.hpp>
 
 namespace flo {
@@ -34,7 +35,7 @@ namespace flo {
         return input1.getValue(context) / input2.getValue(context);
     }
 
-    double PiConstant::evaluate(const flo::SoundState* context) const noexcept {
+    double PiConstant::evaluate(const flo::SoundState*) const noexcept {
         return pi;
     }
 
@@ -42,8 +43,12 @@ namespace flo {
         return eulersConstant;
     }
 
-    double TauConstant::evaluate(const flo::SoundState* context) const noexcept {
+    double TauConstant::evaluate(const flo::SoundState*) const noexcept {
         return tau;
+    }
+
+    double SampleFrequencyConstant::evaluate(const flo::SoundState*) const noexcept {
+        return static_cast<double>(sampleFrequency);
     }
 
     double Abs::evaluate(const flo::SoundState* context) const noexcept {
@@ -60,7 +65,7 @@ namespace flo {
 
     double Square::evaluate(const flo::SoundState* context) const noexcept {
         const auto x = input.getValue(context);
-        return x * x * x;
+        return x * x;
     }
 
     double Log::evaluate(const flo::SoundState* context) const noexcept {
@@ -248,6 +253,11 @@ namespace flo {
         const auto mean = input1.getValue(context);
         const auto stddev = input2.getValue(context);
         return mean + stddev * m_dist(util::getRandomEngine());
+    }
+
+    RoundTo::RoundTo()
+        : BinaryFunction(0.0, 1.0) {
+    
     }
 
     double RoundTo::evaluate(const flo::SoundState* context) const noexcept {

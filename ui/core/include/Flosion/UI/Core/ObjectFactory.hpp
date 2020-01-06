@@ -18,17 +18,15 @@ namespace flui {
 	// which have been pre-registered
 	class Factory {
     public:
-		using ObjectCreator = std::function<std::unique_ptr<Object>(const std::string&)>;
+		using ObjectCreator = std::function<std::unique_ptr<Object>(const std::vector<std::string>&)>;
 
-        using ObjectCreatorMap = std::map<std::string, ObjectCreator>;
-
-		static std::unique_ptr<Object> createObject(std::string args);
-
-		static const ObjectCreatorMap& getObjectCreators();
+        static std::unique_ptr<Object> createObject(std::string name, const std::vector<std::string>& args = {});
 
         static void addCreator(const std::vector<std::string>& names, ObjectCreator creator);
 
         static void removeCreator(const std::vector<std::string>& names);
+
+        static const std::vector<std::string>& getObjectNames() noexcept;
 
     public:
 		// RegisterObject for registering an Object type with the factory under a set of names
@@ -44,11 +42,12 @@ namespace flui {
 			const std::vector<std::string> m_names;
 		};
 
-
 	private:
 		Factory() = delete;
+        
+        static std::map<std::string, ObjectCreator>& getObjectMap();
 
-		static ObjectCreatorMap& getObjectMap();
+        static std::vector<std::string>& getObjectNameVector();
 	};
 
     // TODO: move these to a .tpp file
@@ -77,7 +76,7 @@ namespace flui {
 	    namespace FlosionUIFactoryImpl { \
 		    ::flui::Factory::Registrator<ObjectType> s_registratorFor_##ObjectType { \
                 std::vector<std::string> { __VA_ARGS__ }, \
-                [](const std::string&){ return std::make_unique<ObjectType>(); } \
+                [](const std::vector<std::string>&){ return std::make_unique<ObjectType>(); } \
             }; \
 	    }
 

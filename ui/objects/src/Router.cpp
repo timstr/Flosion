@@ -9,7 +9,7 @@
 namespace flui {
 
     Router::Router(){
-        addToLeft(makePeg(m_router.getSoundInput()));
+        addToInflow(makePeg(m_router.getSoundInput()));
 
         auto fc = std::make_unique<ui::Boxed<ui::FreeContainer>>();
         fc->setBackgroundColor(0x4f192aff);
@@ -37,6 +37,12 @@ namespace flui {
         setBody(std::move(fc));
     }
 
+    void Router::updateLayout(FlowDirection fd){
+        for (auto& ob : m_outputBlocks){
+            ob->trySetFlowDirection(fd);
+        }
+    }
+
     void Router::addSoundSource(){
         auto ss = m_router.addSoundSource();
         
@@ -50,7 +56,7 @@ namespace flui {
         }
 
         m_outputBlocks.push_back(b.get());
-        addToRight(std::move(b));
+        addToOutflow(std::move(b));
     }
 
     void Router::addNumberInput(){
@@ -78,7 +84,7 @@ namespace flui {
             }
         );
 
-        addToLeft(std::move(fc));
+        addToInflow(std::move(fc));
 
         for (std::size_t j = 0, jEnd = m_outputBlocks.size(); j != jEnd; ++j){
             auto ni = m_router.getNumberInput(ns, m_router.getSoundSource(j));
@@ -88,19 +94,20 @@ namespace flui {
     }
 
 
-    Router::OutputBlock::OutputBlock(Router* parentRouter, const flo::SoundSource* ss)
-        : m_parentRouter(parentRouter)
-        , m_soundSource(ss)
-        , m_list(add<ui::VerticalList>(ui::FreeContainer::InsideRight, ui::FreeContainer::Center)) {
+    Router::OutputBlock::OutputBlock(Router* parentRouter, flo::SoundSource* ss)
+        : SoundObject(ss)
+        , m_parentRouter(parentRouter)
+        , m_soundSource(ss) {
 
         setWidth(75.0f, true);
 
-        setBackgroundColor(0x8a2444ff);
-        setBorderRadius(10.0f);
-        setBorderThickness(1.0f);
-        setBorderColor(0xFFFFFFFF);
+        auto body = std::make_unique<ui::Boxed<ui::FreeContainer>>();
+        body->setBackgroundColor(0x8a2444ff);
+        body->setBorderRadius(10.0f);
+        body->setBorderThickness(1.0f);
+        body->setBorderColor(0xFFFFFFFF);
 
-        add<ui::CallbackButton>(
+        body->add<ui::CallbackButton>(
             ui::FreeContainer::InsideLeft,
             ui::FreeContainer::Center,
             "X",
@@ -114,10 +121,12 @@ namespace flui {
                 close();
             }
         );
+
+        setBody(std::move(body));
     }
 
     void Router::OutputBlock::addItem(std::unique_ptr<ui::Element> e){
-        m_list.push_back(std::move(e));
+        addToOutflow(std::move(e));
     }
 
     RegisterFactoryObject(Router, "Router");
