@@ -5,7 +5,12 @@ namespace flo {
     template<typename StateType>
     inline double BorrowingNumberSourceTemplate<StateType>::evaluate(const SoundState* context) const noexcept {
         if (auto lender = getStateLender()){
-            return evaluate((lender->getBorrowedState<StateType>(context, this)), context);
+            while (context){
+                if (context->getOwner() == lender){
+                    return evaluate((lender->getBorrowedState<StateType>(context, this)), context);
+                }
+                context = context->getDependentState();
+            }
         }
         return 0.0;
     }

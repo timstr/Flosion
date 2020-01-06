@@ -249,9 +249,6 @@ namespace flo {
     }
 
     const SoundState* StateTable::getState(size_t slotIndex) const noexcept {
-        if (slotIndex >= numSlots()){
-            rand();
-        }
         assert(slotIndex < numSlots());
         return reinterpret_cast<const SoundState*>(m_data + (slotIndex * m_slotSize));
     }

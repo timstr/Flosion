@@ -1,7 +1,5 @@
 #include <Flosion/UI/Core/FlosionUI.hpp>
 
-// TODO: clear DAC buffer when resetting
-
 // TODO: remove empty/unused files
 
 // TODO: actually use flo::Network
