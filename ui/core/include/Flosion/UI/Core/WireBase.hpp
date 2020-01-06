@@ -308,7 +308,7 @@ namespace flui {
         if (m_wireIn){
             return false;
         }
-        if (auto wh = dynamic_cast<Traits::WireHeadType*>(d)){
+        if (auto wh = dynamic_cast<typename Traits::WireHeadType*>(d)){
             auto w = wh->getParentWire();
             auto self = static_cast<typename Traits::InputPegType*>(this);
             w->attachHeadTo(self);
@@ -504,7 +504,7 @@ namespace flui {
     }
 
     template<typename Traits>
-    inline bool Wire<Traits>::canAttachHeadTo(const InputPegType*) const {
+    inline bool Wire<Traits>::canAttachHeadTo(const InputPegType* p) const {
         if (m_tailPeg){
             auto i = p->getInput();
             auto o = m_tailPeg->getOutput();

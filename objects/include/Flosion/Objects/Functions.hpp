@@ -271,7 +271,7 @@ namespace flo {
     private:
         double evaluate(const flo::SoundState* context) const noexcept override;
 
-        std::uniform_real_distribution<double> m_dist;
+        mutable std::uniform_real_distribution<double> m_dist;
     };
 
     class RandomNormal : public BinaryFunction {

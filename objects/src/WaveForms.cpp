@@ -1,5 +1,7 @@
 #include <Flosion/Objects/WaveForms.hpp>
 
+#include <cmath>
+
 namespace flo {
 
     double SineWave::evaluate(const flo::SoundState* context) const noexcept {

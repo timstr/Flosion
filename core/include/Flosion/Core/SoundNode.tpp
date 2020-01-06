@@ -12,22 +12,22 @@ namespace flo {
 
     template<typename SoundNodeType, typename SoundStateType>
     SoundStateType* Singular<SoundNodeType, SoundStateType>::getState(const SoundNode* dependent, const SoundState* dependentState) noexcept {
-        return this->StateTable::getState<SoundStateType>(dependent, dependentState, 0);
+        return StateTable::getState<SoundStateType>(dependent, dependentState, 0);
     }
 
     template<typename SoundNodeType, typename SoundStateType>
     const SoundStateType* Singular<SoundNodeType, SoundStateType>::getState(const SoundNode* dependent, const SoundState* dependentState) const noexcept {
-        return this->StateTable::getState<SoundStateType>(dependent, dependentState, 0);
+        return StateTable::getState<SoundStateType>(dependent, dependentState, 0);
     }
 
     template<typename SoundNodeType, typename SoundStateType>
     SoundStateType* Singular<SoundNodeType, SoundStateType>::getState(size_t index) noexcept {
-        return this->StateTable::getState<SoundStateType>(index);
+        return StateTable::getState<SoundStateType>(index);
     }
 
     template<typename SoundNodeType, typename SoundStateType>
     const SoundStateType* Singular<SoundNodeType, SoundStateType>::getState(size_t index) const noexcept {
-        return this->StateTable::getState<SoundStateType>(index);
+        return StateTable::getState<SoundStateType>(index);
     }
 
     template<typename SoundNodeType, typename SoundStateType>
@@ -73,22 +73,22 @@ namespace flo {
 
     template<typename SoundNodeType, typename SoundStateType, typename KeyType>
     inline SoundStateType* Divergent<SoundNodeType, SoundStateType, KeyType>::getState(const SoundNode* dependent, const SoundState* dependentState, const KeyType& key) noexcept {
-        return this->StateTable::getState<SoundStateType>(dependent, dependentState, getKeyIndex(key));
+        return StateTable::getState<SoundStateType>(dependent, dependentState, getKeyIndex(key));
     }
 
     template<typename SoundNodeType, typename SoundStateType, typename KeyType>
     inline const SoundStateType* Divergent<SoundNodeType, SoundStateType, KeyType>::getState(const SoundNode* dependent, const SoundState* dependentState, const KeyType& key) const noexcept {
-        return this->StateTable::getState<SoundStateType>(dependent, dependentState, getKeyIndex(key));
+        return StateTable::getState<SoundStateType>(dependent, dependentState, getKeyIndex(key));
     }
 
     template<typename SoundNodeType, typename SoundStateType, typename KeyType>
     inline SoundStateType* Divergent<SoundNodeType, SoundStateType, KeyType>::getState(size_t index) noexcept {
-        return this->StateTable::getState<SoundStateType>(index);
+        return StateTable::getState<SoundStateType>(index);
     }
 
     template<typename SoundNodeType, typename SoundStateType, typename KeyType>
     inline const SoundStateType* Divergent<SoundNodeType, SoundStateType, KeyType>::getState(size_t index) const noexcept {
-        return this->StateTable::getState<SoundStateType>(index);
+        return StateTable::getState<SoundStateType>(index);
     }
 
     template<typename SoundNodeType, typename SoundStateType, typename KeyType>
@@ -126,7 +126,7 @@ namespace flo {
     const SoundStateType* Uncontrolled<SoundNodeType, SoundStateType>::getMonoState() const noexcept {
         assert(StateTable::numSlots() == 1);
         assert(StateTable::hasMonostate());
-        return this->StateTable::getState<SoundStateType>(0);
+        return StateTable::getState<SoundStateType>(0);
     }
 
     template<typename SoundNodeType, typename SoundStateType>

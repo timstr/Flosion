@@ -4,7 +4,9 @@
 #include <Flosion/UI/Core/SoundWire.hpp>
 
 #include <GUI/Helpers/CallbackButton.hpp>
+#ifndef __linux__
 #include <Flosion/Util/FileBrowser.hpp>
+#endif
 
 namespace flui {
 
@@ -21,10 +23,12 @@ namespace flui {
             "Load",
             getFont(),
             [&](){
+#ifndef __linux__
                 auto p = openFileDialog(L"Sound Files\0*.wav;*.ogg;*.flac\0");
                 if (p.size() > 0){
                     loadFromFile(p);
                 }
+#endif
             }
         );
         bod->setPadding(5.0f);

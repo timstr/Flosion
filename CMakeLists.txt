@@ -33,15 +33,29 @@ add_subdirectory(ui)
 add_subdirectory(util)
 add_subdirectory(tests)
 
-target_link_libraries(flosion
-	PUBLIC
-	tims-gui
-	flosion_core
-	flosion_objects
-	flosion_ui_core
-    flosion_ui_objects
-	flosion_util
-)
+if(UNIX)
+    target_link_libraries(flosion
+        PUBLIC
+        tims-gui
+        flosion_core
+        flosion_objects
+        -Wl,--whole-archive
+        flosion_ui_core
+        flosion_ui_objects
+        -Wl,--no-whole-archive
+        flosion_util
+    )
+else()
+    target_link_libraries(flosion
+        PUBLIC
+        tims-gui
+        flosion_core
+        flosion_objects
+        flosion_ui_core
+        flosion_ui_objects
+        flosion_util
+    )
+endif()
 
 # Ensure that symbols from ui libraries are always included.
 # This is needed because these symbols include objects that need
@@ -49,7 +63,6 @@ target_link_libraries(flosion
 if(MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /WHOLEARCHIVE:flosion_ui_core /WHOLEARCHIVE:flosion_ui_objects")
 endif()
-
 
 # copy fonts to current build directory
 add_custom_command(TARGET flosion POST_BUILD
