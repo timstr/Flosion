@@ -32,7 +32,12 @@ namespace flui {
             "Reset",
             getFont(),
             [&](){
+                const auto s = m_dac.getStatus();
+                m_dac.stop();
                 m_dac.soundResult.reset();
+                if (s == sf::SoundStream::Playing){
+                    m_dac.play();
+                }
             }
         );
         bod->setPadding(5.0f);
