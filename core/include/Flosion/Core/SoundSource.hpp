@@ -23,6 +23,8 @@ namespace flo {
     class SoundInput : public InputNodeBase<SoundTraits> {
     public:
         ~SoundInput();
+
+        const SoundInput* toSoundInput() const noexcept override final;
     };
 
     class SoundSource : public OutputNodeBase<SoundTraits> {
@@ -35,6 +37,8 @@ namespace flo {
          * to the given context may be updated.
          */
         virtual void getNextChunkFor(SoundChunk& chunk, const SoundInput* dependent, const SoundState* context) = 0;
+
+        const SoundSource* toSoundSource() const noexcept override final;
 
         Signal<const BorrowingNumberSource*> onBorrowerAdded;
         Signal<const BorrowingNumberSource*> onBorrowerRemoved;

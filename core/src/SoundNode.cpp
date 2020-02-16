@@ -166,6 +166,22 @@ namespace flo {
     const std::vector<NumberNode*>& SoundNode::getNumberNodes() const {
         return m_numberNodes;
     }
+
+    SoundSource* SoundNode::toSoundSource() noexcept {
+        return const_cast<SoundSource*>(const_cast<const SoundNode*>(this)->toSoundSource());
+    }
+
+    const SoundSource* SoundNode::toSoundSource() const noexcept {
+        return nullptr;
+    }
+
+    SoundInput* SoundNode::toSoundInput() noexcept {
+        return const_cast<SoundInput*>(const_cast<const SoundNode*>(this)->toSoundInput());
+    }
+
+    const SoundInput* SoundNode::toSoundInput() const noexcept {
+        return nullptr;
+    }
     
     SoundNode::Lock::Lock(std::vector<std::unique_lock<RecursiveSharedMutex>> locks) noexcept
         : m_locks(std::move(locks)) {

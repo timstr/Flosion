@@ -13,6 +13,8 @@ namespace flo {
     class Network;
     class SoundResult;
     class SoundState;
+    class SoundInput;
+    class SoundSource;
 
     // basic sound node type
     class SoundNode : public StateTable, public NodeBase<SoundNode> {
@@ -37,6 +39,16 @@ namespace flo {
          * arguments differ significantly between concrete sound nodes.
          */
 
+        SoundSource* toSoundSource() noexcept;
+        virtual const SoundSource* toSoundSource() const noexcept;
+
+        SoundInput* toSoundInput() noexcept;
+        virtual const SoundInput* toSoundInput() const noexcept;
+
+        virtual bool isDivergent() const noexcept = 0;
+        virtual bool isUncontrolled() const noexcept = 0;
+        virtual bool isOutOfSync() const noexcept = 0;
+
     protected:
 
         class Lock {
@@ -57,10 +69,6 @@ namespace flo {
         virtual double getTimeSpeed(const SoundState* mainState) const noexcept = 0;
         
     private:
-
-        virtual bool isDivergent() const noexcept = 0;
-        virtual bool isUncontrolled() const noexcept = 0;
-        virtual bool isOutOfSync() const noexcept = 0;
 
         virtual void findDependentSoundResults(std::vector<SoundResult*>& soundResults) noexcept;
 
