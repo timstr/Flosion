@@ -7,7 +7,9 @@ namespace flo {
     // Singular
 
     template<typename SoundNodeType, typename SoundStateType>
-    Singular<SoundNodeType, SoundStateType>::Singular(){
+    template<typename... Args>
+    Singular<SoundNodeType, SoundStateType>::Singular(Args&&... args)
+        : SoundNodeType(std::forward<Args>(args)...) {
         StateTable::insertKeys(0, 1);
     }
 
@@ -119,7 +121,9 @@ namespace flo {
     // Uncontrolled
 
     template<typename SoundNodeType, typename SoundStateType>
-    inline Uncontrolled<SoundNodeType, SoundStateType>::Uncontrolled(){
+    template<typename... Args>
+    inline Uncontrolled<SoundNodeType, SoundStateType>::Uncontrolled(Args&&... args)
+        : SoundNodeType(std::forward<Args>(args)...) {
         StateTable::enableMonostate();
     }
 

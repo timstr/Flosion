@@ -97,7 +97,8 @@ namespace flo {
     public:
         using StateType = SoundStateType;
 
-        Singular();
+        template<typename... Args>
+        Singular(Args&&...);
 
         SoundStateType* getState(const SoundNode* dependent, const SoundState* dependentState) noexcept;
         const SoundStateType* getState(const SoundNode* dependent, const SoundState* dependentState) const noexcept;
@@ -118,6 +119,8 @@ namespace flo {
     class Divergent : public SoundNodeType {
     public:
         using StateType = SoundStateType;
+        
+        using SoundNodeType::SoundNodeType;
 
         SoundStateType* getState(const SoundNode* dependent, const SoundState* dependentState, const KeyType& key) noexcept;
         const SoundStateType* getState(const SoundNode* dependent, const SoundState* dependentState, const KeyType& key) const noexcept;
@@ -154,7 +157,8 @@ namespace flo {
     public:
         using StateType = SoundStateType;
 
-        Uncontrolled();
+        template<typename... Args>
+        Uncontrolled(Args&&... args);
 
         const SoundStateType* getMonoState() const noexcept;
 
@@ -169,6 +173,9 @@ namespace flo {
     // Implements a realtime soundnode
     template<typename SoundNodeType>
     class Realtime : public SoundNodeType {
+    public:
+        using SoundNodeType::SoundNodeType;
+
     private:
         bool isOutOfSync() const noexcept override final;
         double getTimeSpeed(const SoundState*) const noexcept override final;
@@ -178,6 +185,8 @@ namespace flo {
     template<typename SoundNodeType>
     class OutOfSync : public SoundNodeType {
     public:
+        using SoundNodeType::SoundNodeType;
+
         using SoundNode::getTimeSpeed;
 
     private:

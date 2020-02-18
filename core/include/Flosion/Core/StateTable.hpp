@@ -43,67 +43,152 @@ namespace flo {
 
         virtual std::unique_ptr<StateAllocator> makeAllocator() const = 0;
 
-        
+        /**
+         * Retrieves the state for the given combination of dependent node, dependent state, and key
+         */
         SoundState* getState(const SoundNode* dependent, const SoundState* dependentState, size_t keyIndex) noexcept;
         const SoundState* getState(const SoundNode* dependent, const SoundState* dependentState, size_t keyIndex) const noexcept;
 
+        /**
+         * Retrieves the state at the given state index.
+         * In total, there are (total number of dependent states) * (number of keys) states.
+         */
         SoundState* getState(size_t index) noexcept;
         const SoundState* getState(size_t index) const noexcept;
 
+        /**
+         * Retrieves the borrowed state that is associated with the provided main state 
+         * for a given borrower
+         */
         State* getBorrowedState(const SoundState* mainState, const BorrowingNumberSource* borrower) const noexcept;
 
 
-
+        /**
+         * Retrieves the state for the given combination of dependent node, dependent state, and key.
+         * The stored state's type must either be equal to or derive from the provided template parameter.
+         */
         template<typename SoundStateType>
         SoundStateType* getState(const SoundNode* dependent, const SoundState* dependentState, size_t keyIndex) noexcept;
-
         template<typename SoundStateType>
         const SoundStateType* getState(const SoundNode* dependent, const SoundState* dependentState, size_t keyIndex) const noexcept;
-        
 
+
+        /**
+         * Retrieves the state at the given state index.
+         * In total, there are (total number of dependent states) * (number of keys) states.
+         * The stored state's type must either be equal to or derive from the provided template parameter.
+         */
         template<typename SoundStateType>
         SoundStateType* getState(size_t index) noexcept;
-
         template<typename SoundStateType>
         const SoundStateType* getState(size_t index) const noexcept;
 
+        /**
+         * Returns a down-cast state from a pointer the the same state.
+         * The given state must belong to this state table.
+         * The stored state's type must either be equal to or derive from the provided template parameter.
+         */
+        template<typename SoundStateType>
+        SoundStateType* getDerivedState(const SoundState* ownState) noexcept;
+        template<typename SoundStateType>
+        const SoundStateType* getDerivedState(const SoundState* ownState) const noexcept;
+
+        /**
+         * Retrieves the borrowed state that is associated with the provided main state 
+         * for a given borrower
+         * The stored state's type must either be equal to or derive from the provided template parameter.
+         */
         template<typename StateType>
         StateType* getBorrowedState(const SoundState* mainState, const BorrowingNumberSource* borrower) const noexcept;
 
+        /**
+         * Given a borrowed state, returns the main state with which that borrowed state
+         * is associated.
+         */
         const SoundState* getMainState(const State* borrowedState) const noexcept;
 
+        /**
+         * Resets the states stored for the given dependent and its state.
+         * This includes states for each key and associated borrower states.
+         */
         void resetStateFor(const SoundNode* dependent, const SoundState* dependentState) noexcept;
 
+        /**
+         * Gets the index of a given main state.
+         * The given state must belong to the state table.
+         */
         size_t getStateIndex(const SoundState* ownState) const noexcept;
 
+        /**
+         * Tests whether the state table owns a given state.
+         */
         bool hasState(const SoundState* ownState) const noexcept;
 
-        // the number of slots in the table. Equal to numDependentStates() * numKeys().
+        /**
+         * The number of slots in the table. Equal to numDependentStates() * numKeys().
+         */
         size_t numSlots() const noexcept;
 
-        // the number of rows in the table
+        /**
+         * The number of rows in the table.
+         */
         size_t numDependentStates() const noexcept;
 
-        // the number of columns in the table
+        /**
+         * The number of columns in the table.s
+         */
         size_t numKeys() const noexcept;
 
-        // the number of borrowed states per slot
+        /**
+         * The number of borrowed states per slot.
+         */
         size_t numBorrowers() const noexcept;
 
-        // the total size of a slot, in bytes
+        /**
+         * The total size of a slot, in bytes.
+         */
         size_t slotSize() const noexcept;
 
+        /**
+         * Adds new states for the provided range of states in the given dependent.
+         * This is only intended when a dependent is newly added or when the dependent
+         * itself has gained new states.
+         */
         void insertDependentStates(const SoundNode* dependent, size_t beginIndex, size_t endIndex);
+
+        /**
+         * Removes those states associated with the provided range of states in the given dependent.
+         * This is only intended when a dependent is removed or when the dependent
+         * itself has lost states.
+         */
         void eraseDependentStates(const SoundNode* dependent, size_t beginIndex, size_t endIndex);
         
+        /**
+         * Adds a range of keys to the state table.
+         */
         void insertKeys(size_t beginIndex, size_t endIndex);
+
+        /**
+         * Removes a range of keys from the state table.
+         */
         void eraseKeys(size_t beginIndex, size_t endIndex);
 
+        /**
+         * Associates a borrower with the state table.
+         * Hereafter, every main state will be associated with an additional
+         * stored state for that borrower.
+         */
         void addBorrower(BorrowingNumberSource*);
+
+        /**
+         * Disassociates a borrower with the state table.
+         * All states allocated for that borrower are destroyed.
+         */
         void removeBorrower(BorrowingNumberSource*);
 
         // Fixes the state table as having a single state.
-        // NOTE: MONOSTATE IMPLIES SINGULAR
+        // NOTE: monostate is only intended for use with Singular
+        // soundnodes.
         // Throws an exception if there are neither no dependents
         // at all nor exactly one dependent with at most one state.
         // This puts the state table into a special mode, in which
@@ -266,6 +351,24 @@ namespace flo {
         auto sd = static_cast<StateType*>(s);
         assert(sd);
         assert(dynamic_cast<StateType*>(s) == sd);
+        return sd;
+    }
+
+    
+    template<typename SoundStateType>
+    SoundStateType* StateTable::getDerivedState(const SoundState* s) noexcept {
+        return const_cast<SoundStateType*>(
+            const_cast<const StateTable*>(this)->getDerivedState<SoundStateType>(s)
+        );
+    }
+
+    template<typename SoundStateType>
+    const SoundStateType* StateTable::getDerivedState(const SoundState* s) const noexcept {
+        assert(s);
+        assert(hasState(s));
+        auto sd = static_cast<const SoundStateType*>(s);
+        assert(sd);
+        assert(dynamic_cast<const SoundStateType*>(s) == sd);
         return sd;
     }
 
