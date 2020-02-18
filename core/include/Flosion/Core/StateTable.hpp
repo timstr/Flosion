@@ -263,9 +263,6 @@ namespace flo {
         // the array
         unsigned char* m_data;
 
-        // See also: https://en.cppreference.com/w/cpp/memory/align
-        // for computing successive addresses
-
         size_t getDependentOffset(const SoundNode* dependent) const noexcept;
 
         size_t nextAlignedOffset(size_t minOffset, size_t align) const;

@@ -22,6 +22,10 @@ namespace flo {
         }
     }
 
+    const SoundSource* SoundSource::toSoundSource() const noexcept {
+        return this;
+    }
+
     SoundInput::~SoundInput(){
         for (auto n : getNumberNodes()){
             if (auto ns = n->toNumberSource()){
@@ -30,6 +34,10 @@ namespace flo {
                 ni->setSource(nullptr);
             }
         }
+    }
+
+    const SoundInput* SoundInput::toSoundInput() const noexcept {
+        return this;
     }
 
 } // namespace flo

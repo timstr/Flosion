@@ -1191,3 +1191,21 @@ TEST(SoundNodeTest, Uncontrolled5){
         inner.removeDependency(&leaf);
     }
 }
+
+// TODO: add a test case like this:
+// ===> Sound
+// ---> Number
+//
+//   .----------------.
+//  |                 |
+//  |          .====>(C)
+//  v         //
+// (A)=====>(B)
+//           \\
+//            `====>(D)
+//
+// The number connection (C)->(A) should be illegal
+// because calling upon (D) will result in trying to read
+// inaccessible state/scope
+
+// TODO: I like the above diagram. I should create one for each test case.
