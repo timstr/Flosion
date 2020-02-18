@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cassert>
+#include "SoundNode.hpp"
 
 namespace flo {
 
@@ -163,7 +164,25 @@ namespace flo {
     inline bool OutOfSync<SoundNodeType>::isOutOfSync() const noexcept {
         return true;
     }
+
+    // Bounded
+
+    template<typename SoundNodeType>
+    inline bool Bounded<SoundNodeType>::isBounded() const noexcept {
+        return true;
+    }
+
+    // Unbounded
     
+    template<typename SoundNodeType>
+    inline bool Unbounded<SoundNodeType>::isBounded() const noexcept {
+        return false;
+    }
+
+    // MaybeBounded
+
+
+
     template<typename SoundNodeType>
     template<typename... Args>
     inline WithCurrentTime<SoundNodeType>::WithCurrentTime(Args&&... args)

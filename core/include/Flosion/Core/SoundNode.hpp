@@ -6,6 +6,7 @@
 #include <Flosion/Core/SoundState.hpp>
 #include <Flosion/Core/StateTable.hpp>
 
+#include <optional>
 #include <vector>
 
 namespace flo {
@@ -56,11 +57,16 @@ namespace flo {
 
         virtual double getTimeSpeed(const SoundState* mainState) const noexcept = 0;
         
+        using Bound = std::optional<std::size_t>;
+        
     private:
 
         virtual bool isDivergent() const noexcept = 0;
         virtual bool isUncontrolled() const noexcept = 0;
         virtual bool isOutOfSync() const noexcept = 0;
+        virtual bool isBounded() const noexcept = 0;
+
+        virtual Bound getBound(const SoundState*) const noexcept = 0;
 
         virtual void findDependentSoundResults(std::vector<SoundResult*>& soundResults) noexcept;
 
@@ -80,14 +86,17 @@ namespace flo {
         friend class SoundState;
     };
 
-    // To create a concrete sound node, choose from the following:
-    // - Singular or Divergent or Uncontrolled
+    // To create a concrete sound node, choose one from each of the following:
+    // - Singular, Divergent, or Uncontrolled
     // - Realtime or OutOfSync
+    // - Bounded, Unbounded, or MaybeBounded
 
     // Implements a singular soundnode.
     template<typename SoundNodeType, typename SoundStateType>
     class Singular : public SoundNodeType {
     public:
+        using StateType = SoundStateType;
+
         Singular();
 
         SoundStateType* getState(const SoundNode* dependent, const SoundState* dependentState) noexcept;
@@ -108,6 +117,7 @@ namespace flo {
     template<typename SoundNodeType, typename SoundStateType, typename KeyType>
     class Divergent : public SoundNodeType {
     public:
+        using StateType = SoundStateType;
 
         SoundStateType* getState(const SoundNode* dependent, const SoundState* dependentState, const KeyType& key) noexcept;
         const SoundStateType* getState(const SoundNode* dependent, const SoundState* dependentState, const KeyType& key) const noexcept;
@@ -142,6 +152,8 @@ namespace flo {
     template<typename SoundNodeType, typename SoundStateType>
     class Uncontrolled : public SoundNodeType {
     public:
+        using StateType = SoundStateType;
+
         Uncontrolled();
 
         const SoundStateType* getMonoState() const noexcept;
@@ -180,6 +192,40 @@ namespace flo {
         SoundNode* const m_owner;
 
         double evaluate(const SoundState*) const noexcept override;
+    };
+
+    // Implements a strictly-bounded SoundNode
+    template<typename SoundNodeType>
+    class Bounded : public SoundNodeType {
+    protected:
+        virtual std::size_t getBoundFor(const StateType&) const noexcept = 0;
+
+    private:
+        bool isBounded() const noexcept override final;
+
+        SoundNode::Bound getBound(const SoundState*) const noexcept override final;
+    };
+
+    // Implements a strictly-unbounded SoundNode
+    template<typename SoundNodeType>
+    class Unbounded : public SoundNodeType {
+    private:
+        bool isBounded() const noexcept override final;
+
+        Bound getBound(const SoundState*) const noexcept final override;
+    };
+
+    // Implements a SoundNode that is conditionally bounded or unbounded
+    template<typename SoundNodeType>
+    class MaybeBounded : public SoundNodeType {
+    protected:
+        bool isCurrentlyBounded() const noexcept = 0;
+        std::size_t getBoundFor(const StateType&) const noexcept = 0;
+
+    private:
+        bool isBounded() const noexcept override final;
+
+        Bound getBound(const SoundState*) const noexcept final override;
     };
 
     // Convenient mix-in template for adding a CurrentTime SoundNumberSource
