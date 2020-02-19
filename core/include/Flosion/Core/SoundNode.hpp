@@ -69,17 +69,7 @@ namespace flo {
 
         virtual double getTimeSpeed(const SoundState* mainState) const noexcept = 0;
         
-        using Bound = std::optional<std::size_t>;
-        
     private:
-
-        virtual bool isDivergent() const noexcept = 0;
-        virtual bool isUncontrolled() const noexcept = 0;
-        virtual bool isOutOfSync() const noexcept = 0;
-        virtual bool isBounded() const noexcept = 0;
-
-        virtual Bound getBound(const SoundState*) const noexcept = 0;
-
         virtual void findDependentSoundResults(std::vector<SoundResult*>& soundResults) noexcept;
 
     private:
@@ -131,6 +121,8 @@ namespace flo {
     class Divergent : public SoundNodeType {
     public:
         using StateType = SoundStateType;
+
+        using Key = KeyType;
         
         using SoundNodeType::SoundNodeType;
 
@@ -213,40 +205,6 @@ namespace flo {
         SoundNode* const m_owner;
 
         double evaluate(const SoundState*) const noexcept override;
-    };
-
-    // Implements a strictly-bounded SoundNode
-    template<typename SoundNodeType>
-    class Bounded : public SoundNodeType {
-    protected:
-        virtual std::size_t getBoundFor(const StateType&) const noexcept = 0;
-
-    private:
-        bool isBounded() const noexcept override final;
-
-        SoundNode::Bound getBound(const SoundState*) const noexcept override final;
-    };
-
-    // Implements a strictly-unbounded SoundNode
-    template<typename SoundNodeType>
-    class Unbounded : public SoundNodeType {
-    private:
-        bool isBounded() const noexcept override final;
-
-        Bound getBound(const SoundState*) const noexcept final override;
-    };
-
-    // Implements a SoundNode that is conditionally bounded or unbounded
-    template<typename SoundNodeType>
-    class MaybeBounded : public SoundNodeType {
-    protected:
-        bool isCurrentlyBounded() const noexcept = 0;
-        std::size_t getBoundFor(const StateType&) const noexcept = 0;
-
-    private:
-        bool isBounded() const noexcept override final;
-
-        Bound getBound(const SoundState*) const noexcept final override;
     };
 
     // Convenient mix-in template for adding a CurrentTime SoundNumberSource

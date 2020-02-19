@@ -49,8 +49,7 @@ namespace flui {
     }
 
     void SoundObject::detachBorrower(BorrowingNumberObject* bno){
-        auto b = bno->getBorrower();
-        assert(b->getStateLender() == nullptr);
+        assert(bno->getBorrower()->getStateLender() == nullptr);
 
         auto it = std::find(m_borrowers.begin(), m_borrowers.end(), bno);
         assert(it != m_borrowers.end());

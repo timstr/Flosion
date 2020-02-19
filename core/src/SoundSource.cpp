@@ -1,5 +1,7 @@
 #include <Flosion/Core/SoundSource.hpp>
 
+#include <cassert>
+
 namespace flo {
 
     SoundNumberInput::SoundNumberInput(SoundNode* owner, double defaultValue) noexcept

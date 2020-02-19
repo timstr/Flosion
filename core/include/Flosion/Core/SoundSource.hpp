@@ -24,6 +24,7 @@ namespace flo {
     public:
         ~SoundInput();
 
+        // TODO: make private
         const SoundInput* toSoundInput() const noexcept override final;
     };
 

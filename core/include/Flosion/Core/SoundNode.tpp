@@ -169,23 +169,7 @@ namespace flo {
         return true;
     }
 
-    // Bounded
-
-    template<typename SoundNodeType>
-    inline bool Bounded<SoundNodeType>::isBounded() const noexcept {
-        return true;
-    }
-
-    // Unbounded
-    
-    template<typename SoundNodeType>
-    inline bool Unbounded<SoundNodeType>::isBounded() const noexcept {
-        return false;
-    }
-
-    // MaybeBounded
-
-
+    // WithCurrentTime
 
     template<typename SoundNodeType>
     template<typename... Args>
