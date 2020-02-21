@@ -95,7 +95,16 @@ namespace flo {
     }
 
     template<typename SoundNodeType, typename SoundStateType, typename KeyType>
-    void Divergent<SoundNodeType, SoundStateType, KeyType>::addKey(const KeyType& key){
+    void Divergent<SoundNodeType, SoundStateType, KeyType>::resetStateFor(
+        const SoundNode* dependent,
+        const SoundState* dependentState,
+        const KeyType& key) noexcept {
+        
+        StateTable::resetStateFor(dependent, dependentState, getKeyIndex(key));
+    }
+
+    template<typename SoundNodeType, typename SoundStateType, typename KeyType>
+    inline void Divergent<SoundNodeType, SoundStateType, KeyType>::addKey(const KeyType& key){
         assert(!hasKey(key));
         auto lock = this->acquireLock();
         m_keys.push_back(key);
@@ -104,18 +113,25 @@ namespace flo {
     }
 
     template<typename SoundNodeType, typename SoundStateType, typename KeyType>
-    bool Divergent<SoundNodeType, SoundStateType, KeyType>::hasKey(const KeyType& key) const noexcept {
+    inline bool Divergent<SoundNodeType, SoundStateType, KeyType>::hasKey(const KeyType& key) const noexcept {
         return std::find(m_keys.begin(), m_keys.end(), key) != m_keys.end();
     }
 
     template<typename SoundNodeType, typename SoundStateType, typename KeyType>
-    void Divergent<SoundNodeType, SoundStateType, KeyType>::removeKey(const KeyType& key){
+    inline void Divergent<SoundNodeType, SoundStateType, KeyType>::removeKey(const KeyType& key){
         auto lock = this->acquireLock();
         auto it = std::find(m_keys.begin(), m_keys.end(), key);
         assert(it != m_keys.end());
         auto idx = static_cast<size_t>(it - m_keys.begin());
         StateTable::eraseKeys(idx, idx + 1);
         m_keys.erase(it);
+    }
+
+    template<typename SoundNodeType, typename SoundStateType, typename KeyType>
+    inline const KeyType& Divergent<SoundNodeType, SoundStateType, KeyType>::getKey(std::size_t i) const noexcept {
+        assert(m_keys.size() == numKeys());
+        assert(i < m_keys.size());
+        return m_keys[i];
     }
     
     // Uncontrolled

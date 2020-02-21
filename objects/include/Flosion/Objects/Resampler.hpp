@@ -5,7 +5,7 @@
 
 namespace flo {
 
-    class ResamplerState : public flo::SoundState {
+    class ResamplerState : public SoundState {
     public:
         using SoundState::SoundState;
 
@@ -21,9 +21,9 @@ namespace flo {
     public:
         Resampler();
 
-        void renderNextChunk(flo::SoundChunk& chunk, ResamplerState* state) override;
+        void renderNextChunk(SoundChunk& chunk, ResamplerState* state) override;
 
-        double getTimeSpeed(const flo::SoundState* context) const noexcept;
+        double getTimeSpeed(const SoundState* context) const noexcept override;
 
         flo::SingleSoundInput input;
 

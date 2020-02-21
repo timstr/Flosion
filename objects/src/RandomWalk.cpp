@@ -19,7 +19,7 @@ namespace flo {
 
     }
 
-    double RandomWalk::evaluate(RandomWalkState* state, const flo::SoundState* context) const noexcept {
+    double RandomWalk::evaluate(RandomWalkState* state, const SoundState* context) const noexcept {
         const auto sp = speed.getValue(context);
         const auto d = damping.getValue(context);
         const auto b = bias.getValue(context);

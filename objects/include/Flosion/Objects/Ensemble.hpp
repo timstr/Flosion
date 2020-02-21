@@ -27,7 +27,7 @@ namespace flo {
         bool init {};
     };
 
-    class Ensemble : public flo::Realtime<flo::ControlledSoundSource<EnsembleState>> {
+    class Ensemble : public Realtime<ControlledSoundSource<EnsembleState>> {
     public:
         // TODO: allow this to be changed using number inputs
         static const size_t numVoices = 4;

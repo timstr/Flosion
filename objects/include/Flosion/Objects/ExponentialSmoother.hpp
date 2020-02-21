@@ -15,8 +15,8 @@ namespace flo {
     public:
         ExponentialSmoother();
 
-        flo::NumberSourceInput input;
-        flo::NumberSourceInput decayRate;
+        NumberSourceInput input;
+        NumberSourceInput decayRate;
 
     private:
         double evaluate(ExponentialSmootherState* state, const flo::SoundState* context) const noexcept override;

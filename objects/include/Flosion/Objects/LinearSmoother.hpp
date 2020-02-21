@@ -4,22 +4,22 @@
 
 namespace flo {
 
-    class LinearSmootherState : public flo::State {
+    class LinearSmootherState : public State {
     public:
         void reset() noexcept override;
 
         double value{};
     };
 
-    class LinearSmoother : public flo::BorrowingNumberSourceTemplate<LinearSmootherState> {
+    class LinearSmoother : public BorrowingNumberSourceTemplate<LinearSmootherState> {
     public:
         LinearSmoother();
 
-        flo::NumberSourceInput input;
-        flo::NumberSourceInput rate;
+        NumberSourceInput input;
+        NumberSourceInput rate;
 
     private:
-        double evaluate(LinearSmootherState* state, const flo::SoundState* context) const noexcept override;
+        double evaluate(LinearSmootherState* state, const SoundState* context) const noexcept override;
     };
 
 } // namespace flo

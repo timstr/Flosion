@@ -114,6 +114,11 @@ namespace flo {
         void resetStateFor(const SoundNode* dependent, const SoundState* dependentState) noexcept;
 
         /**
+         * Resets the states for the given dependent, its state, and the given key only.
+         */
+        void resetStateFor(const SoundNode* dependent, const SoundState* dependentState, size_t keyIndex) noexcept;
+
+        /**
          * Gets the index of a given main state.
          * The given state must belong to the state table.
          */

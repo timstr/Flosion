@@ -278,6 +278,20 @@ namespace flo {
         }
     }
 
+    void StateTable::resetStateFor(const SoundNode* dependent, const SoundState* dependentState, size_t keyIndex) noexcept {
+        assert(keyIndex < numKeys());
+        const auto stateIdx = dependent->getStateIndex(dependentState);
+
+        const auto baseSlot = getDependentOffset(dependent) + (stateIdx * numKeys());
+
+        const auto slotIdx = baseSlot + keyIndex;
+        const auto slotAddr = m_data + (m_slotSize * slotIdx);
+        resetSlot(slotAddr);
+        for (const auto& d : m_owner->getDirectDependencies()){
+            d->resetStateFor(m_owner, reinterpret_cast<const SoundState*>(slotAddr));
+        }
+    }
+
     size_t StateTable::getStateIndex(const SoundState* ownState) const noexcept {
         assert(ownState->getOwner() == this);
         assert(hasState(ownState));

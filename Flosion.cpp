@@ -1,5 +1,12 @@
 #include <Flosion/UI/Core/FlosionUI.hpp>
 
+// TODO: review GUI things where elements are moved between containers
+// (such when borrowers are attached to soundsources) and make use of
+// new UI guarantees about event listeners remaining attached
+
+// TODO: remove "std::" where it is not needed thanks to ADL, such as in
+// `find(begin(myVector), end(myVector), x)` where myVector is a std::vector
+
 // TODO: remove empty/unused files
 
 // TODO: actually use flo::Network
@@ -61,14 +68,47 @@
 // TODO: sample-wise function
 // TODO: 
 
+#include <Flosion/Objects/Melody.hpp>
+#include <Flosion/Objects/DAC.hpp>
+#include <Flosion/Objects/WaveGenerator.hpp>
+#include <Flosion/Objects/Functions.hpp>
+#include <Flosion/Objects/WaveForms.hpp>
 
 int main() {
 
-    auto& win = ui::Window::create(1000, 700, "Flosion");
+    auto mel = flo::Melody{};
+
+    const auto sfreq = flo::sampleFrequency;
+    mel.addNote(0, sfreq, 100.0);
+    mel.addNote(sfreq, sfreq, 125.0);
+    mel.addNote(sfreq * 2, sfreq * 2, 150.0);
+    mel.addNote(sfreq * 3, sfreq, 200.0);
+
+    auto wavegen = flo::WaveGenerator{};
+
+    auto saw = flo::SawWave{};
+
+    saw.input.setSource(&wavegen.phase);
+    wavegen.waveFunction.setSource(&saw);
+
+    mel.input.setSource(&wavegen);
+    wavegen.frequency.setSource(&mel.input.noteFrequency);
+
+    auto dac = flo::DAC{};
+
+    dac.soundResult.getInput().setSource(&mel);
+
+    dac.play();
+
+    std::this_thread::sleep_for(std::chrono::seconds{4});
+
+    dac.stop();
+
+    /*auto& win = ui::Window::create(1000, 700, "Flosion");
 
     win.setRoot<flui::FlosionUI>();
 
-    ui::run();
+    ui::run();*/
 
     return 0;
 }

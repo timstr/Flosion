@@ -64,6 +64,9 @@ namespace flo {
             friend class SoundNode;
         };
 
+        // Returns a lock guard which ensures that no sound processing (via any
+        // directly or indirectly connected SoundResults) will take place for
+        // the lifetime of the lock guard. To be used just like std::lock_guard
         [[nodiscard]]
         Lock acquireLock() noexcept;
 
@@ -91,7 +94,6 @@ namespace flo {
     // To create a concrete sound node, choose one from each of the following:
     // - Singular, Divergent, or Uncontrolled
     // - Realtime or OutOfSync
-    // - Bounded, Unbounded, or MaybeBounded
 
     // Implements a singular soundnode.
     template<typename SoundNodeType, typename SoundStateType>
@@ -132,11 +134,14 @@ namespace flo {
         SoundStateType* getState(size_t index) noexcept;
         const SoundStateType* getState(size_t index) const noexcept;
 
+        void resetStateFor(const SoundNode* dependent, const SoundState* dependentState, const KeyType& key) noexcept;
+
         using StateType = SoundStateType;
 
         void addKey(const KeyType&);
         bool hasKey(const KeyType&) const noexcept;
         void removeKey(const KeyType&);
+        const KeyType& getKey(std::size_t) const noexcept;
 
     private:
         bool isDivergent() const noexcept override final;
