@@ -113,8 +113,10 @@ namespace flo {
 
         void reset() noexcept override;
 
+        const MelodyNote* note() const noexcept;
+
     private:
-        MelodyNote* m_currentNote = nullptr;
+        const MelodyNote* m_currentNote = nullptr;
 
         friend class Melody;
     };
@@ -139,18 +141,32 @@ namespace flo {
         // has been exceeded in the Melody. Useful for things like
         // ADSR, reverberations, etc
 
+        bool looping() const noexcept;
+
+        void setLooping(bool);
+
         // The MultiSoundInput which is called upon for playing notes
         class Input : public MultiSoundInput<MelodyNoteState, std::size_t> {
         public:
-            Input(Melody* parent);
+            CurrentTime noteTime;
 
-            // TODO: NumberSource for note time
+            class NoteProgress : public SoundNumberSource<Input> {
+            public:
+                using SoundNumberSource::SoundNumberSource;
 
-            // TODO: NumberSource for note progress
+            private:
+                double evaluate(const MelodyNoteState*, const SoundState*) const noexcept override;
+            } noteProgress;
             
-            // TODO: NumberSource for note length?
+            class NoteLength : public SoundNumberSource<Input> {
+            public:
+                using SoundNumberSource::SoundNumberSource;
 
-            struct NoteFrequency : public SoundNumberSource<Input> {
+            private:
+                double evaluate(const MelodyNoteState*, const SoundState*) const noexcept override;
+            } noteLength;
+
+            class NoteFrequency : public SoundNumberSource<Input> {
             public:
                 using SoundNumberSource::SoundNumberSource;
 
@@ -159,7 +175,9 @@ namespace flo {
             } noteFrequency;
 
         private:
-            // TODO: ?
+            Input(Melody* parent);
+
+            friend class Melody;
         } input;
 
     private:
@@ -171,8 +189,7 @@ namespace flo {
 
         std::size_t m_length;
 
-        // TODO: enable looping. One-shot melodies for now.
-        // bool m_loopEnabled;
+        bool m_loopEnabled;
 
         // TODO: add limit to maximum overlap
         // It will be easy to change and expand, if the user wants to,

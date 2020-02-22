@@ -70,6 +70,7 @@
 
 #include <Flosion/Objects/Melody.hpp>
 #include <Flosion/Objects/DAC.hpp>
+#include <Flosion/Objects/Ensemble.hpp>
 #include <Flosion/Objects/WaveGenerator.hpp>
 #include <Flosion/Objects/Functions.hpp>
 #include <Flosion/Objects/WaveForms.hpp>
@@ -79,28 +80,42 @@ int main() {
     auto mel = flo::Melody{};
 
     const auto sfreq = flo::sampleFrequency;
-    mel.addNote(0, sfreq, 100.0);
-    mel.addNote(sfreq, sfreq, 125.0);
+    mel.addNote(0,         sfreq,     100.0);
+    mel.addNote(sfreq,     sfreq,     125.0);
     mel.addNote(sfreq * 2, sfreq * 2, 150.0);
-    mel.addNote(sfreq * 3, sfreq, 200.0);
+    mel.addNote(sfreq * 3, sfreq,     200.0);
 
     auto wavegen = flo::WaveGenerator{};
+    auto ens = flo::Ensemble{};
+    
+    ens.input.setSource(&wavegen);
+    mel.input.setSource(&ens);
 
-    auto saw = flo::SawWave{};
+    auto wave = flo::SquareWave{};
+    wave.input.setSource(&wavegen.phase);
+    wavegen.waveFunction.setSource(&wave);
 
-    saw.input.setSource(&wavegen.phase);
-    wavegen.waveFunction.setSource(&saw);
+    wavegen.frequency.setSource(&ens.input.frequencyOut);
 
-    mel.input.setSource(&wavegen);
-    wavegen.frequency.setSource(&mel.input.noteFrequency);
+    ens.frequencySpread.setDefaultValue(0.01);
+
+    //auto oneminus = flo::OneMinus{};
+    auto mul = flo::Multiply{};
+    //oneminus.input.setSource(&mel.input.noteProgress);
+    //mul.input1.setSource(&oneminus);
+    mul.input1.setSource(&mel.input.noteProgress);
+    mul.input2.setSource(&mel.input.noteFrequency);
+    ens.frequencyIn.setSource(&mul);
+
+    //wavegen.frequency.setSource(&mel.input.noteFrequency);
 
     auto dac = flo::DAC{};
 
     dac.soundResult.getInput().setSource(&mel);
 
     dac.play();
-
-    std::this_thread::sleep_for(std::chrono::seconds{4});
+    
+    std::this_thread::sleep_for(std::chrono::seconds{8});
 
     dac.stop();
 

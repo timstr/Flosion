@@ -124,9 +124,14 @@ namespace flo {
         m_currentNote = nullptr;
     }
 
+    const MelodyNote* MelodyNoteState::note() const noexcept {
+        return m_currentNote;
+    }
+
     Melody::Melody()
         : input(this)
-        , m_length(sampleFrequency * 4) {
+        , m_length(sampleFrequency * 4)
+        , m_loopEnabled(true) {
 
     }
 
@@ -162,6 +167,27 @@ namespace flo {
         auto it = find_if(begin(m_notes), end(m_notes), sameNote);
         assert(it != end(m_notes));
         m_notes.erase(it);
+    }
+
+    bool Melody::looping() const noexcept {
+        return m_loopEnabled;
+    }
+
+    void Melody::setLooping(bool l){
+        if (l == m_loopEnabled){
+            return;
+        }
+        auto lock = acquireLock();
+        m_loopEnabled = l;
+
+        // If looping was just disabled, adjust any states where the melody
+        // has played past the end to play to completion, then no more
+        if (!m_loopEnabled){
+            for (std::size_t i = 0, iEnd = StateTable::numSlots(); i != iEnd; ++i){
+                auto s = StateTable::getState<MelodyState>(i);
+                s->m_elapsedTime %= m_length;
+            }
+        }
     }
 
     void Melody::renderNextChunk(SoundChunk& chunk, MelodyState* state){
@@ -206,6 +232,7 @@ namespace flo {
                 }
 
                 // get the next chunk of the note
+                state->adjustTime(static_cast<std::uint32_t>(carryOver));
                 input.getNextChunkFor(notePlaying.buffer(), this, state, notePlaying.inputKey());
                 notePlaying.advance(SoundChunk::size);
 
@@ -216,7 +243,7 @@ namespace flo {
                     chunk[i + carryOver] += notePlaying.buffer()[i] * attenuation;
                 }
 
-                // if the note finishes this chunk, remove it from the queue
+                // if the note finishes this chunk, remove it fro'm the queue
                 if (notePlaying.remainingTime() <= SoundChunk::size - carryOver){
                     state->removeNoteInProgress(&notePlaying);
                     noteState->m_currentNote = nullptr;
@@ -227,22 +254,35 @@ namespace flo {
 
         // For every note that will start this chunk...
         for (auto& note : m_notes){
+            const auto melodyTime = m_loopEnabled ? (state->m_elapsedTime % m_length) : state->m_elapsedTime;
+            const auto loopAround = m_loopEnabled && (melodyTime + SoundChunk::size > m_length);
             const bool startsNow =
-                note->startTime() >= state->m_elapsedTime &&
-                note->startTime() < state->m_elapsedTime + SoundChunk::size;
+                (
+                    // Usual case: the note starts after this chunk and before the next chunk
+                    note->startTime() >= melodyTime &&
+                    note->startTime() < std::min(melodyTime + SoundChunk::size, m_length)
+                ) || (
+                    // Corner case: the note starts during loop-around
+                    loopAround && (note->startTime() < (m_length - melodyTime))
+                );
             if (startsNow){
                 // Make a new spot in the queue
                 auto notePlaying = state->addNoteInProgress(note.get());
+                
+                // Start sample within the current chunk
+                // Also the number of samples from note's chunk that will be played next time
+                const auto carryOver = loopAround ?
+                    note->startTime() + SoundChunk::size - (melodyTime % SoundChunk::size) :
+                    note->startTime() - melodyTime;
+                assert(carryOver <= SoundChunk::size);
 
                 // get the first chunk of the note
                 assert(notePlaying->remainingTime() > 0);
                 input.resetStateFor(this, state, notePlaying->inputKey());
                 auto noteState = input.getState(this, state, notePlaying->inputKey());
                 noteState->m_currentNote = note.get();
+                state->adjustTime(static_cast<std::uint32_t>(carryOver));
                 input.getNextChunkFor(notePlaying->buffer(), this, state, notePlaying->inputKey());
-
-                // Number of samples from note's chunk that will be played next time
-                const auto carryOver = note->startTime() - state->m_elapsedTime;
 
                 // play the note until the end of this chunk, or until
                 // the end of the note, whichever comes first
@@ -297,13 +337,16 @@ namespace flo {
 
     Melody::Input::Input(Melody* parent)
         : MultiSoundInput(parent)
+        , noteTime(this)
+        , noteProgress(this)
+        , noteLength(this)
         , noteFrequency(this) {
 
     }
 
     double Melody::Input::NoteFrequency::evaluate(const MelodyNoteState* state, const SoundState*) const noexcept {
-        assert(state->m_currentNote);
-        return state->m_currentNote->frequency();
+        assert(state->note());
+        return state->note()->frequency();
     }
 
     const MelodyNote* MelodyState::NoteInProgress::note() const noexcept {
@@ -337,6 +380,16 @@ namespace flo {
         , m_inputKey(inputKey)
         , m_elapsedTime(0) {
 
+    }
+
+    double Melody::Input::NoteProgress::evaluate(const MelodyNoteState* state, const SoundState* context) const noexcept {
+        const auto time = context->getElapsedTimeAt(getOwner());
+        const auto length = static_cast<double>(state->note()->length()) / static_cast<double>(sampleFrequency);
+        return time / length;
+    }
+
+    double Melody::Input::NoteLength::evaluate(const MelodyNoteState* state, const SoundState*) const noexcept {
+        return static_cast<double>(state->note()->length()) / static_cast<double>(sampleFrequency);
     }
 
 } // namespace flo
