@@ -264,6 +264,16 @@ namespace flo {
         return getState(idx);
     }
 
+    void StateTable::resetState(SoundState* ownState){
+        assert(hasState(ownState));
+        const auto slotIdx = getStateIndex(ownState);
+        const auto slotAddr = m_data + (m_slotSize * slotIdx);
+        resetSlot(slotAddr);
+        for (const auto& d : m_owner->getDirectDependencies()){
+            d->resetStateFor(m_owner, ownState);
+        }
+    }
+
     void StateTable::resetStateFor(const SoundNode* dependent, const SoundState* dependentState) noexcept {
         const auto stateIdx = dependent->getStateIndex(dependentState);
 
@@ -271,9 +281,10 @@ namespace flo {
         for (size_t j = 0; j < numKeys(); ++j){
             const auto slotIdx = baseSlot + j;
             const auto slotAddr = m_data + (m_slotSize * slotIdx);
+            const auto slotState = reinterpret_cast<const SoundState*>(slotAddr);
             resetSlot(slotAddr);
             for (const auto& d : m_owner->getDirectDependencies()){
-                d->resetStateFor(m_owner, reinterpret_cast<const SoundState*>(slotAddr));
+                d->resetStateFor(m_owner, slotState);
             }
         }
     }
@@ -286,9 +297,10 @@ namespace flo {
 
         const auto slotIdx = baseSlot + keyIndex;
         const auto slotAddr = m_data + (m_slotSize * slotIdx);
+        const auto slotState = reinterpret_cast<const SoundState*>(slotAddr);
         resetSlot(slotAddr);
         for (const auto& d : m_owner->getDirectDependencies()){
-            d->resetStateFor(m_owner, reinterpret_cast<const SoundState*>(slotAddr));
+            d->resetStateFor(m_owner, slotState);
         }
     }
 

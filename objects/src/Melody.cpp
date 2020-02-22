@@ -105,13 +105,13 @@ namespace flo {
     }
 
     void MelodyNote::setStartTime(std::size_t st) noexcept {
-        // TODO: see note in Melody.hpp
+        auto l = m_parentMelody->acquireLock();
         m_startTime = st;
         m_parentMelody->updateQueueSize();
     }
 
     void MelodyNote::setLength(std::size_t l) noexcept {
-        // TODO: see note in Melody.hpp
+        auto lock = m_parentMelody->acquireLock();
         m_length = l;
         m_parentMelody->updateQueueSize();
     }
@@ -173,6 +173,10 @@ namespace flo {
         return m_loopEnabled;
     }
 
+    std::size_t Melody::length() const noexcept {
+        return m_length;
+    }
+
     void Melody::setLooping(bool l){
         if (l == m_loopEnabled){
             return;
@@ -188,6 +192,24 @@ namespace flo {
                 s->m_elapsedTime %= m_length;
             }
         }
+    }
+
+    void Melody::setLength(std::size_t l){
+        auto lock = acquireLock();
+        
+        // If looping is enabled and any states are playing past the end
+        // of the new length, reset them
+        if (l < m_length && m_loopEnabled){
+            for (std::streamsize i = 0, iEnd = StateTable::numSlots(); i != iEnd; ++i){
+                auto s = StateTable::getState<MelodyState>(i);
+                if (s->m_elapsedTime >= l){
+                    StateTable::resetState(s);
+                    assert(s->m_elapsedTime == 0);
+                }
+            }
+        }
+
+        m_length = l;
     }
 
     void Melody::renderNextChunk(SoundChunk& chunk, MelodyState* state){

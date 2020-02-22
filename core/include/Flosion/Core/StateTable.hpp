@@ -108,13 +108,20 @@ namespace flo {
         const SoundState* getMainState(const State* borrowedState) const noexcept;
 
         /**
+         * Resets a single state, and propagates the resetting to all dependencies
+         */
+        void resetState(SoundState* ownState);
+
+        /**
          * Resets the states stored for the given dependent and its state.
          * This includes states for each key and associated borrower states.
+         * The reset is propagated to all dependencies.
          */
         void resetStateFor(const SoundNode* dependent, const SoundState* dependentState) noexcept;
 
         /**
          * Resets the states for the given dependent, its state, and the given key only.
+         * The reset is propagated to all dependencies.
          */
         void resetStateFor(const SoundNode* dependent, const SoundState* dependentState, size_t keyIndex) noexcept;
 

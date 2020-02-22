@@ -3,6 +3,8 @@
 
 namespace flo {
 
+    // TODO: add a bunch of Signals for subscribing to any important sorts of changes
+
     class Melody;
     class MelodyNote;
 
@@ -76,10 +78,6 @@ namespace flo {
         std::size_t length() const noexcept;
         double frequency() const noexcept;
 
-        // TODO: changing the timing of a note changes how big of a queue
-        // the Melody object needs. This needs to be carefully controlled
-        // or accounted for during sound processing time.
-        // TODO: acquire lock to prevent race condition during sound processing
         void setStartTime(std::size_t) noexcept;
         void setLength(std::size_t) noexcept;
         void setFrequency(double) noexcept;
@@ -97,11 +95,21 @@ namespace flo {
         // The frequency of the note, in Hertz
         double m_frequency;
 
-        // TODO: variable frequency, as a function of time
+        // TODO: more general frequency options:
+        // - constant (currently the only option)
+        // - spline
+        //     - this should reuse the Spline object
+        //     - it would be nice if spline points could snap to points in time
+        //       as well as integer ratios of other frequencies in the same note
+        //       or in other notes. This could be done efficiently if Signals are
+        //       used to update values when their dependencies change
+        // - integer ratio of another note's frequency
 
-        // TODO: frequency as an integer ratio of another note's frequency
-
-        // TODO: custom per-note attributes
+        // TODO: custom per-note attributes, which may be one of the following:
+        // - constant
+        // - spline
+        // - point along the note in time?? (this would be useful for ADSR)
+        // - fraction of the note's length?? (this may be redundant but also convenient)
     };
 
 
@@ -128,22 +136,17 @@ namespace flo {
     public:
         Melody();
 
-        // TODO
-
         MelodyNote* addNote(std::size_t startTime, std::size_t length, double frequency);
         std::size_t numNotes() const noexcept;
         MelodyNote* getNote(std::size_t) noexcept;
         const MelodyNote* getNote(std::size_t) const noexcept;
         void removeNote(const MelodyNote*);
 
-        // TODO: maximum note release time, i.e. amount of time
-        // that notes are allowed to keep playing after their length
-        // has been exceeded in the Melody. Useful for things like
-        // ADSR, reverberations, etc
-
         bool looping() const noexcept;
+        std::size_t length() const noexcept;
 
         void setLooping(bool);
+        void setLength(std::size_t);
 
         // The MultiSoundInput which is called upon for playing notes
         class Input : public MultiSoundInput<MelodyNoteState, std::size_t> {
@@ -190,13 +193,6 @@ namespace flo {
         std::size_t m_length;
 
         bool m_loopEnabled;
-
-        // TODO: add limit to maximum overlap
-        // It will be easy to change and expand, if the user wants to,
-        // and will serve as more of a warning than a safety feature
-        // to check whether the user really wants that many notes
-        // playing at the same time.
-        // std::size_t m_overlapLimit;
 
         // computes the maximum number of notes that will
         // ever be playing at the same time

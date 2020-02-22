@@ -66,7 +66,14 @@
 // TODO: bezier spline
 // TODO: gaussian radial basis function
 // TODO: sample-wise function
-// TODO: 
+// TODO: ADSR (number object), takes the following inputs:
+//       - attack time (in seconds)
+//       - decay time (in seconds)
+//       - sustain level (unitless, in range [0, 1])
+//       - total elapsed time until end of release (i.e when in time the 'note' is released, in seconds)
+//       - release time
+//       output is a single value in the range of [0, 1]. This can be used to control an amplifier,
+//       filter, note qualities, etc.
 
 #include <Flosion/Objects/Melody.hpp>
 #include <Flosion/Objects/DAC.hpp>
@@ -78,7 +85,7 @@
 int main() {
 
     auto mel = flo::Melody{};
-
+    
     const auto sfreq = flo::sampleFrequency;
     mel.addNote(0,         sfreq,     100.0);
     mel.addNote(sfreq,     sfreq,     125.0);
@@ -115,6 +122,8 @@ int main() {
 
     dac.play();
     
+    std::this_thread::sleep_for(std::chrono::seconds{9});
+    mel.setLength(2 * flo::sampleFrequency);
     std::this_thread::sleep_for(std::chrono::seconds{8});
 
     dac.stop();
