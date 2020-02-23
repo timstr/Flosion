@@ -225,52 +225,56 @@ namespace flo {
         const auto attenuation = 1.0f / static_cast<float>(input.numKeys());
 
         // For every note that is already playing...
-        for (auto& maybeNotePlaying: state->m_notesInProgress){
-            if (maybeNotePlaying.has_value()){
-                auto& notePlaying = *maybeNotePlaying;
+        for (auto& maybeNotePlaying : state->m_notesInProgress){
+            if (!maybeNotePlaying.has_value()){
+                continue;
+            }
 
-                auto noteState = input.getState(this, state, notePlaying.inputKey());
+            auto& notePlaying = *maybeNotePlaying;
 
-                assert(noteState->m_currentNote);
-                assert(count_if(
-                    begin(m_notes),
-                    end(m_notes),
-                    [&](const std::unique_ptr<MelodyNote>& mnp){ return mnp.get() == noteState->m_currentNote; }
-                ) == 1);
+            auto noteState = input.getState(this, state, notePlaying.inputKey());
 
-                const auto carryOver = notePlaying.elapsedTime() % SoundChunk::size;
+            assert(noteState->m_currentNote);
+            assert(count_if(
+                begin(m_notes),
+                end(m_notes),
+                [&](const std::unique_ptr<MelodyNote>& mnp){ return mnp.get() == noteState->m_currentNote; }
+            ) == 1);
 
-                // play the end of the note's last chunk, either fully
-                // or up to its end. Remove the note if it's done now
-                // and skip the rest of this loop iteration
-                const auto endLength = std::min(carryOver, notePlaying.remainingTime());
-                for (std::size_t i = 0; i < endLength; ++i){
-                    chunk[i] += notePlaying.buffer()[i + SoundChunk::size - carryOver] * attenuation;
-                }
-                if (notePlaying.remainingTime() <= carryOver){
-                    state->removeNoteInProgress(&notePlaying);
-                    noteState->m_currentNote = nullptr;
-                    continue;
-                }
+            const auto carryOver = (SoundChunk::size - (notePlaying.elapsedTime() % SoundChunk::size)) % SoundChunk::size;
 
-                // get the next chunk of the note
-                state->adjustTime(static_cast<std::uint32_t>(carryOver));
-                input.getNextChunkFor(notePlaying.buffer(), this, state, notePlaying.inputKey());
-                notePlaying.advance(SoundChunk::size);
+            // play the end of the note's last chunk, either fully
+            // or up to its end. Remove the note if it's done now
+            // and skip the rest of this loop iteration
+            const auto endLength = std::min(carryOver, notePlaying.remainingTime());
+            for (std::size_t i = 0; i < endLength; ++i){
+                chunk[i] += notePlaying.buffer()[i + SoundChunk::size - carryOver] * attenuation;
+            }
+            notePlaying.advance(endLength);
+            if (notePlaying.remainingTime() == 0){
+                state->removeNoteInProgress(&notePlaying);
+                noteState->m_currentNote = nullptr;
+                continue;
+            }
 
-                // play the note until the end of the chunk, or until the
-                // end of the note
-                const auto beginLength = std::min(SoundChunk::size - carryOver, notePlaying.remainingTime());
-                for (std::size_t i = 0; i < beginLength; ++i){
-                    chunk[i + carryOver] += notePlaying.buffer()[i] * attenuation;
-                }
+            // get the next chunk of the note
+            const auto noteTimeOffset = carryOver;
+            state->adjustTime(static_cast<std::uint32_t>(noteTimeOffset));
+            input.getNextChunkFor(notePlaying.buffer(), this, state, notePlaying.inputKey());
 
-                // if the note finishes this chunk, remove it fro'm the queue
-                if (notePlaying.remainingTime() <= SoundChunk::size - carryOver){
-                    state->removeNoteInProgress(&notePlaying);
-                    noteState->m_currentNote = nullptr;
-                    continue;
-                }
+            // play the note until the end of the chunk, or until the
+            // end of the note
+            const auto beginLength = std::min(SoundChunk::size - carryOver, notePlaying.remainingTime());
+            for (std::size_t i = 0; i < beginLength; ++i){
+                chunk[i + carryOver] += notePlaying.buffer()[i] * attenuation;
+            }
+            notePlaying.advance(beginLength);
+
+            // if the note finishes this chunk, remove it from the queue
+            if (notePlaying.remainingTime() == 0){
+                state->removeNoteInProgress(&notePlaying);
+                noteState->m_currentNote = nullptr;
+                continue;
             }
         }
 
@@ -313,8 +317,11 @@ namespace flo {
                     chunk[i + carryOver] += notePlaying->buffer()[i] * attenuation;
                 }
 
+                assert(notePlaying->elapsedTime() == 0);
+                notePlaying->advance(beginLength);
+
                 // Take the note off the queue if it finished already
-                if (note->length() < SoundChunk::size - carryOver){
+                if (notePlaying->remainingTime() == 0){
                     state->removeNoteInProgress(notePlaying);
                     noteState->m_currentNote = nullptr;
                     continue;

@@ -4,6 +4,7 @@ set(include_path "include/Flosion/UI/Objects")
 
 set(flosion_ui_objects_headers
     ${include_path}/Accumulator.hpp
+    ${include_path}/ADSR.hpp
     ${include_path}/AudioClip.hpp
     ${include_path}/DAC.hpp
     ${include_path}/Ensemble.hpp
@@ -39,6 +40,7 @@ set(flosion_ui_objects_headers
 
 set(flosion_ui_objects_srcs
     src/Accumulator.cpp
+    src/ADSR.cpp
     src/AudioClip.cpp
     src/DAC.cpp
     src/Ensemble.cpp

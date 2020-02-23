@@ -67,11 +67,12 @@
 // TODO: gaussian radial basis function
 // TODO: sample-wise function
 // TODO: ADSR (number object), takes the following inputs:
-//       - attack time (in seconds)
-//       - decay time (in seconds)
+//       - current time (in seconds)
+//       - attack length (in seconds)
+//       - decay length (in seconds)
 //       - sustain level (unitless, in range [0, 1])
-//       - total elapsed time until end of release (i.e when in time the 'note' is released, in seconds)
-//       - release time
+//       - sustain time (not length, i.e when in time the 'note' is released, in seconds)
+//       - release length (in seconds)
 //       output is a single value in the range of [0, 1]. This can be used to control an amplifier,
 //       filter, note qualities, etc.
 
@@ -81,6 +82,8 @@
 #include <Flosion/Objects/WaveGenerator.hpp>
 #include <Flosion/Objects/Functions.hpp>
 #include <Flosion/Objects/WaveForms.hpp>
+#include <Flosion/Objects/ADSR.hpp>
+#include <Flosion/Objects/Lowpass.hpp>
 
 int main() {
 
@@ -94,11 +97,13 @@ int main() {
 
     auto wavegen = flo::WaveGenerator{};
     auto ens = flo::Ensemble{};
+    auto lowpass = flo::Lowpass{};
     
     ens.input.setSource(&wavegen);
-    mel.input.setSource(&ens);
+    lowpass.input.setSource(&ens);
+    mel.input.setSource(&lowpass);
 
-    auto wave = flo::SquareWave{};
+    auto wave = flo::SawWave{};
     wave.input.setSource(&wavegen.phase);
     wavegen.waveFunction.setSource(&wave);
 
@@ -106,15 +111,31 @@ int main() {
 
     ens.frequencySpread.setDefaultValue(0.01);
 
-    //auto oneminus = flo::OneMinus{};
-    auto mul = flo::Multiply{};
-    //oneminus.input.setSource(&mel.input.noteProgress);
-    //mul.input1.setSource(&oneminus);
-    mul.input1.setSource(&mel.input.noteProgress);
-    mul.input2.setSource(&mel.input.noteFrequency);
-    ens.frequencyIn.setSource(&mul);
+    // auto oneminus = flo::OneMinus{};
+    // auto mul = flo::Multiply{};
+    // oneminus.input.setSource(&mel.input.noteProgress);
+    // mul.input1.setSource(&oneminus);
+    // mul.input1.setSource(&mel.input.noteProgress);
+    // mul.input2.setSource(&mel.input.noteFrequency);
+    // ens.frequencyIn.setSource(&mul);
 
-    //wavegen.frequency.setSource(&mel.input.noteFrequency);
+    ens.frequencyIn.setSource(&mel.input.noteFrequency);
+
+    auto adsr = flo::ADSR{};
+
+    adsr.currentTime.setSource(&mel.input.noteTime);
+    adsr.totalDuration.setSource(&mel.input.noteLength);
+    adsr.attackDuration.setDefaultValue(0.2);
+    adsr.decayDuration.setDefaultValue(0.2);
+    adsr.sustainLevel.setDefaultValue(0.1);
+    adsr.timeOfRelease.setDefaultValue(0.8);
+
+    auto mul = flo::Multiply{};
+    
+    mul.input1.setSource(&adsr);
+    mul.input2.setDefaultValue(2000.0);
+
+    lowpass.cutoff.setSource(&mul);
 
     auto dac = flo::DAC{};
 
@@ -122,9 +143,7 @@ int main() {
 
     dac.play();
     
-    std::this_thread::sleep_for(std::chrono::seconds{9});
-    mel.setLength(2 * flo::sampleFrequency);
-    std::this_thread::sleep_for(std::chrono::seconds{8});
+    std::this_thread::sleep_for(std::chrono::seconds{16});
 
     dac.stop();
 

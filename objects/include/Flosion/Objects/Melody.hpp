@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Flosion/Core/SoundSourceTemplate.hpp>
 #include <Flosion/Core/MultiSoundInput.hpp>
 
@@ -108,7 +110,8 @@ namespace flo {
         // TODO: custom per-note attributes, which may be one of the following:
         // - constant
         // - spline
-        // - point along the note in time?? (this would be useful for ADSR)
+        // - point along the note in time?? (this would be useful for ADSR, i.e. sustain
+        // time equals custom time point, release time equals note length minus custom time point)
         // - fraction of the note's length?? (this may be redundant but also convenient)
     };
 

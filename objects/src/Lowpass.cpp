@@ -8,7 +8,7 @@ namespace flo {
 
     Lowpass::Lowpass()
         : input(this)
-        , cutoff(this, 0.5) {
+        , cutoff(this, 20000.0) {
 
     }
 
