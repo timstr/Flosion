@@ -4,8 +4,24 @@
 // (such when borrowers are attached to soundsources) and make use of
 // new UI guarantees about event listeners remaining attached
 
+// TODO: serialization
+
 // TODO: remove "std::" where it is not needed thanks to ADL, such as in
 // `find(begin(myVector), end(myVector), x)` where myVector is a std::vector
+
+// TODO: store all NumberSources and SoundSources in shared_ptrs, and use
+// shared_ptr or weak_ptr instead of raw pointers wherever it makes sense
+// in the core interfaces.
+// Would it make sense for all UI objects to be constructible from a shared_ptr
+// to the object they interface with?
+
+// TODO: TrackList object (like DAW track list) (with incorporated mixer?)
+
+// TODO: Sequencer (for generating precisely-timed beats and things)
+// - cyclical, with custom cycle length
+// - multiple sound inputs
+// - per-sound and per-input attributes
+// - optional timing cues (like 1/4 cycle, 1/8 cycle, inner repetition? i.e. 1/2-length sequence repeated twice)
 
 // TODO: remove empty/unused files
 
@@ -26,7 +42,6 @@
 
 // TODO: allow default value of NumberInput to be edited via NumberInputPeg
 // TODO: add posRelativeTo(const Element* ancestor) to ui and use it
-// TODO: serialization/deserialization for objects and wires
 // TODO: cut/copy/paste
 // TODO: load/save project files (.flo extension???)
 // TODO: Collapsible panels
@@ -65,7 +80,7 @@
 // TODO: cubic spline
 // TODO: bezier spline
 // TODO: gaussian radial basis function
-// TODO: sample-wise function
+// TODO: sample-wise function (this should be called WaveShaper)
 // TODO: ADSR (number object), takes the following inputs:
 //       - current time (in seconds)
 //       - attack length (in seconds)
@@ -109,7 +124,7 @@ int main() {
 
     wavegen.frequency.setSource(&ens.input.frequencyOut);
 
-    ens.frequencySpread.setDefaultValue(0.01);
+    ens.frequencySpread.setDefaultValue(0.005);
 
     // auto oneminus = flo::OneMinus{};
     // auto mul = flo::Multiply{};

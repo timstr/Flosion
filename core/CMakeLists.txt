@@ -10,6 +10,7 @@ set(flosion_core_headers
 	${include_path}/MultiSoundInput.tpp
 	${include_path}/Network.hpp
 	${include_path}/NodeBase.hpp
+	${include_path}/NodeBase.tpp
 	${include_path}/NumberNode.hpp
 	${include_path}/NumberResult.hpp
 	${include_path}/NumberSource.hpp
@@ -33,6 +34,7 @@ set(flosion_core_headers
 	${include_path}/State.hpp
 	${include_path}/StateAllocator.hpp
 	${include_path}/StateTable.hpp
+	${include_path}/StateTable.tpp
 	${include_path}/StateBorrower.hpp
 )
 
