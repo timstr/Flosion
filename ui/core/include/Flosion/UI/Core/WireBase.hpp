@@ -296,15 +296,18 @@ namespace flui {
     inline bool InputPeg<Traits>::onLeftClick(int){
         if (m_wireIn){
             auto h = m_wireIn->getHead();
-            h->disconnectAndDrag();
             transferEventResposeTo(h);
-        } else {
-            auto w = getParentObject()->getParentPanel()->addWire(nullptr, m_input);
-            assert(w->getHeadPeg() == this);
-            assert(w->getTailPeg() == nullptr);
-            w->getTail()->disconnectAndDrag();
-            transferEventResposeTo(w->getTail());
+            // NOTE: signals may cause the peg to be destroyed, so this is done last
+            h->disconnectAndDrag();
+            return true;
         }
+
+        auto w = getParentObject()->getParentPanel()->addWire(nullptr, m_input);
+        assert(w->getHeadPeg() == this);
+        assert(w->getTailPeg() == nullptr);
+        transferEventResposeTo(w->getTail());
+        // NOTE: signals may cause the peg to be destroyed, so this is done last
+        w->getTail()->disconnectAndDrag();
         return true;
     }
 
@@ -392,20 +395,23 @@ namespace flui {
     template<typename Traits>
     inline bool OutputPeg<Traits>::onLeftClick(int){
         bool shift = keyDown(ui::Key::LShift) || keyDown(ui::Key::RShift);
-        if (shift && m_wiresOut.size() > 0){
+        if (shift && m_wiresOut.size() > 0) {
             auto w = m_wiresOut.back();
             assert(w->getHeadPeg());
             assert(w->getHeadPeg()->getInput());
             assert(w->getHeadPeg()->getInput()->getSource() == m_output);
-            w->getTail()->disconnectAndDrag();
             transferEventResposeTo(w->getTail());
-        } else {
-            auto w = getParentObject()->getParentPanel()->addWire(m_output, nullptr);
-            assert(w->getTailPeg() == this);
-            assert(w->getHeadPeg() == nullptr);
-            w->getHead()->disconnectAndDrag();
-            transferEventResposeTo(w->getHead());
+            // NOTE: signals may cause the peg to be destroyed, so this is done last
+            w->getTail()->disconnectAndDrag();
+            return true;
         }
+
+        auto w = getParentObject()->getParentPanel()->addWire(m_output, nullptr);
+        assert(w->getTailPeg() == this);
+        assert(w->getHeadPeg() == nullptr);
+        transferEventResposeTo(w->getHead());
+        // NOTE: signals may cause the peg to be destroyed, so this is done last
+        w->getHead()->disconnectAndDrag();
         return true;
     }
 

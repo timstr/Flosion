@@ -17,10 +17,8 @@ namespace flui {
             auto p = pp.get();
             addToInflow(std::move(pp));
 
-            auto conn = p->onWireRemoved.connect([this, p](const SoundWire* w) {
-                assert(w->getHeadPeg() == p);
+            auto conn = p->onWireRemoved.connect([this, p](const SoundWire*) {
                 m_mixer.removeInput(p->getInput());
-                // NOTE: input and peg should be removed now
             });
 
             assert(m_inputConnections.find(p) == end(m_inputConnections));
@@ -31,7 +29,7 @@ namespace flui {
             assert(input);
             auto p = getParentPanel()->findPegFor(input);
             assert(p);
-            assert(p->hasAncestor(this));
+            assert(hasDescendent(p));
             auto it = m_inputConnections.find(p);
             assert(it != end(m_inputConnections));
             m_inputConnections.erase(it);
@@ -54,7 +52,7 @@ namespace flui {
             }
             auto p = getParentPanel()->findPegFor(i);
             assert(p);
-            assert(p->hasAncestor(this));
+            assert(hasDescendent(p));
             w->attachHeadTo(p);
             return true;
         }
@@ -81,7 +79,7 @@ namespace flui {
             auto input = m_mixer.addInput();
             auto p = getParentPanel()->findPegFor(input);
             assert(p);
-            assert(p->hasAncestor(this));
+            assert(hasDescendent(p));
             d.addPeg(p);
         }
     }

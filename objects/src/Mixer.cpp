@@ -28,6 +28,7 @@ namespace flo {
     }
 
     SingleSoundInput* Mixer::addInput(){
+        auto lock = acquireLock();
         m_inputs.push_back(std::make_unique<flo::SingleSoundInput>(this));
         auto ret = m_inputs.back().get();
         onInputAdded.broadcast(ret);
@@ -35,6 +36,7 @@ namespace flo {
     }
 
     void Mixer::removeInput(const SoundInput* si){
+        auto lock = acquireLock();
         auto it = std::find_if(
             m_inputs.begin(),
             m_inputs.end(),
