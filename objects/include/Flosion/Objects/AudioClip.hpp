@@ -19,6 +19,9 @@ namespace flo {
     public:
         void loadFromFile(const std::string& path);
 
+        sf::SoundBuffer& getSoundBuffer() noexcept;
+        const sf::SoundBuffer& getSoundBuffer() const noexcept;
+
     private:
         void renderNextChunk(SoundChunk& chunk, AudioClipState* state) override;
 

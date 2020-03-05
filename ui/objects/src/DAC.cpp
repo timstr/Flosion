@@ -44,6 +44,15 @@ namespace flui {
         bod->setBackgroundColor(0x22BB22FF);
         setBody(std::move(bod));
     }
+
+    void DAC::serialize(Serializer& s) const {
+        serializePegs(s);
+    }
+
+    void DAC::deserialize(Deserializer& d){
+        deserializePegs(d);
+    }
+
     RegisterFactoryObject(DAC, "DAC");
 
 } // namespace flui

@@ -54,7 +54,11 @@ namespace flui {
         assert(m_soundOutputs.size() == 0);
     }
 
-    Panel* Object::getParentPanel(){
+    Panel* Object::getParentPanel() noexcept {
+        return m_parentPanel;
+    }
+
+    const Panel* Object::getParentPanel() const noexcept {
         return m_parentPanel;
     }
 
@@ -116,6 +120,30 @@ namespace flui {
 
     const std::vector<SoundOutputPeg*>& Object::getSoundOutputPegs(){
         return m_soundOutputs;
+    }
+
+    void Object::serializePegs(Serializer& s) const {
+        const auto serializeAll = [&](const auto& v) {
+            for (const auto& p : v) {
+                s.addPeg(p);
+            }
+        };
+        serializeAll(m_soundInputs);
+        serializeAll(m_soundOutputs);
+        serializeAll(m_numberInputs);
+        serializeAll(m_numberOutputs);
+    }
+
+    void Object::deserializePegs(Deserializer& d) {
+        const auto deserializeAll = [&](const auto& v) {
+            for (auto& p : v) {
+                d.addPeg(p);
+            }
+        };
+        deserializeAll(m_soundInputs);
+        deserializeAll(m_soundOutputs);
+        deserializeAll(m_numberInputs);
+        deserializeAll(m_numberOutputs);
     }
 
     Object::FlowDirection Object::getNewFlowDirection(FlowDirection desired) const {

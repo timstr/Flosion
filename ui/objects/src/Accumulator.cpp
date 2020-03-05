@@ -13,6 +13,7 @@ namespace flui {
         setBody(makeSimpleBody("Accumulator", 0xd9d514ff));
     }
 
-    RegisterFactoryObject(Accumulator, "Accumulator");
+    // TODO
+    // RegisterFactoryObject(Accumulator, "Accumulator");
 
 } // namespace flui

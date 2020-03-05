@@ -14,6 +14,7 @@ namespace flui {
         setBody(makeSimpleBody("FlipFlop", 0xd9d514ff));
     }
 
-    RegisterFactoryObject(FlipFlop, "FlipFlop");
+    // TODO
+    //RegisterFactoryObject(FlipFlop, "FlipFlop");
 
 } // namespace flui

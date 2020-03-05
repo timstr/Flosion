@@ -14,6 +14,15 @@ namespace flui {
 
         setBody(makeSimpleBody("Sine Wave", 0x402060FF));
     }
+
+    void SineWave::serialize(Serializer& s) const {
+        serializePegs(s);
+    }
+
+    void SineWave::deserialize(Deserializer& d) {
+        deserializePegs(d);
+    }
+
     RegisterFactoryObject(SineWave, "Sine Wave", "Unit Sine");
 
     SawWave::SawWave(){
@@ -22,6 +31,15 @@ namespace flui {
 
         setBody(makeSimpleBody("Saw Wave", 0x402060FF));
     }
+
+    void SawWave::serialize(Serializer& s) const {
+        serializePegs(s);
+    }
+
+    void SawWave::deserialize(Deserializer& d) {
+        deserializePegs(d);
+    }
+
     RegisterFactoryObject(SawWave, "Saw Wave");
 
     SquareWave::SquareWave(){
@@ -30,6 +48,15 @@ namespace flui {
 
         setBody(makeSimpleBody("Square Wave", 0x402060FF));
     }
+
+    void SquareWave::serialize(Serializer& s) const {
+        serializePegs(s);
+    }
+
+    void SquareWave::deserialize(Deserializer& d) {
+        deserializePegs(d);
+    }
+
     RegisterFactoryObject(SquareWave, "Square Wave");
 
     TriangleWave::TriangleWave(){
@@ -38,6 +65,15 @@ namespace flui {
 
         setBody(makeSimpleBody("Triangle Wave", 0x402060FF));
     }
+
+    void TriangleWave::serialize(Serializer& s) const {
+        serializePegs(s);
+    }
+
+    void TriangleWave::deserialize(Deserializer& d) {
+        deserializePegs(d);
+    }
+
     RegisterFactoryObject(TriangleWave, "Triangle Wave");
 
 } // namespace flui

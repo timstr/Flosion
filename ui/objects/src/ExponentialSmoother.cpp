@@ -14,6 +14,7 @@ namespace flui {
         setBody(makeSimpleBody("Exponential Smoother", 0xd9d514ff));
     }
 
-    RegisterFactoryObject(ExponentialSmoother, "ExponentialSmoother");
+    // TODO
+    // RegisterFactoryObject(ExponentialSmoother, "ExponentialSmoother");
 
 } // namespace flui

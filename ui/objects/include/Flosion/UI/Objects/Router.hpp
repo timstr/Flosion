@@ -26,10 +26,18 @@ namespace flui {
         private:
             Router* const m_parentRouter;
             flo::SoundSource* const m_soundSource;
+
+            // TODO: this will also be interesting
+            void serialize(Serializer&) const override;
+            void deserialize(Deserializer&) override;
         };
 
         flo::Router m_router;
         std::vector<OutputBlock*> m_outputBlocks;
+
+        // TODO: this will be interesting
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
 } // namespace flui

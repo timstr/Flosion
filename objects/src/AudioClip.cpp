@@ -11,6 +11,14 @@ namespace flo {
         m_buffer.loadFromFile(path);
     }
 
+    sf::SoundBuffer& AudioClip::getSoundBuffer() noexcept {
+        return m_buffer;
+    }
+
+    const sf::SoundBuffer& AudioClip::getSoundBuffer() const noexcept {
+        return m_buffer;
+    }
+
     void AudioClip::renderNextChunk(SoundChunk& chunk, AudioClipState* state){
         if (m_buffer.getSamples() == 0){
             chunk.silence();

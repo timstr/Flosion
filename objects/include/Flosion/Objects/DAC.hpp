@@ -12,7 +12,7 @@ namespace flo {
 
     private:
         flo::SoundChunk m_chunk;
-        std::array<sf::Int16, 2 * flo::SoundChunk::size> m_buffer;
+        std::vector<sf::Int16> m_buffer;
 
         bool onGetData(sf::SoundStream::Chunk& out) override;
 

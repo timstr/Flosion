@@ -7,6 +7,8 @@
 
 namespace flui {
 
+    // TODO: remove
+
     /*
     NumberInputPeg::NumberInputPeg(Object* parent, flo::NumberInput* input, ui::String label)
         : m_parent(parent)

@@ -124,7 +124,7 @@ namespace flo {
         const auto oldSource = m_source;
         if (m_source){
 
-            auto& inputs = m_source->m_inputs;
+            auto& inputs = m_source->m_connectedInputs;
 
             assert(std::count(inputs.begin(), inputs.end(), self) == 1);
             auto it = std::find(inputs.begin(), inputs.end(), self);
@@ -137,7 +137,7 @@ namespace flo {
         if (m_source){
             this->addDependency(m_source);
             
-            auto& inputs = m_source->m_inputs;
+            auto& inputs = m_source->m_connectedInputs;
 
             assert(std::count(inputs.begin(), inputs.end(), self) == 0);
             inputs.push_back(self);
@@ -166,8 +166,8 @@ namespace flo {
 
     template<typename Traits>
     inline OutputNodeBase<Traits>::~OutputNodeBase(){
-        while (m_inputs.size() > 0){
-            auto i = m_inputs.back();
+        while (m_connectedInputs.size() > 0){
+            auto i = m_connectedInputs.back();
             assert(i->getSource() == static_cast<TraitsOutput<Traits>*>(this));
             i->setSource(nullptr);
         }
@@ -175,14 +175,14 @@ namespace flo {
     }
 
     template<typename Traits>
-    inline const std::vector<TraitsInput<Traits>*>& OutputNodeBase<Traits>::getInputs() const noexcept {
-        return m_inputs;
+    inline const std::vector<TraitsInput<Traits>*>& OutputNodeBase<Traits>::getConnectedInputs() const noexcept {
+        return m_connectedInputs;
     }
 
     template<typename Traits>
     inline void OutputNodeBase<Traits>::disconnectAllInputs(){
-        while (m_inputs.size() > 0){
-            m_inputs.back()->setSource(nullptr);
+        while (m_connectedInputs.size() > 0){
+            m_connectedInputs.back()->setSource(nullptr);
         }
     }
 

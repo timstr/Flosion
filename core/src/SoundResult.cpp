@@ -7,6 +7,8 @@ namespace flo {
     SoundResult::SoundResult()
         : m_input(this) {
 
+        // TODO: AAAAAAAAAAaaaaaa hack!
+        StateTable::enableMonostate();
     }
 
     void SoundResult::getNextChunk(SoundChunk& chunk){

@@ -13,6 +13,15 @@ namespace flui {
         addToOutflow(makePeg(&m_resampler));
         setBody(makeSimpleBody("Resampler", 0xd47b00ff));
     }
+
+    void Resampler::serialize(Serializer& s) const {
+        serializePegs(s);
+    }
+
+    void Resampler::deserialize(Deserializer& d) {
+        deserializePegs(d);
+    }
+
     RegisterFactoryObject(Resampler, "Resampler");
 
 } // namespace flui

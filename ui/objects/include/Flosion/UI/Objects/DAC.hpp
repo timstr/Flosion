@@ -11,6 +11,9 @@ namespace flui {
 
     private:
         flo::DAC m_dac;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
 } // namespace flui

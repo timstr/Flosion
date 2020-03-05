@@ -12,6 +12,9 @@ namespace flui {
 
         ui::Text* m_label;
         flo::AudioClip m_audioClip;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
 } // namespace flui

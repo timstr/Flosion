@@ -13,6 +13,15 @@ namespace flui {
         addToOutflow(makePeg(&m_lowpass));
         setBody(makeSimpleBody("Lowpass", 0x96471aFF));
     }
+
+    void Lowpass::serialize(Serializer& s) const {
+        serializePegs(s);
+    }
+
+    void Lowpass::deserialize(Deserializer& d) {
+        deserializePegs(d);
+    }
+
     RegisterFactoryObject(Lowpass, "Lowpass");
 
 } // namespace flui

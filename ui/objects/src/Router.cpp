@@ -93,6 +93,18 @@ namespace flui {
         }
     }
 
+    void Router::serialize(Serializer& s) const {
+        // TODO
+        assert(false);
+        throw SerializationException{};
+    }
+
+    void Router::deserialize(Deserializer& d) {
+        // TODO
+        assert(false);
+        throw SerializationException{};
+    }
+
 
     Router::OutputBlock::OutputBlock(Router* parentRouter, flo::SoundSource* ss)
         : SoundObject(ss)
@@ -129,6 +141,19 @@ namespace flui {
         addToOutflow(std::move(e));
     }
 
-    RegisterFactoryObject(Router, "Router");
+    void Router::OutputBlock::serialize(Serializer& s) const {
+        // TODO
+        assert(false);
+        throw SerializationException{};
+    }
+
+    void Router::OutputBlock::deserialize(Deserializer& d) {
+        // TODO
+        assert(false);
+        throw SerializationException{};
+    }
+
+    // TODO
+    // RegisterFactoryObject(Router, "Router");
 
 } // namespace flui

@@ -54,6 +54,7 @@ namespace flui {
         Peg(Object* parentObject, ui::String label);
 
         Object* getParentObject() noexcept;
+        const Object* getParentObject() const noexcept;
 
         void showLabel();
 
@@ -162,10 +163,14 @@ namespace flui {
         void destroy();
 
         HeadType* getHead() noexcept;
+        const HeadType* getHead() const noexcept;
         TailType* getTail() noexcept;
+        const TailType* getTail() const noexcept;
 
         InputPegType* getHeadPeg() noexcept;
+        const InputPegType* getHeadPeg() const noexcept;
         OutputPegType* getTailPeg() noexcept;
+        const OutputPegType* getTailPeg() const noexcept;
 
         bool canAttachHeadTo(const InputPegType*) const;
         void attachHeadTo(InputPegType*);
@@ -489,7 +494,17 @@ namespace flui {
     }
 
     template<typename Traits>
+    inline const typename Wire<Traits>::HeadType* Wire<Traits>::getHead() const noexcept {
+        return &m_head;
+    }
+
+    template<typename Traits>
     inline typename Wire<Traits>::TailType* Wire<Traits>::getTail() noexcept {
+        return &m_tail;
+    }
+
+    template<typename Traits>
+    inline const typename Wire<Traits>::TailType* Wire<Traits>::getTail() const noexcept {
         return &m_tail;
     }
 
@@ -499,7 +514,17 @@ namespace flui {
     }
 
     template<typename Traits>
+    inline const typename Wire<Traits>::InputPegType* Wire<Traits>::getHeadPeg() const noexcept {
+        return m_headPeg;
+    }
+
+    template<typename Traits>
     inline typename Wire<Traits>::OutputPegType* Wire<Traits>::getTailPeg() noexcept {
+        return m_tailPeg;
+    }
+
+    template<typename Traits>
+    inline const typename Wire<Traits>::OutputPegType* Wire<Traits>::getTailPeg() const noexcept {
         return m_tailPeg;
     }
 

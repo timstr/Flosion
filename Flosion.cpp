@@ -1,7 +1,19 @@
 #include <Flosion/UI/Core/FlosionUI.hpp>
 
+// TODO: 04/03/2020
+// - serialization (note: use typeid to go from instance -> id, and use existing factory macro to go from id -> instance)
+// - live input (microphone)
+// - looper/live mix thing (uncontrolled; use global keyboard commands to interact with)
+// - UI for live melody
+// - UI for melody?
+
+// TODO: live input
+// see https://www.sfml-dev.org/documentation/2.5.1/classsf_1_1SoundRecorder.php
+
+// TODO: hot swapping
+
 // TODO: review GUI things where elements are moved between containers
-// (such when borrowers are attached to soundsources) and make use of
+// (such as when borrowers are attached to soundsources) and make use of
 // new UI guarantees about event listeners remaining attached
 
 // TODO: serialization
@@ -100,20 +112,35 @@
 #include <Flosion/Objects/ADSR.hpp>
 #include <Flosion/Objects/Lowpass.hpp>
 
+#include <Flosion/Util/RNG.hpp>
+#include <Flosion/Objects/LiveMelody.hpp>
+
 int main() {
 
-    auto mel = flo::Melody{};
-    
+    auto& win = ui::Window::create(1000, 700, "Flosion");
+
+    win.setRoot<flui::FlosionUI>();
+
+    ui::run();
+
+    return 0;
+
+    /*
+    //auto mel = flo::Melody{};
+    auto mel = flo::LiveMelody{};
+
     const auto sfreq = flo::sampleFrequency;
-    mel.addNote(0,         sfreq,     100.0);
-    mel.addNote(sfreq,     sfreq,     125.0);
-    mel.addNote(sfreq * 2, sfreq * 2, 150.0);
-    mel.addNote(sfreq * 3, sfreq,     200.0);
+
+    //mel.addNote(0,         sfreq,     100.0 / 2.0);
+    //mel.addNote(sfreq,     sfreq,     125.0 / 2.0);
+    //mel.addNote(sfreq * 2, sfreq * 2, 150.0 / 2.0);
+    //mel.addNote(sfreq * 3, sfreq,     200.0 / 2.0);
+
 
     auto wavegen = flo::WaveGenerator{};
     auto ens = flo::Ensemble{};
     auto lowpass = flo::Lowpass{};
-    
+
     ens.input.setSource(&wavegen);
     lowpass.input.setSource(&ens);
     mel.input.setSource(&lowpass);
@@ -146,7 +173,7 @@ int main() {
     adsr.timeOfRelease.setDefaultValue(0.8);
 
     auto mul = flo::Multiply{};
-    
+
     mul.input1.setSource(&adsr);
     mul.input2.setDefaultValue(2000.0);
 
@@ -157,16 +184,30 @@ int main() {
     dac.soundResult.getInput().setSource(&mel);
 
     dac.play();
-    
-    std::this_thread::sleep_for(std::chrono::seconds{16});
+
+    std::set<flo::LiveMelodyNote*> notes;
+
+    auto dist = std::uniform_int_distribution{ 1, 10 };
+    auto& randEng = util::getRandomEngine();
+
+    for (int i = 0; i < 100; ++i) {
+        auto f = 40.0f * static_cast<float>(dist(randEng));
+        if (auto n = mel.startNote(f)) {
+            notes.insert(n);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds{ 100 * (i % 3) * (i % 4) });
+
+        auto prev_notes = notes;
+        for (const auto& n : prev_notes) {
+            if (dist(randEng) < 4) {
+                mel.stopNote(n);
+                notes.erase(n);
+            }
+        }
+    }
 
     dac.stop();
+    
+    return 0*/
 
-    /*auto& win = ui::Window::create(1000, 700, "Flosion");
-
-    win.setRoot<flui::FlosionUI>();
-
-    ui::run();*/
-
-    return 0;
 }

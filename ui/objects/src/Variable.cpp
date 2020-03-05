@@ -13,6 +13,7 @@ namespace flui {
         setBody(makeSimpleBody("Variable", 0xd9d514ff));
     }
 
-    RegisterFactoryObject(Variable, "Variable");
+    // TODO
+    // RegisterFactoryObject(Variable, "Variable");
 
 } // namespace flui

@@ -2,12 +2,42 @@
 #include <Flosion/UI/Core/ObjectFactory.hpp>
 #include <Flosion/UI/Core/SoundWire.hpp>
 
+#include <cassert>
+
 namespace flui {
 
     Mixer::Mixer()
         : SoundObject(&m_mixer) {
         addToOutflow(makePeg(&m_mixer));
         setBody(makeSimpleBody("Mixer", 0xa37546ff));
+
+        m_inputAddedConnection = m_mixer.onInputAdded.connect([this](flo::SingleSoundInput* input) {
+            assert(input);
+            auto pp = makePeg(input);
+            auto p = pp.get();
+            addToInflow(std::move(pp));
+
+            auto conn = p->onWireRemoved.connect([this, p](const SoundWire* w) {
+                assert(w->getHeadPeg() == p);
+                m_mixer.removeInput(p->getInput());
+                // NOTE: input and peg should be removed now
+            });
+
+            assert(m_inputConnections.find(p) == end(m_inputConnections));
+            m_inputConnections.try_emplace(p, std::move(conn));
+        });
+
+        m_inputRemovedConnection = m_mixer.onInputRemoved.connect([this](flo::SingleSoundInput* input) {
+            assert(input);
+            auto p = getParentPanel()->findPegFor(input);
+            assert(p);
+            assert(p->hasAncestor(this));
+            auto it = m_inputConnections.find(p);
+            assert(it != end(m_inputConnections));
+            m_inputConnections.erase(it);
+            p->close();
+            assert(getParentPanel()->findPegFor(input) == nullptr);
+        });
     }
 
     bool Mixer::onDrop(ui::Draggable* d){
@@ -19,25 +49,41 @@ namespace flui {
             auto i = m_mixer.addInput();
             if (!i->canAddDependency(o)){
                 m_mixer.removeInput(i);
+                // TODO: show some kind of visual feedback?
                 return false;
             }
-            auto pp = makePeg(i);
-            auto p = pp.get();
-            addToInflow(std::move(pp));
+            auto p = getParentPanel()->findPegFor(i);
+            assert(p);
+            assert(p->hasAncestor(this));
             w->attachHeadTo(p);
-
-            auto c = p->onWireRemoved.connect([this,p](const SoundWire*){
-                auto it = m_connections.find(p);
-                assert(it != m_connections.end());
-                m_connections.erase(it);
-                p->close();
-            });
-
-            m_connections.try_emplace(p, std::move(c));
-
             return true;
         }
         return false;
+    }
+
+    void Mixer::serialize(Serializer& s) const {
+         std::vector<const SoundInputPeg*> pegs;
+         for (const auto& i : m_mixer.getInputs()) {
+             const auto p = getParentPanel()->findPegFor(i);
+             assert(p->getParentObject() == this);
+             pegs.push_back(p);
+         }
+         s << static_cast<std::uint64_t>(pegs.size());
+         for (const auto& p : pegs) {
+             s.addPeg(p);
+         }
+    }
+
+    void Mixer::deserialize(Deserializer& d) {
+        auto numPegs = std::uint64_t{};
+        d >> numPegs;
+        for (std::uint64_t i = 0; i < numPegs; ++i) {
+            auto input = m_mixer.addInput();
+            auto p = getParentPanel()->findPegFor(input);
+            assert(p);
+            assert(p->hasAncestor(this));
+            d.addPeg(p);
+        }
     }
 
     RegisterFactoryObject(Mixer, "Mixer");

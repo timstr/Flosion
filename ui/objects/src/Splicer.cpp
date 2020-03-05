@@ -19,6 +19,7 @@ namespace flui {
         return false;
     }
 
-    RegisterFactoryObject(Splicer, "Splicer");
+    // TODO
+    // RegisterFactoryObject(Splicer, "Splicer");
 
 } // namespace flui

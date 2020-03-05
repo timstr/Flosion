@@ -14,6 +14,7 @@ set(flosion_ui_core_headers
     ${include_path}/NumberWire.hpp
     ${include_path}/Object.hpp
     ${include_path}/ObjectFactory.hpp
+    ${include_path}/Serialization.hpp
     ${include_path}/SoundObject.hpp
     ${include_path}/SoundPegs.hpp
     ${include_path}/SoundWire.hpp
@@ -32,6 +33,7 @@ set(flosion_ui_core_srcs
     src/NumberWire.cpp
     src/Object.cpp
     src/ObjectFactory.cpp
+    src/Serialization.cpp
     src/SoundObject.cpp
     src/SoundPegs.cpp
     src/SoundWire.cpp

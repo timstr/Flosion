@@ -28,6 +28,10 @@ namespace flui {
         return m_parentObject;
     }
 
+    const Object* Peg::getParentObject() const noexcept {
+        return m_parentObject;
+    }
+
     void Peg::showLabel(){
         auto xs = ui::FreeContainer::Center;
         auto ys = ui::FreeContainer::Center;

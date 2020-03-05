@@ -14,7 +14,7 @@ namespace flo {
      * - bool canAddDependency(const DerivedNode*) const;
      * - void afterDependencyAdded(DerivedNode*);
      * - void beforeDependencyRemoved(DerivedNode*);
-     * - acquireLock
+     * - [some type] acquireLock();
      */
     template<typename DerivedNode>
     class NodeBase : private Immovable {
@@ -88,12 +88,12 @@ namespace flo {
         Signal<const TraitsInput<Traits>*> onInputRemoved;
         Signal<> onDestroy;
 
-        const std::vector<TraitsInput<Traits>*>& getInputs() const noexcept;
+        const std::vector<TraitsInput<Traits>*>& getConnectedInputs() const noexcept;
 
         void disconnectAllInputs();
 
     private:
-        std::vector<TraitsInput<Traits>*> m_inputs;
+        std::vector<TraitsInput<Traits>*> m_connectedInputs;
 
         friend InputNodeBase<Traits>;
     };

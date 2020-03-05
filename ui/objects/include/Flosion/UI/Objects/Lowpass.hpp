@@ -9,6 +9,9 @@ namespace flui {
 
     private:
         flo::WithCurrentTime<flo::Lowpass> m_lowpass;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
 } // namespace flui

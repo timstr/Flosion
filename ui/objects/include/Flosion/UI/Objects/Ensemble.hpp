@@ -9,6 +9,9 @@ namespace flui {
 
     private:
         flo::Ensemble m_ensemble;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
 } // namespace flui

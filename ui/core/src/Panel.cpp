@@ -107,7 +107,44 @@ namespace flui {
         }
     }
 
-    NumberInputPeg* Panel::findPegFor(const flo::NumberInput* ni){
+    std::vector<const Object*> Panel::getObjects() const noexcept {
+        std::vector<const Object*> ret;
+        ret.reserve(m_objects.size());
+        copy(begin(m_objects), end(m_objects), back_inserter(ret));
+        return ret;
+    }
+
+    std::vector<const NumberWire*> Panel::getNumberWires() const noexcept {
+        std::vector<const NumberWire*> ret;
+        ret.reserve(m_numberwires.size());
+        copy(begin(m_numberwires), end(m_numberwires), back_inserter(ret));
+        return ret;
+    }
+
+    std::vector<const SoundWire*> Panel::getSoundWires() const noexcept {
+        std::vector<const SoundWire*> ret;
+        ret.reserve(m_soundwires.size());
+        copy(begin(m_soundwires), end(m_soundwires), back_inserter(ret));
+        return ret;
+    }
+
+    NumberInputPeg* Panel::findPegFor(const flo::NumberInput* ni) {
+        return const_cast<NumberInputPeg*>(const_cast<const Panel*>(this)->findPegFor(ni));
+    }
+
+    NumberOutputPeg* Panel::findPegFor(const flo::NumberSource* ns) {
+        return const_cast<NumberOutputPeg*>(const_cast<const Panel*>(this)->findPegFor(ns));
+    }
+
+    SoundInputPeg* Panel::findPegFor(const flo::SoundInput* si) {
+        return const_cast<SoundInputPeg*>(const_cast<const Panel*>(this)->findPegFor(si));
+    }
+
+    SoundOutputPeg* Panel::findPegFor(const flo::SoundSource* ss) {
+        return const_cast<SoundOutputPeg*>(const_cast<const Panel*>(this)->findPegFor(ss));
+    }
+
+    const NumberInputPeg* Panel::findPegFor(const flo::NumberInput* ni) const {
         for (auto& o : m_objects){
             for (auto& p : o->getNumberInputPegs()){
                 if (p->getInput() == ni){
@@ -118,7 +155,7 @@ namespace flui {
         return nullptr;
     }
 
-    NumberOutputPeg* Panel::findPegFor(const flo::NumberSource* ns){
+    const NumberOutputPeg* Panel::findPegFor(const flo::NumberSource* ns) const {
         for (auto& o : m_objects){
             for (auto& p : o->getNumberOutputPegs()){
                 if (p->getOutput() == ns){
@@ -129,7 +166,7 @@ namespace flui {
         return nullptr;
     }
 
-    SoundInputPeg* Panel::findPegFor(const flo::SoundInput* si){
+    const SoundInputPeg* Panel::findPegFor(const flo::SoundInput* si) const {
         for (auto& o : m_objects){
             for (auto& p : o->getSoundInputPegs()){
                 if (p->getInput() == si){
@@ -140,7 +177,7 @@ namespace flui {
         return nullptr;
     }
 
-    SoundOutputPeg* Panel::findPegFor(const flo::SoundSource* ss){
+    const SoundOutputPeg* Panel::findPegFor(const flo::SoundSource* ss) const {
         for (auto& o : m_objects){
             for (auto& p : o->getSoundOutputPegs()){
                 if (p->getOutput() == ss){

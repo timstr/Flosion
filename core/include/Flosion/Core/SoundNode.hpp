@@ -162,21 +162,18 @@ namespace flo {
     // Uncontrolled implies singular, i.e. an uncontrolled soundnode
     // has exactly one state per dependent state.
     template<typename SoundNodeType, typename SoundStateType>
-    class Uncontrolled : public SoundNodeType {
+    class Uncontrolled : public Singular<SoundNodeType, SoundStateType> {
     public:
         using StateType = SoundStateType;
 
         template<typename... Args>
         Uncontrolled(Args&&... args);
 
+        SoundStateType* getMonoState() noexcept;
         const SoundStateType* getMonoState() const noexcept;
 
         using StateType = SoundStateType;
 
-    private:
-        bool isDivergent() const noexcept override final;
-        bool isUncontrolled() const noexcept override final;
-        std::unique_ptr<StateAllocator> makeAllocator() const override final;
     };
 
     // Implements a realtime soundnode

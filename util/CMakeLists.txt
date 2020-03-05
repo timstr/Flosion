@@ -10,6 +10,7 @@ set(flosion_util_headers
 )
 
 set(flosion_util_srcs
+    src/FileBrowser.cpp
     src/RNG.cpp
 )
 

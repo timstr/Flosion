@@ -25,6 +25,8 @@ namespace flui {
 		Panel();
         ~Panel();
 
+        // TODO: it's not immediately clear what the difference is between this
+        // and add<SomeObject>() or adopt(some_object_unique_ptr)
 		void addObject(Object*);
         void removeObject(const Object*);
         
@@ -40,6 +42,20 @@ namespace flui {
         SoundWire* addWire(flo::SoundSource* src, flo::SoundInput* dst);
         void removeWire(SoundWire*);
 
+        std::vector<const Object*> getObjects() const noexcept;
+        std::vector<const NumberWire*> getNumberWires() const noexcept;
+        std::vector<const SoundWire*> getSoundWires() const noexcept;
+
+        NumberInputPeg* findPegFor(const flo::NumberInput*);
+        NumberOutputPeg* findPegFor(const flo::NumberSource*);
+        SoundInputPeg* findPegFor(const flo::SoundInput*);
+        SoundOutputPeg* findPegFor(const flo::SoundSource*);
+
+        const NumberInputPeg* findPegFor(const flo::NumberInput*) const;
+        const NumberOutputPeg* findPegFor(const flo::NumberSource*) const;
+        const SoundInputPeg* findPegFor(const flo::SoundInput*) const;
+        const SoundOutputPeg* findPegFor(const flo::SoundSource*) const;
+
 	private:
 
 		std::vector<Object*> m_objects;
@@ -47,11 +63,6 @@ namespace flui {
 		std::vector<SoundWire*> m_soundwires;
 
     private:
-
-        NumberInputPeg* findPegFor(const flo::NumberInput*);
-        NumberOutputPeg* findPegFor(const flo::NumberSource*);
-        SoundInputPeg* findPegFor(const flo::SoundInput*);
-        SoundOutputPeg* findPegFor(const flo::SoundSource*);
 
         BorrowingNumberObject* findBorrowerFor(const flo::BorrowingNumberSource*);
 

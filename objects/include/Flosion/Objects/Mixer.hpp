@@ -16,15 +16,21 @@ namespace flo {
 
     class Mixer : public flo::Realtime<flo::ControlledSoundSource<MixerState>> {
     public:
+        ~Mixer();
 
         void renderNextChunk(flo::SoundChunk& chunk, MixerState* state) override;
 
-        SoundInput* addInput();
+        SingleSoundInput* addInput();
 
         void removeInput(const SoundInput*);
 
+        std::vector<const SingleSoundInput*> getInputs() const;
+
+        Signal<SingleSoundInput*> onInputAdded;
+        Signal<SingleSoundInput*> onInputRemoved;
+
     private:
-        std::vector<std::unique_ptr<flo::SingleSoundInput>> m_inputs;
+        std::vector<std::unique_ptr<SingleSoundInput>> m_inputs;
     };
 
 

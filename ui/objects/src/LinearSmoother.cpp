@@ -14,6 +14,7 @@ namespace flui {
         setBody(makeSimpleBody("Linear Smoother", 0xd9d514ff));
     }
 
-    RegisterFactoryObject(LinearSmoother, "LinearSmoother");
+    // TODO
+    // RegisterFactoryObject(LinearSmoother, "LinearSmoother");
 
 } // namespace flui

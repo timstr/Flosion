@@ -9,6 +9,9 @@ namespace flui {
 
     private:
         flo::Resampler m_resampler;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
 } // namespace flui

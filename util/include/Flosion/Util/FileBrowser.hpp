@@ -1,91 +1,51 @@
 #pragma once
 
-#define UNICODE
-
-#include <windows.h>
-#include <Commdlg.h>
+#include <filesystem>
 #include <string>
 
-// TODO: this can be done way better
-// TODO: find a portable alternative, possibly https://github.com/mlabbe/nativefiledialog
+namespace util {
 
-/*
-filter must be string with pairs of:
-a file description ending with \0 (i.e. [Text Files\0]
-a file extension filter ending with \0 (i.e. [*.txt\0]
-if more than one file extension is desired place semicolons between them
+	/**
+	 * Helper class for "Open File" and "Save File" dialogs
+	 * Example usage:
+	 *
+	 *     auto fd = FileDialog{};
+	 *     fd.addFilter(L"Text Files", L"txt");
+	 *     fd.addFilter(L"HTML Files", {L"html", L"htm", L"xhtml"});
+	 *     if (auto path = fd.openFile()){
+	 *         // Do stuff with the file path
+	 *     } else {
+	 *         // Do stuff without a file :(
+	 *     }
+	 * 
+	 */
+	class FileDialog {
+	public:
 
-for example: L"Image Files\0*.jpg;*.png;*.bmp\0Text Files\0*.txt\0"
-will accept image files of type .jpg, .png and .bmp, or text files of type .txt
+		void addFilter(std::wstring description, std::wstring extension);
 
-default_ext is automatically appended (first 3 characters only) if no extension is provided, and should look like L"txt"
-*/
-// TODO: yuck
-std::string openFileDialog(const wchar_t* filter, const wchar_t* default_ext = nullptr){
-	OPENFILENAME ofn;
-	wchar_t szFile[MAX_PATH];
+		void addFilter(std::wstring description, std::vector<std::wstring> extensions);
 
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = nullptr;
-	ofn.lpstrFile = szFile;
-	ofn.lpstrFile[0] = '\0';
-	ofn.nMaxFile = MAX_PATH;
-	ofn.lpstrFilter = filter;
-	ofn.lpstrDefExt = default_ext;
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = nullptr;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrInitialDir = nullptr;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_OVERWRITEPROMPT;
+		/**
+		 * Opens a "Open File" dialog with the added filters and returns the path to the chosen file,
+		 * or nothing if the user chose to cancel.
+		 */
+		std::filesystem::path openFile();
 
-	GetOpenFileName(&ofn);
+		/**
+		 * Opens a "Save File" dialog with the added filters and returns the path to the chosen file,
+		 * which may or may not exist, or nothing, if the user chose to cancel.
+		 * The provided default extension is appended if none is provided.
+		 */
+		std::filesystem::path saveFile(const std::wstring& defaultExtension = L"");
 
-	std::wstring wfilename = std::wstring(ofn.lpstrFile);
-	std::string filename = std::string(wfilename.begin(), wfilename.end());
-	return filename;
-}
+	private:
+		struct Filter {
+			std::wstring description;
+			std::wstring extension;
+		};
 
-/*
-filter must be string with pairs of:
-a file description ending with \0 (i.e. [Text Files\0]
-a file extension filter ending with \0 (i.e. [*.txt\0]
-if more than one file extension is desired place semicolons between them
+		std::vector<Filter> m_filters;
+	};
 
-for example: L"Image Files\0*.jpg;*.png;*.bmp\0Text Files\0*.txt\0"
-will accept image files of type .jpg, .png and .bmp, or text files of type .txt
-
-default_ext is automatically appended (first 3 characters only) if no extension is provided, and should look like L"txt"
-*/
-std::string saveFileDialog(const wchar_t* filter, const wchar_t* default_ext = nullptr){
-	wchar_t exepath[MAX_PATH];
-	GetCurrentDirectory(MAX_PATH, exepath);
-
-	OPENFILENAME ofn;
-	wchar_t szFile[MAX_PATH];
-	HWND hwnd = nullptr;
-
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = hwnd;
-	ofn.lpstrFile = szFile;
-	ofn.lpstrFile[0] = '\0';
-	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = filter;
-	ofn.lpstrDefExt = default_ext;
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = nullptr;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrInitialDir = nullptr;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_OVERWRITEPROMPT;
-
-	if (GetSaveFileName(&ofn)){
-		std::wstring wfname = std::wstring((wchar_t*)ofn.lpstrFile);
-		std::string fname = std::string(wfname.begin(), wfname.end());
-		SetCurrentDirectory(exepath);
-		return fname;
-	} else {
-		SetCurrentDirectory(exepath);
-		return "";
-	}
-}
+} // namespace util

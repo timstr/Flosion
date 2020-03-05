@@ -1,5 +1,6 @@
 #include <Flosion/UI/Objects/Functions.hpp>
 
+#include <Flosion/UI/Core/ObjectFactory.hpp>
 #include <Flosion/UI/Core/ArgumentParser.hpp>
 #include <Flosion/UI/Core/Font.hpp>
 #include <Flosion/UI/Core/NumberWire.hpp>
@@ -46,6 +47,22 @@ namespace flui {
 
     void Constant::setValue(double v){
         m_constant.setValue(v);
+    }
+
+    void Constant::serialize(Serializer& s) const {
+        serializePegs(s);
+        s << m_constant.getValue();
+        s << m_label->text().toAnsiString();
+    }
+
+    void Constant::deserialize(Deserializer& d){
+        deserializePegs(d);
+        auto v = double{};
+        d >> v;
+        m_constant.setValue(v);
+        auto s = std::string{};
+        d >> s;
+        m_label->setText(s);
     }
 
     RegisterFactoryObjectEx(Constant, "constant", Constant::parseConstant);
@@ -139,6 +156,24 @@ namespace flui {
 
     void Slider::setMaximum(double v){
         m_slider->setMaximum(v);
+    }
+
+    void Slider::serialize(Serializer& s) const {
+        serializePegs(s);
+        s << m_slider->minimum();
+        s << m_slider->maximum();
+        s << m_constant.getValue();
+    }
+
+    void Slider::deserialize(Deserializer& d) {
+        deserializePegs(d);
+        auto min = double{};
+        auto max = double{};
+        auto v = double{};
+        d >> min >> max >> v;
+        m_slider->setMinimum(min);
+        m_slider->setMaximum(max);
+        m_constant.setValue(v);
     }
 
     RegisterFactoryObjectEx(Slider, "slider", Slider::parseSlider);
@@ -556,5 +591,13 @@ namespace flui {
         setBody(makeSimpleBody("lerp", 0x2f4857ff));
     }
     RegisterFactoryObject(LinearInterpolation, "LinearInterpolation", "lerp");
+
+    void TrivialNumberObject::serialize(Serializer& s) const {
+        serializePegs(s);
+    }
+
+    void TrivialNumberObject::deserialize(Deserializer& d) {
+        deserializePegs(d);
+    }
 
 } // namespace flui

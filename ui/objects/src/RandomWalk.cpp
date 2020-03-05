@@ -14,6 +14,7 @@ namespace flui {
         setBody(makeSimpleBody("Random Walk", 0xe07e22ff));
     }
 
-    RegisterFactoryObject(RandomWalk, "RandomWalk");
+    // TODO
+    // RegisterFactoryObject(RandomWalk, "RandomWalk");
 
 } // namespace flui

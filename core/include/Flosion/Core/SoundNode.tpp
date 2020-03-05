@@ -139,8 +139,11 @@ namespace flo {
     template<typename SoundNodeType, typename SoundStateType>
     template<typename... Args>
     inline Uncontrolled<SoundNodeType, SoundStateType>::Uncontrolled(Args&&... args)
-        : SoundNodeType(std::forward<Args>(args)...) {
-        StateTable::enableMonostate();
+        : Singular<SoundNodeType, SoundStateType>(std::forward<Args>(args)...) {
+        // TODO:
+        // Calling this before the most-derived class has been constructed is dangerous!
+        // Find a reasonable work around.
+        // StateTable::enableMonostate();
     }
 
     template<typename SoundNodeType, typename SoundStateType>
@@ -151,18 +154,10 @@ namespace flo {
     }
 
     template<typename SoundNodeType, typename SoundStateType>
-    bool Uncontrolled<SoundNodeType, SoundStateType>::isDivergent() const noexcept {
-        return false;
-    }
-
-    template<typename SoundNodeType, typename SoundStateType>
-    bool Uncontrolled<SoundNodeType, SoundStateType>::isUncontrolled() const noexcept {
-        return true;
-    }
-
-    template<typename SoundNodeType, typename SoundStateType>
-    std::unique_ptr<StateAllocator> Uncontrolled<SoundNodeType, SoundStateType>::makeAllocator() const {
-        return std::make_unique<ConcreteStateAllocator<SoundStateType>>();
+    SoundStateType* Uncontrolled<SoundNodeType, SoundStateType>::getMonoState() noexcept {
+        assert(StateTable::numSlots() == 1);
+        assert(StateTable::hasMonostate());
+        return StateTable::getState<SoundStateType>(0);
     }
 
     // Realtime

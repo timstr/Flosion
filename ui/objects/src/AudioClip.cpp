@@ -4,9 +4,7 @@
 #include <Flosion/UI/Core/SoundWire.hpp>
 
 #include <GUI/Helpers/CallbackButton.hpp>
-#ifndef __linux__
 #include <Flosion/Util/FileBrowser.hpp>
-#endif
 
 namespace flui {
 
@@ -23,12 +21,11 @@ namespace flui {
             "Load",
             getFont(),
             [&](){
-#ifndef __linux__
-                auto p = openFileDialog(L"Sound Files\0*.wav;*.ogg;*.flac\0");
-                if (p.size() > 0){
-                    loadFromFile(p);
+                auto fd = util::FileDialog{};
+                fd.addFilter(L"Sound Files", {L"wav", L"ogg", L"flac"});
+                if (auto p = fd.openFile(); !p.empty()) {
+                    loadFromFile(p.string());
                 }
-#endif
             }
         );
         bod->setPadding(5.0f);
@@ -45,6 +42,45 @@ namespace flui {
         }
     }
 
+    void AudioClip::serialize(Serializer& s) const {
+        serializePegs(s);
+
+        const auto& b = m_audioClip.getSoundBuffer();
+        const auto n = b.getSampleCount() * b.getChannelCount();
+
+        s << static_cast<std::uint64_t>(b.getSampleCount());
+        s << static_cast<std::uint64_t>(b.getChannelCount());
+        s << static_cast<std::uint64_t>(b.getSampleRate());
+        s.writeSpan(b.getSamples(), n);
+        s << m_label->text().toAnsiString();
+    }
+
+    void AudioClip::deserialize(Deserializer& s){
+        deserializePegs(s);
+
+        auto sc = std::uint64_t{};
+        auto cc = std::uint64_t{};
+        auto sr = std::uint64_t{};
+
+        std::vector<std::int16_t> audioData;
+
+        std::string txt;
+
+        s >> sc >> cc >> sr >> audioData >> txt;
+
+        assert(audioData.size() == sc * cc);
+
+        m_audioClip.getSoundBuffer().loadFromSamples(
+            audioData.data(),
+            sc,
+            static_cast<unsigned int>(cc),
+            static_cast<unsigned int>(sr)
+);
+
+        m_label->setText(txt);
+    }
+
     RegisterFactoryObject(AudioClip, "AudioClip");
+    REGISTER_SERIALIZABLE(AudioClip, "AudioClip");
 
 } // namespace flui

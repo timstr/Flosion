@@ -14,6 +14,15 @@ namespace flui {
         addToOutflow(makePeg(&m_ensemble));
         setBody(makeSimpleBody("Ensemble", 0x99BB22FF));
     }
+
+    void Ensemble::serialize(Serializer& s) const {
+        serializePegs(s);
+    }
+
+    void Ensemble::deserialize(Deserializer& d){
+        deserializePegs(d);
+    }
+
     RegisterFactoryObject(Ensemble, "Ensemble");
 
 } // namespace flui

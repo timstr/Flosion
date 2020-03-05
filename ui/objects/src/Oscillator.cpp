@@ -13,6 +13,7 @@ namespace flui {
         setBody(makeSimpleBody("Oscillator", 0xd9d514ff));
     }
 
-    RegisterFactoryObject(Oscillator, "Oscillator");
+    // TODO
+    // RegisterFactoryObject(Oscillator, "Oscillator");
 
 } // namespace flui

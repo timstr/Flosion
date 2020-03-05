@@ -11,7 +11,12 @@ namespace flui {
         bool onDrop(ui::Draggable*) override;
 
         flo::Mixer m_mixer;
-        std::map<const SoundInputPeg*, flo::Connection> m_connections;
+        flo::Connection m_inputAddedConnection;
+        flo::Connection m_inputRemovedConnection;
+        std::map<const SoundInputPeg*, flo::Connection> m_inputConnections;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
 } // namespace flui

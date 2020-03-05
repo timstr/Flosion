@@ -6,6 +6,7 @@
 #include <Flosion/Core/NumberNode.hpp>
 #include <Flosion/UI/Core/NumberPegs.hpp>
 #include <Flosion/UI/Core/SoundPegs.hpp>
+#include <Flosion/UI/Core/Serialization.hpp>
 
 #include <variant>
 
@@ -25,12 +26,13 @@ namespace flui {
 
 	// Object is the base class to all gui components representing sound and
 	// numerical processing, and their related components
-	class Object : public ui::GridContainer, public ui::Control, public ui::Draggable {
+	class Object : public ui::GridContainer, public ui::Control, public ui::Draggable, public Serializable {
     public:
 		Object();
         ~Object();
 
-		Panel* getParentPanel();
+        Panel* getParentPanel() noexcept;
+        const Panel* getParentPanel() const noexcept;
 
         enum class FlowDirection : std::uint8_t {
             Left,
@@ -56,6 +58,10 @@ namespace flui {
         const std::vector<NumberOutputPeg*>& getNumberOutputPegs();
         const std::vector<SoundInputPeg*>& getSoundInputPegs();
         const std::vector<SoundOutputPeg*>& getSoundOutputPegs();
+
+        // Helper functions for serializing pegs
+        void serializePegs(Serializer&) const;
+        void deserializePegs(Deserializer&);
 
         virtual FlowDirection getNewFlowDirection(FlowDirection desired) const;
 

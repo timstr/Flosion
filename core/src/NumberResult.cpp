@@ -9,7 +9,8 @@ namespace flo {
     }
 
     double NumberResult::getValue() const noexcept {
-        return input.getValue(m_hiddenNode->getMonoState());
+        const auto& m_hiddenNodeButConst = m_hiddenNode; // Grumble grumble grumble...
+        return input.getValue(m_hiddenNodeButConst->getMonoState());
     }
 
 } // namespace flo

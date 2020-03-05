@@ -9,6 +9,9 @@ namespace flui {
 
     private:
         flo::SineWave m_sineWave;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
     class SawWave : public NumberObject {
@@ -17,6 +20,9 @@ namespace flui {
 
     private:
         flo::SawWave m_sawWave;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
     class TriangleWave : public NumberObject {
@@ -25,6 +31,9 @@ namespace flui {
 
     private:
         flo::TriangleWave m_triangleWave;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
     class SquareWave : public NumberObject {
@@ -33,6 +42,9 @@ namespace flui {
 
     private:
         flo::SquareWave m_squareWave;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
 } // namespace flui

@@ -3,7 +3,9 @@
 
 namespace flo {
 
-    DAC::DAC(){
+    DAC::DAC()
+        : m_buffer(2 * flo::SoundChunk::size, 0) {
+
         initialize(2, sampleFrequency);
     }
 

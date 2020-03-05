@@ -32,6 +32,15 @@ namespace flui {
         bod.setPadding(5.0f);
         setBody(std::move(fc));
     }
+
+    void WaveGenerator::serialize(Serializer& s) const {
+        serializePegs(s);
+    }
+
+    void WaveGenerator::deserialize(Deserializer& d) {
+        deserializePegs(d);
+    }
+
     RegisterFactoryObject(WaveGenerator, "WaveGenerator");
 
 } // namespace flui
