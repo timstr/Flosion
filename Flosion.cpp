@@ -3,10 +3,12 @@
 // TODO: right now
 // - add disabling to ui, disable labels
 // - remove white corners around pegs
+// - add dragging button to sliders
+// - add name field to sliders (if name is given)
+// - fix missing results in object creator menu
 // - add length numbersource to AudioClip and make it global
 // - add looper
 // - add wavetable
-// - fix missing results in object creator menu
 // - add recording to DAC (and maybe separate offline recorder in future)
 
 // TODO: 04/03/2020

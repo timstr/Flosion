@@ -22,7 +22,7 @@ namespace flui {
         auto& bod = fc->add<ui::VerticalList>(ui::FreeContainer::Center, ui::FreeContainer::Center);
         bod.push_back<ui::Text>("Wave Generator", getFont());
         bod.push_back<ui::ToggleButton>(
-            false,
+            m_waveGen.getPhaseSync(),
             getFont(),
             [&](bool v){
                 m_waveGen.setPhaseSync(v);
