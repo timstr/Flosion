@@ -76,6 +76,7 @@ namespace flui {
 
     void LiveInput::serialize(Serializer& s) const {
         serializePegs(s);
+        // Current device is not serialized because that does not make sense
     }
 
     void LiveInput::deserialize(Deserializer& d){

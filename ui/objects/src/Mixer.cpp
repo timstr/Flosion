@@ -66,15 +66,14 @@ namespace flui {
              assert(p->getParentObject() == this);
              pegs.push_back(p);
          }
-         s << static_cast<std::uint64_t>(pegs.size());
+         s.u64(pegs.size());
          for (const auto& p : pegs) {
              s.addPeg(p);
          }
     }
 
     void Mixer::deserialize(Deserializer& d) {
-        auto numPegs = std::uint64_t{};
-        d >> numPegs;
+        auto numPegs = d.u64();
         for (std::uint64_t i = 0; i < numPegs; ++i) {
             auto input = m_mixer.addInput();
             auto p = getParentPanel()->findPegFor(input);

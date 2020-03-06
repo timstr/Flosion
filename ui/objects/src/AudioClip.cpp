@@ -48,25 +48,21 @@ namespace flui {
         const auto& b = m_audioClip.getSoundBuffer();
         const auto n = b.getSampleCount() * b.getChannelCount();
 
-        s << static_cast<std::uint64_t>(b.getSampleCount());
-        s << static_cast<std::uint64_t>(b.getChannelCount());
-        s << static_cast<std::uint64_t>(b.getSampleRate());
-        s.writeSpan(b.getSamples(), n);
-        s << m_label->text().toAnsiString();
+        s.u64(b.getSampleCount()).u64(b.getChannelCount()).u64(b.getSampleRate());
+
+        s.i16_span(b.getSamples(), n);
+
+        s.str(m_label->text().toAnsiString());
     }
 
-    void AudioClip::deserialize(Deserializer& s){
-        deserializePegs(s);
+    void AudioClip::deserialize(Deserializer& d){
+        deserializePegs(d);
 
-        auto sc = std::uint64_t{};
-        auto cc = std::uint64_t{};
-        auto sr = std::uint64_t{};
-
-        std::vector<std::int16_t> audioData;
-
-        std::string txt;
-
-        s >> sc >> cc >> sr >> audioData >> txt;
+        auto sc = d.u64();
+        auto cc = d.u64();
+        auto sr = d.u64();
+        auto audioData = d.i16_vec();
+        auto txt = d.str();
 
         assert(audioData.size() == sc * cc);
 
@@ -75,7 +71,7 @@ namespace flui {
             sc,
             static_cast<unsigned int>(cc),
             static_cast<unsigned int>(sr)
-);
+        );
 
         m_label->setText(txt);
     }

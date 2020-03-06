@@ -17,7 +17,7 @@ namespace flui {
         auto bod = std::make_unique<ui::Boxed<ui::VerticalList>>();
         bod->setBackgroundColor(0x4a59ffff);
         bod->setBorderColor(0x000000FF);
-        bod->setBorderRadius(1.0f);
+        bod->setBorderThickness(1.0f);
         bod->setPadding(5.0f);
 
         m_editor = &bod->push_back<WaveEditor>(*this);
@@ -40,23 +40,21 @@ namespace flui {
     void WaveTable::serialize(Serializer& s) const {
         serializePegs(s);
         auto n = m_waveTable.length();
-        s << std::uint64_t{n};
+        s.u64(n);
         for (std::size_t i = 0; i < n; ++i) {
-            s << m_waveTable.getValue(i);
+            s.f64(m_waveTable.getValue(i));
         }
     }
 
     void WaveTable::deserialize(Deserializer& d){
         deserializePegs(d);
-        auto n = std::uint64_t{};
-        d >> n;
+        auto n = d.u64();
         // TODO: make the wave table resizable?
         if (n != m_waveTable.length()) {
             throw SerializationException{};
         }
         for (std::size_t i = 0; i < n; ++i) {
-            auto v = double{};
-            d >> v;
+            auto v = d.f64();
             m_waveTable.setValue(i, v);
         }
     }
@@ -192,11 +190,11 @@ namespace flui {
         m_locked = b;
         if (m_locked) {
             setBackgroundColor(0x404040FF);
-            setBorderColor(0x606060FF);
-            setBorderThickness(0.0f);
+            setBorderColor(0x000000FF);
+            setBorderThickness(1.0f);
         } else {
             setBackgroundColor(0x000000FF);
-            setBorderColor(0x606060FF);
+            setBorderColor(0xFFFFFFFF);
             setBorderThickness(1.0f);
         }
     }

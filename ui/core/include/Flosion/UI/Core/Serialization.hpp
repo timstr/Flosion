@@ -1,20 +1,16 @@
 #pragma once
 
 #include <exception>
+#include <cstddef>
 #include <functional>
 #include <map>
 #include <memory>
 #include <optional>
 #include <typeinfo>
 #include <typeindex>
-#include <type_traits>
 #include <vector>
 
 // TODO: use std::span?
-
-// TODO: worry about platform-dependent sizes of integers
-// TODO: how can dangers around implicit conversions between integers
-// be avoided? i.e. int could convert to std::int32_t or to std::int64_t
 
 // TODO: worry about endianness
 // see https://en.cppreference.com/w/cpp/types/endian
@@ -24,40 +20,6 @@
 #endif
 
 namespace flui {
-
-    namespace detail {
-
-        using Blob = std::vector<unsigned char>;
-
-        void appendRawBytes(Blob& v, const unsigned char* src, std::uint64_t bytes);
-
-        void readRawBytesAndAdvance(const Blob& v, Blob::const_iterator& it, unsigned char* dst, std::uint64_t bytes);
-
-        // TODO: do this portably
-        // Assuming 64-bit Windows for now, so no different integer sizes or endianness
-        template<typename T>
-        void appendScalar(Blob& v, const T& s);
-
-        // TODO: do this portably
-        // Assuming 64-bit Windows for now, so no different integer sizes or endianness
-        template<typename T>
-        void readScalarAndAdvance(const Blob& v, Blob::const_iterator& it, T& s);
-
-    } // namespace detail
-
-    // TODO:
-    // - binary mode
-    //     - use big endian encoding in format
-    //     - careful with text
-    //     - input/output shall be vector<unsigned char>
-    // - basic overloads or template specialization for primitives and common std library types
-    // - abstract base class for polymorphic types
-    //     - Doesn't need integration with factory
-    // - heap structure, with unique ID per heap object
-    //   - one object is considered root, or entry
-    // - onComplete signal, for connecting wires
-    //     - When deserializing, instantiate objects, then connect sound wires, then connect number wires,
-    //       and all should be fine
 
     class Object;
     class NumberInputPeg;
@@ -76,35 +38,6 @@ namespace flui {
     public:
         const char* what() const noexcept override;
     };
-
-
-    // Types are not serializable unless specialized
-    template<typename T, typename Enable = void>
-    struct is_serializable : std::false_type {};
-
-    // Helper template variable
-    template<typename T>
-    constexpr bool is_serializable_v = is_serializable<T>::value;
-
-    // Arithmetic types (bool, integers, char, floating point) are serializable
-    template<typename T>
-    struct is_serializable<
-        T,
-        typename std::enable_if_t<std::is_arithmetic_v<T>>
-    > : std::true_type {};
-
-    // Strings are serializable
-    template<>
-    struct is_serializable<std::string, void> : std::true_type {};
-
-    // Vectors of serializable types are serializable
-    template<typename T>
-    struct is_serializable<
-        std::vector<T>,
-        typename std::enable_if_t<is_serializable_v<T>>
-    > : std::true_type {};
-
-    // TODO: more types?
 
 
 
@@ -129,7 +62,7 @@ namespace flui {
         // Creates a vector containing the serialized data. This may be saved to a string,
         // written to a file, sent over a network, etc. This data can be used to construct
         // a Deserializer which can be used to recover the original objects and wires.
-        std::vector<unsigned char> dump() const;
+        std::vector<std::byte> dump() const;
 
         // When an Object is being serialized, it is responsible for adding all
         // of its pegs via these methods
@@ -140,28 +73,7 @@ namespace flui {
 
     public:
 
-        // Writes a sequence of bytes to the current object
-        void writeBytes(const unsigned char* src, std::uint64_t bytes);
-
-        // Writes a contiguous sequence of serializable values to the current object
-        // NOTE: it is safe to later read this data using >> and vector<T>
-        template<typename T, typename std::enable_if_t<is_serializable_v<T>>* = nullptr>
-        void writeSpan(const T* data, std::uint64_t count);
-
-        // Writes a simple arithmetic type
-        template<typename T, typename std::enable_if_t<std::is_arithmetic_v<T>>* = nullptr>
-        Serializer& operator<<(const T&);
-
-        // Writes a string
-        Serializer& operator<<(const std::string&);
-
-        // Writes a vector of serializable values
-        // NOTE: it is safe to later read this data using readSpan
-        template<typename T, typename std::enable_if_t<is_serializable_v<T>>* = nullptr>
-        Serializer& operator<<(const std::vector<T>&);
-
-        // TODO: switch to the following methods for clarity about types and sizes
-        /*
+        // Chainable inserters for single values 
         Serializer& b(bool);
 
         Serializer& u8(std::uint8_t);
@@ -179,6 +91,8 @@ namespace flui {
 
         Serializer& str(const std::string&);
 
+        // Chainable inserters for spans
+
         Serializer& u8_span(const std::uint8_t*, std::uint64_t len);
         Serializer& u16_span(const std::uint16_t*, std::uint64_t len);
         Serializer& u32_span(const std::uint32_t*, std::uint64_t len);
@@ -193,7 +107,24 @@ namespace flui {
         Serializer& f64_span(const double*, std::uint64_t len);
 
         Serializer& str_span(const std::string*, std::uint64_t len);
-        */
+        
+
+        // Chainable inserters for vectors (equivalent to using spans)
+
+        Serializer& u8_vec(const std::vector<std::uint8_t>&);
+        Serializer& u16_vec(const std::vector<std::uint16_t>&);
+        Serializer& u32_vec(const std::vector<std::uint32_t>&);
+        Serializer& u64_vec(const std::vector<std::uint64_t>&);
+
+        Serializer& i8_vec(const std::vector<std::int8_t>&);
+        Serializer& i16_vec(const std::vector<std::int16_t>&);
+        Serializer& i32_vec(const std::vector<std::int32_t>&);
+        Serializer& i64_vec(const std::vector<std::int64_t>&);
+
+        Serializer& f32_vec(const std::vector<float>&);
+        Serializer& f64_vec(const std::vector<double>&);
+
+        Serializer& str_vec(const std::vector<std::string>&);
 
     private:
 
@@ -211,7 +142,9 @@ namespace flui {
         std::optional<heap_id> findID(const NumberOutputPeg*) const;
 
     private:
-        std::vector<detail::Blob> m_objects;
+        std::vector<std::byte>& getCurrentObject();
+
+        std::vector<std::vector<std::byte>> m_objects;
 
         // List of known sound/number input/output pegs.
         // Ids of these pegs are their indices in these vectors.
@@ -232,7 +165,7 @@ namespace flui {
         // Creates a Deserializer from a vector binary data.
         // This data needs to have been created by a Serializer.
 
-        Deserializer(const std::vector<unsigned char>& buffer);
+        Deserializer(const std::vector<std::byte>& buffer);
         Deserializer() = delete;
         ~Deserializer() = default;
 
@@ -255,26 +188,82 @@ namespace flui {
 
     public:
 
-        // Reads a sequence of bytes from the current object
-        void readBytes(unsigned char* dst, std::uint64_t bytes);
+        // Chainable extractors (pass by reference)
+        Deserializer& b(bool&);
 
-        // Reads a contiguous sequence of serializable values from the current object
-        // Throws an exception if the count is mismatched.
-        // NOTE: it is safe to read a span that was written using << and vector<T>
-        template<typename T, typename std::enable_if_t<is_serializable_v<T>>* = nullptr>
-        void readSpan(T* data, std::uint64_t count);
+        Deserializer& u8(std::uint8_t&);
+        Deserializer& u16(std::uint16_t&);
+        Deserializer& u32(std::uint32_t&);
+        Deserializer& u64(std::uint64_t&);
 
-        // Assuming there is a span to be read, peeks ahead to get the size of
-        // that span. Only intended to be called right before readSpan()
-        std::uint64_t peekSpanCount();
+        Deserializer& i8(std::int8_t&);
+        Deserializer& i16(std::int16_t&);
+        Deserializer& i32(std::int32_t&);
+        Deserializer& i64(std::int64_t&);
 
-        template<typename T, typename std::enable_if_t<std::is_arithmetic_v<T>>* = nullptr>
-        Deserializer& operator>>(T&);
+        Deserializer& f32(float&);
+        Deserializer& f64(double&);
 
-        Deserializer& operator>>(std::string&);
+        Deserializer& str(std::string&);
 
-        template<typename T, typename std::enable_if_t<is_serializable_v<T>>* = nullptr>
-        Deserializer& operator>>(std::vector<T>&);
+        // Non-chainable extractors (simple return values)
+        bool b();
+
+        std::uint8_t u8();
+        std::uint16_t u16();
+        std::uint32_t u32();
+        std::uint64_t u64();
+
+        std::int8_t i8();
+        std::int16_t i16();
+        std::int32_t i32();
+        std::int64_t i64();
+
+        float f32();
+        double f64();
+
+        std::string str();
+
+        // Spans
+
+        std::uint64_t peekSpanLength();
+        
+        Deserializer& b_span(bool* dst, std::uint64_t len);
+
+        Deserializer& u8_span(std::uint8_t* dst, std::uint64_t len);
+        Deserializer& u16_span(std::uint16_t* dst, std::uint64_t len);
+        Deserializer& u32_span(std::uint32_t* dst, std::uint64_t len);
+        Deserializer& u64_span(std::uint64_t* dst, std::uint64_t len);
+
+        Deserializer& i8_span(std::int8_t* dst, std::uint64_t len);
+        Deserializer& i16_span(std::int16_t* dst, std::uint64_t len);
+        Deserializer& i32_span(std::int32_t* dst, std::uint64_t len);
+        Deserializer& i64_span(std::int64_t* dst, std::uint64_t len);
+
+        Deserializer& f32_span(float* dst, std::uint64_t len);
+        Deserializer& f64_span(double* dst, std::uint64_t len);
+
+        Deserializer& str_span(std::string* dst);
+
+        // Vectors
+        std::vector<bool> b_vec();
+
+        std::vector<std::uint8_t> u8_vec();
+        std::vector<std::uint16_t> u16_vec();
+        std::vector<std::uint32_t> u32_vec();
+        std::vector<std::uint64_t> u64_vec();
+
+        std::vector<std::int8_t> i8_vec();
+        std::vector<std::int16_t> i16_vec();
+        std::vector<std::int32_t> i32_vec();
+        std::vector<std::int64_t> i64_vec();
+
+        std::vector<float> f32_vec();
+        std::vector<double> f64_vec();
+
+        std::vector<std::string> str_vec();
+
+        // TODO
 
     public:
 
@@ -295,6 +284,7 @@ namespace flui {
     private:
 
         // TODO: this name no longer makes sense
+        // TODO: rename to peg id
         using heap_id = std::uint64_t;
 
         std::unique_ptr<Object> makeCurrentObject();
@@ -305,10 +295,13 @@ namespace flui {
         NumberOutputPeg* findNumberOutputPeg(heap_id);
 
     private:
-        using IterableObjects = std::vector<std::pair<detail::Blob, detail::Blob::const_iterator>>;
+        using IterableObjects = std::vector<std::pair<std::vector<std::byte>, std::vector<std::byte>::const_iterator>>;
 
         IterableObjects m_objects;
         IterableObjects::iterator m_currentObject;
+
+        const std::vector<std::byte>& currentObject();
+        std::vector<std::byte>::const_iterator& currentIterator();
 
         // List of known sound/number input/output pegs.
         // Ids of these pegs are their indices in these vectors.
@@ -360,8 +353,6 @@ namespace flui {
 
 // TODO: put the following in a .tpp file
 
-#include <cassert>
-
 namespace flui {
 
     template<typename ObjectType>
@@ -380,74 +371,6 @@ namespace flui {
     inline Deserializer::Registrator<ObjectType>::~Registrator(){
         auto tidx = std::type_index(typeid(ObjectType));
         Deserializer::removeSerializable(tidx);
-    }
-
-    template<typename T, typename std::enable_if_t<is_serializable_v<T>>*>
-    inline void Serializer::writeSpan(const T* data, std::uint64_t count){
-        assert(data);
-        *this << count;
-        for (std::uint64_t i = 0; i < count; ++i) {
-            *this << data[i];
-        }
-    }
-
-    template<typename T, typename std::enable_if_t<std::is_arithmetic_v<T>>*>
-    inline Serializer& Serializer::operator<<(const T& t){
-        assert(m_objects.size() > 0);
-        detail::appendScalar(m_objects.back(), t);
-        return *this;
-    }
-
-    template<typename T, typename std::enable_if_t<is_serializable_v<T>>*>
-    inline Serializer& Serializer::operator<<(const std::vector<T>& v){
-        writeSpan(v.data(), v.size());
-        return *this;
-    }
-
-    template<typename T, typename std::enable_if_t<is_serializable_v<T>>*>
-    inline void Deserializer::readSpan(T* data, std::uint64_t count){
-        assert(data);
-        auto actualCount = std::uint64_t{};
-        *this >> actualCount;
-        if (actualCount != count) {
-            throw SerializationException{};
-        }
-        for (std::uint64_t i = 0; i < count; ++i) {
-            *this >> data[i];
-        }
-    }
-
-    template<typename T, typename std::enable_if_t<std::is_arithmetic_v<T>>*>
-    inline Deserializer& Deserializer::operator>>(T& t){
-        assert(m_currentObject != end(m_objects));
-        const auto& v = m_currentObject->first;
-        auto& it = m_currentObject->second;
-        assert(it != end(v));
-        detail::readScalarAndAdvance(v, it, t);
-        return *this;
-    }
-
-    template<typename T, typename std::enable_if_t<is_serializable_v<T>>*>
-    inline Deserializer& Deserializer::operator>>(std::vector<T>& v){
-        const auto size = peekSpanCount();
-        v.clear();
-        v.resize(size);
-        readSpan(v.data(), size);
-        return *this;
-    }
-
-    template<typename T>
-    inline void detail::appendScalar(Blob& v, const T& s) {
-        const auto src = reinterpret_cast<const unsigned char*>(&s);
-        const auto bytes = sizeof(T);
-        appendRawBytes(v, src, bytes);
-    }
-
-    template<typename T>
-    inline void detail::readScalarAndAdvance(const Blob& v, Blob::const_iterator& it, T& s) {
-        const auto dst = reinterpret_cast<unsigned char*>(&s);
-        const auto bytes = sizeof(T);
-        readRawBytesAndAdvance(v, it, dst, bytes);
     }
 
 } // namespace flui

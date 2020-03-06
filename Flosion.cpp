@@ -1,13 +1,12 @@
 #include <Flosion/UI/Core/FlosionUI.hpp>
 
 // TODO: right now
+// - get serialization done
+// - make LiveSequencer
+
 // - add disabling to ui, disable labels
-// - remove white corners around pegs
-// - add dragging button to sliders
-// - add name field to sliders (if name is given)
-// - fix missing results in object creator menu
 // - add length numbersource to AudioClip and make it global
-// - add looper
+// - add repeater?
 // - add recording to DAC (and maybe separate offline recorder in future)
 
 // TODO: 04/03/2020
@@ -17,16 +16,11 @@
 // - UI for live melody
 // - UI for melody?
 
-// TODO: live input
-// see https://www.sfml-dev.org/documentation/2.5.1/classsf_1_1SoundRecorder.php
-
 // TODO: hot swapping
 
 // TODO: review GUI things where elements are moved between containers
 // (such as when borrowers are attached to soundsources) and make use of
 // new UI guarantees about event listeners remaining attached
-
-// TODO: serialization
 
 // TODO: remove "std::" where it is not needed thanks to ADL, such as in
 // `find(begin(myVector), end(myVector), x)` where myVector is a std::vector
@@ -51,6 +45,8 @@
 
 // TODO: safegaurd sound processing objects from being deleted
 // while they are inside getNextChunk
+// NOTE: this will require care. getNextChunk is a virtual function,
+// so this should best be done at the most derived level
 
 // TODO: include and dynamically link to ffmpeg for additional audio formats?
 

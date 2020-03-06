@@ -51,17 +51,14 @@ namespace flui {
 
     void Constant::serialize(Serializer& s) const {
         serializePegs(s);
-        s << m_constant.getValue();
-        s << m_label->text().toAnsiString();
+        s.f64(m_constant.getValue()).str(m_label->text().toAnsiString());
     }
 
     void Constant::deserialize(Deserializer& d){
         deserializePegs(d);
-        auto v = double{};
-        d >> v;
+        auto v = d.f64();
         m_constant.setValue(v);
-        auto s = std::string{};
-        d >> s;
+        auto s = d.str();
         m_label->setText(s);
     }
 
@@ -176,17 +173,14 @@ namespace flui {
 
     void Slider::serialize(Serializer& s) const {
         serializePegs(s);
-        s << m_slider->minimum();
-        s << m_slider->maximum();
-        s << m_constant.getValue();
+        s.f64(m_slider->minimum()).f64(m_slider->maximum()).f64(m_constant.getValue());
     }
 
     void Slider::deserialize(Deserializer& d) {
         deserializePegs(d);
-        auto min = double{};
-        auto max = double{};
-        auto v = double{};
-        d >> min >> max >> v;
+        auto min = d.f64();
+        auto max = d.f64();
+        auto v = d.f64();
         m_slider->setMinimum(min);
         m_slider->setMaximum(max);
         m_constant.setValue(v);
