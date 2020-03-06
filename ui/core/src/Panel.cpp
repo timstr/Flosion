@@ -188,6 +188,29 @@ namespace flui {
         return nullptr;
     }
 
+    void Panel::showWarningAt(ui::vec2 p) {
+        auto& e = add<ui::BoxElement>();
+        e.bringToFront();
+        e.setPos(p);
+        e.startTransition(
+            0.2,
+            [&e, p](double t) {
+                const auto tf = static_cast<float>(t);
+                const auto maxSize = 100.0f;
+                const auto w = tf * maxSize;
+                const auto s = ui::vec2{w, w};
+                e.setSize(s, true);
+                e.setPos(p - 0.5f * s);
+                auto c = ui::Color(0xFF0000FF);
+                c.setAlpha(1.0f - tf);
+                e.setBackgroundColor(c);
+            },
+            [&e]() {
+                e.close();
+            }
+        );
+    }
+
     BorrowingNumberObject* Panel::findBorrowerFor(const flo::BorrowingNumberSource* bns){
         for (auto& o : m_objects){
             if (auto b = o->toBorrowingNumberObject()){
@@ -228,7 +251,6 @@ namespace flui {
     bool Panel::onKeyDown(ui::Key key){
         bool ctrl = keyDown(ui::Key::LControl) || keyDown(ui::Key::RControl);
         if (key == ui::Key::A && ctrl){
-            
             selectObjects(m_objects);
         }
         return false;

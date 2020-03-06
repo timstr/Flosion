@@ -79,6 +79,7 @@ namespace flui {
         WireType* getAttachedWire() noexcept;
 
         InputType* getInput() noexcept;
+        const InputType* getInput() const noexcept;
 
         flo::Signal<const WireType*> onWireAdded;
         flo::Signal<const WireType*> onWireRemoved;
@@ -120,6 +121,7 @@ namespace flui {
         const std::vector<WireType*>& getAttachedWires() noexcept;
 
         OutputType* getOutput() noexcept;
+        const OutputType* getOutput() const noexcept;
 
         flo::Signal<const WireType*> onWireAdded;
         flo::Signal<const WireType*> onWireRemoved;
@@ -293,6 +295,11 @@ namespace flui {
     }
 
     template<typename Traits>
+    inline const typename InputPeg<Traits>::InputType* InputPeg<Traits>::getInput() const noexcept {
+        return m_input;
+    }
+
+    template<typename Traits>
     inline bool InputPeg<Traits>::onLeftClick(int){
         if (m_wireIn){
             auto h = m_wireIn->getHead();
@@ -319,6 +326,11 @@ namespace flui {
         if (auto wh = dynamic_cast<typename Traits::WireHeadType*>(d)){
             auto w = wh->getParentWire();
             auto self = static_cast<typename Traits::InputPegType*>(this);
+            if (!w->canAttachHeadTo(self)) {
+                getParentObject()->getParentPanel()->showWarningAt(w->pos() + wh->pos());
+                w->destroy();
+                return true;
+            }
             w->attachHeadTo(self);
             return true;
         }
@@ -379,6 +391,11 @@ namespace flui {
     }
 
     template<typename Traits>
+    inline const typename OutputPeg<Traits>::OutputType* OutputPeg<Traits>::getOutput() const noexcept {
+        return m_output;
+    }
+
+    template<typename Traits>
     inline void OutputPeg<Traits>::addAttachedWire(WireType* w){
         assert(std::count(m_wiresOut.begin(), m_wiresOut.end(), w) == 0);
         m_wiresOut.push_back(w);
@@ -420,6 +437,11 @@ namespace flui {
         if (auto wt = dynamic_cast<typename Traits::WireTailType*>(d)){
             auto w = wt->getParentWire();
             auto self = static_cast<typename Traits::OutputPegType*>(this);
+            if (!w->canAttachTailTo(self)) {
+                getParentObject()->getParentPanel()->showWarningAt(w->pos() + wt->pos());
+                w->destroy();
+                return true;
+            }
             w->attachTailTo(self);
             return true;
         }

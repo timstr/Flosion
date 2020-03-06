@@ -56,6 +56,8 @@ namespace flui {
         const SoundInputPeg* findPegFor(const flo::SoundInput*) const;
         const SoundOutputPeg* findPegFor(const flo::SoundSource*) const;
 
+        void showWarningAt(ui::vec2);
+
 	private:
 
 		std::vector<Object*> m_objects;
