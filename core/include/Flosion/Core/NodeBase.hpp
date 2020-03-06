@@ -84,8 +84,8 @@ namespace flo {
     public:
         ~OutputNodeBase();
 
-        Signal<const TraitsInput<Traits>*> onInputAdded;
-        Signal<const TraitsInput<Traits>*> onInputRemoved;
+        Signal<const TraitsInput<Traits>*> onInputConnected;
+        Signal<const TraitsInput<Traits>*> onInputDisconnected;
         Signal<> onDestroy;
 
         const std::vector<TraitsInput<Traits>*>& getConnectedInputs() const noexcept;

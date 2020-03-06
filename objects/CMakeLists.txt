@@ -21,6 +21,7 @@ set(flosion_objects_headers
 	${include_path}/FunctionsBase.hpp
     ${include_path}/Highpass.hpp
     ${include_path}/LinearSmoother.hpp
+    ${include_path}/LiveInput.hpp
     ${include_path}/LiveMelody.hpp
     ${include_path}/Lowpass.hpp
     ${include_path}/Melody.hpp
@@ -38,6 +39,7 @@ set(flosion_objects_headers
 	${include_path}/WaveForms.hpp
 	${include_path}/WaveGenerator.hpp
     ${include_path}/WaveShaper.hpp
+    ${include_path}/WaveTable.hpp
 )
 
 set(flosion_objects_srcs
@@ -59,6 +61,7 @@ set(flosion_objects_srcs
     src/Feedback.cpp
     src/Highpass.cpp
     src/LinearSmoother.cpp
+    src/LiveInput.cpp
     src/LiveMelody.cpp
     src/Lowpass.cpp
     src/Melody.cpp
@@ -76,6 +79,7 @@ set(flosion_objects_srcs
 	src/WaveForms.cpp
 	src/WaveGenerator.cpp
     src/WaveShaper.cpp
+    src/WaveTable.cpp
 )
 
 add_library(flosion_objects STATIC ${flosion_objects_headers} ${flosion_objects_srcs})

@@ -40,6 +40,47 @@ namespace flui {
             advance(it, bytes);
         }
 
+        // TODO: prepnd these flags for safety
+        enum class TypeFlag : std::uint8_t {
+            UChar       = 0x01,
+            Bool        = 0x02,
+            Uint8       = 0x03,
+            Uint16      = 0x04,
+            Uint32      = 0x05,
+            Uint64      = 0x06,
+            Int8        = 0x07,
+            Int16       = 0x08,
+            Int32       = 0x09,
+            Int64       = 0x0A,
+            Float32     = 0x0B,
+            Float64     = 0x0C,
+            UTF8Str     = 0x0D,
+            ArrayOf     = 0x0E,
+            ArrayLen    = 0x0F
+        };
+
+        constexpr int NumFlagRepetititions = 4;
+
+        void appendTypeFlag(Blob& v, TypeFlag f) {
+            for (int i = 0; i < NumFlagRepetititions; ++i) {
+                v.push_back(static_cast<unsigned char>(f));
+            }
+        }
+
+        void readAndCheckTypeFlag(const Blob& v, Blob::const_iterator& it, TypeFlag expectedFlag) {
+            for (int i = 0; i < NumFlagRepetititions; ++i) {
+                if (it == end(v)) {
+                    // Too short
+                    throw SerializationException{};
+                }
+                if (static_cast<unsigned char>(expectedFlag) != *it) {
+                    // Bad type flag
+                    throw SerializationException{};
+                }
+                ++it;
+            }
+        }
+
     } // namespace detail
 
     const char* SerializationException::what() const noexcept {

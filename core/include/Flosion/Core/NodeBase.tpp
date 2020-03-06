@@ -143,12 +143,12 @@ namespace flo {
             inputs.push_back(self);
         }
         if (oldSource){
-            oldSource->onInputRemoved.broadcast(self);
+            oldSource->onInputDisconnected.broadcast(self);
             onSourceRemoved.broadcast(oldSource);
         }
         if (m_source){
             onSourceAdded.broadcast(m_source);
-            m_source->onInputAdded.broadcast(self);
+            m_source->onInputConnected.broadcast(self);
         }
     }
 

@@ -106,6 +106,8 @@ namespace flui {
 
     // TODO: more types?
 
+
+
     class Serializer {
     public:
         Serializer() = default;
@@ -157,6 +159,41 @@ namespace flui {
         // NOTE: it is safe to later read this data using readSpan
         template<typename T, typename std::enable_if_t<is_serializable_v<T>>* = nullptr>
         Serializer& operator<<(const std::vector<T>&);
+
+        // TODO: switch to the following methods for clarity about types and sizes
+        /*
+        Serializer& b(bool);
+
+        Serializer& u8(std::uint8_t);
+        Serializer& u16(std::uint16_t);
+        Serializer& u32(std::uint32_t);
+        Serializer& u64(std::uint64_t);
+
+        Serializer& i8(std::int8_t);
+        Serializer& i16(std::int16_t);
+        Serializer& i32(std::int32_t);
+        Serializer& i64(std::int64_t);
+
+        Serializer& f32(float);
+        Serializer& f64(double);
+
+        Serializer& str(const std::string&);
+
+        Serializer& u8_span(const std::uint8_t*, std::uint64_t len);
+        Serializer& u16_span(const std::uint16_t*, std::uint64_t len);
+        Serializer& u32_span(const std::uint32_t*, std::uint64_t len);
+        Serializer& u64_span(const std::uint64_t*, std::uint64_t len);
+
+        Serializer& i8_span(const std::int8_t*, std::uint64_t len);
+        Serializer& i16_span(const std::int16_t*, std::uint64_t len);
+        Serializer& i32_span(const std::int32_t*, std::uint64_t len);
+        Serializer& i64_span(const std::int64_t*, std::uint64_t len);
+
+        Serializer& f32_span(const float*, std::uint64_t len);
+        Serializer& f64_span(const double*, std::uint64_t len);
+
+        Serializer& str_span(const std::string*, std::uint64_t len);
+        */
 
     private:
 

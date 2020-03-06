@@ -1,5 +1,14 @@
 #include <Flosion/UI/Core/FlosionUI.hpp>
 
+// TODO: right now
+// - add disabling to ui, disable labels
+// - remove white corners around pegs
+// - add length numbersource to AudioClip and make it global
+// - add looper
+// - add wavetable
+// - fix missing results in object creator menu
+// - add recording to DAC (and maybe separate offline recorder in future)
+
 // TODO: 04/03/2020
 // - serialization (note: use typeid to go from instance -> id, and use existing factory macro to go from id -> instance)
 // - live input (microphone)
