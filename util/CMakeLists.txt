@@ -7,11 +7,13 @@ set(flosion_util_headers
 	${include_path}/FileBrowser.hpp
 	${include_path}/Pi.hpp
     ${include_path}/RNG.hpp
+    ${include_path}/Volume.hpp
 )
 
 set(flosion_util_srcs
     src/FileBrowser.cpp
     src/RNG.cpp
+    src/Volume.cpp
 )
 
 add_library(flosion_util STATIC ${flosion_util_headers} ${flosion_util_srcs})

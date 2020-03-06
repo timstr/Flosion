@@ -1,9 +1,40 @@
 #include <Flosion/UI/Core/FlosionUI.hpp>
 
-// TODO: right now
-// - get serialization done
+// TODO: right now 
+// - Test whether changing flow direction is broken. This may have been an artifact of bugs in transitions that were fixed
+//
 // - make LiveSequencer
+//   - vertical list of tracks, each with own singlesoundinput, recording into buffer and playing
+//   - all tracks play in sync
+//   - total length 
+//   - per-track state:
+//     - volume [0, 1]
+//     - is playing live?
+//   - one track is selected
+//     - select previous track (ctrl-shift-up)
+//     - select next track (ctrl-shift-down)
+//   - per-track triggers:
+//     - pause next (ctrl-shift-p, "pause")
+//     - play live next (ctrl-shift-l, "live")
+//     - repeat next (ctrl-shift-r, "repeat")
+//     - silence next (ctrl-shift-s, "silence") 
+//     - volume down (ctrl-shift-left)
+//     - volume up (ctrl-shift-right)
+//     - reset/restart input now (ctrl-shift-enter)
+//     - fade in?
+//     - fade out?
+//
+// - test serialization
+//
+// - save everything to a file (ctrl-s)
+// - export selection to a file (ctrl-e)
+// - clear everything and load from a file (ctrl-o)
+// - import something from a file (ctrl-i)
+//
+// - Allow borrowers again
 
+// - add volumeToAmp to util
+// - add Amplifier object
 // - add disabling to ui, disable labels
 // - add length numbersource to AudioClip and make it global
 // - add repeater?
@@ -121,11 +152,17 @@
 #include <Flosion/Util/RNG.hpp>
 #include <Flosion/Objects/LiveMelody.hpp>
 
+#include <iostream>
+
 int main() {
 
     auto& win = ui::Window::create(1000, 700, "Flosion");
 
     win.setRoot<flui::FlosionUI>();
+
+    auto cmd = win.addKeyboardCommand(ui::Key::F, [](){
+        std::cout << "Paying respects\n";
+    });
 
     ui::run();
 

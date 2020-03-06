@@ -23,6 +23,7 @@ set(flosion_objects_headers
     ${include_path}/LinearSmoother.hpp
     ${include_path}/LiveInput.hpp
     ${include_path}/LiveMelody.hpp
+    ${include_path}/LiveSequencer.hpp
     ${include_path}/Lowpass.hpp
     ${include_path}/Melody.hpp
     ${include_path}/Mixer.hpp
@@ -63,6 +64,7 @@ set(flosion_objects_srcs
     src/LinearSmoother.cpp
     src/LiveInput.cpp
     src/LiveMelody.cpp
+    src/LiveSequencer.cpp
     src/Lowpass.cpp
     src/Melody.cpp
     src/Mixer.cpp
