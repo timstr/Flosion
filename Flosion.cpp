@@ -8,7 +8,6 @@
 // - fix missing results in object creator menu
 // - add length numbersource to AudioClip and make it global
 // - add looper
-// - add wavetable
 // - add recording to DAC (and maybe separate offline recorder in future)
 
 // TODO: 04/03/2020

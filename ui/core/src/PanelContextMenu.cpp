@@ -15,6 +15,7 @@
 namespace flui {
     
     // TODO: this is duplicated from ObjectFactory.cpp
+    // Consider moving this to Util
     namespace {
         void makeLowerCase(std::string& str) {
 			std::transform(
@@ -79,7 +80,8 @@ namespace flui {
         if (args.size() == 0){
             return;
         }
-        m_objectName = std::move(args.front());
+        auto objName = std::move(args.front());
+        makeLowerCase(objName);
         args.erase(args.begin());
         m_args = std::move(args);
 
@@ -90,33 +92,84 @@ namespace flui {
         // First results: all results with matching prefixes
         // Other results: all results with matching first letter and matching subsequence
 
-        const auto match = [&](const std::string& s){
-            if (s.size() < m_objectName.size()){
+        const auto strictMatch = [&](const std::string& s){
+            // Does the string start with the exact search term?
+            if (s.size() < objName.size()){
                 return false;
             }
-            auto ss = s.substr(0, m_objectName.size());
+            auto ss = s.substr(0, objName.size());
             makeLowerCase(ss);
-            return ss == m_objectName;
+            return ss == objName;
+        };
+
+        const auto fuzzyMatch = [&](const std::string& s) {
+            // Does the string start with the first letter of the search term
+            // and contain the rest of the search term as a subsequence?
+            assert(objName.size() > 0);
+            assert(s.size() > 0);
+            auto ss = s;
+            makeLowerCase(ss);
+            auto itA = objName.begin();
+            auto itB = ss.begin();
+            if (*itA != *itB) {
+                return false;
+            }
+            ++itA;
+            ++itB;
+            while (true) {
+                if (itA == objName.end()) {
+                    return true;
+                }
+                if (itB == ss.end()) {
+                    break;
+                }
+                if (*itA == *itB) {
+                    ++itA;
+                }
+                ++itB;
+            }
+            return false;
         };
 
         auto count = std::size_t{0};
+        const auto pushResult = [&](const std::string& name) {
+            if (count == 0){
+                m_objectName = name;
+            }
 
-        const auto& names = Factory::getObjectNames();
-            
-        for (auto it = names.begin(), end = names.end(); it != end && count < maxResults; ++it){
-            if (match(*it)){
-                if (count == 0){
-                    m_objectName = *it;
+            m_results.push_back<ui::CallbackButton>(
+                name,
+                getFont(),
+                [this, str = name](){
+                    addAndClose(Factory::createObject(str, m_args));
                 }
+            );
+            ++count;
+            return count < maxResults;
+        };
 
-                m_results.push_back<ui::CallbackButton>(
-                    *it,
-                    getFont(),
-                    [this, name =*it](){
-                        addAndClose(Factory::createObject(name, m_args));
-                    }
-                );
-                ++count;
+
+        auto names = Factory::getObjectNames();
+        sort(begin(names), end(names));
+
+        std::set<const std::string*> resultsSoFar;
+        for (const auto& n : names) {
+            if (strictMatch(n)) {
+                if (!pushResult(n)) {
+                    return;
+                }
+                resultsSoFar.insert(&n);
+            }
+        }
+        
+        for (const auto& n : names) {
+            if (fuzzyMatch(n)) {
+                if (resultsSoFar.count(&n) != 0) {
+                    continue;
+                }
+                if (!pushResult(n)) {
+                    return;
+                }
             }
         }
     }
