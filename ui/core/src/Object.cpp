@@ -40,6 +40,12 @@ namespace flui {
         )
         , m_flowDirection(FlowDirection::Right) {
 
+        const auto makeTransparent = [](auto l) {
+            l->setBackgroundColor(0x0);
+        };
+        std::visit(makeTransparent, m_inflowList);
+        std::visit(makeTransparent, m_outflowList);
+
         setShrink(true);
     }
 
@@ -280,6 +286,7 @@ namespace flui {
         
         auto makeVerticalList = [](std::vector<std::unique_ptr<Element>>& elems){
             auto l = std::make_unique<ui::Boxed<ui::VerticalList>>();
+            l->setBackgroundColor(0x0);
             for (auto& e : elems){
                 l->push_back(std::move(e));
             }
@@ -288,6 +295,7 @@ namespace flui {
 
         auto makeHorizontalList = [](std::vector<std::unique_ptr<Element>>& elems){
             auto l = std::make_unique<ui::Boxed<ui::HorizontalList>>();
+            l->setBackgroundColor(0x0);
             for (auto& e : elems){
                 l->push_back(std::move(e));
             }

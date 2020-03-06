@@ -30,7 +30,7 @@ namespace flui {
 
     class Slider : public NumberObject {
     public:
-        Slider();
+        Slider(const ui::String& name = "");
 
         static std::unique_ptr<Slider> parseSlider(const std::vector<std::string>&);
 

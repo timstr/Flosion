@@ -69,7 +69,7 @@ namespace flui {
 
 
 
-    Slider::Slider(){
+    Slider::Slider(const ui::String& name){
         addToOutflow(makePeg(&m_constant));
 
         auto sp = std::make_unique<ui::Slider<double>>(
@@ -83,17 +83,31 @@ namespace flui {
         );
 
         m_slider = sp.get();
-        auto b = std::make_unique<ui::Boxed<ui::FreeContainer>>();
-        b->setMinSize(sp->size() + ui::vec2{10.0f, 10.0f});
-        b->setBackgroundColor(0x202040FF);
-        b->setBorderColor(0xFFFFFFFF);
-        b->setBorderThickness(2.0f);
-        b->adopt(
-            ui::FreeContainer::Center,
-            ui::FreeContainer::Center,
-            std::move(sp)
-        );
-        setBody(std::move(b));
+
+        auto vl = std::make_unique<ui::Boxed<ui::VerticalList>>();
+        vl->setPadding(5.0f);
+        vl->setBackgroundColor(0x202040FF);
+        vl->setBorderColor(0xFFFFFFFF);
+        vl->setBorderThickness(2.0f);
+
+        if (name.getSize() > 0) {
+            vl->push_back<ui::Text>(
+                name,
+                getFont(),
+                0xFFFFFFFF,
+                15,
+                ui::TextStyle::Italic
+            );
+        }
+
+        auto& b = vl->push_back<ui::Boxed<ui::HorizontalList>>();
+        b.setBackgroundColor(0x0);
+        b.setPadding(0.0f);
+        auto& spacer = b.push_back<ui::Element>();
+        spacer.setSize({20.0f, 20.0f}, true);
+        b.push_back(std::move(sp));
+
+        setBody(std::move(vl));
 
         m_conn = m_constant.onChangeValue.connect([&](double v){
             m_slider->setValue(v);
@@ -106,13 +120,15 @@ namespace flui {
         std::optional<double> v1;
         std::optional<double> v2;
         std::optional<double> v3;
+        std::optional<std::string> name;
         p.add(v1);
         p.add(v2);
         p.add(v3);
+        p.add(name);
 
         p.parse(args);
         
-        auto c = std::make_unique<Slider>();
+        auto c = std::make_unique<Slider>(name ? *name : "");
 
         if (v3){
             assert(v1);
