@@ -14,7 +14,16 @@ namespace flui {
         setBody(makeSimpleBody("Linear Smoother", 0xd9d514ff));
     }
 
-    // TODO
-    // RegisterFactoryObject(LinearSmoother, "LinearSmoother");
+    void LinearSmoother::serialize(Serializer& s) const {
+        throw SerializationException{};
+        // TODO
+    }
+
+    void LinearSmoother::deserialize(Deserializer& d) {
+        throw SerializationException{};
+        // TODO
+    }
+
+    RegisterFactoryObject(LinearSmoother, "LinearSmoother");
 
 } // namespace flui

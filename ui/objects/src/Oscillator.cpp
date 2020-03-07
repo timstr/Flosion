@@ -13,7 +13,16 @@ namespace flui {
         setBody(makeSimpleBody("Oscillator", 0xd9d514ff));
     }
 
-    // TODO
-    // RegisterFactoryObject(Oscillator, "Oscillator");
+    void Oscillator::serialize(Serializer& s) const {
+        throw SerializationException{};
+        // TODO
+    }
+
+    void Oscillator::deserialize(Deserializer& d) {
+        throw SerializationException{};
+        // TODO
+    }
+
+    RegisterFactoryObject(Oscillator, "Oscillator");
 
 } // namespace flui

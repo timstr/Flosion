@@ -11,6 +11,9 @@ namespace flui {
 
     private:
         flo::Accumulator m_accumulator;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
 } // namespace flui

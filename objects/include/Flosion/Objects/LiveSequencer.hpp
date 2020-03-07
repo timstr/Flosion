@@ -24,7 +24,12 @@ namespace flo {
 
             // Audio is played and recorded in realtime from input
             // Previous recording is overwritten
-            LiveInput,
+
+            LiveOngoing,
+
+            LiveRestarting,
+
+            LiveOnce,
 
             // Whatever was last played live is repeated
             RecordedInput
@@ -33,9 +38,7 @@ namespace flo {
         Mode currentMode() const noexcept;
         Mode nextMode() const noexcept;
 
-        void pauseNext();
-        void playLiveInputNext();
-        void playRecordedInputNext();
+        void setNextMode(Mode);
 
         void resetNow();
 
@@ -80,6 +83,8 @@ namespace flo {
     public:
         LiveSequencer();
         ~LiveSequencer();
+
+        std::size_t currentPosition() const;
 
         void setLength(std::size_t);
         std::size_t length() const noexcept;

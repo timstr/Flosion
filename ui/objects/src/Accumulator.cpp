@@ -13,7 +13,16 @@ namespace flui {
         setBody(makeSimpleBody("Accumulator", 0xd9d514ff));
     }
 
-    // TODO
-    // RegisterFactoryObject(Accumulator, "Accumulator");
+    void Accumulator::serialize(Serializer& s) const {
+        throw SerializationException{};
+        // TODO
+    }
+
+    void Accumulator::deserialize(Deserializer& d) {
+        throw SerializationException{};
+        // TODO
+    }
+
+    RegisterFactoryObject(Accumulator, "Accumulator");
 
 } // namespace flui

@@ -4,6 +4,7 @@
 #include <Flosion/UI/Core/SoundWire.hpp>
 
 #include <GUI/Helpers/CallbackButton.hpp>
+#include <GUI/Helpers/ToggleButton.hpp>
 #include <Flosion/Util/FileBrowser.hpp>
 
 namespace flui {
@@ -28,6 +29,16 @@ namespace flui {
                 }
             }
         );
+
+        bod->push_back<ui::ToggleButton>(
+            m_audioClip.looping(),
+            getFont(),
+            [&](bool l){
+                m_audioClip.setLooping(l);
+            },
+            std::make_pair(ui::String("One-shot"), ui::String("Loop"))
+        );
+
         bod->setPadding(5.0f);
         bod->setBackgroundColor(0x2f8700ff);
         setBody(std::move(bod));

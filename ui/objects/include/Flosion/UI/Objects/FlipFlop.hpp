@@ -11,6 +11,9 @@ namespace flui {
 
     private:
         flo::FlipFlop m_flipFlop;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
 } // namespace flui

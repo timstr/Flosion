@@ -11,6 +11,9 @@ namespace flui {
 
     private:
         flo::Variable m_variable;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
 } // namespace flui

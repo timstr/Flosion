@@ -11,6 +11,9 @@ namespace flui {
 
     private:
         flo::RandomWalk m_randomWalk;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
 } // namespace flui

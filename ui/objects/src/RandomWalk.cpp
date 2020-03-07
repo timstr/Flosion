@@ -14,7 +14,16 @@ namespace flui {
         setBody(makeSimpleBody("Random Walk", 0xe07e22ff));
     }
 
-    // TODO
-    // RegisterFactoryObject(RandomWalk, "RandomWalk");
+    void RandomWalk::serialize(Serializer& s) const {
+        throw SerializationException{};
+        // TODO
+    }
+
+    void RandomWalk::deserialize(Deserializer& d) {
+        throw SerializationException{};
+        // TODO
+    }
+
+    RegisterFactoryObject(RandomWalk, "RandomWalk");
 
 } // namespace flui

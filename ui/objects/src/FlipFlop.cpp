@@ -14,7 +14,16 @@ namespace flui {
         setBody(makeSimpleBody("FlipFlop", 0xd9d514ff));
     }
 
-    // TODO
-    //RegisterFactoryObject(FlipFlop, "FlipFlop");
+    void FlipFlop::serialize(Serializer& s) const {
+        throw SerializationException{};
+        // TODO
+    }
+
+    void FlipFlop::deserialize(Deserializer& d) {
+        throw SerializationException{};
+        // TODO
+    }
+
+    RegisterFactoryObject(FlipFlop, "FlipFlop");
 
 } // namespace flui

@@ -13,7 +13,16 @@ namespace flui {
         setBody(makeSimpleBody("Variable", 0xd9d514ff));
     }
 
-    // TODO
-    // RegisterFactoryObject(Variable, "Variable");
+    void Variable::serialize(Serializer& s) const {
+        throw SerializationException{};
+        // TODO
+    }
+
+    void Variable::deserialize(Deserializer& d) {
+        throw SerializationException{};
+        // TODO
+    }
+
+    RegisterFactoryObject(Variable, "Variable");
 
 } // namespace flui

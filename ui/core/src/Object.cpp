@@ -76,7 +76,10 @@ namespace flui {
         if (fd == m_flowDirection){
             return;
         }
-        m_flowDirection = getNewFlowDirection(fd);
+        fd = getNewFlowDirection(fd);
+        if (fd == m_flowDirection){
+            return;
+        }
         updateLayout(m_flowDirection);
     }
 

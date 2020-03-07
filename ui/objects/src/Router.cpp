@@ -153,7 +153,6 @@ namespace flui {
         throw SerializationException{};
     }
 
-    // TODO
-    // RegisterFactoryObject(Router, "Router");
+    RegisterFactoryObject(Router, "Router");
 
 } // namespace flui

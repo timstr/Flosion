@@ -7,6 +7,8 @@ namespace flo {
     LiveSequencer::LiveSequencer() {
         // TODO: hack
         enableMonostate();
+
+        setLength(Sample::frequency * 4);
     }
 
     LiveSequencer::~LiveSequencer(){
@@ -16,6 +18,11 @@ namespace flo {
         }
     }
 
+    std::size_t LiveSequencer::currentPosition() const {
+        // TODO: synchronize this, probably using atomic<std::size_t>
+        return getMonoState()->m_current_pos;
+    }
+
     void LiveSequencer::setLength(std::size_t l){
         assert(l >= SoundChunk::size);
         auto lock = acquireLock();
@@ -23,7 +30,7 @@ namespace flo {
         if (s->m_current_pos >= l) {
             s->m_current_pos = 0;
             for (auto& t : s->m_tracks) {
-                t->m_currentMode = t->m_nextMode;
+                t->m_currentMode = t->m_nextMode.load(std::memory_order_relaxed);
                 t->onChangeCurrentMode.broadcast(t->m_currentMode);
             }
         }
@@ -51,6 +58,11 @@ namespace flo {
             auto lock = acquireLock();
             auto s = getMonoState();
             auto t = std::make_unique<Track>(this);
+            auto nChunks = s->m_sequenceLength / SoundChunk::size;
+            if (s->m_sequenceLength % SoundChunk::size > 0) {
+                nChunks += 1;
+            }
+            t->m_chunks.resize(nChunks);
             tp = t.get();
             s->m_tracks.push_back(std::move(t));
         }
@@ -92,7 +104,11 @@ namespace flo {
 
         const auto mixAllTracks = [&](std::size_t chunkIdx, std::size_t inChunkStart, std::size_t len, std::size_t outChunkStart) {
             for (const auto& t : state->m_tracks) {
+                if (t->currentMode() == Track::Mode::Pause) {
+                    continue;
+                }
                 const auto a = static_cast<float>(util::volumeToAmplitude(t->volume(), maxVolume()));
+                assert(chunkIdx < t->m_chunks.size());
                 const auto& inChunk = t->m_chunks[chunkIdx];
                 for (std::size_t i = 0; i < len; ++i) {
                     chunk[i + outChunkStart] += inChunk[i + inChunkStart] * a;
@@ -102,14 +118,25 @@ namespace flo {
 
         const auto swapTrackModes = [&]() {
             for (auto& t : state->m_tracks) {
-                t->m_currentMode = t->m_nextMode;
+                t->m_currentMode = t->m_nextMode.load(std::memory_order_relaxed);
+                if (t->m_currentMode == Track::Mode::LiveOnce) {
+                    t->setNextMode(Track::Mode::RecordedInput);
+                } else if (t->m_currentMode == Track::Mode::LiveRestarting) {
+                    t->input.resetStateFor(this, getMonoState());
+                }
                 t->onChangeCurrentMode.broadcast(t->m_currentMode);
             }
         };
 
         const auto getNextTrackChunks = [&](std::size_t chunkIdx) {
             for (const auto& t : state->m_tracks) {
+                const auto m = t->currentMode();
+                if (m == Track::Mode::RecordedInput || m == Track::Mode::Pause) {
+                    continue;
+                }
+                assert(chunkIdx < t->m_chunks.size());
                 auto& inChunk = t->m_chunks[chunkIdx];
+                inChunk.silence();
                 t->input.getNextChunkFor(inChunk, this, state);
             }
         };
@@ -119,14 +146,17 @@ namespace flo {
         while (samplesWritten < SoundChunk::size) {
             // Write portion of current track chunks to out chunk
             // (portion is the lesser of remaining chunk length and remaining sequence length)
-            assert(state->m_current_pos < state->m_sequenceLength);
-            auto inChunkIdx = state->m_current_pos / SoundChunk::size;
-            auto inChunkRemainder = state->m_current_pos % SoundChunk::size;
-            auto sequenceRemainder = state->m_sequenceLength - state->m_current_pos;
-            auto inChunkPortion = std::min(inChunkRemainder, sequenceRemainder);
-            mixAllTracks(inChunkIdx, inChunkRemainder, inChunkPortion, samplesWritten);
-            samplesWritten += inChunkPortion;
-            state->m_current_pos += inChunkPortion;
+            assert(state->m_current_pos <= state->m_sequenceLength);
+            if (state->m_current_pos < state->m_sequenceLength) {
+                auto inChunkIdx = state->m_current_pos / SoundChunk::size;
+                auto inChunkOffset = state->m_current_pos % SoundChunk::size;
+                auto inChunkRemainder = SoundChunk::size - inChunkOffset;
+                auto sequenceRemainder = state->m_sequenceLength - state->m_current_pos;
+                auto inChunkPortion = std::min(inChunkRemainder, sequenceRemainder);
+                mixAllTracks(inChunkIdx, inChunkOffset, inChunkPortion, samplesWritten);
+                samplesWritten += inChunkPortion;
+                state->m_current_pos += inChunkPortion;
+            }
 
             // if end of sequence is reached, set position to zero and swap tracks to next mode
             assert(samplesWritten <= SoundChunk::size);
@@ -138,14 +168,14 @@ namespace flo {
 
             // Get next chunk for each track
             assert(state->m_current_pos < state->m_sequenceLength);
-            inChunkIdx = state->m_current_pos / SoundChunk::size;
+            auto inChunkIdx = state->m_current_pos / SoundChunk::size;
             getNextTrackChunks(inChunkIdx);
 
             // Write portion of current track chunks to out chunk
             // (portion is the lesser of the remaining outChunk length and remaining sequence length)
-            inChunkRemainder = SoundChunk::size - samplesWritten;
-            sequenceRemainder = state->m_sequenceLength - state->m_current_pos;
-            inChunkPortion = std::min(inChunkRemainder, sequenceRemainder);
+            auto inChunkRemainder = SoundChunk::size - samplesWritten;
+            auto sequenceRemainder = state->m_sequenceLength - state->m_current_pos;
+            auto inChunkPortion = std::min(inChunkRemainder, sequenceRemainder);
 
             if (inChunkPortion == 0) {
                 break;
@@ -171,7 +201,7 @@ namespace flo {
     }
 
     void Track::setVolume(double v) {
-        v = std::clamp(v, 0.0, 1.0);
+        v = std::clamp(v, 0.0, m_parent->maxVolume());
         if (std::abs(v - m_volume) > 1e-6) {
             m_volume.store(v, std::memory_order_relaxed);
             onChangeVolume.broadcast(m_volume);
@@ -183,22 +213,12 @@ namespace flo {
     }
 
     Track::Mode Track::nextMode() const noexcept {
-        return m_nextMode;
+        return m_nextMode.load(std::memory_order_relaxed);
     }
 
-    void Track::pauseNext() {
-        m_nextMode.store(Mode::Pause, std::memory_order_relaxed);
-        onChangeNextMode.broadcast(Mode::Pause);
-    }
-
-    void Track::playLiveInputNext() {
-        m_nextMode.store(Mode::LiveInput, std::memory_order_relaxed);
-        onChangeNextMode.broadcast(Mode::LiveInput);
-    }
-
-    void Track::playRecordedInputNext() {
-        m_nextMode.store(Mode::RecordedInput, std::memory_order_relaxed);
-        onChangeNextMode.broadcast(Mode::RecordedInput);
+    void Track::setNextMode(Mode m) {
+        m_nextMode.store(m, std::memory_order_relaxed);
+        onChangeNextMode.broadcast(m);
     }
 
     void Track::resetNow(){

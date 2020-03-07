@@ -11,6 +11,9 @@ namespace flui {
 
     private:
         flo::Oscillator m_oscillator;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
     };
 
 } // namespace flui

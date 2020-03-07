@@ -17,15 +17,23 @@ namespace flo {
 
     class AudioClip : public Realtime<ControlledSoundSource<AudioClipState>> {
     public:
+        AudioClip();
+
         void loadFromFile(const std::string& path);
 
         sf::SoundBuffer& getSoundBuffer() noexcept;
         const sf::SoundBuffer& getSoundBuffer() const noexcept;
 
+        bool looping() const noexcept;
+
+        void setLooping(bool);
+
     private:
         void renderNextChunk(SoundChunk& chunk, AudioClipState* state) override;
 
         sf::SoundBuffer m_buffer;
+
+        bool m_looping;
     };
 
 } // namespace flo
