@@ -1,5 +1,23 @@
 #include <Flosion/UI/Core/FlosionUI.hpp>
 
+// TODO: make objects created via PanelContextMenu appear
+// centered where PanelContextMenu was made (i.e where mouse was double-clicked)
+
+// TODO: find a safe way and clean to delay the initial state allocation
+// by Uncontrolled (monostate) objects. State should not be allocated
+// until the most-derived class has been constructed, since states may
+// refer to this class (i.e. MelodyState, when querying note overlap).
+// CRTP may be useful here.
+
+// TODO: find a safe and clean way to ensure that sound/number sources
+// contained by UI objects are constructed before base classes are given
+// pointers to these from a derived class that is not yet fully constructed.
+
+// TODO: when a SoundNode receives the time of a node upstream, it should
+// actually see that upstream node's time, not its own.
+
+// TODO: make volumeToAmp less sensitive
+
 // TODO: right now 
 // - Test whether changing flow direction is broken. This may have been an artifact of bugs in transitions that were fixed
 //
@@ -33,7 +51,6 @@
 //
 // - Allow borrowers again
 
-// - add volumeToAmp to util
 // - add Amplifier object
 // - add disabling to ui, disable labels
 // - add length numbersource to AudioClip and make it global

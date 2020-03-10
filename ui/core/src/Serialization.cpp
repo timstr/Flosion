@@ -48,8 +48,13 @@ namespace flui {
         struct flag_type {};
 
 #define SPECIALIZE_TAG(FLAGNAME, SIZE, TYPE) \
-template<> struct flag_size<Flag::FLAGNAME> : std::integral_constant<std::size_t, SIZE> {}; \
-template<> struct flag_type<Flag::FLAGNAME> { typedef TYPE type; };
+template<> struct flag_size<Flag::FLAGNAME> { \
+    static_assert(sizeof(TYPE) == SIZE); \
+    static constexpr std::size_t value = SIZE; \
+}; \
+template<> struct flag_type<Flag::FLAGNAME> { \
+    typedef TYPE type; \
+};
 
         SPECIALIZE_TAG(Byte, 1, std::byte);
         SPECIALIZE_TAG(Bool, 1, bool);
@@ -64,25 +69,28 @@ template<> struct flag_type<Flag::FLAGNAME> { typedef TYPE type; };
         SPECIALIZE_TAG(Float32, 4, float);
         SPECIALIZE_TAG(Float64, 8, double);
 
-#undef SPECIALIZE_TAG_SIZE
+#undef SPECIALIZE_TAG
 
-        template<Flag TF>
-        constexpr std::size_t flag_size_v = flag_size<TF>::value;
+        template<Flag F>
+        constexpr std::size_t flag_size_v = flag_size<F>::value;
 
-        template<Flag TF>
-        using flag_type_t = typename flag_type<TF>::type;
+        template<Flag F>
+        using flag_type_t = typename flag_type<F>::type;
 
-        void writeFlag(std::vector<std::byte>& v, Flag tf) {
-            const auto flag_b = *reinterpret_cast<const std::byte*>(&tf);
+        void writeFlag(std::vector<std::byte>& v, Flag f) {
+            static_assert(sizeof(Flag) == 1);
+            const auto flag_b = *reinterpret_cast<const std::byte*>(&f);
             v.push_back(flag_b);
         }
 
         Flag readFlag(const std::vector<std::byte>& v, std::vector<std::byte>::const_iterator& it) {
+            static_assert(sizeof(Flag) == 1);
             if (it == end(v)) {
                 throw SerializationException{};
             }
             const std::byte* b_ptr = &*it;
             const auto flag = *reinterpret_cast<const Flag*>(b_ptr);
+            ++it;
             return flag;
         }
 
@@ -90,7 +98,6 @@ template<> struct flag_type<Flag::FLAGNAME> { typedef TYPE type; };
         template<Flag TF, typename T>
         void writeScalarUnchecked(std::vector<std::byte>& v, const T& x) {
             static_assert(std::is_same_v<flag_type_t<TF>, T>);
-            static_assert(flag_size_v<TF> == sizeof(T));
 
             const auto x_bptr = reinterpret_cast<const std::byte*>(&x);
 
@@ -123,16 +130,16 @@ template<> struct flag_type<Flag::FLAGNAME> { typedef TYPE type; };
         template<Flag TF, typename T>
         void writeScalar(std::vector<std::byte>& v, const T& x) {
             static_assert(std::is_same_v<flag_type_t<TF>, T>);
-            static_assert(flag_size_v<TF> == sizeof(T));
 
             writeFlag(v, TF);
             writeScalarUnchecked<TF>(v, x);
         }
 
-        template<Flag TF>
-        flag_type_t<TF> readScalarUnchecked(const std::vector<std::byte>& v, std::vector<std::byte>::const_iterator& it) {
-            flag_type_t<TF> x;
+        template<Flag F>
+        flag_type_t<F> readScalarUnchecked(const std::vector<std::byte>& v, std::vector<std::byte>::const_iterator& it) {
+            flag_type_t<F> x;
             const auto x_bptr = reinterpret_cast<std::byte*>(&x);
+            const std::byte* b_ptr = &*it;
 
             // TODO: handle endianness right here
             const auto numBytes = flag_size_v<TF>;
@@ -140,43 +147,29 @@ template<> struct flag_type<Flag::FLAGNAME> { typedef TYPE type; };
                 throw SerializationException{};
             }
             if constexpr (numBytes == 1) {
-                x_bptr[0] = *it;
-                ++it;
+                x_bptr[0] = b_ptr[0];
             } else if constexpr (numBytes == 2) {
-                x_bptr[0] = *it;
-                ++it;
-                x_bptr[1] = *it;
-                ++it;
+                x_bptr[0] = b_ptr[0];
+                x_bptr[1] = b_ptr[1];
             } else if constexpr (numBytes == 4) {
-                x_bptr[0] = *it;
-                ++it;
-                x_bptr[1] = *it;
-                ++it;
-                x_bptr[2] = *it;
-                ++it;
-                x_bptr[3] = *it;
-                ++it;
+                x_bptr[0] = b_ptr[0];
+                x_bptr[1] = b_ptr[1];
+                x_bptr[2] = b_ptr[2];
+                x_bptr[3] = b_ptr[3];
             } else if constexpr (numBytes == 8) {
-                x_bptr[0] = *it;
-                ++it;
-                x_bptr[1] = *it;
-                ++it;
-                x_bptr[2] = *it;
-                ++it;
-                x_bptr[3] = *it;
-                ++it;
-                x_bptr[4] = *it;
-                ++it;
-                x_bptr[5] = *it;
-                ++it;
-                x_bptr[6] = *it;
-                ++it;
-                x_bptr[7] = *it;
-                ++it;
+                x_bptr[0] = b_ptr[0];
+                x_bptr[1] = b_ptr[1];
+                x_bptr[2] = b_ptr[2];
+                x_bptr[3] = b_ptr[3];
+                x_bptr[4] = b_ptr[4];
+                x_bptr[5] = b_ptr[5];
+                x_bptr[6] = b_ptr[6];
+                x_bptr[7] = b_ptr[7];
             } else {
                 static_assert(std::false_type<T>::value);
             }
 
+            std::advance(it, numBytes);
             return x;
         }
 

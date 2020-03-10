@@ -124,6 +124,22 @@ namespace flui {
         };
 
 
+        // Serializes all selected objects to the clipboard.
+        // Does nothing if there is no selection.
+        void copySelection();
+
+        // Serializes all selected objects to the clipboard,
+        // then removes them.
+        // Does nothing if there is no selection.
+        void cutSelection();
+
+        // Deserializes objects from the clipboard and adds them
+        // to the panel. Any selected objects are removed, and
+        // the newly inserted objects are selected.
+        // Does nothing if the clipboard does not contain valid data.
+        void paste();
+
+
         bool onKeyDown(ui::Key) override;
 
 		bool onLeftClick(int) override;
