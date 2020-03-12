@@ -63,6 +63,8 @@ namespace flui {
 
         s.i16_span(b.getSamples(), n);
 
+        s.b(m_audioClip.looping());
+
         s.str(m_label->text().toAnsiString());
     }
 
@@ -73,6 +75,7 @@ namespace flui {
         auto cc = d.u64();
         auto sr = d.u64();
         auto audioData = d.i16_vec();
+        auto loop = d.b();
         auto txt = d.str();
 
         assert(audioData.size() == sc * cc);
@@ -83,6 +86,8 @@ namespace flui {
             static_cast<unsigned int>(cc),
             static_cast<unsigned int>(sr)
         );
+
+        m_audioClip.setLooping(loop);
 
         m_label->setText(txt);
     }

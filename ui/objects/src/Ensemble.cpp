@@ -24,5 +24,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(Ensemble, "Ensemble");
+    REGISTER_SERIALIZABLE(Ensemble, "Ensemble");
 
 } // namespace flui

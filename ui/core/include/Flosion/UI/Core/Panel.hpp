@@ -87,11 +87,42 @@ namespace flui {
 
         void selectObjects(std::vector<Object*>);
 
+        void clearSelection();
+
+        void moveSelection(ui::vec2 delta);
+
+        void deleteSelection();
+
+        // Serializes all selected objects to the clipboard.
+        // Does nothing if there is no selection.
+        void copySelection();
+
+        // Serializes all selected objects to the clipboard,
+        // then removes them.
+        // Does nothing if there is no selection.
+        void cutSelection();
+
+        // Deserializes objects from the clipboard and adds them
+        // to the panel. Any selected objects are removed, and
+        // the newly inserted objects are selected.
+        // Does nothing if the clipboard does not contain valid data.
+        void paste();
+
         class SelectedObjects : public ui::FreeContainer, public ui::Control, public ui::Draggable {
         public:
             SelectedObjects(Panel& parentPanel, const std::vector<Object*>&);
 
             void putObjectsBack();
+
+            std::vector<const Object*> getObjects() const;
+
+            void moveObjects(ui::vec2 delta);
+
+            void deleteSelection();
+
+            // TODO: add/remove objects to/from selection
+
+            void deselectAll();
 
         private:
             bool onLeftClick(int) override;
@@ -122,22 +153,6 @@ namespace flui {
             std::vector<std::pair<Object*, ui::vec2>> m_selectedObjects;
             ui::vec2 m_lastPos;
         };
-
-
-        // Serializes all selected objects to the clipboard.
-        // Does nothing if there is no selection.
-        void copySelection();
-
-        // Serializes all selected objects to the clipboard,
-        // then removes them.
-        // Does nothing if there is no selection.
-        void cutSelection();
-
-        // Deserializes objects from the clipboard and adds them
-        // to the panel. Any selected objects are removed, and
-        // the newly inserted objects are selected.
-        // Does nothing if the clipboard does not contain valid data.
-        void paste();
 
 
         bool onKeyDown(ui::Key) override;

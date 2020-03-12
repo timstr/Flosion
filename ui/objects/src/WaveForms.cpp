@@ -24,6 +24,7 @@ namespace flui {
     }
 
     RegisterFactoryObject(SineWave, "Sine Wave", "Unit Sine");
+    REGISTER_SERIALIZABLE(SineWave, "SineWave");
 
     SawWave::SawWave(){
         addToInflow(makePeg(&m_sawWave.input));
@@ -41,6 +42,7 @@ namespace flui {
     }
 
     RegisterFactoryObject(SawWave, "Saw Wave");
+    REGISTER_SERIALIZABLE(SawWave, "SawWave");
 
     SquareWave::SquareWave(){
         addToInflow(makePeg(&m_squareWave.input));
@@ -58,6 +60,7 @@ namespace flui {
     }
 
     RegisterFactoryObject(SquareWave, "Square Wave");
+    REGISTER_SERIALIZABLE(SquareWave, "SquareWave");
 
     TriangleWave::TriangleWave(){
         addToInflow(makePeg(&m_triangleWave.input));
@@ -75,5 +78,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(TriangleWave, "Triangle Wave");
+    REGISTER_SERIALIZABLE(TriangleWave, "TriangleWave");
 
 } // namespace flui

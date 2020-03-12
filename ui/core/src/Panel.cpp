@@ -9,6 +9,8 @@
 
 #include <GUI/Context.hpp>
 
+#include <Flosion/Util/Base64.hpp>
+
 #include <cmath>
 
 namespace flui {
@@ -248,10 +250,79 @@ namespace flui {
         }
     }
 
+    void Panel::clearSelection(){
+        if (m_selection) {
+            m_selection->deselectAll();
+            assert(m_selection == nullptr);
+        }
+    }
+
+    void Panel::moveSelection(ui::vec2 delta) {
+        if (m_selection) {
+            m_selection->moveObjects(delta);
+        }
+    }
+
+    void Panel::deleteSelection() {
+        if (m_selection) {
+            m_selection->deleteSelection();
+            assert(m_selection == nullptr);
+        }
+    }
+
+    void Panel::copySelection() {
+        if (m_selection == nullptr) {
+            return;
+        }
+        const auto objs = m_selection->getObjects();
+        assert(objs.size() > 0);
+        assert(all_of(
+            begin(objs),
+            end(objs),
+            [&](const Object* o){ return o != nullptr && o->getParentPanel() == this; }
+        ));
+        auto s = Serializer{};
+        s.serializeFrom(this, objs);
+        auto bin = s.dump();
+        auto b64 = util::base64Encode(bin);
+        sf::Clipboard::setString(b64);
+    }
+
+    void Panel::cutSelection() {
+        copySelection();
+        deleteSelection();
+    }
+
+    void Panel::paste() {
+        auto b64 = sf::Clipboard::getString();
+        try {
+            auto bin = util::base64Decode(b64);
+            auto d = Deserializer{bin};
+            auto objs = d.deserializeTo(this);
+            deleteSelection();
+            selectObjects(objs);
+        } catch (const std::exception& e) {
+            // TODO: better error message
+            showWarningAt(localMousePos());
+        }
+    }
+
     bool Panel::onKeyDown(ui::Key key){
         bool ctrl = keyDown(ui::Key::LControl) || keyDown(ui::Key::RControl);
-        if (key == ui::Key::A && ctrl){
-            selectObjects(m_objects);
+        if (ctrl) {
+            if (key == ui::Key::A) {
+                selectObjects(m_objects);
+                return true;
+            } else if (key == ui::Key::C) {
+                copySelection();
+                return true;
+            } else if (key == ui::Key::X){
+                cutSelection();
+                return true;
+            } else if (key == ui::Key::V){
+                paste();
+                return true;
+            }
         }
         return false;
     }
@@ -344,6 +415,37 @@ namespace flui {
         }
     }
 
+    std::vector<const Object*> Panel::SelectedObjects::getObjects() const {
+        std::vector<const Object*> ret;
+        for (const auto& [obj, v] : m_selectedObjects) {
+            ret.push_back(obj);
+        }
+        return ret;
+    }
+
+    void Panel::SelectedObjects::moveObjects(ui::vec2 delta) {
+        for (auto& o : m_selectedObjects){
+            o.second += delta;
+        }
+        setPos(pos() + delta);
+    }
+
+    void Panel::SelectedObjects::deleteSelection() {
+        assert(m_parentPanel.m_selection == this);
+        for (const auto& o : m_selectedObjects){
+            o.first->close();
+        }
+        m_parentPanel.m_selection = nullptr;
+        close();
+    }
+
+    void Panel::SelectedObjects::deselectAll(){
+        assert(m_parentPanel.m_selection == this);
+        putObjectsBack();
+        m_parentPanel.m_selection = nullptr;
+        close();
+    }
+
     bool Panel::SelectedObjects::onLeftClick(int){
         startDrag();
         return true;
@@ -354,27 +456,13 @@ namespace flui {
     }
 
     bool Panel::SelectedObjects::onKeyDown(ui::Key key){
-        const auto moveObjects = [&](ui::vec2 delta){
-            for (auto& o : m_selectedObjects){
-                o.second += delta;
-            }
-            setPos(pos() + delta);
-        };
-
         if (key == ui::Key::Delete){
-            for (const auto& o : m_selectedObjects){
-                o.first->close();
-            }
-            m_parentPanel.m_selection = nullptr;
-            close();
+            deleteSelection();
+            // NOTE: this object should be destroyed now
             return true;
         } else if (key == ui::Key::Escape){
-            for (const auto& o : m_selectedObjects){
-                o.first->setPos(o.second);
-                o.first->updateWires();
-            }
-            m_parentPanel.m_selection = nullptr;
-            close();
+            deselectAll();
+            // NOTE: this object should be destroyed now
             return true;
         } else if (key == ui::Key::Up){
             moveObjects({0.0f, -10.0f});

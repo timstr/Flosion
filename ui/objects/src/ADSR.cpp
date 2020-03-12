@@ -26,5 +26,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(ADSR, "ADSR");
+    REGISTER_SERIALIZABLE(ADSR, "ADSR");
 
 } // namespace flui

@@ -23,5 +23,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(Lowpass, "Lowpass");
+    REGISTER_SERIALIZABLE(Lowpass, "Lowpass")
 
 } // namespace flui

@@ -84,5 +84,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(Mixer, "Mixer");
+    REGISTER_SERIALIZABLE(Mixer, "Mixer");
 
 } // namespace flui

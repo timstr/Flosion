@@ -63,10 +63,13 @@ namespace flui {
     }
 
     RegisterFactoryObjectEx(Constant, "constant", Constant::parseConstant);
+    REGISTER_SERIALIZABLE(Constant, "Constant");
 
 
+    Slider::Slider(const ui::String& name)
+        : m_list(nullptr)
+        , m_label(nullptr) {
 
-    Slider::Slider(const ui::String& name){
         addToOutflow(makePeg(&m_constant));
 
         auto sp = std::make_unique<ui::Slider<double>>(
@@ -82,19 +85,15 @@ namespace flui {
         m_slider = sp.get();
 
         auto vl = std::make_unique<ui::Boxed<ui::VerticalList>>();
+        m_list = vl.get();
+
         vl->setPadding(5.0f);
         vl->setBackgroundColor(0x202040FF);
         vl->setBorderColor(0xFFFFFFFF);
         vl->setBorderThickness(2.0f);
 
         if (name.getSize() > 0) {
-            vl->push_back<ui::Text>(
-                name,
-                getFont(),
-                0xFFFFFFFF,
-                15,
-                ui::TextStyle::Italic
-            );
+            setName(name);
         }
 
         auto& b = vl->push_back<ui::Boxed<ui::HorizontalList>>();
@@ -117,7 +116,7 @@ namespace flui {
         std::optional<double> v1;
         std::optional<double> v2;
         std::optional<double> v3;
-        std::optional<std::string> name;
+        std::optional<std::string> name; // TODO: allow string to contain rest of arguments, not just first word
         p.add(v1);
         p.add(v2);
         p.add(v3);
@@ -171,9 +170,46 @@ namespace flui {
         m_slider->setMaximum(v);
     }
 
+    ui::String Slider::name() const {
+        return m_label ? m_label->text() : "";
+    }
+
+    void Slider::setName(const ui::String& s){
+        if (s.getSize() == 0) {
+            removeLabel();
+            return;
+        }
+        if (!m_label) {
+            addLabel();
+        }
+        assert(m_label);
+        m_label->setText(s);
+    }
+
+    void Slider::addLabel(){
+        assert(m_list);
+        if (!m_label) {
+            m_label = &m_list->push_front<ui::Text>(
+                "",
+                getFont(),
+                0xFFFFFFFF,
+                15,
+                ui::TextStyle::Italic
+            );
+        }
+    }
+
+    void Slider::removeLabel(){
+        if (m_label) {
+            m_label->close();
+            m_label = nullptr;
+        }
+    }
+
     void Slider::serialize(Serializer& s) const {
         serializePegs(s);
         s.f64(m_slider->minimum()).f64(m_slider->maximum()).f64(m_constant.getValue());
+        s.str(name().toAnsiString());
     }
 
     void Slider::deserialize(Deserializer& d) {
@@ -181,13 +217,15 @@ namespace flui {
         auto min = d.f64();
         auto max = d.f64();
         auto v = d.f64();
+        auto s = d.str();
         m_slider->setMinimum(min);
         m_slider->setMaximum(max);
         m_constant.setValue(v);
+        setName(s);
     }
 
     RegisterFactoryObjectEx(Slider, "slider", Slider::parseSlider);
-
+    REGISTER_SERIALIZABLE(Slider, "Slider");
 
 
     Add::Add(){
@@ -197,6 +235,7 @@ namespace flui {
         setBody(makeSimpleBody("Add", 0x202040FF));
     }
     RegisterFactoryObject(Add, "add", "+");
+    REGISTER_SERIALIZABLE(Add, "Add");
 
     Subtract::Subtract(){
         addToInflow(makePeg(&m_subtract.input1, "Input 1"));
@@ -205,6 +244,7 @@ namespace flui {
         setBody(makeSimpleBody("Subtract", 0x202040FF));
     }
     RegisterFactoryObject(Subtract, "subtract", "-");
+    REGISTER_SERIALIZABLE(Subtract, "Subtract");
 
     Multiply::Multiply(){
         addToInflow(makePeg(&m_multiply.input1, "Input 1"));
@@ -213,6 +253,7 @@ namespace flui {
         setBody(makeSimpleBody("Multiply", 0x202040FF));
     }
     RegisterFactoryObject(Multiply, "multiply", "*");
+    REGISTER_SERIALIZABLE(Multiply, "Multiply");
 
     Divide::Divide(){
         addToInflow(makePeg(&m_divide.input1, "Numerator"));
@@ -221,6 +262,7 @@ namespace flui {
         setBody(makeSimpleBody("Divide", 0x202040FF));
     }
     RegisterFactoryObject(Divide, "divide", "/");
+    REGISTER_SERIALIZABLE(Divide, "Divide");
 
 
 
@@ -230,24 +272,28 @@ namespace flui {
         setBody(makeSimpleBody("Pi", 0x404040FF));
     }
     RegisterFactoryObject(PiConstant, "pi");
+    REGISTER_SERIALIZABLE(PiConstant, "PiConstant");
     
     EulersConstant::EulersConstant(){
         addToOutflow(makePeg(&m_eulersConstant));
         setBody(makeSimpleBody("e", 0x404040FF));
     }
     RegisterFactoryObject(EulersConstant, "e");
+    REGISTER_SERIALIZABLE(EulersConstant, "EulersConstant");
     
     TauConstant::TauConstant(){
         addToOutflow(makePeg(&m_tauConstant));
         setBody(makeSimpleBody("tau", 0x404040FF));
     }
     RegisterFactoryObject(TauConstant, "tau");
+    REGISTER_SERIALIZABLE(TauConstant, "TauConstant");
 
     SampleFrequencyConstant::SampleFrequencyConstant(){
         addToOutflow(makePeg(&m_sfreq));
         setBody(makeSimpleBody("Sample Frequency", 0x2a3d4dff));
     }
     RegisterFactoryObject(SampleFrequencyConstant, "SampleFrequency");
+    REGISTER_SERIALIZABLE(SampleFrequencyConstant, "SampleFrequencyConstant");
 
     Abs::Abs(){
         addToInflow(makePeg(&m_abs.input));
@@ -255,6 +301,7 @@ namespace flui {
         setBody(makeSimpleBody("abs", 0x2a3d4dff));
     }
     RegisterFactoryObject(Abs, "abs");
+    REGISTER_SERIALIZABLE(Abs, "Abs");
 
     SquareRoot::SquareRoot(){
         addToInflow(makePeg(&m_squareRoot.input));
@@ -262,6 +309,7 @@ namespace flui {
         setBody(makeSimpleBody("sqrt", 0x4a4b5eff));
     }
     RegisterFactoryObject(SquareRoot, "sqrt");
+    REGISTER_SERIALIZABLE(SquareRoot, "SquareRoot");
 
     CubeRoot::CubeRoot(){
         addToInflow(makePeg(&m_cubeRoot.input));
@@ -269,6 +317,7 @@ namespace flui {
         setBody(makeSimpleBody("cbrt", 0x4a4b5eff));
     }
     RegisterFactoryObject(CubeRoot, "cbrt");
+    REGISTER_SERIALIZABLE(CubeRoot, "CubeRoot");
 
     Square::Square(){
         addToInflow(makePeg(&m_square.input));
@@ -276,6 +325,7 @@ namespace flui {
         setBody(makeSimpleBody("sqr", 0x520a73ff));
     }
     RegisterFactoryObject(Square, "sqr");
+    REGISTER_SERIALIZABLE(Square, "Square");
 
     Log::Log(){
         addToInflow(makePeg(&m_log.input));
@@ -283,6 +333,7 @@ namespace flui {
         setBody(makeSimpleBody("log", 0x335238ff));
     }
     RegisterFactoryObject(Log, "log");
+    REGISTER_SERIALIZABLE(Log, "Log");
 
     Log2::Log2(){
         addToInflow(makePeg(&m_log2.input));
@@ -290,6 +341,7 @@ namespace flui {
         setBody(makeSimpleBody("log2", 0x335238ff));
     }
     RegisterFactoryObject(Log2, "log2");
+    REGISTER_SERIALIZABLE(Log2, "Log2");
 
     Log10::Log10(){
         addToInflow(makePeg(&m_log10.input));
@@ -297,6 +349,7 @@ namespace flui {
         setBody(makeSimpleBody("log10", 0x335238ff));
     }
     RegisterFactoryObject(Log10, "log10");
+    REGISTER_SERIALIZABLE(Log10, "Log10");
 
     Exp::Exp(){
         addToInflow(makePeg(&m_exp.input));
@@ -304,6 +357,7 @@ namespace flui {
         setBody(makeSimpleBody("exp", 0x7d1a66ff));
     }
     RegisterFactoryObject(Exp, "exp");
+    REGISTER_SERIALIZABLE(Exp, "Exp");
 
     Exp2::Exp2(){
         addToInflow(makePeg(&m_exp2.input));
@@ -311,6 +365,7 @@ namespace flui {
         setBody(makeSimpleBody("exp2", 0x622863ff));
     }
     RegisterFactoryObject(Exp2, "exp2");
+    REGISTER_SERIALIZABLE(Exp2, "Exp2");
 
     Exp10::Exp10(){
         addToInflow(makePeg(&m_exp10.input));
@@ -318,6 +373,7 @@ namespace flui {
         setBody(makeSimpleBody("exp10", 0x701453ff));
     }
     RegisterFactoryObject(Exp10, "exp10");
+    REGISTER_SERIALIZABLE(Exp10, "Exp10");
 
     Sin::Sin(){
         addToInflow(makePeg(&m_sin.input));
@@ -325,6 +381,7 @@ namespace flui {
         setBody(makeSimpleBody("sin", 0x735b0bff));
     }
     RegisterFactoryObject(Sin, "sin");
+    REGISTER_SERIALIZABLE(Sin, "Sin");
 
     Cos::Cos(){
         addToInflow(makePeg(&m_cos.input));
@@ -332,6 +389,7 @@ namespace flui {
         setBody(makeSimpleBody("cos", 0x735b0bff));
     }
     RegisterFactoryObject(Cos, "cos");
+    REGISTER_SERIALIZABLE(Cos, "Cos");
 
     Tan::Tan(){
         addToInflow(makePeg(&m_tan.input));
@@ -339,6 +397,7 @@ namespace flui {
         setBody(makeSimpleBody("tan", 0x735b0bff));
     }
     RegisterFactoryObject(Tan, "tan");
+    REGISTER_SERIALIZABLE(Tan, "Tan");
 
     Asin::Asin(){
         addToInflow(makePeg(&m_asin.input));
@@ -346,6 +405,7 @@ namespace flui {
         setBody(makeSimpleBody("asin", 0xc7b350ff));
     }
     RegisterFactoryObject(Asin, "asin");
+    REGISTER_SERIALIZABLE(Asin, "Asin");
 
     Acos::Acos(){
         addToInflow(makePeg(&m_acos.input));
@@ -353,6 +413,7 @@ namespace flui {
         setBody(makeSimpleBody("acos", 0xc7b350ff));
     }
     RegisterFactoryObject(Acos, "acos");
+    REGISTER_SERIALIZABLE(Acos, "Acos");
 
     Atan::Atan(){
         addToInflow(makePeg(&m_atan.input));
@@ -360,6 +421,7 @@ namespace flui {
         setBody(makeSimpleBody("atan", 0xc7b350ff));
     }
     RegisterFactoryObject(Atan, "atan");
+    REGISTER_SERIALIZABLE(Atan, "Atan");
 
     Sinh::Sinh(){
         addToInflow(makePeg(&m_sinh.input));
@@ -367,6 +429,7 @@ namespace flui {
         setBody(makeSimpleBody("sinh", 0x497d47ff));
     }
     RegisterFactoryObject(Sinh, "sinh");
+    REGISTER_SERIALIZABLE(Sinh, "Sinh");
 
     Cosh::Cosh(){
         addToInflow(makePeg(&m_cosh.input));
@@ -374,6 +437,7 @@ namespace flui {
         setBody(makeSimpleBody("cosh", 0x497d47ff));
     }
     RegisterFactoryObject(Cosh, "cosh");
+    REGISTER_SERIALIZABLE(Cosh, "Cosh");
 
     Tanh::Tanh(){
         addToInflow(makePeg(&m_tanh.input));
@@ -381,6 +445,7 @@ namespace flui {
         setBody(makeSimpleBody("tanh", 0x497d47ff));
     }
     RegisterFactoryObject(Tanh, "tanh");
+    REGISTER_SERIALIZABLE(Tanh, "Tanh");
 
     Asinh::Asinh(){
         addToInflow(makePeg(&m_asinh.input));
@@ -388,6 +453,7 @@ namespace flui {
         setBody(makeSimpleBody("asinh", 0x647d63ff));
     }
     RegisterFactoryObject(Asinh, "asinh");
+    REGISTER_SERIALIZABLE(Asinh, "Asinh");
 
     Acosh::Acosh(){
         addToInflow(makePeg(&m_acosh.input));
@@ -395,6 +461,7 @@ namespace flui {
         setBody(makeSimpleBody("acosh", 0x647d63ff));
     }
     RegisterFactoryObject(Acosh, "acosh");
+    REGISTER_SERIALIZABLE(Acosh, "Acosh");
 
     Atanh::Atanh(){
         addToInflow(makePeg(&m_atanh.input));
@@ -402,6 +469,7 @@ namespace flui {
         setBody(makeSimpleBody("abs", 0x647d63ff));
     }
     RegisterFactoryObject(Atanh, "atanh");
+    REGISTER_SERIALIZABLE(Atanh, "Atanh");
 
     Ceil::Ceil(){
         addToInflow(makePeg(&m_ceil.input));
@@ -409,6 +477,7 @@ namespace flui {
         setBody(makeSimpleBody("ceil", 0x36367dff));
     }
     RegisterFactoryObject(Ceil, "ceil");
+    REGISTER_SERIALIZABLE(Ceil, "Ceil");
 
     Floor::Floor(){
         addToInflow(makePeg(&m_floor.input));
@@ -416,6 +485,7 @@ namespace flui {
         setBody(makeSimpleBody("floor", 0x36367dff));
     }
     RegisterFactoryObject(Floor, "floor");
+    REGISTER_SERIALIZABLE(Floor, "Floor");
 
     Round::Round(){
         addToInflow(makePeg(&m_round.input));
@@ -423,6 +493,7 @@ namespace flui {
         setBody(makeSimpleBody("round", 0x36367dff));
     }
     RegisterFactoryObject(Round, "round");
+    REGISTER_SERIALIZABLE(Round, "Round");
 
     Frac::Frac(){
         addToInflow(makePeg(&m_frac.input));
@@ -430,6 +501,7 @@ namespace flui {
         setBody(makeSimpleBody("frac", 0x1e5924ff));
     }
     RegisterFactoryObject(Frac, "frac");
+    REGISTER_SERIALIZABLE(Frac, "Frac");
 
     PlusOne::PlusOne(){
         addToInflow(makePeg(&m_plusOne.input));
@@ -437,6 +509,7 @@ namespace flui {
         setBody(makeSimpleBody("+1", 0x786538ff));
     }
     RegisterFactoryObject(PlusOne, "plusone", "+1", "1+");
+    REGISTER_SERIALIZABLE(PlusOne, "PlusOne");
 
     MinusOne::MinusOne(){
         addToInflow(makePeg(&m_minusOne.input));
@@ -444,6 +517,7 @@ namespace flui {
         setBody(makeSimpleBody("-1", 0x786538ff));
     }
     RegisterFactoryObject(MinusOne, "minusone", "-1");
+    REGISTER_SERIALIZABLE(MinusOne, "MinusOne");
 
     OneMinus::OneMinus(){
         addToInflow(makePeg(&m_oneMinus.input));
@@ -451,6 +525,7 @@ namespace flui {
         setBody(makeSimpleBody("1-", 0x786538ff));
     }
     RegisterFactoryObject(OneMinus, "oneminus", "1-");
+    REGISTER_SERIALIZABLE(OneMinus, "OneMinus");
 
     Negate::Negate(){
         addToInflow(makePeg(&m_negate.input));
@@ -458,6 +533,7 @@ namespace flui {
         setBody(makeSimpleBody("negate", 0x732a0aff));
     }
     RegisterFactoryObject(Negate, "negate");
+    REGISTER_SERIALIZABLE(Negate, "Negate");
 
     Reciprocal::Reciprocal(){
         addToInflow(makePeg(&m_reciprocal.input));
@@ -465,6 +541,7 @@ namespace flui {
         setBody(makeSimpleBody("reciprocal", 0x732a0aff));
     }
     RegisterFactoryObject(Reciprocal, "reciprocal");
+    REGISTER_SERIALIZABLE(Reciprocal, "Reciprocal");
 
     StdToNorm::StdToNorm(){
         addToInflow(makePeg(&m_stdToNorm.input));
@@ -472,6 +549,7 @@ namespace flui {
         setBody(makeSimpleBody("Std to Norm", 0x546e66ff));
     }
     RegisterFactoryObject(StdToNorm, "StdToNorm");
+    REGISTER_SERIALIZABLE(StdToNorm, "StdToNorm");
 
     NormToStd::NormToStd(){
         addToInflow(makePeg(&m_normToStd.input));
@@ -479,6 +557,7 @@ namespace flui {
         setBody(makeSimpleBody("Norm to Std", 0x546e66ff));
     }
     RegisterFactoryObject(NormToStd, "NormToStd");
+    REGISTER_SERIALIZABLE(NormToStd, "NormToStd");
 
     Sigmoid::Sigmoid(){
         addToInflow(makePeg(&m_sigmoid.input));
@@ -486,6 +565,7 @@ namespace flui {
         setBody(makeSimpleBody("sigmoid", 0xaba552ff));
     }
     RegisterFactoryObject(Sigmoid, "sigmoid");
+    REGISTER_SERIALIZABLE(Sigmoid, "Sigmoid");
 
     Min::Min(){
         addToInflow(makePeg(&m_min.input1));
@@ -494,6 +574,7 @@ namespace flui {
         setBody(makeSimpleBody("min", 0x535773ff));
     }
     RegisterFactoryObject(Min, "min");
+    REGISTER_SERIALIZABLE(Min, "Min");
 
     Max::Max(){
         addToInflow(makePeg(&m_max.input1));
@@ -502,6 +583,7 @@ namespace flui {
         setBody(makeSimpleBody("max", 0x535773ff));
     }
     RegisterFactoryObject(Max, "max");
+    REGISTER_SERIALIZABLE(Max, "Max");
 
     Pow::Pow(){
         addToInflow(makePeg(&m_pow.input1, "Base"));
@@ -510,6 +592,7 @@ namespace flui {
         setBody(makeSimpleBody("pow", 0x691500ff));
     }
     RegisterFactoryObject(Pow, "pow");
+    REGISTER_SERIALIZABLE(Pow, "Pow");
 
     LogBase::LogBase(){
         addToInflow(makePeg(&m_logBase.input1, "Input"));
@@ -518,6 +601,7 @@ namespace flui {
         setBody(makeSimpleBody("Log Base", 0x59194bff));
     }
     RegisterFactoryObject(LogBase, "logbase");
+    REGISTER_SERIALIZABLE(LogBase, "LogBase");
 
     Hypot::Hypot(){
         addToInflow(makePeg(&m_hypot.input1));
@@ -526,6 +610,7 @@ namespace flui {
         setBody(makeSimpleBody("hypot", 0x335950ff));
     }
     RegisterFactoryObject(Hypot, "hypot");
+    REGISTER_SERIALIZABLE(Hypot, "Hypot");
 
     Atan2::Atan2(){
         addToInflow(makePeg(&m_atan2.input1, "X"));
@@ -534,6 +619,7 @@ namespace flui {
         setBody(makeSimpleBody("atan2", 0x335950ff));
     }
     RegisterFactoryObject(Atan2, "atan2");
+    REGISTER_SERIALIZABLE(Atan2, "Atan2");
 
     RandomUniform::RandomUniform(){
         addToInflow(makePeg(&m_randomUniform.input1, "Minimum"));
@@ -542,6 +628,7 @@ namespace flui {
         setBody(makeSimpleBody("Random Uniform", 0xcfc800ff));
     }
     RegisterFactoryObject(RandomUniform, "RandomUniform");
+    REGISTER_SERIALIZABLE(RandomUniform, "RandomUniform");
 
     RandomNormal::RandomNormal(){
         addToInflow(makePeg(&m_randomNormal.input1, "Mean"));
@@ -550,6 +637,7 @@ namespace flui {
         setBody(makeSimpleBody("Random Normal", 0xcfc800ff));
     }
     RegisterFactoryObject(RandomNormal, "RandomNormal");
+    REGISTER_SERIALIZABLE(RandomNormal, "RandomNormal");
 
     RoundTo::RoundTo(){
         addToInflow(makePeg(&m_roundTo.input1, "Input"));
@@ -558,6 +646,7 @@ namespace flui {
         setBody(makeSimpleBody("Round To", 0x452c5cff));
     }
     RegisterFactoryObject(RoundTo, "RoundTo");
+    REGISTER_SERIALIZABLE(RoundTo, "RoundTo");
 
     FloorTo::FloorTo(){
         addToInflow(makePeg(&m_floorTo.input1, "Input"));
@@ -566,6 +655,7 @@ namespace flui {
         setBody(makeSimpleBody("Floor To", 0x452c5cff));
     }
     RegisterFactoryObject(FloorTo, "FloorTo");
+    REGISTER_SERIALIZABLE(FloorTo, "FloorTo");
 
     CeilTo::CeilTo(){
         addToInflow(makePeg(&m_ceilTo.input1, "Input"));
@@ -574,6 +664,7 @@ namespace flui {
         setBody(makeSimpleBody("Ceil To", 0x452c5cff));
     }
     RegisterFactoryObject(CeilTo, "CeilTo");
+    REGISTER_SERIALIZABLE(CeilTo, "CeilTo");
 
     Remainder::Remainder(){
         addToInflow(makePeg(&m_remainder.input1, "Numerator"));
@@ -582,6 +673,7 @@ namespace flui {
         setBody(makeSimpleBody("Remainder", 0x6b4c6aff));
     }
     RegisterFactoryObject(Remainder, "Remainder");
+    REGISTER_SERIALIZABLE(Remainder, "Remainder");
 
     Gaussian::Gaussian(){
         addToInflow(makePeg(&m_gaussian.input, "Input"));
@@ -592,6 +684,7 @@ namespace flui {
         setBody(makeSimpleBody("Gaussian", 0x87807cff));
     }
     RegisterFactoryObject(Gaussian, "Gaussian");
+    REGISTER_SERIALIZABLE(Gaussian, "Gaussian");
 
     LinearInterpolation::LinearInterpolation(){
         addToInflow(makePeg(&m_linearInterpolation.start, "Start"));
@@ -601,6 +694,7 @@ namespace flui {
         setBody(makeSimpleBody("lerp", 0x2f4857ff));
     }
     RegisterFactoryObject(LinearInterpolation, "LinearInterpolation", "lerp");
+    REGISTER_SERIALIZABLE(LinearInterpolation, "LinearInterpolation");
 
     void TrivialNumberObject::serialize(Serializer& s) const {
         serializePegs(s);

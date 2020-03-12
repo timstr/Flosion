@@ -54,5 +54,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(DAC, "DAC");
+    REGISTER_SERIALIZABLE(DAC, "DAC");
 
 } // namespace flui

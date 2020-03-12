@@ -42,13 +42,22 @@ namespace flui {
         void setMinimum(double);
         void setMaximum(double);
 
+        ui::String name() const;
+        void setName(const ui::String&);
+
     private:
         // TODO: shift-click or double-click or button to edit value and limits
         // TODO: easier way to drag
 
         flo::Constant m_constant;
         ui::Slider<double>* m_slider;
+        ui::VerticalList* m_list;
+        ui::Text* m_label;
         flo::Connection m_conn;
+
+        void addLabel();
+
+        void removeLabel();
 
         void serialize(Serializer&) const override;
         void deserialize(Deserializer&) override;

@@ -1,5 +1,7 @@
 #include <Flosion/UI/Core/FlosionUI.hpp>
 
+// TODO: PulseWave (square wave with adjustable pulse width, average amplitude always remains zero)
+
 // TODO: make objects created via PanelContextMenu appear
 // centered where PanelContextMenu was made (i.e where mouse was double-clicked)
 
@@ -157,17 +159,19 @@
 //       output is a single value in the range of [0, 1]. This can be used to control an amplifier,
 //       filter, note qualities, etc.
 
-#include <Flosion/Objects/Melody.hpp>
-#include <Flosion/Objects/DAC.hpp>
-#include <Flosion/Objects/Ensemble.hpp>
-#include <Flosion/Objects/WaveGenerator.hpp>
-#include <Flosion/Objects/Functions.hpp>
-#include <Flosion/Objects/WaveForms.hpp>
-#include <Flosion/Objects/ADSR.hpp>
-#include <Flosion/Objects/Lowpass.hpp>
+//#include <Flosion/Objects/Melody.hpp>
+//#include <Flosion/Objects/DAC.hpp>
+//#include <Flosion/Objects/Ensemble.hpp>
+//#include <Flosion/Objects/WaveGenerator.hpp>
+//#include <Flosion/Objects/Functions.hpp>
+//#include <Flosion/Objects/WaveForms.hpp>
+//#include <Flosion/Objects/ADSR.hpp>
+//#include <Flosion/Objects/Lowpass.hpp>
 
-#include <Flosion/Util/RNG.hpp>
-#include <Flosion/Objects/LiveMelody.hpp>
+//#include <Flosion/Util/RNG.hpp>
+//#include <Flosion/Objects/LiveMelody.hpp>
+
+#include <Flosion/Util/Base64.hpp>
 
 #include <iostream>
 
@@ -176,10 +180,6 @@ int main() {
     auto& win = ui::Window::create(1000, 700, "Flosion");
 
     win.setRoot<flui::FlosionUI>();
-
-    auto cmd = win.addKeyboardCommand(ui::Key::F, [](){
-        std::cout << "Paying respects\n";
-    });
 
     ui::run();
 

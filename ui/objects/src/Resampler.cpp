@@ -23,5 +23,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(Resampler, "Resampler");
+    REGISTER_SERIALIZABLE(Resampler, "Resampler")
 
 } // namespace flui

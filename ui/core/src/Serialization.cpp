@@ -31,20 +31,26 @@ namespace flui {
             ArrayOf = 0x20,
             ArrayLength = 0x21,
 
-            PegID = 0x30,
+            Object = 0x30,
             ObjectTypeID = 0x31,
+            SoundInputPegID = 0x32,
+            SoundOutputPegID = 0x33,
+            NumberInputPegID = 0x34,
+            NumberOutputPegID = 0x35,
 
             SectionObjects = 0x40,
             SectionSoundWires = 0x41,
             SectionNumberWires = 0x42
 
             // TODO: strings?
+
+            // TODO: versioning
         };
 
-        template<Flag TF>
+        template<Flag F>
         struct flag_size {};
 
-        template<Flag TF>
+        template<Flag F>
         struct flag_type {};
 
 #define SPECIALIZE_TAG(FLAGNAME, SIZE, TYPE) \
@@ -95,14 +101,14 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         }
 
 
-        template<Flag TF, typename T>
+        template<Flag F, typename T>
         void writeScalarUnchecked(std::vector<std::byte>& v, const T& x) {
-            static_assert(std::is_same_v<flag_type_t<TF>, T>);
+            static_assert(std::is_same_v<flag_type_t<F>, T>);
 
             const auto x_bptr = reinterpret_cast<const std::byte*>(&x);
 
             // TODO: handle endianness right here
-            const auto numBytes = flag_size_v<TF>;
+            const auto numBytes = flag_size_v<F>;
             if constexpr (numBytes == 1) {
                 v.push_back(x_bptr[0]);
             } else if constexpr (numBytes == 2) {
@@ -127,12 +133,12 @@ template<> struct flag_type<Flag::FLAGNAME> { \
             }
         }
 
-        template<Flag TF, typename T>
+        template<Flag F, typename T>
         void writeScalar(std::vector<std::byte>& v, const T& x) {
-            static_assert(std::is_same_v<flag_type_t<TF>, T>);
+            static_assert(std::is_same_v<flag_type_t<F>, T>);
 
-            writeFlag(v, TF);
-            writeScalarUnchecked<TF>(v, x);
+            writeFlag(v, F);
+            writeScalarUnchecked<F>(v, x);
         }
 
         template<Flag F>
@@ -142,7 +148,7 @@ template<> struct flag_type<Flag::FLAGNAME> { \
             const std::byte* b_ptr = &*it;
 
             // TODO: handle endianness right here
-            const auto numBytes = flag_size_v<TF>;
+            const auto numBytes = flag_size_v<F>;
             if (distance(it, end(v)) < numBytes) {
                 throw SerializationException{};
             }
@@ -173,25 +179,25 @@ template<> struct flag_type<Flag::FLAGNAME> { \
             return x;
         }
 
-        template<Flag TF>
-        flag_type_t<TF> readScalar(const std::vector<std::byte>& v, std::vector<std::byte>::const_iterator& it) {
+        template<Flag F>
+        flag_type_t<F> readScalar(const std::vector<std::byte>& v, std::vector<std::byte>::const_iterator& it) {
 
             auto f = readFlag(v, it);
-            if (f != TF) {
+            if (f != F) {
                 throw SerializationException{};
             }
 
-            return readScalarUnchecked<TF>(v, it);
+            return readScalarUnchecked<F>(v, it);
         }
 
-        template<Flag TF>
-        void writeSpan(std::vector<std::byte>& v, const flag_type_t<TF>* src, std::uint64_t len) {
+        template<Flag F>
+        void writeSpan(std::vector<std::byte>& v, const flag_type_t<F>* src, std::uint64_t len) {
             writeFlag(v, Flag::ArrayOf);
-            writeFlag(v, TF);
+            writeFlag(v, F);
             writeFlag(v, Flag::ArrayLength);
             writeScalarUnchecked<Flag::Uint64>(v, len);
             for (std::uint64_t i = 0; i < len; ++i) {
-                writeScalarUnchecked<TF>(v, src[i]);
+                writeScalarUnchecked<F>(v, src[i]);
             }
         }
 
@@ -209,12 +215,12 @@ template<> struct flag_type<Flag::FLAGNAME> { \
             return len;
         }
 
-        template<Flag TF>
-        void readSpan(const std::vector<std::byte>& v, std::vector<std::byte>::const_iterator& it, flag_type_t<TF>* dst, std::uint64_t len) {
+        template<Flag F>
+        void readSpan(const std::vector<std::byte>& v, std::vector<std::byte>::const_iterator& it, flag_type_t<F>* dst, std::uint64_t len) {
             if (readFlag(v, it) != Flag::ArrayOf) {
                 throw SerializationException{};
             }
-            if (readFlag(v, it) != TF) {
+            if (readFlag(v, it) != F) {
                 throw SerializationException{};
             }
             if (readFlag(v, it) != Flag::ArrayLength) {
@@ -224,7 +230,7 @@ template<> struct flag_type<Flag::FLAGNAME> { \
                 throw SerializationException{};
             }
             for (std::uint64_t i = 0; i < len; ++i) {
-                dst[i] = readScalarUnchecked<TF>(v, it);
+                dst[i] = readScalarUnchecked<F>(v, it);
             }
         }
 
@@ -293,21 +299,21 @@ template<> struct flag_type<Flag::FLAGNAME> { \
     std::vector<std::byte> Serializer::dump() const {
         using namespace detail;
 
-        const auto size_of_uint64 = flag_size_v<Flag::Uint64>;
+        const auto u64_size = flag_size_v<Flag::Uint64>;
 
         // section flag, plus number of objects, plus list of size-data pairs
-        const auto size_of_objects = 1 + size_of_uint64 + std::accumulate(
+        const auto size_of_objects = 1 + u64_size + std::accumulate(
             begin(m_objects),
             end(m_objects),
             std::uint64_t{ 0 },
-            [&](std::uint64_t acc, const std::vector<std::byte>& v){ return acc + size_of_uint64 + v.size(); }
+            [&](std::uint64_t acc, const std::vector<std::byte>& v){ return acc + 1 + u64_size + v.size(); }
         );
 
-        const auto size_of_pair = 2 * sizeof(heap_id);
+        const auto peg_id_size = sizeof(heap_id);
 
-        // section flag, plus number of wires, plus pair for each wire
-        const auto size_of_sound_wires = 1 + size_of_uint64 + m_soundWires.size() * size_of_pair;
-        const auto size_of_number_wires = 1 + size_of_uint64 + m_numberWires.size() * size_of_pair;
+        // section flag, plus number of wires, plus flag-id-flag-id for each wire
+        const auto size_of_sound_wires = 1 + u64_size + m_soundWires.size() * 2 * (1 + peg_id_size);
+        const auto size_of_number_wires = 1 + u64_size + m_numberWires.size() * 2 * (1 + peg_id_size);
 
         const auto total_size = size_of_objects + size_of_sound_wires + size_of_number_wires;
 
@@ -317,11 +323,13 @@ template<> struct flag_type<Flag::FLAGNAME> { \
 
         // dump total number of objects
         writeFlag(ret, Flag::SectionObjects);
-        writeScalar<Flag::Uint64>(ret, m_objects.size());
+        writeScalarUnchecked<Flag::Uint64>(ret, m_objects.size());
         // dump all objects
         for (const auto& obj : m_objects) {
+            // object flag
+            writeFlag(ret, Flag::Object);
             // dump size of object data
-            writeScalar<Flag::Uint64>(ret, obj.size());
+            writeScalarUnchecked<Flag::Uint64>(ret, obj.size());
             // dump object data
             copy(begin(obj), end(obj), back_inserter(ret));
         }
@@ -335,26 +343,26 @@ template<> struct flag_type<Flag::FLAGNAME> { \
 
         // dump number of sound wires
         writeFlag(ret, Flag::SectionSoundWires);
-        writeScalar<Flag::Uint64>(ret, m_soundWires.size());
+        writeScalarUnchecked<Flag::Uint64>(ret, m_soundWires.size());
         // dump all sound wires
         for (const auto& w : m_soundWires) {
-            writeFlag(ret, Flag::PegID);
-            writeScalar<Flag::Uint64>(ret, w.first);
-            writeFlag(ret, Flag::PegID);
-            writeScalar<Flag::Uint64>(ret, w.second);
+            writeFlag(ret, Flag::SoundOutputPegID);
+            writeScalarUnchecked<Flag::Uint64>(ret, w.first);
+            writeFlag(ret, Flag::SoundInputPegID);
+            writeScalarUnchecked<Flag::Uint64>(ret, w.second);
         }
 
         assert(ret.size() == size_of_objects + size_of_sound_wires);
 
         // dump number of number wires
         writeFlag(ret, Flag::SectionNumberWires);
-        writeScalar<Flag::Uint64>(ret, m_numberWires.size());
+        writeScalarUnchecked<Flag::Uint64>(ret, m_numberWires.size());
         // dump all number wires
         for (const auto& w : m_numberWires) {
-            writeFlag(ret, Flag::PegID);
-            writeScalar<Flag::Uint64>(ret, w.first);
-            writeFlag(ret, Flag::PegID);
-            writeScalar<Flag::Uint64>(ret, w.second);
+            writeFlag(ret, Flag::NumberOutputPegID);
+            writeScalarUnchecked<Flag::Uint64>(ret, w.first);
+            writeFlag(ret, Flag::NumberInputPegID);
+            writeScalarUnchecked<Flag::Uint64>(ret, w.second);
         }
 
         assert(ret.size() == total_size);
@@ -368,7 +376,7 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         auto& currentObj = getCurrentObject();
         const auto id = static_cast<heap_id>(m_soundInputPegs.size());
         m_soundInputPegs.push_back(p);
-        detail::writeFlag(currentObj, detail::Flag::PegID);
+        detail::writeFlag(currentObj, detail::Flag::SoundInputPegID);
         detail::writeScalarUnchecked<detail::Flag::Uint64>(currentObj, id);
     }
 
@@ -378,7 +386,7 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         auto& currentObj = getCurrentObject();
         const auto id = static_cast<heap_id>(m_soundOutputPegs.size());
         m_soundOutputPegs.push_back(p);
-        detail::writeFlag(currentObj, detail::Flag::PegID);
+        detail::writeFlag(currentObj, detail::Flag::SoundOutputPegID);
         detail::writeScalarUnchecked<detail::Flag::Uint64>(currentObj, id);
     }
 
@@ -388,7 +396,7 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         auto& currentObj = getCurrentObject();
         const auto id = static_cast<heap_id>(m_numberInputPegs.size());
         m_numberInputPegs.push_back(p);
-        detail::writeFlag(currentObj, detail::Flag::PegID);
+        detail::writeFlag(currentObj, detail::Flag::NumberInputPegID);
         detail::writeScalarUnchecked<detail::Flag::Uint64>(currentObj, id);
     }
 
@@ -398,7 +406,7 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         auto& currentObj = getCurrentObject();
         const auto id = static_cast<heap_id>(m_numberOutputPegs.size());
         m_numberOutputPegs.push_back(p);
-        detail::writeFlag(currentObj, detail::Flag::PegID);
+        detail::writeFlag(currentObj, detail::Flag::NumberOutputPegID);
         detail::writeScalarUnchecked<detail::Flag::Uint64>(currentObj, id);
     }
 
@@ -570,11 +578,15 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         if (readFlag(buffer, it) != Flag::SectionObjects) {
             throw SerializationException{};
         }
-        const auto numObjects = readScalar<Flag::Uint64>(buffer, it);
+        const auto numObjects = readScalarUnchecked<Flag::Uint64>(buffer, it);
         m_objects.reserve(numObjects);
 
         for (std::uint64_t i = 0; i < numObjects; ++i) {
-            const auto objLen = readScalar<Flag::Uint64>(buffer, it);
+            if (readFlag(buffer, it) != Flag::Object) {
+                throw SerializationException{};
+            }
+
+            const auto objLen = readScalarUnchecked<Flag::Uint64>(buffer, it);
 
             auto objBuf = std::vector<std::byte>(objLen);
             for (std::uint64_t j = 0; j < objLen; ++j) {
@@ -592,17 +604,17 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         if (readFlag(buffer, it) != Flag::SectionSoundWires) {
             throw SerializationException{};
         }
-        auto numSoundWires = readScalar<Flag::Uint64>(buffer, it);
+        auto numSoundWires = readScalarUnchecked<Flag::Uint64>(buffer, it);
         m_soundWires.reserve(numSoundWires);
         for (std::uint64_t i = 0; i < numSoundWires; ++i) {
-            if (readFlag(buffer, it) != Flag::PegID) {
+            if (readFlag(buffer, it) != Flag::SoundOutputPegID) {
                 throw SerializationException{};
             }
-            const auto a = readScalar<Flag::Uint64>(buffer, it);
-            if (readFlag(buffer, it) != Flag::PegID) {
+            const auto a = readScalarUnchecked<Flag::Uint64>(buffer, it);
+            if (readFlag(buffer, it) != Flag::SoundInputPegID) {
                 throw SerializationException{};
             }
-            const auto b = readScalar<Flag::Uint64>(buffer, it);
+            const auto b = readScalarUnchecked<Flag::Uint64>(buffer, it);
             m_soundWires.push_back({a, b});
         }
 
@@ -610,17 +622,17 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         if (readFlag(buffer, it) != Flag::SectionNumberWires) {
             throw SerializationException{};
         }
-        auto numNumberWires = readScalar<Flag::Uint64>(buffer, it);
+        auto numNumberWires = readScalarUnchecked<Flag::Uint64>(buffer, it);
         m_numberWires.reserve(numNumberWires);
         for (std::uint64_t i = 0; i < numNumberWires; ++i) {
-            if (readFlag(buffer, it) != Flag::PegID) {
+            if (readFlag(buffer, it) != Flag::NumberOutputPegID) {
                 throw SerializationException{};
             }
-            const auto a = readScalar<Flag::Uint64>(buffer, it);
-            if (readFlag(buffer, it) != Flag::PegID) {
+            const auto a = readScalarUnchecked<Flag::Uint64>(buffer, it);
+            if (readFlag(buffer, it) != Flag::NumberInputPegID) {
                 throw SerializationException{};
             }
-            const auto b = readScalar<Flag::Uint64>(buffer, it);
+            const auto b = readScalarUnchecked<Flag::Uint64>(buffer, it);
             m_numberWires.push_back({a, b});
         }
 
@@ -634,8 +646,8 @@ template<> struct flag_type<Flag::FLAGNAME> { \
 
         // create objects and deserialize them, during which they
         // (should) register their pegs
-        assert(m_currentObject == begin(m_objects));
-        for (; m_currentObject != end(m_objects); ++m_currentObject) {
+        assert(m_currentObject == end(m_objects));
+        for (m_currentObject = begin(m_objects); m_currentObject != end(m_objects); ++m_currentObject) {
             const auto& v = m_currentObject->first;
             auto& it = m_currentObject->second;
             assert(it == end(v));
@@ -666,7 +678,7 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         assert(p);
         const auto& v = currentObject();
         auto& it = currentIterator();
-        if (detail::readFlag(v, it) != detail::Flag::PegID) {
+        if (detail::readFlag(v, it) != detail::Flag::SoundInputPegID) {
             throw SerializationException{};
         }
         const auto id = detail::readScalarUnchecked<detail::Flag::Uint64>(v, it);
@@ -678,7 +690,7 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         assert(p);
         const auto& v = currentObject();
         auto& it = currentIterator();
-        if (detail::readFlag(v, it) != detail::Flag::PegID) {
+        if (detail::readFlag(v, it) != detail::Flag::SoundOutputPegID) {
             throw SerializationException{};
         }
         const auto id = detail::readScalarUnchecked<detail::Flag::Uint64>(v, it);
@@ -690,7 +702,7 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         assert(p);
         const auto& v = currentObject();
         auto& it = currentIterator();
-        if (detail::readFlag(v, it) != detail::Flag::PegID) {
+        if (detail::readFlag(v, it) != detail::Flag::NumberInputPegID) {
             throw SerializationException{};
         }
         const auto id = detail::readScalarUnchecked<detail::Flag::Uint64>(v, it);
@@ -702,7 +714,7 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         assert(p);
         const auto& v = currentObject();
         auto& it = currentIterator();
-        if (detail::readFlag(v, it) != detail::Flag::PegID) {
+        if (detail::readFlag(v, it) != detail::Flag::NumberOutputPegID) {
             throw SerializationException{};
         }
         const auto id = detail::readScalarUnchecked<detail::Flag::Uint64>(v, it);
@@ -738,16 +750,16 @@ template<> struct flag_type<Flag::FLAGNAME> { \
     std::unique_ptr<Object> Deserializer::makeCurrentObject(){
         const auto& v = currentObject();
         auto& it = currentIterator();
-        if (detail::readFlag(v, it) != detail::Flag::PegID) {
+        if (detail::readFlag(v, it) != detail::Flag::ObjectTypeID) {
             throw SerializationException{};
         }
-        assert(it == begin(v));
         auto id = str();
         auto l = f32();
         auto t = f32();
         auto obj = Deserializer::makeObject(id);
         assert(obj);
         obj->setPos({l, t});
+        obj->deserialize(*this);
         return obj;
     }
 
