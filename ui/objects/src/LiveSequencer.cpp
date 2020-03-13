@@ -11,6 +11,8 @@
 #include <Flosion/Util/Pi.hpp>
 #include <GUI/Context.hpp>
 
+#include <cassert>
+
 namespace flui {
 
     namespace detail {
@@ -514,6 +516,7 @@ namespace flui {
     }
 
     void LiveSequencer::TrackUI::render(sf::RenderWindow& rw){
+        // make background flash if active
         if (m_active) {
             auto c = m_baseColor;
             auto t = static_cast<float>(ui::Context::get().getProgramTime().asMilliseconds()) / 1000.0f;
@@ -522,18 +525,36 @@ namespace flui {
             setBackgroundColor(c);
         }
 
-        ui::Boxed<ui::FreeContainer>::render(rw);
+        ui::BoxElement::render(rw);
 
-        const auto& ls = m_parent.m_liveSequencer;
-        const auto t = static_cast<float>(ls.currentPosition()) / static_cast<float>(ls.length());
-        const auto x = t * width();
+        // draw waveform
+        {
+            // TODO: hack!
+            // This should be redrawn conservatively.
+            // Keep track of the LiveSequencer's time when it was last rendered, and
+            // use the difference between that and now to redraw only the waveform that
+            // may have changed.
+            redrawWaveform();
 
-        auto verts = std::array<sf::Vertex, 2>{
-            sf::Vertex(sf::Vector2f{ x, 0.0f }, sf::Color(0xFF0000FF)),
-            sf::Vertex(sf::Vector2f{ x, height() }, sf::Color(0xFF0000FF))
-        };
+            assert(m_waveformVerts.size() > 0);
+            rw.draw(m_waveformVerts.data(), m_waveformVerts.size(), sf::PrimitiveType::TriangleStrip);
+        }
 
-        rw.draw(verts.data(), verts.size(), sf::PrimitiveType::Lines);
+        // Draw red line
+        {
+            const auto& ls = m_parent.m_liveSequencer;
+            const auto t = static_cast<float>(ls.currentPosition()) / static_cast<float>(ls.length());
+            const auto x = t * width();
+
+            auto verts = std::array<sf::Vertex, 2>{
+                sf::Vertex(sf::Vector2f{ x, 0.0f }, sf::Color(0xFF0000FF)),
+                sf::Vertex(sf::Vector2f{ x, height() }, sf::Color(0xFF0000FF))
+            };
+
+            rw.draw(verts.data(), verts.size(), sf::PrimitiveType::Lines);
+        }
+
+        ui::Container::render(rw);
     }
 
     bool LiveSequencer::TrackUI::onLeftClick(int){
@@ -544,6 +565,37 @@ namespace flui {
 
     flo::Track* LiveSequencer::TrackUI::track() noexcept {
         return m_track;
+    }
+
+    void LiveSequencer::TrackUI::redrawWaveform(){
+        // TODO: show both stereo channels?
+
+        const auto w = static_cast<std::size_t>(std::floor(width()));
+        m_waveformVerts.clear();
+        m_waveformVerts.reserve((w + 1) * 2);
+        const auto nSamples = m_parent.m_liveSequencer.length();
+        std::size_t soundIdx = 0;
+        for (std::size_t i = 0; i < w; ++i) {
+            auto ampAcc = float{0.0f};
+            auto count = std::size_t{0};
+            auto nextIdx = std::min(nSamples, (i + 1) * nSamples / w);
+            while (soundIdx < nextIdx) {
+                const auto& s = m_track->getSample(soundIdx);
+                ampAcc += std::abs(s.l()) + std::abs(s.r());
+                ++soundIdx;
+                ++count;
+            }
+            assert(count > 0);
+            const auto avg = ampAcc / static_cast<float>(count);
+
+            const auto x = static_cast<float>(i);
+
+            const auto y1 = 0.5f * (1.0f - avg) * height();
+            const auto y2 = 0.5f * (1.0f + avg) * height();
+
+            m_waveformVerts.push_back(sf::Vertex(sf::Vector2f{ x, y1 }, sf::Color(0xFF)));
+            m_waveformVerts.push_back(sf::Vertex(sf::Vector2f{ x, y2 }, sf::Color(0xFF)));
+        }
     }
 
     RegisterFactoryObject(LiveSequencer, "LiveSequencer");

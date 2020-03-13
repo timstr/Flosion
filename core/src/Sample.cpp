@@ -33,7 +33,7 @@ namespace flo {
         return m_data[0];
     }
 
-    const float& Sample::l() const noexcept {
+    float Sample::l() const noexcept {
         return m_data[0];
     }
 
@@ -41,7 +41,7 @@ namespace flo {
         return m_data[1];
     }
 
-    const float& Sample::r() const noexcept {
+    float Sample::r() const noexcept {
         return m_data[1];
     }
 
@@ -145,7 +145,7 @@ namespace flo {
         return m_ptr[0];
     }
 
-    const float& SampleProxy::l() const noexcept {
+    float SampleProxy::l() const noexcept {
         return m_ptr[0];
     }
 
@@ -153,7 +153,7 @@ namespace flo {
         return m_ptr[1];
     }
 
-    const float& SampleProxy::r() const noexcept {
+    float SampleProxy::r() const noexcept {
         return m_ptr[1];
     }
 
@@ -244,11 +244,11 @@ namespace flo {
         : m_ptr(other.m_ptr) {
     }
 
-    const float& ConstSampleProxy::l() const noexcept {
+    float ConstSampleProxy::l() const noexcept {
         return m_ptr[0];
     }
 
-    const float& ConstSampleProxy::r() const noexcept {
+    float ConstSampleProxy::r() const noexcept {
         return m_ptr[1];
     }
 

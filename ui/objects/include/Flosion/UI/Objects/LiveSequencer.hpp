@@ -38,6 +38,8 @@ namespace flui {
 
             flo::Track* track() noexcept;
 
+            void redrawWaveform();
+
         private:
             LiveSequencer& m_parent;
             flo::Track* const m_track;
@@ -45,6 +47,8 @@ namespace flui {
             bool m_active;
 
             std::vector<flo::Connection> m_connections;
+
+            std::vector<sf::Vertex> m_waveformVerts;
         };
 
         std::vector<TrackUI*> m_trackUIs;

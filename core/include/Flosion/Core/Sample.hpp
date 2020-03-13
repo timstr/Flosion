@@ -29,10 +29,10 @@ namespace flo {
         void silence();
 
         float& l() noexcept;
-        const float& l() const noexcept;
+        float l() const noexcept;
 
         float& r() noexcept;
-        const float& r() const noexcept;
+        float r() const noexcept;
 
         Sample& operator=(const Sample&) noexcept;
         Sample& operator=(const ConstSampleProxy&) noexcept;
@@ -80,10 +80,10 @@ namespace flo {
         void silence();
 
         float& l() noexcept;
-        const float& l() const noexcept;
+        float l() const noexcept;
 
         float& r() noexcept;
-        const float& r() const noexcept;
+        float r() const noexcept;
 
         SampleProxy& operator=(const Sample&) noexcept;
         SampleProxy& operator=(const ConstSampleProxy&) noexcept;
@@ -130,9 +130,9 @@ namespace flo {
 
         ConstSampleProxy(SampleProxy) noexcept;
 
-        const float& l() const noexcept;
+        float l() const noexcept;
 
-        const float& r() const noexcept;
+        float r() const noexcept;
         
         Sample operator-() const noexcept;
         Sample operator+(const Sample&) const noexcept;

@@ -227,6 +227,12 @@ namespace flo {
         input.resetStateFor(m_parent, m_parent->getMonoState());
     }
 
+    ConstSampleProxy Track::getSample(std::size_t t) const noexcept {
+        assert(t < m_chunks.size() * SoundChunk::size);
+        assert(t < m_parent->length());
+        return m_chunks[t / SoundChunk::size][t % SoundChunk::size];
+    }
+
     void LiveSequencerState::reset() noexcept {
         m_current_pos = 0;
         // NOTE: tracks are not modified, they just restart from beginning

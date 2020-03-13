@@ -1,5 +1,7 @@
 #include <Flosion/UI/Core/FlosionUI.hpp>
 
+// TODO: use std::false_type_v<T> for static_asserts inside templates that should always fail
+
 // TODO: PulseWave (square wave with adjustable pulse width, average amplitude always remains zero)
 
 // TODO: make objects created via PanelContextMenu appear

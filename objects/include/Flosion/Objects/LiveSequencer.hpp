@@ -42,6 +42,8 @@ namespace flo {
 
         void resetNow();
 
+        ConstSampleProxy getSample(std::size_t t) const noexcept;
+
         SingleSoundInput input;
 
         Signal<Mode> onChangeCurrentMode; // TODO: call this during renderNextChunk? Is that safe?
