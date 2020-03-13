@@ -42,7 +42,7 @@ namespace flo {
         const auto l = m_buffer.getSampleCount();
         const auto s = m_buffer.getSamples();
         const auto r = m_buffer.getSampleRate(); // TODO: use this and resample if needed
-        const auto k = 1.0f / static_cast<float>(std::numeric_limits<int16_t>::max());
+        constexpr auto k = 1.0f / static_cast<float>(std::numeric_limits<int16_t>::max());
 
         if (c == 1){
             for (std::size_t i = 0; i < chunk.size; ++i){
@@ -66,6 +66,7 @@ namespace flo {
                 if (state->index * 2 + 1 < l) {
                     chunk.l(i) = s[state->index * 2 + 0] * k;
                     chunk.r(i) = s[state->index * 2 + 1] * k;
+                    state->index += 1;
                 } else {
                     chunk[i].silence();
                 }

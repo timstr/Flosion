@@ -294,7 +294,7 @@ namespace flui {
         m_liveSequencer.setLength(samples);
     }
 
-    Object::FlowDirection LiveSequencer::getNewFlowDirection(FlowDirection fd) const {
+    Object::FlowDirection LiveSequencer::getNewFlowDirection(FlowDirection) const {
         return FlowDirection::Right;
     }
 
@@ -518,7 +518,7 @@ namespace flui {
             auto c = m_baseColor;
             auto t = static_cast<float>(ui::Context::get().getProgramTime().asMilliseconds()) / 1000.0f;
             auto x = 0.5f + 0.5f * std::sin(t * 4.0f * pi<float>);
-            c.setLightness(c.lightness() + 0.1 * x);
+            c.setLightness(c.lightness() + 0.1f * x);
             setBackgroundColor(c);
         }
 
