@@ -23,7 +23,7 @@ namespace flui {
             c.setAlpha(1.0f);
             c.setHue(colorDist(rng));
             c.setSaturation(0.5f + 0.5f * colorDist(rng));
-            c.setLightness(0.25f + 0.3f * colorDist(rng));
+            c.setLightness(0.1f + 0.3f * colorDist(rng));
             return c;
         }
 
@@ -391,7 +391,7 @@ namespace flui {
             "Live Rpt",
             getFont(),
             [&]() {
-                m_track->setNextMode(flo::Track::Mode::LiveOnce);
+                m_track->setNextMode(flo::Track::Mode::LiveRestarting);
             }
         );
         m_connections.push_back(
@@ -489,8 +489,6 @@ namespace flui {
                 m_parent.m_liveSequencer.removeTrack(m_track);
             }
         ).setNormalColor(0xFF0000C0);
-        
-        // TODO: Waveform???
 
         // Highlight when selected
         m_connections.push_back(
@@ -570,6 +568,9 @@ namespace flui {
     void LiveSequencer::TrackUI::redrawWaveform(){
         // TODO: show both stereo channels?
 
+        auto color = m_baseColor;
+        color.setHue(color.hue() + 0.5f);
+        const auto sfColor = sf::Color{color};
         const auto w = static_cast<std::size_t>(std::floor(width()));
         m_waveformVerts.clear();
         m_waveformVerts.reserve((w + 1) * 2);
@@ -593,8 +594,8 @@ namespace flui {
             const auto y1 = 0.5f * (1.0f - avg) * height();
             const auto y2 = 0.5f * (1.0f + avg) * height();
 
-            m_waveformVerts.push_back(sf::Vertex(sf::Vector2f{ x, y1 }, sf::Color(0xFF)));
-            m_waveformVerts.push_back(sf::Vertex(sf::Vector2f{ x, y2 }, sf::Color(0xFF)));
+            m_waveformVerts.push_back(sf::Vertex(sf::Vector2f{ x, y1 }, sfColor));
+            m_waveformVerts.push_back(sf::Vertex(sf::Vector2f{ x, y2 }, sfColor));
         }
     }
 

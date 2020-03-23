@@ -8,6 +8,7 @@ namespace flui {
         : BorrowingNumberObject(&m_oscillator) {
     
         addToInflow(makePeg(&m_oscillator.input, "Input"));
+        addToInflow(makePeg(&m_oscillator.reset, "Reset"));
         addToOutflow(makePeg(&m_oscillator, "Output"));
 
         setBody(makeSimpleBody("Oscillator", 0xd9d514ff));

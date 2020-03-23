@@ -4,7 +4,7 @@ namespace flo {
 
     void FlipFlopState::reset() noexcept {
         storedValue = 0.0;
-        prevClock = 0.0;
+        prevClock = std::numeric_limits<double>::min();
     }
 
     FlipFlop::FlipFlop()

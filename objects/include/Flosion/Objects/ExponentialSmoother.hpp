@@ -8,7 +8,8 @@ namespace flo {
     public:
         void reset() noexcept override;
 
-        double value{};
+        double value = {};
+        double prevReset = {};
     };
 
     class ExponentialSmoother : public flo::BorrowingNumberSourceTemplate<ExponentialSmootherState> {
@@ -17,6 +18,7 @@ namespace flo {
 
         NumberSourceInput input;
         NumberSourceInput decayRate;
+        NumberSourceInput reset;
 
     private:
         double evaluate(ExponentialSmootherState* state, const flo::SoundState* context) const noexcept override;

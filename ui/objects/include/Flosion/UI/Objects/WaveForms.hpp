@@ -47,4 +47,15 @@ namespace flui {
         void deserialize(Deserializer&) override;
     };
 
+    class PulseWave : public NumberObject {
+    public:
+        PulseWave();
+
+    private:
+        flo::PulseWave m_pulseWave;
+
+        void serialize(Serializer&) const override;
+        void deserialize(Deserializer&) override;
+    };
+
 } // namespace flui

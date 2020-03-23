@@ -1,5 +1,15 @@
 #include <Flosion/UI/Core/FlosionUI.hpp>
 
+// TODO: oscilloscope
+
+// TODO: it should not be possible to pass an Uncontrolled sound source to an OutOfSync sound input
+
+// TODO: D O C U M E N T A T I O N
+// Use Doxygen to better keep documentation consisten with the code itself
+// See http://www.doxygen.nl/
+
+// TODO: smoothing options for Resampler (none / linear / cubic)
+
 // TODO: use std::false_type_v<T> for static_asserts inside templates that should always fail
 
 // TODO: PulseWave (square wave with adjustable pulse width, average amplitude always remains zero)
@@ -22,38 +32,15 @@
 
 // TODO: make volumeToAmp less sensitive
 
-// TODO: right now 
-// - Test whether changing flow direction is broken. This may have been an artifact of bugs in transitions that were fixed
-//
-// - make LiveSequencer
-//   - vertical list of tracks, each with own singlesoundinput, recording into buffer and playing
-//   - all tracks play in sync
-//   - total length 
-//   - per-track state:
-//     - volume [0, 1]
-//     - is playing live?
-//   - one track is selected
-//     - select previous track (ctrl-shift-up)
-//     - select next track (ctrl-shift-down)
-//   - per-track triggers:
-//     - pause next (ctrl-shift-p, "pause")
-//     - play live next (ctrl-shift-l, "live")
-//     - repeat next (ctrl-shift-r, "repeat")
-//     - silence next (ctrl-shift-s, "silence") 
-//     - volume down (ctrl-shift-left)
-//     - volume up (ctrl-shift-right)
-//     - reset/restart input now (ctrl-shift-enter)
-//     - fade in?
-//     - fade out?
-//
-// - test serialization
-//
+// TODO: Test whether changing flow direction is broken. This may have been an artifact of bugs in transitions that were fixed
+
+// TODO:
 // - save everything to a file (ctrl-s)
 // - export selection to a file (ctrl-e)
 // - clear everything and load from a file (ctrl-o)
 // - import something from a file (ctrl-i)
-//
-// - Allow borrowers again
+
+// TODO: allow borrowers to be serialized
 
 // - add Amplifier object
 // - add disabling to ui, disable labels

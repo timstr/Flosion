@@ -8,6 +8,7 @@ namespace flui {
         : BorrowingNumberObject(&m_accumulator) {
     
         addToInflow(makePeg(&m_accumulator.input, "Input"));
+        addToInflow(makePeg(&m_accumulator.reset, "Reset"));
         addToOutflow(makePeg(&m_accumulator, "Output"));
 
         setBody(makeSimpleBody("Accumulator", 0xd9d514ff));

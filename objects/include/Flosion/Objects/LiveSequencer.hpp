@@ -5,6 +5,10 @@
 
 namespace flo {
 
+    // TODO: allow resetting when user-defined points in time are hit,
+    // visually indicated by some kind of vertical line, or when a per-track NumberInput
+    // goes high (like a clock signal)
+
     class LiveSequencer;
 
     class Track {
@@ -22,13 +26,17 @@ namespace flo {
             // recorded again will still repeat what was recorded live.
             Pause,
 
-            // Audio is played and recorded in realtime from input
-            // Previous recording is overwritten
-
+            // Audio is continually played from the input directly and
+            // recorded, without implicitly resetting
             LiveOngoing,
 
+            // Audio is continually played from the input and recorded,
+            // and the input is reset everytime the track returns to the beginning
             LiveRestarting,
 
+            // Audio is played from the input and recorded, then the
+            // mode changes to RecordedInput once the track returns
+            // to the beginning
             LiveOnce,
 
             // Whatever was last played live is repeated

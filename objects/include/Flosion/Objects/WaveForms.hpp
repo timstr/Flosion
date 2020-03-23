@@ -24,4 +24,15 @@ namespace flo {
         double evaluate(const flo::SoundState* context) const noexcept override;
     };
 
+    class PulseWave : public NumberSource {
+    public:
+        PulseWave();
+
+        NumberSourceInput input;
+        NumberSourceInput width;
+
+    private:
+        double evaluate(const flo::SoundState* context) const noexcept override;
+    };
+
 } // namespace flo

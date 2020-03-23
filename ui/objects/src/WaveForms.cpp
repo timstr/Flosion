@@ -80,4 +80,23 @@ namespace flui {
     RegisterFactoryObject(TriangleWave, "Triangle Wave");
     REGISTER_SERIALIZABLE(TriangleWave, "TriangleWave");
 
+    PulseWave::PulseWave() {
+        addToInflow(makePeg(&m_pulseWave.input, "Input"));
+        addToInflow(makePeg(&m_pulseWave.width, "Width"));
+        addToOutflow(makePeg(&m_pulseWave, "Output"));
+
+        setBody(makeSimpleBody("Pulse Wave", 0x402060FF));
+    }
+
+    void PulseWave::serialize(Serializer& s) const {
+        serializePegs(s);
+    }
+
+    void PulseWave::deserialize(Deserializer& d) {
+        deserializePegs(d);
+    }
+
+    RegisterFactoryObject(PulseWave, "Pulse Wave");
+    REGISTER_SERIALIZABLE(PulseWave, "PulseWave");
+
 } // namespace flui

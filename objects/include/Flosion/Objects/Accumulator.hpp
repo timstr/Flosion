@@ -8,7 +8,8 @@ namespace flo {
     public:
         void reset() noexcept override;
 
-        double value{};
+        double value = {};
+        double prevReset = {};
     };
 
     class Accumulator : public flo::BorrowingNumberSourceTemplate<AccumulatorState> {
@@ -16,6 +17,7 @@ namespace flo {
         Accumulator();
 
         flo::NumberSourceInput input;
+        flo::NumberSourceInput reset;
 
     private:
         double evaluate(AccumulatorState* state, const flo::SoundState* context) const noexcept override;

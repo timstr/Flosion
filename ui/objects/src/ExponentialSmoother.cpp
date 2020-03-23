@@ -9,6 +9,7 @@ namespace flui {
     
         addToInflow(makePeg(&m_smoother.input, "Input"));
         addToInflow(makePeg(&m_smoother.decayRate, "Decay Rate"));
+        addToInflow(makePeg(&m_smoother.reset, "Reset"));
         addToOutflow(makePeg(&m_smoother, "Output"));
 
         setBody(makeSimpleBody("Exponential Smoother", 0xd9d514ff));

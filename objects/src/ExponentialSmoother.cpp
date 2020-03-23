@@ -4,11 +4,13 @@ namespace flo {
 
     void ExponentialSmootherState::reset() noexcept {
         value = 0.0;
+        prevReset = std::numeric_limits<double>::min();
     }
 
     ExponentialSmoother::ExponentialSmoother()
         : input(this)
-        , decayRate(this, 0.1) {
+        , decayRate(this, 0.1)
+        , reset(this) {
 
     }
 
@@ -16,6 +18,10 @@ namespace flo {
         auto v = input.getValue(context);
         auto d = decayRate.getValue(context);
         state->value += d * (v - state->value);
+        auto r = reset.getValue(context);
+        if (r > state->prevReset) {
+            state->value = v;
+        }
         return state->value;
     }
 
