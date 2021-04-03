@@ -25,5 +25,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(Oscillator, "Oscillator");
+    REGISTER_SERIALIZABLE(Oscillator, "Oscillator");
 
 } // namespace flui

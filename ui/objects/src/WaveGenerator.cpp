@@ -42,5 +42,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(WaveGenerator, "WaveGenerator");
+    REGISTER_SERIALIZABLE(WaveGenerator, "WaveGenerator");
 
 } // namespace flui

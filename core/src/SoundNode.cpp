@@ -8,9 +8,11 @@
 
 namespace flo {
 
-    SoundNode::SoundNode()
+    SoundNode::SoundNode(Network* network)
         : StateTable(this)
-        , m_network(nullptr) {
+        , m_network(network)
+        , m_initDone(false) {
+
     }
 
     bool SoundNode::canAddDependency(const SoundNode* node) const noexcept {
@@ -219,6 +221,10 @@ namespace flo {
         return Lock{std::move(locks)};
     }
 
+    void SoundNode::initLater(std::function<void()> f) {
+        m_initLaterFunctions.emplace_back(std::move(f));
+    }
+
     void SoundNode::findDependentSoundResults(std::vector<SoundResult*>& out) noexcept {
         for (const auto& d : getDirectDependents()){
             d->findDependentSoundResults(out);
@@ -247,6 +253,15 @@ namespace flo {
         );
         assert(it != m_numberNodes.end());
         m_numberNodes.erase(it);
+    }
+
+    void SoundNode::initNow() {
+        assert(m_initDone == false);
+        for (auto& f : m_initLaterFunctions) {
+            f();
+        }
+        m_initLaterFunctions.clear();
+        m_initDone = true;
     }
 
     CurrentTime::CurrentTime(SoundNode* owner) noexcept

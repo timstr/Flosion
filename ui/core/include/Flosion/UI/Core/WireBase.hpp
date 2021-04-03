@@ -162,7 +162,8 @@ namespace flui {
         Wire(Panel* parentPanel, InputType* input, OutputType* output);
         ~Wire();
 
-        void destroy();
+        Panel* getParentPanel() noexcept;
+        const Panel* getParentPanel() const noexcept;
 
         HeadType* getHead() noexcept;
         const HeadType* getHead() const noexcept;
@@ -275,6 +276,8 @@ namespace flui {
 
     template<typename Traits>
     inline InputPeg<Traits>::~InputPeg(){
+        m_destroyConn.reset();
+
         if (m_wireIn){
             m_wireIn->detachHead();
         }
@@ -328,7 +331,7 @@ namespace flui {
             auto self = static_cast<typename Traits::InputPegType*>(this);
             if (!w->canAttachHeadTo(self)) {
                 getParentObject()->getParentPanel()->showWarningAt(w->pos() + wh->pos());
-                w->destroy();
+                w->close();
                 return true;
             }
             w->attachHeadTo(self);
@@ -368,6 +371,8 @@ namespace flui {
 
     template<typename Traits>
     inline OutputPeg<Traits>::~OutputPeg(){
+        m_destroyConn.reset();
+
         while (m_wiresOut.size() > 0){
             m_wiresOut.back()->detachTail();
         }
@@ -439,7 +444,7 @@ namespace flui {
             auto self = static_cast<typename Traits::OutputPegType*>(this);
             if (!w->canAttachTailTo(self)) {
                 getParentObject()->getParentPanel()->showWarningAt(w->pos() + wt->pos());
-                w->destroy();
+                w->close();
                 return true;
             }
             w->attachTailTo(self);
@@ -487,13 +492,12 @@ namespace flui {
 
     template<typename Traits>
     inline Wire<Traits>::~Wire(){
-        assert(m_headPeg == nullptr);
-        assert(m_tailPeg == nullptr);
-    }
-
-    template<typename Traits>
-    inline void Wire<Traits>::destroy(){
         auto self = static_cast<typename Traits::WireType*>(this);
+
+        m_afterOutputAddedConn.reset();
+        m_beforeOutputRemovedConn.reset();
+        m_onDestroyInputConn.reset();
+        m_onDestroyOutputConn.reset();
 
         if (m_headPeg){
             auto h = m_headPeg;
@@ -510,10 +514,19 @@ namespace flui {
             m_tailPeg = nullptr;
             t->onWireRemoved.broadcast(self);
         }
-        
-        if (m_parentPanel){
-            m_parentPanel->removeWire(self);
-        }
+
+        assert(m_headPeg == nullptr);
+        assert(m_tailPeg == nullptr);
+    }
+
+    template<typename Traits>
+    inline Panel* Wire<Traits>::getParentPanel() noexcept {
+        return m_parentPanel;
+    }
+
+    template<typename Traits>
+    inline const Panel* Wire<Traits>::getParentPanel() const noexcept {
+        return m_parentPanel;
     }
 
     template<typename Traits>
@@ -596,7 +609,7 @@ namespace flui {
             detachTail();
         });
         m_onDestroyInputConn = i->onDestroy.connect([&](){
-            destroy();
+            close();
         });
 
         updatePositions();
@@ -639,7 +652,7 @@ namespace flui {
         }
 
         if (!m_head.dragging()){
-            destroy();
+            close();
         }
     }
 
@@ -672,7 +685,7 @@ namespace flui {
         auto o = m_tailPeg->getOutput();
 
         m_onDestroyOutputConn = o->onDestroy.connect([&](){
-            destroy();
+            close();
         });
 
         updatePositions();
@@ -716,7 +729,7 @@ namespace flui {
         }
 
         if (!m_tail.dragging()){
-            destroy();
+            close();
         }
     }
 
@@ -825,7 +838,7 @@ namespace flui {
         stopDrag();
         const auto mid = size() * 0.5f;
         if (!drop(mid)){
-            m_parentWire->destroy();
+            m_parentWire->close();
         }
     }
 
@@ -888,7 +901,7 @@ namespace flui {
         stopDrag();
         const auto mid = size() * 0.5f;
         if (!drop(mid)){
-            m_parentWire->destroy();
+            m_parentWire->close();
         }
     }
 

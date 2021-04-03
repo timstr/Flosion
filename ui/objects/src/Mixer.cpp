@@ -60,27 +60,34 @@ namespace flui {
     }
 
     void Mixer::serialize(Serializer& s) const {
-         std::vector<const SoundInputPeg*> pegs;
-         for (const auto& i : m_mixer.getInputs()) {
-             const auto p = getParentPanel()->findPegFor(i);
-             assert(p->getParentObject() == this);
-             pegs.push_back(p);
-         }
-         s.u64(pegs.size());
-         for (const auto& p : pegs) {
-             s.addPeg(p);
-         }
+        auto panel = getParentPanel();
+        assert(panel);
+        const auto& pegs = m_mixer.getInputs();
+        s.u64(pegs.size());
+        for (const auto& i : pegs) {
+            const auto ip = panel->findPegFor(i);
+            assert(ip->getParentObject() == this);
+            s.addPeg(ip);
+        }
+        auto op = panel->findPegFor(&m_mixer);
+        assert(op->getParentObject() == this);
+        s.addPeg(op);
     }
 
     void Mixer::deserialize(Deserializer& d) {
+        auto panel = getParentPanel();
+        assert(panel);
         auto numPegs = d.u64();
         for (std::uint64_t i = 0; i < numPegs; ++i) {
             auto input = m_mixer.addInput();
-            auto p = getParentPanel()->findPegFor(input);
+            auto p = panel->findPegFor(input);
             assert(p);
             assert(hasDescendent(p));
             d.addPeg(p);
         }
+        auto op = panel->findPegFor(&m_mixer);
+        assert(op->getParentObject() == this);
+        d.addPeg(op);
     }
 
     RegisterFactoryObject(Mixer, "Mixer");

@@ -89,24 +89,24 @@ namespace flui {
         Serializer& f32(float);
         Serializer& f64(double);
 
-        Serializer& str(const std::string&);
+        Serializer& str(const std::string_view&);
 
         // Chainable inserters for spans
 
-        Serializer& u8_span(const std::uint8_t*, std::uint64_t len);
-        Serializer& u16_span(const std::uint16_t*, std::uint64_t len);
-        Serializer& u32_span(const std::uint32_t*, std::uint64_t len);
-        Serializer& u64_span(const std::uint64_t*, std::uint64_t len);
+        Serializer& u8_span(const std::uint8_t* src, std::uint64_t len);
+        Serializer& u16_span(const std::uint16_t* src, std::uint64_t len);
+        Serializer& u32_span(const std::uint32_t* src, std::uint64_t len);
+        Serializer& u64_span(const std::uint64_t* src, std::uint64_t len);
 
-        Serializer& i8_span(const std::int8_t*, std::uint64_t len);
-        Serializer& i16_span(const std::int16_t*, std::uint64_t len);
-        Serializer& i32_span(const std::int32_t*, std::uint64_t len);
-        Serializer& i64_span(const std::int64_t*, std::uint64_t len);
+        Serializer& i8_span(const std::int8_t* src, std::uint64_t len);
+        Serializer& i16_span(const std::int16_t* src, std::uint64_t len);
+        Serializer& i32_span(const std::int32_t* src, std::uint64_t len);
+        Serializer& i64_span(const std::int64_t* src, std::uint64_t len);
 
-        Serializer& f32_span(const float*, std::uint64_t len);
-        Serializer& f64_span(const double*, std::uint64_t len);
+        Serializer& f32_span(const float* src, std::uint64_t len);
+        Serializer& f64_span(const double* src, std::uint64_t len);
 
-        Serializer& str_span(const std::string*, std::uint64_t len);
+        Serializer& str_span(const std::string* src, std::uint64_t len);
         
 
         // Chainable inserters for vectors (equivalent to using spans)
@@ -243,7 +243,7 @@ namespace flui {
         Deserializer& f32_span(float* dst, std::uint64_t len);
         Deserializer& f64_span(double* dst, std::uint64_t len);
 
-        Deserializer& str_span(std::string* dst);
+        Deserializer& str_span(std::string* dst, std::uint64_t len);
 
         // Vectors
         std::vector<bool> b_vec();
@@ -287,7 +287,7 @@ namespace flui {
         // TODO: rename to peg id
         using heap_id = std::uint64_t;
 
-        std::unique_ptr<Object> makeCurrentObject();
+        Object* makeCurrentObject(Panel*);
 
         SoundInputPeg* findSoundInputPeg(heap_id);
         SoundOutputPeg* findSoundOutputPeg(heap_id);

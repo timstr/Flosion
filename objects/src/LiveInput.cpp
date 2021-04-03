@@ -52,7 +52,7 @@ namespace flo {
 
     void LiveInput::renderNextChunk(SoundChunk& chunk, LiveInputState* state) {
         // read data from monostate's buffer, don't surpass producer
-        
+        // TODO: this is unsafe! Some kind of synchronization is needed
         std::size_t count = 0;
         while (count < SoundChunk::size && (state->consumer_pos + 1) != state->producer_pos) {
             chunk[count] = state->buffer[state->consumer_pos];
@@ -75,6 +75,7 @@ namespace flo {
 
     bool LiveInput::Recorder::onProcessSamples(const sf::Int16* samples, std::size_t sampleCount){
         // fill parent's monostates' buffer, don't lap consumer
+        // TODO: this is unsafe! Some kind of synchronization is needed
         auto s = m_parent.getMonoState();
         constexpr auto k = 1.0f / static_cast<float>(std::numeric_limits<int16_t>::max());
         std::size_t count = 0;

@@ -154,5 +154,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(Router, "Router");
+    REGISTER_SERIALIZABLE(Router, "Router");
 
 } // namespace flui

@@ -9,19 +9,7 @@ set_property(TARGET flosion PROPERTY CXX_STANDARD 17)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT flosion)
 
 if(MSVC)
-	# increase warning level
-	add_definitions(/W4)
-
-	# turn warning C4715 ("not all control paths return a value") into an error
-	add_definitions(/we4715)
-
-	# disable warning C4250 ("class X inherits virtual member function Y via dominance")
-	add_definitions(/wd4250)
-
-	# turn warning C4239 (non-standard extension that allows temporaries to be bound to
-	# non-const references, yay microsoft) into an error
-	# This extension is without question the source of many bugs and disastrous surprises
-	add_definitions(/we4239)
+	
 else()
 	SET(CMAKE_CXX_FLAGS -pthread)
 endif()

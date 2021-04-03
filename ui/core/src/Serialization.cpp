@@ -9,6 +9,7 @@
 #include <cassert>
 #include <numeric>
 #include <type_traits>
+#include <string_view>
 
 namespace flui {
 
@@ -27,6 +28,7 @@ namespace flui {
             Int64 = 0x0A,
             Float32 = 0x0B,
             Float64 = 0x0C,
+            UTF8String = 0x0D,
 
             ArrayOf = 0x20,
             ArrayLength = 0x21,
@@ -74,6 +76,7 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         SPECIALIZE_TAG(Int64, 8, std::int64_t);
         SPECIALIZE_TAG(Float32, 4, float);
         SPECIALIZE_TAG(Float64, 8, double);
+        // NOTE: UTF8String is not specialized because it needs special handling
 
 #undef SPECIALIZE_TAG
 
@@ -190,6 +193,30 @@ template<> struct flag_type<Flag::FLAGNAME> { \
             return readScalarUnchecked<F>(v, it);
         }
 
+        void writeUTF8String(std::vector<std::byte>& v, std::string_view sv) {
+            const auto data = reinterpret_cast<const std::byte*>(sv.data());
+            const auto len = static_cast<std::uint64_t>(sv.size());
+            writeFlag(v, Flag::UTF8String);
+            writeScalarUnchecked<Flag::Uint64>(v, len);
+            for (std::uint64_t i = 0; i < len; ++i) {
+                writeScalarUnchecked<Flag::Byte>(v, data[i]);
+            }
+        }
+
+        std::string readUTF8String(const std::vector<std::byte>& v, std::vector<std::byte>::const_iterator& it) {
+            std::string x;
+            if (readFlag(v, it) != Flag::UTF8String) {
+                throw SerializationException{};
+            }
+            const auto len = readScalarUnchecked<Flag::Uint64>(v, it);
+            x.resize(len, '\0');
+            const auto data = reinterpret_cast<std::byte*>(x.data());
+            for (std::uint64_t i = 0; i < len; ++i) {
+                data[i] = readScalarUnchecked<Flag::Byte>(v, it);
+            }
+            return x;
+        }
+
         template<Flag F>
         void writeSpan(std::vector<std::byte>& v, const flag_type_t<F>* src, std::uint64_t len) {
             writeFlag(v, Flag::ArrayOf);
@@ -206,7 +233,7 @@ template<> struct flag_type<Flag::FLAGNAME> { \
             if (readFlag(v, it) != Flag::ArrayOf) {
                 throw SerializationException{};
             }
-            readFlag(v, it); // Array element type is not checked
+            readFlag(v, it); // Array element type is consumed but not checked
             if (readFlag(v, it) != Flag::ArrayLength) {
                 throw SerializationException{};
             }
@@ -234,20 +261,24 @@ template<> struct flag_type<Flag::FLAGNAME> { \
             }
         }
 
-        // TODO: worry about UTF8
-        void writeString(std::vector<std::byte>& v, const std::string& s) {
-            const auto data = reinterpret_cast<const std::byte*>(s.data());
-            const auto len = static_cast<std::uint64_t>(s.size());
-            writeSpan<Flag::Byte>(v, data, len);
-        }
-
-        std::string readString(const std::vector<std::byte>& v, std::vector<std::byte>::const_iterator& it) {
-            std::string x;
-            const auto len = peekSpanLength(v, it);
-            x.resize(len, '\0');
-            auto data = reinterpret_cast<std::byte*>(x.data());
-            readSpan<Flag::Byte>(v, it, data, len);
-            return x;
+        template<Flag F>
+        std::vector<flag_type_t<F>> readVec(const std::vector<std::byte>& v, std::vector<std::byte>::const_iterator& it) {
+            if (readFlag(v, it) != Flag::ArrayOf) {
+                throw SerializationException{};
+            }
+            if (readFlag(v, it) != F) {
+                throw SerializationException{};
+            }
+            if (readFlag(v, it) != Flag::ArrayLength) {
+                throw SerializationException{};
+            }
+            const auto len = readScalarUnchecked<Flag::Uint64>(v, it);
+            auto vec = std::vector<flag_type_t<F>>{};
+            vec.reserve(len);
+            for (std::uint64_t i = 0; i < len; ++i) {
+                vec.push_back(readScalarUnchecked<F>(v, it));
+            }
+            return vec;
         }
 
     } // namespace detail
@@ -465,8 +496,28 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         return *this;
     }
 
-    Serializer& Serializer::str(const std::string& x){
-        detail::writeString(getCurrentObject(), x);
+    Serializer& Serializer::str(const std::string_view& x){
+        detail::writeUTF8String(getCurrentObject(), x);
+        return *this;
+    }
+
+    Serializer& Serializer::u8_span(const std::uint8_t* src, std::uint64_t len) {
+        detail::writeSpan<detail::Flag::Uint8>(getCurrentObject(), src, len);
+        return *this;
+    }
+
+    Serializer& Serializer::u16_span(const std::uint16_t* src, std::uint64_t len) {
+        detail::writeSpan<detail::Flag::Uint16>(getCurrentObject(), src, len);
+        return *this;
+    }
+
+    Serializer& Serializer::u32_span(const std::uint32_t* src, std::uint64_t len) {
+        detail::writeSpan<detail::Flag::Uint32>(getCurrentObject(), src, len);
+        return *this;
+    }
+
+    Serializer& Serializer::u64_span(const std::uint64_t* src, std::uint64_t len) {
+        detail::writeSpan<detail::Flag::Uint64>(getCurrentObject(), src, len);
         return *this;
     }
 
@@ -648,18 +699,7 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         // (should) register their pegs
         assert(m_currentObject == end(m_objects));
         for (m_currentObject = begin(m_objects); m_currentObject != end(m_objects); ++m_currentObject) {
-            const auto& v = m_currentObject->first;
-            auto& it = m_currentObject->second;
-            assert(it == end(v));
-            it = begin(v);
-            auto obj = makeCurrentObject();
-            assert(it == end(v));
-            const auto ptr = obj.get();
-            ret.push_back(ptr);
-
-            // TODO: I hate this
-            panel->addObject(ptr);
-            panel->adopt(std::move(obj));
+            ret.push_back(makeCurrentObject(panel));
         }
 
         // create and connect all wires to the newly created pegs
@@ -668,6 +708,14 @@ template<> struct flag_type<Flag::FLAGNAME> { \
             const auto& oid = w.second;
             const auto hp = findSoundInputPeg(iid);
             const auto tp = findSoundOutputPeg(oid);
+            panel->addWire(tp->getOutput(), hp->getInput());
+        }
+
+        for (const auto& w : m_numberWires) {
+            const auto& iid = w.first;
+            const auto& oid = w.second;
+            const auto hp = findNumberInputPeg(iid);
+            const auto tp = findNumberOutputPeg(oid);
             panel->addWire(tp->getOutput(), hp->getInput());
         }
 
@@ -727,6 +775,80 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         return *this;
     }
 
+    Deserializer& Deserializer::u8(std::uint8_t& x) {
+        x = detail::readScalar<detail::Flag::Uint8>(currentObject(), currentIterator());
+        return *this;
+    }
+
+    Deserializer& Deserializer::u16(std::uint16_t& x) {
+        x = detail::readScalar<detail::Flag::Uint16>(currentObject(), currentIterator());
+        return *this;
+    }
+
+    Deserializer& Deserializer::u32(std::uint32_t& x) {
+        x = detail::readScalar<detail::Flag::Uint32>(currentObject(), currentIterator());
+        return *this;
+    }
+
+    Deserializer& Deserializer::u64(std::uint64_t& x) {
+        x = detail::readScalar<detail::Flag::Uint64>(currentObject(), currentIterator());
+        return *this;
+    }
+
+    Deserializer& Deserializer::i8(std::int8_t& x) {
+        x = detail::readScalar<detail::Flag::Int8>(currentObject(), currentIterator());
+        return *this;
+    }
+
+    Deserializer& Deserializer::i16(std::int16_t& x) {
+        x = detail::readScalar<detail::Flag::Int16>(currentObject(), currentIterator());
+        return *this;
+    }
+
+    Deserializer& Deserializer::i32(std::int32_t& x) {
+        x = detail::readScalar<detail::Flag::Int32>(currentObject(), currentIterator());
+        return *this;
+    }
+
+    Deserializer& Deserializer::i64(std::int64_t& x) {
+        x = detail::readScalar<detail::Flag::Int64>(currentObject(), currentIterator());
+        return *this;
+    }
+
+    Deserializer& Deserializer::f32(float& x) {
+        x = detail::readScalar<detail::Flag::Float32>(currentObject(), currentIterator());
+        return *this;
+    }
+
+    Deserializer& Deserializer::f64(double& x) {
+        x = detail::readScalar<detail::Flag::Float64>(currentObject(), currentIterator());
+        return *this;
+    }
+
+    Deserializer& Deserializer::str(std::string& x) {
+        x = detail::readUTF8String(currentObject(), currentIterator());
+        return *this;
+    }
+
+    std::vector<std::string> Deserializer::str_vec() {
+        using namespace detail;
+        const auto& v = currentObject();
+        auto& it = currentIterator();
+        if (readFlag(v, it) != Flag::ArrayOf) {
+            throw SerializationException{};
+        }
+        if (readFlag(v, it) != Flag::UTF8String) {
+            throw SerializationException{};
+        }
+        const auto len = readScalarUnchecked<Flag::Uint64>(v, it);
+        auto vec = std::vector<std::string>{};
+        vec.reserve(len);
+        for (std::uint64_t i = 0; i < len; ++i) {
+            vec.push_back(readUTF8String(v, it));
+        }
+        return vec;
+    }
+
     const std::string& Deserializer::getObjectIdentifier(const Object* o){
         assert(o);
         auto tidx = std::type_index(typeid(*o));
@@ -747,9 +869,11 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         return it->second();
     }
 
-    std::unique_ptr<Object> Deserializer::makeCurrentObject(){
+    Object* Deserializer::makeCurrentObject(Panel* panel){
+        assert(panel);
         const auto& v = currentObject();
         auto& it = currentIterator();
+        it = begin(v);
         if (detail::readFlag(v, it) != detail::Flag::ObjectTypeID) {
             throw SerializationException{};
         }
@@ -758,32 +882,49 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         auto t = f32();
         auto obj = Deserializer::makeObject(id);
         assert(obj);
-        obj->setPos({l, t});
-        obj->deserialize(*this);
-        return obj;
+        const auto ptr = obj.get();
+
+        // TODO: I hate this
+        panel->addObject(ptr);
+        panel->adopt(std::move(obj));
+
+        ptr->setPos({l, t});
+        ptr->deserialize(*this);
+
+        assert(currentIterator() == end(currentObject()));
+
+        return ptr;
     }
 
     SoundInputPeg* Deserializer::findSoundInputPeg(heap_id id){
         auto it = m_soundInputPegs.find(id);
-        assert(it != end(m_soundInputPegs));
+        if (it == end(m_soundInputPegs)) {
+            throw SerializationException{};
+        }
         return it->second;
     }
 
     SoundOutputPeg* Deserializer::findSoundOutputPeg(heap_id id){
         auto it = m_soundOutputPegs.find(id);
-        assert(it != end(m_soundOutputPegs));
+        if (it == end(m_soundOutputPegs)) {
+            throw SerializationException{};
+        }
         return it->second;
     }
 
     NumberInputPeg* Deserializer::findNumberInputPeg(heap_id id){
         auto it = m_numberInputPegs.find(id);
-        assert(it != end(m_numberInputPegs));
+        if (it == end(m_numberInputPegs)) {
+            throw SerializationException{};
+        }
         return it->second;
     }
 
     NumberOutputPeg* Deserializer::findNumberOutputPeg(heap_id id){
         auto it = m_numberOutputPegs.find(id);
-        assert(it != end(m_numberOutputPegs));
+        if (it == end(m_numberOutputPegs)) {
+            throw SerializationException{};
+        }
         return it->second;
     }
 
@@ -831,9 +972,91 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         typeMap.erase(it);
     }
 
+    Serializer& Serializer::i8_span(const std::int8_t* src, std::uint64_t len) {
+        detail::writeSpan<detail::Flag::Int8>(getCurrentObject(), src, len);
+        return *this;
+    }
+
     Serializer& Serializer::i16_span(const std::int16_t* src, std::uint64_t len){
         detail::writeSpan<detail::Flag::Int16>(getCurrentObject(), src, len);
         return *this;
+    }
+
+    Serializer& Serializer::i32_span(const std::int32_t* src, std::uint64_t len) {
+        detail::writeSpan<detail::Flag::Int32>(getCurrentObject(), src, len);
+        return *this;
+    }
+
+    Serializer& Serializer::i64_span(const std::int64_t* src, std::uint64_t len) {
+        detail::writeSpan<detail::Flag::Int64>(getCurrentObject(), src, len);
+        return *this;
+    }
+
+    Serializer& Serializer::f32_span(const float* src, std::uint64_t len) {
+        detail::writeSpan<detail::Flag::Float32>(getCurrentObject(), src, len);
+        return *this;
+    }
+
+    Serializer& Serializer::f64_span(const double* src, std::uint64_t len) {
+        detail::writeSpan<detail::Flag::Float64>(getCurrentObject(), src, len);
+        return *this;
+    }
+
+    Serializer& Serializer::str_span(const std::string* src, std::uint64_t len) {
+        using namespace detail;
+        auto& v = getCurrentObject();
+        writeFlag(v, Flag::ArrayOf);
+        writeFlag(v, Flag::UTF8String);
+        writeFlag(v, Flag::ArrayLength);
+        writeScalarUnchecked<Flag::Uint64>(v, len);
+        for (std::uint64_t i = 0; i < len; ++i) {
+            writeUTF8String(v, src[i]);
+        }
+        return *this;
+    }
+
+    Serializer& Serializer::u8_vec(const std::vector<std::uint8_t>& v) {
+        return u8_span(v.data(), v.size());
+    }
+
+    Serializer& Serializer::u16_vec(const std::vector<std::uint16_t>& v) {
+        return u16_span(v.data(), v.size());
+    }
+
+    Serializer& Serializer::u32_vec(const std::vector<std::uint32_t>& v) {
+        return u32_span(v.data(), v.size());
+    }
+
+    Serializer& Serializer::u64_vec(const std::vector<std::uint64_t>& v) {
+        return u64_span(v.data(), v.size());
+    }
+
+    Serializer& Serializer::i8_vec(const std::vector<std::int8_t>& v) {
+        return i8_span(v.data(), v.size());
+    }
+
+    Serializer& Serializer::i16_vec(const std::vector<std::int16_t>& v) {
+        return i16_span(v.data(), v.size());
+    }
+
+    Serializer& Serializer::i32_vec(const std::vector<std::int32_t>& v) {
+        return i32_span(v.data(), v.size());
+    }
+
+    Serializer& Serializer::i64_vec(const std::vector<std::int64_t>& v) {
+        return i64_span(v.data(), v.size());
+    }
+
+    Serializer& Serializer::f32_vec(const std::vector<float>& v) {
+        return f32_span(v.data(), v.size());
+    }
+
+    Serializer& Serializer::f64_vec(const std::vector<double>& v) {
+        return f64_span(v.data(), v.size());
+    }
+
+    Serializer& Serializer::str_vec(const std::vector<std::string>& v) {
+        return str_span(v.data(), v.size());
     }
 
     bool Deserializer::b(){
@@ -881,11 +1104,41 @@ template<> struct flag_type<Flag::FLAGNAME> { \
     }
 
     std::string Deserializer::str(){
-        return detail::readString(currentObject(), currentIterator());
+        return detail::readUTF8String(currentObject(), currentIterator());
     }
 
     std::uint64_t Deserializer::peekSpanLength(){
         return detail::peekSpanLength(currentObject(), currentIterator());
+    }
+
+    Deserializer& Deserializer::b_span(bool* dst, std::uint64_t len) {
+        detail::readSpan<detail::Flag::Bool>(currentObject(), currentIterator(), dst, len);
+        return *this;
+    }
+
+    Deserializer& Deserializer::u8_span(std::uint8_t* dst, std::uint64_t len) {
+        detail::readSpan<detail::Flag::Uint8>(currentObject(), currentIterator(), dst, len);
+        return *this;
+    }
+
+    Deserializer& Deserializer::u16_span(std::uint16_t* dst, std::uint64_t len) {
+        detail::readSpan<detail::Flag::Uint16>(currentObject(), currentIterator(), dst, len);
+        return *this;
+    }
+
+    Deserializer& Deserializer::u32_span(std::uint32_t* dst, std::uint64_t len) {
+        detail::readSpan<detail::Flag::Uint32>(currentObject(), currentIterator(), dst, len);
+        return *this;
+    }
+
+    Deserializer& Deserializer::u64_span(std::uint64_t* dst, std::uint64_t len) {
+        detail::readSpan<detail::Flag::Uint64>(currentObject(), currentIterator(), dst, len);
+        return *this;
+    }
+
+    Deserializer& Deserializer::i8_span(std::int8_t* dst, std::uint64_t len) {
+        detail::readSpan<detail::Flag::Int8>(currentObject(), currentIterator(), dst, len);
+        return *this;
     }
 
     Deserializer& Deserializer::i16_span(std::int16_t* dst, std::uint64_t len){
@@ -893,10 +1146,87 @@ template<> struct flag_type<Flag::FLAGNAME> { \
         return *this;
     }
 
+    Deserializer& Deserializer::i32_span(std::int32_t* dst, std::uint64_t len) {
+        detail::readSpan<detail::Flag::Int32>(currentObject(), currentIterator(), dst, len);
+        return *this;
+    }
+
+    Deserializer& Deserializer::i64_span(std::int64_t* dst, std::uint64_t len) {
+        detail::readSpan<detail::Flag::Int64>(currentObject(), currentIterator(), dst, len);
+        return *this;
+    }
+
+    Deserializer& Deserializer::f32_span(float* dst, std::uint64_t len) {
+        detail::readSpan<detail::Flag::Float32>(currentObject(), currentIterator(), dst, len);
+        return *this;
+    }
+
+    Deserializer& Deserializer::f64_span(double* dst, std::uint64_t len) {
+        detail::readSpan<detail::Flag::Float64>(currentObject(), currentIterator(), dst, len);
+        return *this;
+    }
+
+    Deserializer& Deserializer::str_span(std::string* dst, std::uint64_t len) {
+        using namespace detail;
+        const auto& v = currentObject();
+        auto& it = currentIterator();
+        if (readFlag(v, it) != Flag::ArrayOf) {
+            throw SerializationException{};
+        }
+        if (readFlag(v, it) != Flag::UTF8String) {
+            throw SerializationException{};
+        }
+        if (readScalarUnchecked<Flag::Uint64>(v, it) != len) {
+            throw SerializationException{};
+        }
+        for (std::uint64_t i = 0; i < len; ++i) {
+            dst[i] = readUTF8String(v, it);
+        }
+        return *this;
+    }
+
+    std::vector<bool> Deserializer::b_vec() {
+        return detail::readVec<detail::Flag::Bool>(currentObject(), currentIterator());
+    }
+
+    std::vector<std::uint8_t> Deserializer::u8_vec() {
+        return detail::readVec<detail::Flag::Uint8>(currentObject(), currentIterator());
+    }
+
+    std::vector<std::uint16_t> Deserializer::u16_vec() {
+        return detail::readVec<detail::Flag::Uint16>(currentObject(), currentIterator());
+    }
+
+    std::vector<std::uint32_t> Deserializer::u32_vec() {
+        return detail::readVec<detail::Flag::Uint32>(currentObject(), currentIterator());
+    }
+
+    std::vector<std::uint64_t> Deserializer::u64_vec() {
+        return detail::readVec<detail::Flag::Uint64>(currentObject(), currentIterator());
+    }
+
+    std::vector<std::int8_t> Deserializer::i8_vec() {
+        return detail::readVec<detail::Flag::Int8>(currentObject(), currentIterator());
+    }
+
     std::vector<std::int16_t> Deserializer::i16_vec(){
-        auto ret = std::vector<std::int16_t>(peekSpanLength());
-        i16_span(ret.data(), ret.size());
-        return ret;
+        return detail::readVec<detail::Flag::Int16>(currentObject(), currentIterator());
+    }
+
+    std::vector<std::int32_t> Deserializer::i32_vec() {
+        return detail::readVec<detail::Flag::Int32>(currentObject(), currentIterator());
+    }
+
+    std::vector<std::int64_t> Deserializer::i64_vec() {
+        return detail::readVec<detail::Flag::Int64>(currentObject(), currentIterator());
+    }
+
+    std::vector<float> Deserializer::f32_vec() {
+        return detail::readVec<detail::Flag::Float32>(currentObject(), currentIterator());
+    }
+
+    std::vector<double> Deserializer::f64_vec() {
+        return detail::readVec<detail::Flag::Float64>(currentObject(), currentIterator());
     }
 
 } // namespace flui

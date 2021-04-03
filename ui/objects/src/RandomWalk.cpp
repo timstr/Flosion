@@ -25,5 +25,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(RandomWalk, "RandomWalk");
+    REGISTER_SERIALIZABLE(RandomWalk, "RandomWalk");
 
 } // namespace flui

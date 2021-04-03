@@ -25,5 +25,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(Accumulator, "Accumulator");
+    REGISTER_SERIALIZABLE(Accumulator, "Accumulator");
 
 } // namespace flui

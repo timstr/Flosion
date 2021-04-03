@@ -25,5 +25,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(FlipFlop, "FlipFlop");
+    REGISTER_SERIALIZABLE(FlipFlop, "FlipFlop");
 
 } // namespace flui

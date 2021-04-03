@@ -25,5 +25,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(LinearSmoother, "LinearSmoother");
+    REGISTER_SERIALIZABLE(LinearSmoother, "LinearSmoother");
 
 } // namespace flui

@@ -20,7 +20,7 @@ namespace flo {
     // basic sound node type
     class SoundNode : public StateTable, public NodeBase<SoundNode> {
     public:
-        SoundNode();
+        SoundNode(Network*);
         virtual ~SoundNode() = default;
         
         bool canAddDependency(const SoundNode*) const noexcept;
@@ -72,6 +72,8 @@ namespace flo {
 
         virtual double getTimeSpeed(const SoundState* mainState) const noexcept = 0;
         
+        void initLater(std::function<void()>);
+
     private:
         virtual void findDependentSoundResults(std::vector<SoundResult*>& soundResults) noexcept;
 
@@ -87,6 +89,11 @@ namespace flo {
         // and with stateful numbernodes that are borrowing state from this soundnode.
         std::vector<NumberNode*> m_numberNodes;
         Network* m_network;
+
+        std::vector<std::function<void()>> m_initLaterFunctions;
+        bool m_initDone;
+
+        void initNow();
 
         friend class SoundState;
     };

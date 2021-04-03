@@ -21,5 +21,6 @@ namespace flui {
 
     // TODO
     // RegisterFactoryObject(Splicer, "Splicer");
+    // REGISTER_SERIALIZABLE(Splicer, "Splicer");
 
 } // namespace flui

@@ -24,5 +24,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(Variable, "Variable");
+    REGISTER_SERIALIZABLE(Variable, "Variable");
 
 } // namespace flui

@@ -81,7 +81,6 @@ namespace flui {
 
     void Panel::removeWire(NumberWire* w){
         w->m_parentPanel = nullptr;
-        w->destroy();
         assert(std::count(m_numberwires.begin(), m_numberwires.end(), w) == 1);
         auto it = std::find(m_numberwires.begin(), m_numberwires.end(), w);
         assert(it != m_numberwires.end());
@@ -97,16 +96,12 @@ namespace flui {
     }
 
     void Panel::removeWire(SoundWire* w){
-        if (w->getHeadPeg() && w->getTailPeg()){
-            w->destroy();
-        } else {
-            assert(std::count(m_soundwires.begin(), m_soundwires.end(), w) == 1);
-            auto it = std::find(m_soundwires.begin(), m_soundwires.end(), w);
-            assert(it != m_soundwires.end());
-            auto w2 = *it;
-            m_soundwires.erase(it);
-            w2->close();
-        }
+        assert(std::count(m_soundwires.begin(), m_soundwires.end(), w) == 1);
+        auto it = std::find(m_soundwires.begin(), m_soundwires.end(), w);
+        assert(it != m_soundwires.end());
+        auto w2 = *it;
+        m_soundwires.erase(it);
+        w2->close();
     }
 
     std::vector<const Object*> Panel::getObjects() const noexcept {

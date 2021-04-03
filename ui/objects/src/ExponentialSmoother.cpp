@@ -26,5 +26,6 @@ namespace flui {
     }
 
     RegisterFactoryObject(ExponentialSmoother, "ExponentialSmoother");
+    REGISTER_SERIALIZABLE(ExponentialSmoother, "ExponentialSmoother");
 
 } // namespace flui
