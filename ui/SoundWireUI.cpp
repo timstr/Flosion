@@ -1,4 +1,4 @@
-#include "soundwireUI.h"
+#include "SoundWireUI.h"
 
 namespace fui {
 

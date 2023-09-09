@@ -7,7 +7,7 @@ namespace fui {
 
 	struct EnsembleObject : Object {
 		EnsembleObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, ensemble.num_voices, "Number of Voices");
 			add<NumberInput>(self, ensemble.frequency, "Frequency");
 			add<NumberInput>(self, ensemble.frequency_spread, "Frequency Spread");

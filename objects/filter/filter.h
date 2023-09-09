@@ -1,6 +1,6 @@
 #pragma once
 
-#include "soundsource.h"
+#include "SoundSource.h"
 #include "fft.h"
 #include "hannwindow.h"
 #include <algorithm>

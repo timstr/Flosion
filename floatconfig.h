@@ -13,13 +13,17 @@
 
 #elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 
-#include <fenv.h>
-#define DISABLE_DENORMALS   \
-    fenv_t fenv;                \
-        fegetenv(&fenv);        \
-        fesetenv(FE_DFL_DISABLE_SSE_DENORMS_ENV);
+// #include <fenv.h>
+// #define DISABLE_DENORMALS   \
+//     fenv_t fenv;                \
+//         fegetenv(&fenv);        \
+//         fesetenv(FE_DFL_DISABLE_SSE_DENORMS_ENV);
 
-#define RESTORE_DENORMALS   \
-        fesetenv(&fenv);
+// #define RESTORE_DENORMALS   \
+//         fesetenv(&fenv);
+
+// TODO: ??
+#define DISABLE_DENORMALS
+#define RESTORE_DENORMALS
 
 #endif

@@ -11,7 +11,7 @@
 
 #include "constantsUI.h"
 #include "functionsUI.h"
-#include "dacUI.h"
+#include "DACUI.h"
 #include "audioUI.h"
 #include "wavegenUI.h"
 #include "timestretchUI.h"

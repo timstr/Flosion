@@ -7,7 +7,7 @@ namespace fui {
 
 	struct TimeStretchObject : Object {
 		TimeStretchObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, timestretch.speed, "Speed");
 			add<SoundInput>(self, timestretch.input, "Sound Input");
 			add<SoundOutput>(self, timestretch, "Sound Output");

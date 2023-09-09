@@ -12,7 +12,7 @@ namespace fui {
 		WavetableObject(){
 			setSize({200, 100}, true);
 			grabber = add<Grabber>(*this);
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, wavetable.input, "Input");
 			add<NumberOutput>(self, wavetable, "Output");
 			redraw();

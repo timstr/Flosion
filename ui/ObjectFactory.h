@@ -1,6 +1,6 @@
 #pragma once
 
-#include "objectUI.h"
+#include "ObjectUI.h"
 
 #include <cctype>
 #include <map>

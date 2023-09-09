@@ -71,7 +71,7 @@ namespace flo {
 
 		} input;
 
-		static const int max_voices = 32;
+		inline static const int max_voices = 32;
 	};
 
 }

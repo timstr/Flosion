@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SoundSource.h"
-#include <SFML\Audio.hpp>
+#include <SFML/Audio.hpp>
 #include <functional>
 #include <thread>
 

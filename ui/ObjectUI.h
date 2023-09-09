@@ -1,5 +1,6 @@
 #pragma once
 
+#include <GUI/Element.hpp>
 #include <GUI/GUI.hpp>
 #include "Font.h"
 

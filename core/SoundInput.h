@@ -12,7 +12,7 @@ namespace flo {
 		virtual ~SoundInput() noexcept;
 
 		// return the currently connected sound source
-		SoundSource* SoundInput::getSource() const noexcept;
+		SoundSource* getSource() const noexcept;
 
 		// connect a new sound source
 		void setSource(SoundSource* _source) noexcept;

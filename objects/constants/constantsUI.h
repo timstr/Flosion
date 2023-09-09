@@ -12,7 +12,7 @@ namespace fui {
 		ConstantObject(){
 			setMinSize({100, 30});
 			m_caption = add<ui::Text>("", getFont());
-			add<NumberOutput>(thisAs<Object>(), m_constant, "Value");
+			add<NumberOutput>(this->thisAs<Object>(), m_constant, "Value");
 			m_constant.setValue(0.0f);
 			updateCaption();
 		}
@@ -57,7 +57,7 @@ namespace fui {
 			m_slider->setBorderRadius(15);
 			m_slider->getHandle()->setBorderRadius(15);
 
-			add<NumberOutput>(thisAs<Object>(), m_value, "Value");
+			add<NumberOutput>(this->thisAs<Object>(), m_value, "Value");
 		}
 		SliderObject(float minval, float maxval) : SliderObject() {
 			setRange(minval, maxval);

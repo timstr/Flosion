@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.10.0)
 
 set(dac-headers
-	dac.h
-	dacUI.h
+	DAC.h
+	DACUI.h
 )
 
 set(dac-srcs
-	dac.cpp
+	DAC.cpp
 )
 
 add_library(dac ${dac-headers} ${dac-srcs})

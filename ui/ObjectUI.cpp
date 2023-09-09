@@ -1,6 +1,6 @@
-#include "objectUI.h"
-#include "soundwireUI.h"
-#include "numberwireUI.h"
+#include "ObjectUI.h"
+#include "SoundWireUI.h"
+#include "NumberWireUI.h"
 
 namespace fui {
 	Object::Object() {

@@ -1,12 +1,13 @@
 #pragma once
 
-#include "boxUI.h"
-#include "objectUI.h"
+#include "ObjectUI.h"
+#include "BoxUI.h"
+#include <GUI/Element.hpp>
 #include <cassert>
 
 namespace fui {
 
-
+    struct Box;
 
 	template<typename SourceType, typename DestinationType>
 	struct WireInputBase;
@@ -61,7 +62,7 @@ namespace fui {
 
 		void setWireIn(const ui::Ref<WireHeadType>& wirehead) {
 			assert(wirehead);
-			auto self = thisAs<InputType>();
+			auto self = this->thisAs<InputType>();
 			if (auto wh = m_wireheadin.lock()) {
 				m_wireheadin.reset();
 				wh->disconnectFrom(self);
@@ -76,7 +77,7 @@ namespace fui {
 			auto wh = m_wireheadin.lock();
 			assert(wh && wh == wirehead);
 			m_wireheadin.reset();
-			wirehead->disconnectFrom(thisAs<InputType>());
+			wirehead->disconnectFrom(this->thisAs<InputType>());
 		}
 
 	private:
@@ -85,7 +86,7 @@ namespace fui {
 			// if there is a wire connected, disconnect and start dragging the wire's head.
 			// If there's no wire connected, create a new wire whose head is connected and start
 			// dragging its tail.
-			auto self = thisAs<InputType>();
+			auto self = this->thisAs<InputType>();
 			auto parent = m_parentobject.lock();
 			if (!parent){
 				throw std::runtime_error("The WireInput does not have a parent object");
@@ -115,7 +116,7 @@ namespace fui {
 		bool onDrop(const ui::Ref<Element>& element) override {
 			// if the dropped element is WireType's head, connect it
 			if (auto wirehead = std::dynamic_pointer_cast<WireHeadType, Element>(element)){
-				auto self = thisAs<InputType>();
+				auto self = this->thisAs<InputType>();
 				if (auto oldwire = m_wireheadin.lock()){
 					oldwire->disconnectFrom(self);
 				}
@@ -173,12 +174,12 @@ namespace fui {
 			assert(wiretail);
 			removeWireOut(wiretail);
 			m_wiretailsout.push_back(wiretail);
-			wiretail->connectTo(thisAs<OutputType>());
+			wiretail->connectTo(this->thisAs<OutputType>());
 		}
 
 		void removeWireOut(const ui::Ref<WireTailType>& wiretail) {
 			assert(wiretail);
-			auto self = thisAs<OutputType>();
+			auto self = this->thisAs<OutputType>();
 			for (auto it = m_wiretailsout.begin(); it != m_wiretailsout.end();) {
 				if (auto wt = it->lock(); wt && wt == wiretail) {
 					it = m_wiretailsout.erase(it);
@@ -195,7 +196,7 @@ namespace fui {
 			// if there is a wire connected, disconnect and start dragging the wire's tail.
 			// If there's no wire connected, create a new wire whose tail is connected and start
 			// dragging its head.
-			auto self = thisAs<OutputType>();
+			auto self = this->thisAs<OutputType>();
 			auto parent = m_parentobject.lock();
 			if (!parent){
 				throw std::runtime_error("The WireInput does not have a parent object");
@@ -227,7 +228,7 @@ namespace fui {
 		bool onDrop(const ui::Ref<Element>& element) override {
 			// if the dropped element is WireType's tail, connect it
 			if (auto wiretail = std::dynamic_pointer_cast<WireTailType, Element>(element)){
-				auto self = thisAs<OutputType>();
+				auto self = this->thisAs<OutputType>();
 				wiretail->connectTo(self);
 				m_wiretailsout.push_back(wiretail);
 				return true;
@@ -292,6 +293,9 @@ namespace fui {
 	template<typename SourceType, typename DestinationType>
 	struct WireHead : EndPointBase<SourceType, DestinationType> {
 
+        using WireType = typename EndPointBase<SourceType, DestinationType>::WireType;
+        using InputType = typename EndPointBase<SourceType, DestinationType>::InputType;
+
 		WireHead(ui::WeakRef<WireType> parent_wire) :
 			EndPointBase<SourceType, DestinationType>(parent_wire) {
 
@@ -304,8 +308,8 @@ namespace fui {
 				return;
 			}
 			m_target = input;
-			input->setWireIn(thisAs<WireHead>());
-			auto parentwire = wire();
+			input->setWireIn(this->template thisAs<WireHead>());
+			auto parentwire = this->wire();
 			assert(parentwire);
 			auto output = parentwire->tail()->target();
 			if (output){
@@ -320,8 +324,8 @@ namespace fui {
 				return;
 			}
 			m_target.reset();
-			input->removeWireIn(thisAs<WireHead>());
-			auto parentwire = wire();
+			input->removeWireIn(this->template thisAs<WireHead>());
+			auto parentwire = this->wire();
 			assert(parentwire);
 			auto output = parentwire->tail()->target();
 			if (output){
@@ -331,15 +335,15 @@ namespace fui {
 
 		bool onLeftClick(int clicks) override {
 			if (auto t = m_target.lock()){
-				disconnectFrom(t);
+				this->disconnectFrom(t);
 			}
-			startDrag();
+			this->startDrag();
 			return true;
 		}
 
 		void onLeftRelease() override {
-			stopDrag();
-			drop(localMousePos());
+			this->stopDrag();
+			this->drop(this->localMousePos());
 		}
 
 		ui::Ref<InputType> target() const {
@@ -355,6 +359,9 @@ namespace fui {
 	// plugged into a provided OutputType element
 	template<typename SourceType, typename DestinationType>
 	struct WireTail : EndPointBase<SourceType, DestinationType> {
+        using WireType = typename EndPointBase<SourceType, DestinationType>::WireType;
+        using OutputType = typename EndPointBase<SourceType, DestinationType>::OutputType;
+
 		WireTail(ui::WeakRef<WireType> parent_wire) :
 			EndPointBase<SourceType, DestinationType>(parent_wire) {
 
@@ -368,8 +375,8 @@ namespace fui {
 				return;
 			}
 			m_target = output;
-			output->addWireOut(thisAs<WireTail>());
-			auto parentwire = wire();
+			output->addWireOut(this->template thisAs<WireTail>());
+			auto parentwire = this->wire();
 			assert(parentwire);
 			auto input = parentwire->head()->target();
 			if (input){
@@ -385,8 +392,8 @@ namespace fui {
 				return;
 			}
 			m_target.reset();
-			output->removeWireOut(thisAs<WireTail>());
-			auto parentwire = wire();
+			output->removeWireOut(this->template thisAs<WireTail>());
+			auto parentwire = this->wire();
 			assert(parentwire);
 			auto input = parentwire->head()->target();
 			if (input){
@@ -396,15 +403,15 @@ namespace fui {
 
 		bool onLeftClick(int clicks) override {
 			if (auto t = m_target.lock()){
-				disconnectFrom(t);
+				this->disconnectFrom(t);
 			}
-			startDrag();
+			this->startDrag();
 			return true;
 		}
 
 		void onLeftRelease() override {
-			stopDrag();
-			drop(localMousePos());
+			this->stopDrag();
+			this->drop(this->localMousePos());
 		}
 
 		ui::Ref<OutputType> target() const {
@@ -431,7 +438,7 @@ namespace fui {
 		WireBase(ui::WeakRef<Box> parentbox) :
 			m_parentbox(parentbox) {
 
-			auto self = thisAs<WireType>();
+			auto self = this->thisAs<WireType>();
 			m_wirehead = add<WireHeadType>(self);
 			m_wiretail = add<WireTailType>(self);
 

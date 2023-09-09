@@ -8,7 +8,7 @@ namespace fui {
 
 	struct PhaseVocoderObject : Object {
 		PhaseVocoderObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<SoundInput>(self, phasevocoder.input, "Sound Input");
 			add<SoundOutput>(self, phasevocoder, "Sound Output");
 			add<NumberInput>(self, phasevocoder.timespeed, "Time Speed");

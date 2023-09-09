@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GUI/GUI.hpp>
-#include "objectUI.h"
+#include "ObjectUI.h"
 #include "WireBase.h"
 #include "SoundSource.h"
 #include "SoundInput.h"
@@ -13,7 +13,7 @@ namespace fui {
 			WireInputBase(parent_object, target),
 				m_label(label) {
 
-			parent_object->addSoundInput(thisAs<SoundInput>());
+			parent_object->addSoundInput(this->thisAs<SoundInput>());
 
 			setMinSize({30, 30});
 			setBorderColor(sf::Color(0xFF));
@@ -44,7 +44,7 @@ namespace fui {
 			WireOutputBase(parent_object, target),
 			m_label(label) {
 
-			parent_object->addSoundOutput(thisAs<SoundOutput>());
+			parent_object->addSoundOutput(this->thisAs<SoundOutput>());
 
 			setMinSize({30, 30});
 			setBorderColor(sf::Color(0xFF));
@@ -74,7 +74,7 @@ namespace fui {
 		SoundWire(ui::Ref<Box> parent_box) : 
 			WireBase(parent_box) {
 			
-			parent_box->addSoundWire(thisAs<SoundWire>());
+			parent_box->addSoundWire(this->thisAs<SoundWire>());
 		}
 		~SoundWire(){
 			if (auto pb = parentBox()) {

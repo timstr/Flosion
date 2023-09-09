@@ -1,5 +1,3 @@
-#pragma once
-
 #include "NumberSource.h"
 
 namespace flo {

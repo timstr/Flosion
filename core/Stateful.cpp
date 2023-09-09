@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Stateful.h"
 #include <algorithm>
 

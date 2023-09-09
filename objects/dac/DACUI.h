@@ -1,5 +1,5 @@
 #pragma once
-#include <GUI/helpers/ToggleButton.hpp>
+#include <GUI/Helpers/ToggleButton.hpp>
 #include "ObjectFactory.h"
 #include "DAC.h"
 
@@ -9,7 +9,7 @@ namespace fui {
 		DACObject(){
 			setMinSize({150, 150});
 			write("DAC", getFont());
-			add<SoundInput>(thisAs<Object>(), dac.input.input, "Sound Input");
+			add<SoundInput>(this->thisAs<Object>(), dac.input.input, "Sound Input");
 			add<ui::ToggleButton>(false, getFont(), [this](bool val){
 				if (val){
 					dac.play();

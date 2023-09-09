@@ -7,7 +7,7 @@ namespace fui {
 
 	struct WaveGenObject : Object {
 		WaveGenObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, wavegen.frequency, "Frequency");
 			add<NumberInput>(self, wavegen.wavefunction, "Wave Function");
 			add<NumberOutput>(self, wavegen.phase, "Phase");

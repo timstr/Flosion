@@ -7,7 +7,7 @@ namespace fui {
 
 	struct FilterObject : Object {
 		FilterObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<SoundInput>(self, filter.input, "Sound Input");
 			add<SoundOutput>(self, filter, "SoundOutput");
 

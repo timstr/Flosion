@@ -8,7 +8,7 @@ namespace fui {
 	struct AudioObject : Object {
 		AudioObject(){
 			write("Audio Clip", getFont());
-			add<SoundOutput>(thisAs<Object>(), audio, "Sound Output");
+			add<SoundOutput>(this->thisAs<Object>(), audio, "Sound Output");
 
 			add<ui::CallbackButton>("load", getFont(), [this](){
 				std::string filename = openFileDialog(L"audio files\0*.ogg;*.wav;*.flac;*.aiff\0\0");

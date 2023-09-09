@@ -1,5 +1,4 @@
 #include "NumberInput.h"
-#pragma once
 
 #include "NumberInput.h"
 #include "NumberSource.h"

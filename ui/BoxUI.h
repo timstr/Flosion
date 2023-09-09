@@ -1,11 +1,14 @@
 #pragma once
 
 #include <GUI/GUI.hpp>
-#include "objectUI.h"
+#include "ObjectUI.h"
 #include "ObjectFactory.h"
 
 namespace fui {
 	
+    struct SoundWire;
+    struct NumberWire;
+
 	// Box is what holds all objects
 	struct Box : ui::FreeElement {
 		Box();

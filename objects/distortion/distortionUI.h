@@ -7,7 +7,7 @@ namespace fui {
 
 	struct DistortionObject : Object {
 		DistortionObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, distortion.gain, "Gain");
 			add<NumberInput>(self, distortion.hardness, "Hardness");
 			add<SoundInput>(self, distortion.input, "Sound Input");

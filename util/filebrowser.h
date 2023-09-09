@@ -1,10 +1,13 @@
 #pragma once
 
+#include <string>
+
+#if defined(_WIN32) || defined(_WIN64)
+
 #define UNICODE
 
 #include <windows.h>
 #include <Commdlg.h>
-#include <string>
 
 // TODO: this can be done way better
 // TODO: find a portable alternative, possibly https://github.com/mlabbe/nativefiledialog
@@ -89,3 +92,25 @@ std::string saveFileDialog(const wchar_t* filter, const wchar_t* default_ext = n
 		return "";
 	}
 }
+
+#elif defined(__unix__)
+
+std::string openFileDialog(const wchar_t* filter, const wchar_t* default_ext = nullptr){
+    char filename[1024];
+    FILE* f = popen("zenity --file-selection", "r");
+    fgets(filename, 1024, f);
+    std::string s = filename;
+    if (s.size() > 0 && s.back() == '\n') {
+        s.pop_back();
+    }
+    return s;
+}
+
+std::string saveFileDialog(const wchar_t* filter, const wchar_t* default_ext = nullptr){
+    return ""; // TODO
+}
+
+
+#else
+#error "Not supported :( Write your own file dialogs"
+#endif

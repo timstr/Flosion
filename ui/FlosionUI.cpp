@@ -1,5 +1,7 @@
-#include "flosionUI.h"
+#include "FlosionUI.h"
 #include "ObjectFactory.h"
+
+#include <cmath>
 
 namespace fui {
 
@@ -41,8 +43,8 @@ namespace fui {
 				mouse_timestamp = now;
 			} else if (now >= mouse_timestamp + threshold_wait){
 				delta *= 0.1f;
-				delta.x = roundf(delta.x);
-				delta.y = roundf(delta.y);
+				delta.x = std::roundf(delta.x);
+				delta.y = std::roundf(delta.y);
 				box->setPos(box->pos() + delta);
 			}
 		} else {

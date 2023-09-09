@@ -1,23 +1,23 @@
 cmake_minimum_required(VERSION 3.10.0)
 
 set(flosion-ui-headers
-	boxUI.h
+	BoxUI.h
 	FlosionUI.h
 	Font.h
-	numberwireUI.h
-	objectUI.h
+	NumberWireUI.h
+	ObjectUI.h
 	ObjectFactory.h
-	soundwireUI.h
+	SoundWireUI.h
 	WireBase.h
 )
 
 set(flosion-ui-srcs
-	boxUI.cpp
+	BoxUI.cpp
 	FlosionUI.cpp
 	Font.cpp
-	numberwireUI.cpp
-	objectUI.cpp
-	soundwireUI.cpp
+	NumberWireUI.cpp
+	ObjectUI.cpp
+	SoundWireUI.cpp
 	WireBase.cpp
 )
 

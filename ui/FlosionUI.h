@@ -1,9 +1,9 @@
 #pragma once
 
-#include "objectUI.h"
-#include "boxUI.h"
-#include "numberwireUI.h"
-#include "soundwireUI.h"
+#include "ObjectUI.h"
+#include "BoxUI.h"
+#include "NumberWireUI.h"
+#include "SoundWireUI.h"
 
 namespace fui {
 

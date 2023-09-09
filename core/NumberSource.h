@@ -2,6 +2,7 @@
 
 #include "Stateful.h"
 #include "NumberInput.h"
+#include <algorithm>
 #include <vector>
 
 namespace flo {

@@ -8,7 +8,7 @@ namespace fui {
 	// add
 	struct AddObject : Object {
 		AddObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_add.input1, "Input A");
 			add<NumberInput>(self, m_add.input2, "Input B");
 			add<NumberOutput>(self, m_add, "Output");
@@ -23,7 +23,7 @@ namespace fui {
 	// subtract
 	struct SubtractObject : Object {
 		SubtractObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_subtract.input1, "Input A");
 			add<NumberInput>(self, m_subtract.input2, "Input B");
 			add<NumberOutput>(self, m_subtract, "Output");
@@ -38,7 +38,7 @@ namespace fui {
 	// multiply
 	struct MultiplyObject : Object {
 		MultiplyObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_multiply.input1, "Input A");
 			add<NumberInput>(self, m_multiply.input2, "Input B");
 			add<NumberOutput>(self, m_multiply, "Output");
@@ -53,7 +53,7 @@ namespace fui {
 	// divide
 	struct DivideObject : Object {
 		DivideObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_divide.numerator, "Numerator");
 			add<NumberInput>(self, m_divide.denominator, "Denominator");
 			add<NumberOutput>(self, m_divide, "Output");
@@ -68,7 +68,7 @@ namespace fui {
 	// unit sine
 	struct UnitSineObject : Object {
 		UnitSineObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_usine.input, "Input");
 			add<NumberOutput>(self, m_usine, "Output");
 			add<ui::Text>("usin", getFont());
@@ -82,7 +82,7 @@ namespace fui {
 	// saw wave
 	struct SawWaveObject : Object {
 		SawWaveObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_saw.input, "Input");
 			add<NumberOutput>(self, m_saw, "Output");
 			add<ui::Text>("saw wave", getFont());
@@ -96,7 +96,7 @@ namespace fui {
 	// square wave
 	struct SquareWaveObject : Object {
 		SquareWaveObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_square.input, "Input");
 			add<NumberOutput>(self, m_square, "Output");
 			add<ui::Text>("square wave", getFont());
@@ -110,7 +110,7 @@ namespace fui {
 	// decibels to volume
 	struct DecibelsToVolumeObject : Object {
 		DecibelsToVolumeObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_dbtov.input, "Input (dB)");
 			add<NumberOutput>(self, m_dbtov, "Output (Volume)");
 			add<ui::Text>("dB to Volume", getFont());
@@ -124,7 +124,7 @@ namespace fui {
 	// volume to decibels
 	struct VolumeToDecibelsObject : Object {
 		VolumeToDecibelsObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_vtodb.input, "Input (Volume)");
 			add<NumberOutput>(self, m_vtodb, "Output (Decibels)");
 			add<ui::Text>("Volume to dB", getFont());
@@ -138,7 +138,7 @@ namespace fui {
 	// gaussian bell curve
 	struct GaussianObject : Object {
 		GaussianObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_gaussian.height, "Height");
 			add<NumberInput>(self, m_gaussian.width, "Width");
 			add<NumberInput>(self, m_gaussian.center, "Center");
@@ -155,7 +155,7 @@ namespace fui {
 	// natural log
 	struct NaturalLogObject : Object {
 		NaturalLogObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_nlog.input, "Input");
 			add<NumberOutput>(self, m_nlog, "Output");
 			add<ui::Text>("ln", getFont());
@@ -169,7 +169,7 @@ namespace fui {
 	// exponential
 	struct ExponentialObject : Object {
 		ExponentialObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_exponential.input, "Input");
 			add<NumberOutput>(self, m_exponential, "Output");
 			add<ui::Text>("exp", getFont());
@@ -183,7 +183,7 @@ namespace fui {
 	// minimum
 	struct MinimumObject : Object {
 		MinimumObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_minimum.input1, "Input A");
 			add<NumberInput>(self, m_minimum.input2, "Input B");
 			add<NumberOutput>(self, m_minimum, "Output");
@@ -198,7 +198,7 @@ namespace fui {
 	// maximum
 	struct MaximumObject : Object {
 		MaximumObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_maximum.input1, "Input A");
 			add<NumberInput>(self, m_maximum.input2, "Input B");
 			add<NumberOutput>(self, m_maximum, "Output");
@@ -213,7 +213,7 @@ namespace fui {
 	// clamp
 	struct ClampObject : Object {
 		ClampObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_clamp.minimum, "Minimum");
 			add<NumberInput>(self, m_clamp.maximum, "Maximum");
 			add<NumberInput>(self, m_clamp.input, "Input");
@@ -229,7 +229,7 @@ namespace fui {
 	// phase
 	struct ArctangentObject : Object {
 		ArctangentObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_atan.x, "X");
 			add<NumberInput>(self, m_atan.y, "Y");
 			add<NumberOutput>(self, m_atan, "Output");
@@ -244,7 +244,7 @@ namespace fui {
 	// abs
 	struct AbsoluteValueObject : Object {
 		AbsoluteValueObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_abs.input, "Input");
 			add<NumberOutput>(self, m_abs, "Output");
 			add<ui::Text>("abs", getFont());
@@ -258,7 +258,7 @@ namespace fui {
 	// hypotenuse
 	struct HypotenuseObject : Object {
 		HypotenuseObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_hypot.x, "X");
 			add<NumberInput>(self, m_hypot.y, "Y");
 			add<NumberOutput>(self, m_hypot, "Output");
@@ -273,7 +273,7 @@ namespace fui {
 	// sine
 	struct SineObject : Object {
 		SineObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_sine.input, "Input");
 			add<NumberOutput>(self, m_sine, "Output");
 			add<ui::Text>("sin", getFont());
@@ -287,7 +287,7 @@ namespace fui {
 	// cosine
 	struct CosineObject : Object {
 		CosineObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_cosine.input, "Input");
 			add<NumberOutput>(self, m_cosine, "Output");
 			add<ui::Text>("cos", getFont());
@@ -301,7 +301,7 @@ namespace fui {
 	//tangent
 	struct TangentObject : Object {
 		TangentObject(){
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_tangent.input, "Input");
 			add<NumberOutput>(self, m_tangent, "Output");
 			add<ui::Text>("tan", getFont());
@@ -314,7 +314,7 @@ namespace fui {
 
 	struct DisplayObject : Object {
 		DisplayObject() : m_input(nullptr) {
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, m_input, "Input");
 			m_text = add<ui::Text>("usin", getFont());
 		}

@@ -74,7 +74,7 @@ namespace flo {
 			MultiInputType& multi_input;
 			const State* parent_state;
 
-			template <class InputStateType, class KeyType, class SoundSourceType>
+			template <class I, class K, class S>
 			friend struct MultiInput;
 		};
 

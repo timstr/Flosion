@@ -8,7 +8,7 @@ namespace fui {
 	struct SplineObject : Object {
 		SplineObject(){
 			setSize({200, 100}, true);
-			auto self = thisAs<Object>();
+			auto self = this->thisAs<Object>();
 			add<NumberInput>(self, spline.input, "Input");
 			add<NumberOutput>(self, spline, "Output");
 		}

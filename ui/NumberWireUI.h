@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GUI/GUI.hpp>
-#include "objectUI.h"
+#include "ObjectUI.h"
 #include "WireBase.h"
 #include "NumberInput.h"
 
@@ -12,7 +12,7 @@ namespace fui {
 			WireInputBase(parent_object, target),
 			m_label(label) {
 
-			parent_object->addNumberInput(thisAs<NumberInput>());
+			parent_object->addNumberInput(this->thisAs<NumberInput>());
 
 			setMinSize({30, 30});
 			setBorderColor(sf::Color(0xFF));
@@ -43,7 +43,7 @@ namespace fui {
 			WireOutputBase(parent_object, _target),
 			m_label(label) {
 
-			parent_object->addNumberOutput(thisAs<NumberOutput>());
+			parent_object->addNumberOutput(this->thisAs<NumberOutput>());
 
 			setMinSize({30, 30});
 			setBorderColor(sf::Color(0xFF));
@@ -72,7 +72,7 @@ namespace fui {
 	struct NumberWire : WireBase<flo::NumberSource, flo::NumberInput> {
 		NumberWire(ui::Ref<Box> parent_box) :
 			WireBase(parent_box) {
-			parent_box->addNumberWire(thisAs<NumberWire>());
+			parent_box->addNumberWire(this->thisAs<NumberWire>());
 		}
 		~NumberWire() {
 			if (auto pb = parentBox()) {

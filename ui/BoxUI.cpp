@@ -1,9 +1,9 @@
-#include "boxUI.h"
+#include "BoxUI.h"
 #include "Font.h"
 #include "ObjectFactory.h"
 #include <GUI/Helpers.hpp>
-#include <numberwireUI.h>
-#include <soundwireUI.h>
+#include <NumberWireUI.h>
+#include <SoundWireUI.h>
 
 namespace fui {
 
@@ -220,7 +220,7 @@ namespace fui {
 
 	void Box::addObject(ui::Ref<Object> object) {
 		m_objects.push_back(object);
-		object->m_parentbox = thisAs<Box>();
+		object->m_parentbox = this->thisAs<Box>();
 		m_object_container->adopt(object);
 	}
 

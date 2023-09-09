@@ -4,7 +4,7 @@ set(flosiontest-headers
 	SoundSourceTest.h
 )
 
-add_executable(flosiontest EXCLUDE_FROM_ALL flosiontest.cpp ${flosiontest-headers})
+add_executable(flosiontest EXCLUDE_FROM_ALL FlosionTest.cpp ${flosiontest-headers})
 
 set(gtest-headers
 	gtest/internal/gtest-internal.h
